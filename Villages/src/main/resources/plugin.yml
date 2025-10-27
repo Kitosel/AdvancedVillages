@@ -1,0 +1,10 @@
+main: pl.kiosel.villages.Wioski
+version: '${project.version}'
+name: Wioski
+authors: [ Kiosel ]
+api-version: 1.13
+description: Rewrite for plugin Wioski
+website: kiosel.pl
+
+depend: [ Vault ]
+loadbefore: [ PlaceholderAPI ]

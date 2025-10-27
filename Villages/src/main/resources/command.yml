@@ -1,0 +1,24 @@
+command:
+  name: village
+  aliases:
+    - wioski
+    - vil
+  permission: villages.command
+
+command-language:
+  admin: admin
+  admin_reload: reload
+  admin_give: give
+  admin_give_villageblock: village
+  admin_give_destroyer: destroyer
+  admin_upgrade: upgrade
+  admin_delete: delete
+
+  chat: chat
+  invite: invite
+  leave: leave
+  request: request
+  request_accept: confirm
+  request_deny: deny
+  teleport: tp
+  help: help

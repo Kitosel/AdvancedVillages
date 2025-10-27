@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="v1_13_R1" />
+        <module name="Wioski" />
+        <module name="NMS-v1_18_R2 (1)" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="Agregator" target="18" />
+      <module name="API" target="18" />
+      <module name="GUIAPI" target="1.8" />
+      <module name="Interfaces" target="18" />
+      <module name="JScoreboards" target="1.8" />
+      <module name="jscoreboards-1_13" target="1.8" />
+      <module name="jscoreboards-1_14-1_18" target="1.8" />
+      <module name="jscoreboards-1_8-1_12" target="1.8" />
+      <module name="jscoreboards-abstraction" target="1.8" />
+      <module name="JScoreboards-parent" target="1.5" />
+      <module name="MCGUIAPI" target="1.8" />
+      <module name="NMS" target="18" />
+      <module name="NMS-parent" target="18" />
+      <module name="NMS-v1_13_R1" target="18" />
+      <module name="NMS-v1_13_R2" target="18" />
+      <module name="NMS-v1_14_R1" target="18" />
+      <module name="NMS-v1_15_R1" target="18" />
+      <module name="NMS-v1_16_R1" target="18" />
+      <module name="NMS-v1_16_R2" target="18" />
+      <module name="NMS-v1_16_R3" target="18" />
+      <module name="NMS-v1_17_R1" target="18" />
+      <module name="NMS-v1_18_R1" target="18" />
+      <module name="NMS-v1_18_R1 (1)" target="18" />
+      <module name="NMS-v1_18_R2" target="18" />
+      <module name="NMS-v1_18_R2 (1)" target="18" />
+      <module name="NMS-v1_19_R1" target="18" />
+      <module name="OwnPlots" target="16" />
+      <module name="Plots" target="14" />
+      <module name="Plots (1) (pl.kiosel)" target="16" />
+      <module name="Plots (2) (pl.kiosel.plots)" target="14" />
+      <module name="ScoreboardAPI" target="18" />
+      <module name="team-support-1_12" target="1.8" />
+      <module name="v1_13_R1" target="18" />
+      <module name="Wioski (1)" target="18" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

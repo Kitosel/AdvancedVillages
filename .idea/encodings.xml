@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$USER_HOME$/OneDrive/Pulpit/src/main/java" charset="UTF-8" />
+    <file url="file://$USER_HOME$/OneDrive/Pulpit/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/API/GUIApi/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/API/GUIApi/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/API/JScoreboards/1_13/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/API/JScoreboards/1_13/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/API/JScoreboards/1_14-1_18/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/API/JScoreboards/1_14-1_18/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/API/JScoreboards/1_8-1_12/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/API/JScoreboards/1_8-1_12/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/API/JScoreboards/abstraction/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/API/JScoreboards/abstraction/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/API/JScoreboards/api/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/API/JScoreboards/api/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/API/JScoreboards/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/API/JScoreboards/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/API/JScoreboards/team-support-1_12/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/API/JScoreboards/team-support-1_12/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/API/ScoreboardAPI/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/API/ScoreboardAPI/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/API/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/API/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/NMS/Agregator/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/NMS/Agregator/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/NMS/Interfaces/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/NMS/Interfaces/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/NMS/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/NMS/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/NMS/v1_13_R1/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/NMS/v1_13_R1/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/NMS/v1_13_R2/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/NMS/v1_13_R2/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/NMS/v1_14_R1/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/NMS/v1_14_R1/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/NMS/v1_14_R2/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/NMS/v1_14_R2/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/NMS/v1_15_R1/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/NMS/v1_15_R1/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/NMS/v1_16_R1/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/NMS/v1_16_R1/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/NMS/v1_16_R2/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/NMS/v1_16_R2/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/NMS/v1_16_R3/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/NMS/v1_16_R3/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/NMS/v1_17_R1/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/NMS/v1_17_R1/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/NMS/v1_18_R1/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/NMS/v1_18_R1/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/NMS/v1_18_R2/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/NMS/v1_18_R2/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/NMS/v1_19_R1/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/NMS/v1_19_R1/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Remade/OwnPlots/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Remade/OwnPlots/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Remade/Plots/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Remade/Plots/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Remade/Villages-OrginalRemade/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Remade/Villages-OrginalRemade/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Villages/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Villages/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+  </component>
+</project>

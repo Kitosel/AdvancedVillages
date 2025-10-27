@@ -1,0 +1,183 @@
+gui-village: "Village"
+gui-bank: "Village - &6&lBank"
+gui-store: "Village - &aStore"
+gui-resident: "Village - &eMembers"
+gui-remove: "Village - &c&lRemove"
+gui-upgrade: "Village - &bUpgrade"
+gui-settings: "Village - &cSettings"
+gui-effects: "Village - &dEffects"
+gui-storage: "Village - &2Storage"
+gui-member-settings: "Village - &7Member Settings"
+gui-remove-member: "&cRemove member"
+
+blank: "&7&kBlank"
+exit: "&7Exit"
+back: "&cBack"
+yes: "&aYes"
+no: "&cNo"
+next: "&aNext page"
+previous: "&cPrevious page"
+
+delete-village: "&7Do you want to delete village?"
+no-tag: "&cNONE"
+
+on: "&aON"
+off: "&cOFF"
+
+guis:
+  village:
+    #
+    # SETTINGS
+    #
+    settings:
+      name: "&lSettings"
+      lore:
+        - "&7Manage Village"
+      teleport:
+        name: "&b&lTeleport"
+        lore:
+          - "&8——————————"
+          - " "
+          - "%village_teleport%"
+          - " "
+          - "&7Click to set"
+          - "&8——————————"
+      tag:
+        name: "&c&lTag"
+        lore:
+          - "&8——————————"
+          - " "
+          - "&e&lTag: &c%village_tag%"
+          - " "
+          - "%istagset%"
+          - "&8——————————"
+        # %istagset% >>>
+        tag_set: "&7Set"
+        tag_not_set: "&7Click to set"
+        # %istagset% ^^^
+      pvp:
+        name: "&f&lPVP"
+        lore:
+          - "&8——————————"
+          - " "
+          - "&7Pvp: %village_pvp%"
+          - " "
+          - "&8——————————"
+      tnt:
+        name: "&c&lTNT"
+        lore:
+          - "&8——————————"
+          - " "
+          - "&7TNT: %village_tnt%"
+          - " "
+          - "&8——————————"
+      delete:
+        name: "&c&l&nDelete village"
+        lore:
+          - "&8——————————"
+          - " "
+          - "&7Click to delete"
+          - " "
+          - "&8——————————"
+    #
+    # STORE
+    #
+    store:
+      name: "&3Store"
+      lore:
+        - "&7Village store"
+    #
+    # STORAGE
+    #
+    storage:
+      name: "&3Storage"
+      lore:
+        - "&7Village storage"
+    #
+    # MEMBERS
+    #
+    members:
+      name: "&cMembers"
+      lore:
+        - "&7Manage members"
+      owner:
+        name: "&6%PLAYER% &cOWNER"
+        lore:
+          - "&7Role: &cOwner"
+          - " "
+          - "&7Last online: %PLAYER_LAST_ONLINE%"
+          - " "
+      resident:
+        name: "%PLAYER%"
+        lore:
+          - "&7Role: &cMember"
+          - " "
+          - "&7Last online: %PLAYER_LAST_ONLINE%"
+          - " "
+    #
+    # EFFECTS
+    #
+    effects:
+      name: "&dEffects"
+      lore:
+        - "&7Add effects for"
+        - "&7Members of village"
+      regeneration:
+        name: "&cRegeneration"
+        lore:
+          - "&7Gives &cRegeneration &7effect"
+          - "&7Amplifier: &6%amplifier%"
+      speed:
+        name: "&bSpeed"
+        lore:
+          - "&7Gives &bSpeed &7effect"
+          - "&7Amplifier: &6%amplifier%"
+      jump:
+        name: "&aJump boost"
+        lore:
+          - "&7Gives &aJump boost &7effect"
+          - "&7Amplifier: &6%amplifier%"
+      haste:
+        name: "&eHaste"
+        lore:
+          - "&7Gives &eHaste &7effect"
+          - "&7Amplifier: &6%amplifier%"
+      price_paper:
+        name: "&eClick to buy"
+        lore:
+          - "&7Gives &e%effect% &7effect"
+          - "&7Price: &6%price%"
+    #
+    # UPGRADE
+    #
+    upgrade:
+      name: "&bUpgrade"
+      lore:
+        - "&7Upgrade village"
+      upgrade-button:
+        name: "&aUpgrade village"
+        lore:
+          - "&7Actual level: &e%village_level%"
+          - "&7Cost: &a%village_cost%"
+          - "&cClick to &6Upgrade"
+      info:
+        name: "&cTo upgrade:"
+        name-upgraded: "&bUpgraded"
+        lore:
+          - "&7Level &c%village_level% &f-> &e%village_next_level%"
+          - "&7Ochrona: &c15x15 &7-> &e25x25"
+          - "&7Magazyn &c1 &f-> &e2 &7linie"
+          - "&eCost: &a%village_cost%"
+    #
+    # BANK
+    #
+    bank:
+      name: "&6Bank"
+      lore:
+        - "&7Village bank"
+      account_balance:
+        name: "&6Bank&7: %village_balance%"
+      add:
+        name: "&aAdd to bank"
+      remove:
+        name: "&cRemove from bank"
