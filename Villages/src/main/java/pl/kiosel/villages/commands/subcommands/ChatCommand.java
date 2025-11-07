@@ -2,14 +2,12 @@ package pl.kiosel.villages.commands.subcommands;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import pl.kiosel.villages.Wioski;
-import pl.kiosel.common.command.SubCommand;
-import pl.kiosel.villages.config.Config;
+import pl.kiosel.core.commands.SubCommand;
+import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.enums.CommandLang;
 import pl.kiosel.villages.enums.Lang;
-import pl.kiosel.villages.village.Village;
-import pl.kiosel.villages.village.VillageManager;
-import pl.kiosel.villages.village.VillageMember;
+import pl.kiosel.villages.data.village.Village;
+import pl.kiosel.villages.manager.VillageManager;
 
 import java.util.UUID;
 
@@ -27,19 +25,27 @@ public class ChatCommand extends SubCommand {
 	@Override
 	public String getPermission() { return "villages.command.chat"; }
 
+	private final AdvancedVillages plugin;
+
+	public ChatCommand(AdvancedVillages plugin) {
+		this.plugin = plugin;
+	}
+
 	@Override
-	public void run(Player sender, Wioski plugin, String[] args) {
+	public void run(Player sender, String[] args) {
 		if (args.length < 2) {
 			sender.sendMessage("/" + plugin.getCommandLang().getCommandName() + " " + plugin.getCommandLang().getCommand(CommandLang.CHAT) + " *message*");
 			return;
 		}
 		Village village = VillageManager.getVillageByOfflineOwner(sender.getName());
 		if (village == null) {
-			sender.sendMessage(plugin.getLang().getMessage(Lang.VILLAGE_NO));
+			plugin.getLocale().getMessage(Lang.VILLAGE_NO.getPath()).sendPrefixedMessage(sender);
 			return;
 		}
 		String message = String.join(" ", args).substring(args[0].length()).trim();
-		String formatted = Config.village_chat_format.replace("%player_name%", sender.getName()).replace("%message%", message);
+		String formatted = plugin.getLocale().getMessage(Lang.VILLAGE_CHAT_FORMAT.getPath()).
+				processPlaceholder("player", sender.getName()).
+				processPlaceholder("message", message).toString();
 
 		for (UUID uuid : village.getMembers()) {
 			Player target = Bukkit.getPlayer(uuid);

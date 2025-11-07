@@ -1,0 +1,36 @@
+Level-1:
+  #DEFAULT VILLAGE
+  Cost-item:
+    - "IRON_INGOT:32"
+    - "DIAMOND:4"
+  Cost-xp: 5
+  Cost-eco: 1000
+  Size: 25
+Level-2:
+  Cost-item:
+    - "IRON_INGOT:64"
+    - "DIAMOND:8"
+  Cost-xp: 25
+  Cost-eco: 2000
+  Size: 50
+Level-3:
+  Cost-item:
+    - "IRON_BLOCK:16"
+    - "DIAMOND:16"
+  Cost-xp: 30
+  Cost-eco: 2500
+  Size: 75
+Level-4:
+  Cost-item:
+    - "IRON_BLOCK:24"
+    - "DIAMOND:32"
+  Cost-xp: 35
+  Cost-eco: 3000
+  Size: 100
+Level-5:
+  Cost-item:
+    - "IRON_BLOCK:32"
+    - "DIAMOND:64"
+  Cost-xp: 40
+  Cost-eco: 4000
+  Size: 125

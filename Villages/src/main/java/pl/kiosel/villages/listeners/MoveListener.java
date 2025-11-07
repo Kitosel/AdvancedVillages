@@ -6,15 +6,15 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.scheduler.BukkitRunnable;
-import pl.kiosel.villages.Wioski;
-import pl.kiosel.villages.config.Config;
+import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.enums.Lang;
+import pl.kiosel.villages.settings.Settings;
 
 public class MoveListener implements Listener {
 
-	private final Wioski plugin;
+	private final AdvancedVillages plugin;
 
-	public MoveListener(Wioski plugin) {
+	public MoveListener(AdvancedVillages plugin) {
 		this.plugin = plugin;
 	}
 
@@ -23,7 +23,7 @@ public class MoveListener implements Listener {
 		Player player = event.getPlayer();
 
 		if (plugin.getTeleportManager().getTeleportingPlayers().contains(player)) {
-			if (!Config.cancel_on_move) return;
+			if (!Settings.TELEPORT_CANCEL_ON_MOVE.getBoolean()) return;
 
 			Location from = event.getFrom();
 			Location to = event.getTo();
@@ -45,7 +45,7 @@ public class MoveListener implements Listener {
 				plugin.getTeleportManager().getTeleportTasks().remove(player);
 				plugin.getTeleportManager().getCooldown().remove(player.getUniqueId());
 				player.resetTitle();
-				player.sendMessage(plugin.getLang().getMessage(Lang.TELEPORT_MOVE));
+				plugin.getLocale().getMessage(Lang.TELEPORT_MOVE.getPath()).sendPrefixedMessage(player);
 			}
 		}
 	}

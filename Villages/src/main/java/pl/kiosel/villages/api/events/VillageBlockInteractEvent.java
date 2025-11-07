@@ -6,7 +6,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.block.Action;
-import pl.kiosel.villages.village.Village;
+import pl.kiosel.villages.data.village.Village;
 
 public class VillageBlockInteractEvent extends VillageEvent implements Cancellable {
 

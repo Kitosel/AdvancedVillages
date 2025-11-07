@@ -1,15 +1,15 @@
 package pl.kiosel.villages.config;
 
 import lombok.Getter;
-import pl.kiosel.villages.Wioski;
+import pl.kiosel.core.utils.TextUtils;
+import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.enums.CommandLang;
-import pl.kiosel.common.utils.Utils;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static pl.kiosel.common.utils.ColorUtils.tl;
+import static pl.kiosel.core.utils.ColorUtils.tl;
 
 public class CommandConfig {
 
@@ -18,9 +18,9 @@ public class CommandConfig {
 	@Getter private List<String> commandAliases;
 
 	private final Map<String, String> command = new HashMap<>();
-	private final Wioski plugin;
+	private final AdvancedVillages plugin;
 
-	public CommandConfig(Wioski plugin) {
+	public CommandConfig(AdvancedVillages plugin) {
 		this.plugin = plugin;
 	}
 
@@ -51,7 +51,7 @@ public class CommandConfig {
 		}
 
 		commandName = getString("command.name", "village");
-		commandAliases = getList("command.aliases", Utils.of("wioski", "vil"));
+		commandAliases = getList("command.aliases", TextUtils.of("wioski", "vil"));
 		commandPermission = getString("command.permission", "villages.command");
 	}
 

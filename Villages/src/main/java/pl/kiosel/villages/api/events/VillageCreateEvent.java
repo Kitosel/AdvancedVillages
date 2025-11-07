@@ -2,7 +2,7 @@ package pl.kiosel.villages.api.events;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
-import pl.kiosel.villages.village.Village;
+import pl.kiosel.villages.data.village.Village;
 
 public class VillageCreateEvent extends VillageEvent implements Cancellable {
 

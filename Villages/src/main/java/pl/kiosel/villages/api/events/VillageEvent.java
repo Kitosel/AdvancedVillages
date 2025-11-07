@@ -6,7 +6,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import pl.kiosel.villages.village.Village;
+import pl.kiosel.villages.data.village.Village;
 
 public abstract class VillageEvent extends Event {
 

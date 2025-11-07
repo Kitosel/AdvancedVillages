@@ -7,26 +7,24 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
-import pl.kiosel.villages.Wioski;
+import pl.kiosel.core.locale.Locale;
+import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.api.events.VillageCreateEvent;
-import pl.kiosel.villages.config.Config;
-import pl.kiosel.villages.config.Language;
 import pl.kiosel.villages.enums.Lang;
-import pl.kiosel.villages.village.Village;
-import pl.kiosel.villages.village.VillageManager;
-import pl.kiosel.villages.village.VillageNameGenerator;
+import pl.kiosel.villages.settings.Settings;
+import pl.kiosel.villages.data.village.Village;
+import pl.kiosel.villages.manager.VillageManager;
+import pl.kiosel.villages.data.village.VillageBuilder;
 
 import java.util.List;
 import java.util.Objects;
 
 public class BlockListener implements Listener {
 
-	private final Wioski plugin;
-	private final VillageNameGenerator villageNameGenerator;
+	private final AdvancedVillages plugin;
 
-	public BlockListener(Wioski plugin) {
+	public BlockListener(AdvancedVillages plugin) {
 		this.plugin = plugin;
-		this.villageNameGenerator = new VillageNameGenerator();
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -39,55 +37,52 @@ public class BlockListener implements Listener {
 				|| !event.getItemInHand().getItemMeta().hasLore()) return;
 
 		if (!event.getItemInHand().getItemMeta().getDisplayName()
-				.equalsIgnoreCase(plugin.getLang().getMessage(Lang.VILLAGE_BLOCK_NAME))) return;
+				.equalsIgnoreCase(plugin.getLocale().getMessage(Lang.VILLAGE_BLOCK_NAME.getPath()).toString())) return;
 
-		Language lang = plugin.getLang();
+		Locale locale = plugin.getLocale();
 
-		if (!plugin.getApi().getEnabledWorlds().contains(block.getWorld().getName())) {
-			player.sendMessage(lang.getMessage(Lang.DISABLED_WORLD));
+		if (plugin.getBlacklistHandler().isBlacklisted(block.getWorld())) {
+			locale.getMessage(Lang.DISABLED_WORLD.getPath()).sendPrefixedMessage(player);
 			event.setCancelled(true);
 			return;
 		}
 
 		if (VillageManager.getVillageByOfflineOwner(player.getName()) != null) {
-			player.sendMessage(lang.getMessage(Lang.VILLAGE_IN));
+			locale.getMessage(Lang.VILLAGE_IN.getPath()).sendPrefixedMessage(player);
 			event.setCancelled(true);
 			return;
 		}
 
-		int minDistance = Config.minimal_distance;
+		int minDistance = Settings.VILLAGE_MINIMAL_DISTANCE.getInt();
 		if (plugin.getVillageManager().isVillageNearby(block.getLocation(), minDistance)) {
-			player.sendMessage(lang.getMessage(Lang.VILLAGE_NEARBY)
-					.replace("%distance%", String.valueOf(minDistance)));
+			locale.getMessage(Lang.VILLAGE_NEARBY.getPath())
+					.processPlaceholder("distance", minDistance).sendPrefixedMessage(player);
 			event.setCancelled(true);
 			return;
 		}
 
-		int spawnMinDistance = Config.spawn_minimal_distance;
+		int spawnMinDistance = Settings.VILLAGE_SPAWN_MINIMAL_DISTANCE.getInt();
 		if (plugin.getVillageManager().isSpawnNearby(block.getLocation(), spawnMinDistance)) {
-			player.sendMessage(lang.getMessage(Lang.VILLAGE_NEARBY)
-					.replace("%distance%", String.valueOf(spawnMinDistance)));
+			locale.getMessage(Lang.VILLAGE_SPAWN.getPath())
+					.processPlaceholder("distance", spawnMinDistance).sendPrefixedMessage(player);
 			event.setCancelled(true);
 			return;
 		}
+		event.setCancelled(true);
+		if (!plugin.getUpgradeManager().canUpgrade(player, plugin.getLevelManager().getLevel(1))) return;
 
-		if (!plugin.getApi().hasMoney(player, Config.cost_set)) {
-			player.sendMessage(lang.getMessage(Lang.NO_MONEY));
-			event.setCancelled(true);
-			return;
-		}
-
-		Village village = new Village(
-				player.getName(),
-				block.getLocation(),
-				new Location(block.getWorld(), block.getX() + 0.5, block.getY() + 1, block.getZ() + 0.5),
-				List.of(player.getUniqueId()),
-				villageNameGenerator.getRandomName(),
-				"false;false;false;false;",
-				"false;false;false;false;",
-				"15;1;3;0",
-				"none"
-		);
+		Village village = new VillageBuilder(block.getLocation())
+				.setOwner(player.getName())
+				.setOwnerUUID(player.getUniqueId())
+				.setTeleport(new Location(block.getWorld(), block.getX() + 0.5, block.getY() + 1, block.getZ() + 0.5))
+				.setLevel(plugin.getLevelManager().getLevel(1))
+				.setMembers(List.of(player.getUniqueId()))
+				.setRandomVillageName()
+				.setEffectsDefault()
+				.setLife(3)
+				.setBank(0)
+				.noTag()
+				.build();
 
 		VillageCreateEvent villageCreateEvent = new VillageCreateEvent(village, player);
 		plugin.getServer().getPluginManager().callEvent(villageCreateEvent);
@@ -100,13 +95,13 @@ public class BlockListener implements Listener {
 			plugin.getVillageManager().createVillage(village);
 
 			Bukkit.getScheduler().runTaskLater(plugin, () -> {
-				plugin.getApi().removeMoney(player, Config.cost_set);
+				plugin.getApi().removeMoney(player, plugin.getLevelManager().getLevel(1).getCostEconomy());
 				Location loc = new Location(block.getWorld(), block.getX() + 0.5, block.getY() + 1.2, block.getZ() + 0.5);
 				player.getWorld().spawnParticle(Particle.FLAME, loc, 50, 1, 1, 1);
 				player.getWorld().playSound(loc, Sound.ENTITY_PLAYER_LEVELUP, 10, 1);
 				player.teleport(loc);
 
-				plugin.getUserManager().addUserToVillage(village, player, true);
+				plugin.getDatabaseUserManager().addUserToVillage(village, player, true);
 				plugin.getUpgradeManager().upgrade(village);
 			}, 5L);
 		});

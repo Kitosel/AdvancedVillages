@@ -4,35 +4,55 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.*;
-import pl.kiosel.common.Callback;
-import pl.kiosel.villages.Wioski;
+import pl.kiosel.core.database.Callback;
+import pl.kiosel.core.nms.Nms;
+import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.addons.tablist.IndividualPlayerList;
+import pl.kiosel.villages.settings.Settings;
 
 public class ConnectionListener implements Listener {
 
-    private final Wioski plugin;
+    private final AdvancedVillages plugin;
 
-    public ConnectionListener(Wioski plugin) {
+    public ConnectionListener(AdvancedVillages plugin) {
         this.plugin = plugin;
     }
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        plugin.getUserManager().isUserInDatabase(player.getUniqueId(), new Callback<>(plugin) {
+        plugin.getDatabaseUserManager().isUserInDatabase(player.getUniqueId(), new Callback<>(plugin) {
 
 			@Override
 			public void onResult(Boolean result) {
 				if (result == false) {
-					plugin.getUserManager().createUser(player);
+					plugin.getDataHelper().createUserPlayer(player.getName(), player.getUniqueId());
 				}
 			}
-
 			@Override
 			public void onError(Throwable throwable) {
 				plugin.getDebug().debug("Error while connecting to database", throwable);
 			}
 		});
 		plugin.getScoreboardManager().createBoard(player);
+
+		if (Settings.ADDONS_TABLIST_ENABLE.getBoolean()) {
+			IndividualPlayerList individualPlayerList = new IndividualPlayerList(
+					plugin, player,
+					Nms.getImplementations().getPlayerListAccessor(),
+					plugin.getMetaServer(),
+					this.plugin.getTablistConfig().cells,
+					this.plugin.getTablistConfig().header,
+					this.plugin.getTablistConfig().footer,
+					this.plugin.getTablistConfig().animated,
+					this.plugin.getTablistConfig().pages,
+					this.plugin.getTablistConfig().heads.textures,
+					this.plugin.getTablistConfig().cellsPing,
+					this.plugin.getTablistConfig().fillCells
+			);
+
+			individualPlayerList.send();
+		}
     }
 
     @EventHandler

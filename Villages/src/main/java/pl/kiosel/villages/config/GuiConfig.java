@@ -1,18 +1,18 @@
 package pl.kiosel.villages.config;
 
-import pl.kiosel.villages.Wioski;
-import pl.kiosel.common.utils.Utils;
+import pl.kiosel.core.utils.TextUtils;
+import pl.kiosel.villages.AdvancedVillages;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static pl.kiosel.common.utils.ColorUtils.tl;
+import static pl.kiosel.core.utils.ColorUtils.tl;
 
 public class GuiConfig {
 
-    private final Wioski plugin;
+    private final AdvancedVillages plugin;
 
-    public GuiConfig(Wioski plugin) {
+    public GuiConfig(AdvancedVillages plugin) {
         this.plugin = plugin;
     }
 
@@ -124,61 +124,61 @@ public class GuiConfig {
 		delete_village = getString("delete-village", "&7Do you want to delete village?");
 
         guis_village_settings = getString("guis.village.settings.name", "&lSettings");
-        guis_village_settings_lore = getList("guis.village.settings.lore", Utils.of("&7Manage Village"));
+        guis_village_settings_lore = getList("guis.village.settings.lore", TextUtils.of("&7Manage Village"));
         guis_village_store = getString("guis.village.store.name", "&3Store");
-        guis_village_store_lore = getList("guis.village.store.lore", Utils.of("&7Village store"));
+        guis_village_store_lore = getList("guis.village.store.lore", TextUtils.of("&7Village store"));
         guis_village_members = getString("guis.village.members.name", "&cMembers");
-        guis_village_members_lore = getList("guis.village.members.lore", Utils.of("&7Manage members"));
+        guis_village_members_lore = getList("guis.village.members.lore", TextUtils.of("&7Manage members"));
 
 		guis_village_storage = getString("guis.village.storage.name", "3Store");
-		guis_village_storage_lore = getList("guis.village.storage.lore", Utils.of("&7Village store"));
+		guis_village_storage_lore = getList("guis.village.storage.lore", TextUtils.of("&7Village store"));
 
         guis_village_effects = getString("guis.village.effects.name", "&dEffects");
-        guis_village_effects_lore = getList("guis.village.effects.lore", Utils.of("&7Add effects for", "&7Members of village"));
+        guis_village_effects_lore = getList("guis.village.effects.lore", TextUtils.of("&7Add effects for", "&7Members of village"));
 
 		guis_village_effects_regen = getString("guis.village.effects.regeneration.name", "&cRegeneration");
-		guis_village_effects_regen_lore = getList("guis.village.effects.regeneration.lore", Utils.of("&7Gives &cRegeneration &7effect", "&7Amplifier: &6%amplifier%"));
+		guis_village_effects_regen_lore = getList("guis.village.effects.regeneration.lore", TextUtils.of("&7Gives &cRegeneration &7effect", "&7Amplifier: &6%amplifier%"));
 		guis_village_effects_speed = getString("guis.village.effects.speed.name", "&bSpeed");
-		guis_village_effects_speed_lore = getList("guis.village.effects.speed.lore", Utils.of("&7Gives &bSpeed &7effect", "&7Amplifier: &6%amplifier%"));
+		guis_village_effects_speed_lore = getList("guis.village.effects.speed.lore", TextUtils.of("&7Gives &bSpeed &7effect", "&7Amplifier: &6%amplifier%"));
 		guis_village_effects_jump = getString("guis.village.effects.jump.name", "&aJump boost");
-		guis_village_effects_jump_lore = getList("guis.village.effects.jump.lore", Utils.of("&7Gives &aJump boost &7effect", "&7Amplifier: &6%amplifier%"));
+		guis_village_effects_jump_lore = getList("guis.village.effects.jump.lore", TextUtils.of("&7Gives &aJump boost &7effect", "&7Amplifier: &6%amplifier%"));
 		guis_village_effects_haste = getString("guis.village.effects.haste.name", "&eHaste");
-		guis_village_effects_haste_lore = getList("guis.village.effects.haste.lore", Utils.of("&7Gives &eHaste &7effect", "&7Amplifier: &6%amplifier%"));
+		guis_village_effects_haste_lore = getList("guis.village.effects.haste.lore", TextUtils.of("&7Gives &eHaste &7effect", "&7Amplifier: &6%amplifier%"));
 
 		guis_village_effects_paper = getString("guis.village.effects.price_paper.name", "&eClick to buy");
-		guis_village_effects_paper_lore = getList("guis.village.effects.price_paper.lore", Utils.of("&7Gives &e%effect% &7effect", "&7Price: &6%price%"));
+		guis_village_effects_paper_lore = getList("guis.village.effects.price_paper.lore", TextUtils.of("&7Gives &e%effect% &7effect", "&7Price: &6%price%"));
 
 		guis_village_members_owner = getString("guis.village.members.owner.name", "&6%PLAYER% &cOWNER");
-		guis_village_members_owner_lore = getList("guis.village.members.owner.lore", Utils.of("&7Role: &cOwner", " ", "&7Last online: %last_online%", " "));
+		guis_village_members_owner_lore = getList("guis.village.members.owner.lore", TextUtils.of("&7Role: &cOwner", " ", "&7Last online: %last_online%", " "));
 		guis_village_members_member = getString("guis.village.members.resident.name", "&&7Role: &cMember");
-		guis_village_members_member_lore = getList("guis.village.members.resident.lore", Utils.of("&7Role: &cMember", " ", "&7Last online: %last_online%", " "));
+		guis_village_members_member_lore = getList("guis.village.members.resident.lore", TextUtils.of("&7Role: &cMember", " ", "&7Last online: %last_online%", " "));
 
 		guis_village_upgrade = getString("guis.village.upgrade.name", "&bUpgrade");
-        guis_village_upgrade_lore = getList("guis.village.upgrade.lore", Utils.of("&7Upgrade village"));
+        guis_village_upgrade_lore = getList("guis.village.upgrade.lore", TextUtils.of("&7Upgrade village"));
 		guis_village_upgrade_button = getString("guis.village.upgrade.upgrade-button.name", "&aUpgrade village");
-		guis_village_upgrade_button_lore = getList("guis.village.upgrade.upgrade-button.lore", Utils.of("&7Actual level: &e%level%", "&7Cost: &a%cost%", "&cClick to &6Upgrade"));
+		guis_village_upgrade_button_lore = getList("guis.village.upgrade.upgrade-button.lore", TextUtils.of("&7Actual level: &e%level%", "&7Cost: &a%cost%", "&cClick to &6Upgrade"));
 		guis_village_upgrade_info_button = getString("guis.village.upgrade.info.name", "&cTo upgrade:");
 		guis_village_upgrade_info_button_upgraded = getString("guis.village.upgrade.info.name-upgraded", "&bUpgraded");
-		guis_village_upgrade_info_lore = getList("guis.village.upgrade.info.lore", Utils.of("&7Level &c%level% &f-> &e%next_level%"));
+		guis_village_upgrade_info_lore = getList("guis.village.upgrade.info.lore", TextUtils.of("&7Level &c%level% &f-> &e%next_level%"));
 
 		guis_village_bank = getString("guis.village.bank.name", "&6Bank");
-        guis_village_bank_lore = getList("guis.village.bank.lore", Utils.of("&7Village bank"));
+        guis_village_bank_lore = getList("guis.village.bank.lore", TextUtils.of("&7Village bank"));
 		guis_village_bank_balance = getString("guis.village.bank.account_balance.name", "&6Bank&7: %village_balance%");
 		guis_village_bank_add = getString("guis.village.bank.add.name", "&aAdd to bank");
 		guis_village_bank_remove = getString("guis.village.bank.remove.name", "&cRemove from bank");
 
 		guis_village_setting_pvp = getString("guis.village.settings.pvp.name", "&f&lPVP");
-		guis_village_setting_pvp_lore = getList("guis.village.settings.pvp.lore", Utils.of("&8——————————", " ", "&7Pvp: %village_pvp%", " ", "&8——————————"));
+		guis_village_setting_pvp_lore = getList("guis.village.settings.pvp.lore", TextUtils.of("&8——————————", " ", "&7Pvp: %village_pvp%", " ", "&8——————————"));
 		guis_village_setting_tnt = getString("guis.village.settings.tnt.name", "&c&lTNT");
-		guis_village_setting_tnt_lore = getList("guis.village.settings.tnt.lore", Utils.of("&8——————————", " ", "&7TNT: %village_tnt%", " ", "&8——————————"));
+		guis_village_setting_tnt_lore = getList("guis.village.settings.tnt.lore", TextUtils.of("&8——————————", " ", "&7TNT: %village_tnt%", " ", "&8——————————"));
 		guis_village_setting_tag = getString("guis.village.settings.tag.name", "&c&lTag");
-		guis_village_setting_tag_lore = getList("guis.village.settings.tag.lore", Utils.of("&8——————————", " ", "&e&lTag: &c%village_tag%", " ", "%istagset%", "&8——————————"));
+		guis_village_setting_tag_lore = getList("guis.village.settings.tag.lore", TextUtils.of("&8——————————", " ", "&e&lTag: &c%village_tag%", " ", "%istagset%", "&8——————————"));
 		guis_village_setting_tag_set = getString("guis.village.settings.tag_set", "&7Click to set");
 		guis_village_setting_tag_notset = getString("guis.village.settings.tag_not_set", "&7Set");
 		guis_village_setting_teleport = getString("guis.village.settings.teleport.name", "&b&lTeleport");
-		guis_village_setting_teleport_lore = getList("guis.village.settings.teleport.lore", Utils.of("&8——————————", " ", "%village_teleport%", " ", "&7Click to set", "&8——————————"));
+		guis_village_setting_teleport_lore = getList("guis.village.settings.teleport.lore", TextUtils.of("&8——————————", " ", "%village_teleport%", " ", "&7Click to set", "&8——————————"));
 		guis_village_setting_delete = getString("guis.village.settings.delete.name", "&c&l&nDelete village");
-		guis_village_setting_delete_lore = getList("guis.village.settings.delete.lore", Utils.of("&8——————————", " ", "&7Click to delete", " ", "&8——————————"));
+		guis_village_setting_delete_lore = getList("guis.village.settings.delete.lore", TextUtils.of("&8——————————", " ", "&7Click to delete", " ", "&8——————————"));
 
 		no_tag = getString("no-tag", "&cNONE");
 
@@ -197,9 +197,10 @@ public class GuiConfig {
 
     private String getString(String path, String def) {
         if(path == null) return tl(def);
-        if(plugin.getGuiConfig().getConfig().getString(path) == null) return tl(def);
+		String message = plugin.getGuiConfig().getConfig().getString(path);
+        if(message == null || message.isBlank()) return tl(def);
 
-        return tl(plugin.getGuiConfig().getConfig().getString(path)).replace("{PREFIX}", tl(Wioski.pref));
+        return tl(message);
     }
 
     private List<String> getList(String path, List<String> def) {

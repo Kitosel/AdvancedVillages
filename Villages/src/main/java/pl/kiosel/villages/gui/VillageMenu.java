@@ -4,14 +4,12 @@ import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import pl.kiosel.common.Item;
-import pl.kiosel.common.utils.DateUtils;
-import pl.kiosel.common.utils.Utils;
-import pl.kiosel.villages.Wioski;
+import pl.kiosel.core.utils.TimeUtils;
+import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.enums.Lang;
-import pl.kiosel.villages.village.UpgradeManager;
-import pl.kiosel.villages.village.Village;
-import pl.kiosel.villages.village.VillageManager;
+import pl.kiosel.villages.manager.UpgradeManager;
+import pl.kiosel.villages.data.village.Village;
+import pl.kiosel.villages.manager.VillageManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,8 +47,8 @@ public abstract class VillageMenu extends Item {
 	}
 
 	public List<String> replacePlayer(List<String> strings, OfflinePlayer player) {
-		String lastOnline = DateUtils.getStringDate(player.getLastPlayed());
-		String nowOnline = Wioski.getInstance().getLang().getMessage(Lang.PLAYER_NOW_ONLINE);
+		String lastOnline = TimeUtils.getStringDate(player.getLastPlayed());
+		String nowOnline = AdvancedVillages.getInstance().getLocale().getMessage(Lang.PLAYER_ONLINE.getPath()).toString();
 		List<String> list = new ArrayList<>();
 		for (String s : strings) {
 			list.add(s
