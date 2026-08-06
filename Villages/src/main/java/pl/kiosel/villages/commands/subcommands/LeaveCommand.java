@@ -1,14 +1,14 @@
 package pl.kiosel.villages.commands.subcommands;
 
 import org.bukkit.entity.Player;
-import pl.kiosel.core.commands.SubCommand;
 import pl.kiosel.core.locale.Locale;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.commands.AVSubCommand;
+import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.enums.Lang;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.manager.VillageManager;
 
-public class LeaveCommand extends SubCommand {
+public class LeaveCommand extends AVSubCommand {
 
     @Override
     public String getName() { return "leave"; }
@@ -29,18 +29,16 @@ public class LeaveCommand extends SubCommand {
 	}
 
 	@Override
-    public void run(Player player, String[] args) {
-        Village village = VillageManager.getVillageByOfflineOwner(player.getName());
+	public void run(Player player, User user, String[] args) {
 		Locale locale = plugin.getLocale();
-        if(village != null) {
-            if(village.getOwner().equalsIgnoreCase(player.getName())) {
+		Village village = user.getPresentVillage();
+		if(village != null) {
+            if(village.isOwner(user)) {
 				locale.getMessage(Lang.LEAVE_OWNER.getPath()).sendPrefixedMessage(player);
                 return;
             }
-            VillageManager villageManager = plugin.getVillageManager();
-			plugin.getDatabaseUserManager().removeUserFromVillage(village, player.getUniqueId());
-			villageManager.removeMember(plugin.getVillageDataManager().getVillages().get(village.getVillageName()), player);
-
+			village.removeMember(user);
+			user.removeVillage();
 			locale.getMessage(Lang.LEAVE_VILLAGE.getPath()).sendPrefixedMessage(player);
         } else {
 			locale.getMessage(Lang.VILLAGE_NO.getPath()).sendPrefixedMessage(player);

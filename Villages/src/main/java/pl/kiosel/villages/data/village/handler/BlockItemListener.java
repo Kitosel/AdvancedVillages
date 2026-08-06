@@ -37,40 +37,6 @@ public class BlockItemListener implements Listener {
 			event.setCancelled(true);
 	}
 
-	@EventHandler(priority = EventPriority.MONITOR)
-	public void onBreak(BlockBreakEvent event) {
-		plugin.getDebug().debug(" ");
-		plugin.getDebug().debug("Aktywowano break event");
-
-		Player player = event.getPlayer();
-		ItemStack hand = player.getInventory().getItemInHand();
-
-		if (hand == null || hand.getType() == Material.AIR) return;
-		if (!hand.hasItemMeta() || !hand.getItemMeta().hasDisplayName()) return;
-		plugin.getDebug().debug("Ma displayname");
-
-		String destroyerName = plugin.getLocale().getMessage(Lang.VILLAGE_DESTROYER_NAME.getPath()).toString();
-		if (!hand.getItemMeta().getDisplayName().contains(destroyerName)) return;
-		plugin.getDebug().debug("To destroyer");
-
-		Block block = event.getBlock();
-		Village village = plugin.getVillageManager().getVillageAt(block.getLocation());
-
-		Boolean tag = NBT.get(hand, (Function<ReadableItemNBT, Boolean>) nbt -> nbt.getBoolean("noBreak"));
-		if (Boolean.TRUE.equals(tag)) {
-			plugin.getDebug().debug("Destroyer ma noBreak=true");
-
-			if (village != null /*&& block.getType() == XMaterial.NOTE_BLOCK.get() */&& village.isCentralBlock(block.getLocation())) {
-				plugin.getDebug().debug("To centralny blok, pozwalam na zniszczenie");
-				plugin.getVillageManager().destroyVillage(village, 1);
-				plugin.getDebug().debug("Wioska " + village.getVillageName() + " została zniszczona przez " + player.getName());
-			} else {
-				event.setCancelled(true);
-				plugin.getDebug().debug("Zablokowano niszczenie – nie centralny blok");
-			}
-		}
-	}
-
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onPlayerCraft(CraftItemEvent event) {
 		if (event.getRecipe() == null) return;

@@ -1,20 +1,14 @@
 package pl.kiosel.villages.storage;
 
-import org.bukkit.Location;
-import org.jetbrains.annotations.NotNull;
-import pl.kiosel.core.database.DataManager;
 import pl.kiosel.core.utils.LocationUtils;
-import pl.kiosel.dependencies.org.jooq.Record;
-import pl.kiosel.dependencies.org.jooq.Result;
+import pl.kiosel.core.utils.TextUtils;
 import pl.kiosel.dependencies.org.jooq.impl.DSL;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.data.Entity;
+import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.data.village.VillageMember;
-import pl.kiosel.villages.enums.Permission;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class DataHelper {
 
@@ -26,174 +20,114 @@ public class DataHelper {
 		this.prefix = plugin.getDataManager().getTablePrefix();
 	}
 
-	public void loadData(DataManager dataManager) {
-		List<Village> loadedVillages = new ArrayList<>();
-
-		dataManager.getDatabaseConnector().connectDSL(dslContext -> {
-			@NotNull
-			Result<Record> resultsVillages = dslContext.select().from(dataManager.getTablePrefix() + "villages").fetch();
-			resultsVillages.stream().iterator().forEachRemaining(record -> {
-				String owner = record.get("owner").toString();
-				Location location = LocationUtils.getLocationFromString(record.get("location").toString());
-				Location tp = LocationUtils.getLocationFromString(record.get("tp").toString());
-				String villageName = record.get("village_name").toString();
-				String effectsData = record.get("effects_data").toString();
-				String effectsActive = record.get("effects_active").toString();
-				String intsData = record.get("ints_data").toString();
-				String tag = record.get("tag").toString();
-				List<UUID> members = getUUIDListFromResultSet(record, "members");
-
-				Village village = new Village(owner, location, tp, members, villageName, effectsData, effectsActive, intsData, tag);
-				plugin.getVillageDataManager().putVillage(villageName, village);
-				loadedVillages.add(village);
-			});
-
-			@NotNull Result<Record> resultsUsers = dslContext.select().from(dataManager.getTablePrefix() + "users").fetch();
-			resultsUsers.stream().iterator().forEachRemaining(record -> {
-				String name = record.get("name").toString();
-				UUID uuid = UUID.fromString(record.get("uuid").toString());
-				Object vname = record.get("village_name");
-
-				if (vname == null) return;
-				String villageName = vname.toString();
-				List<Permission> permissions = plugin.getDatabaseUserManager().getPermissionListFromResultSet(record, "village_permissions");
-
-				if (villageName == null || villageName.isEmpty()) return;
-
-				Village village = loadedVillages.stream()
-						.filter(v -> v.getVillageName().equalsIgnoreCase(villageName))
-						.findFirst()
-						.orElse(null);
-
-				if (village == null) {
-					plugin.getDebug().debug("⚠ User " + name + " has not existing village: " + villageName);
-					return;
-				}
-
-				VillageMember member = new VillageMember(uuid, village, permissions);
-				plugin.getVillageDataManager().addPlayerMember(uuid, member);
-			});
-		});
-	}
-
-	public void setUserVillage(String village, String permission, String uuid) {
-		plugin.getDataManager().getDatabaseConnector().connectDSL(dslContext -> {
-			dslContext.update(DSL.table(prefix + "users"))
-					.set(DSL.field("village_name"), village)
-					.set(DSL.field("village_permissions"), permission)
-					.where(DSL.field("uuid").eq(uuid))
-					.execute();
-		});
-	}
-
-	public void createVillage(Village village) {
-		plugin.getDataManager().getDatabaseConnector().connectDSL(dslContext -> {
-			dslContext.insertInto(DSL.table(prefix + "villages"))
-					.columns(DSL.field("owner"),
-							DSL.field("village_name"),
-							DSL.field("location"),
-							DSL.field("tp"),
-							DSL.field("members"),
-							DSL.field("effects_data"),
-							DSL.field("effects_active"),
-							DSL.field("ints_data"),
-							DSL.field("settings"),
-							DSL.field("tag"))
-					.values(village.getOwner(), village.getVillageName(),
-							LocationUtils.convertLocactionToString(village.getLocation()),
-							LocationUtils.convertLocactionToString(village.getTeleport()),
-							village.getOwnerUUID() + ";", village.effectsBuyedToString(),
-							village.effectsActiveToString(), village.getInts(),
-							village.getVillageSettings().convertToString(), village.getTag())
-					.execute();
-		});
-	}
-
 	public void deleteVillage(Village village) {
 		plugin.getDataManager().getDatabaseConnector().connectDSL(dslContext -> {
 			dslContext.deleteFrom(DSL.table(prefix + "villages"))
-					.where(DSL.field("village_name").eq(village.getVillageName()))
+					.where(DSL.field("uuid").eq(village.getUUID().toString()))
 					.execute();
 		});
 	}
 
-	public void updateSettings(String village, String set) {
-		plugin.getDataManager().getDatabaseConnector().connectDSL(dslContext -> {
-			dslContext.update(DSL.table(prefix + "villages"))
-					.set(DSL.field("settings"), set)
-					.where(DSL.field("village_name").eq(village))
-					.execute();
+	public void insertUser(User user) {
+		plugin.getDataManager().getDatabaseConnector().connectDSL(dsl -> {
+			String table = prefix + "users";
+			String uuid = user.getUUID().toString();
+
+			boolean exists = dsl.fetchExists(
+					dsl.selectOne()
+							.from(table)
+							.where(DSL.field("uuid").eq(uuid))
+			);
+
+			if (exists) {
+				dsl.update(DSL.table(table))
+						.set(DSL.field("name"), user.getName())
+						.set(DSL.field("points"), user.getRank().getPoints())
+						.set(DSL.field("kills"), user.getRank().getKills())
+						.set(DSL.field("deaths"), user.getRank().getDeaths())
+						.set(DSL.field("assists"), user.getRank().getAssists())
+						.set(DSL.field("logouts"), user.getRank().getLogouts())
+						.set(DSL.field("permission"), plugin.getPermissionManager().toString(user.getPermissions()))
+						.where(DSL.field("uuid").eq(uuid))
+						.execute();
+
+				plugin.getDebug().debug("Updated user: " + user.getName());
+			} else {
+				dsl.insertInto(DSL.table(table))
+						.set(DSL.field("uuid"), uuid)
+						.set(DSL.field("name"), user.getName())
+						.set(DSL.field("points"), user.getRank().getPoints())
+						.set(DSL.field("kills"), user.getRank().getKills())
+						.set(DSL.field("deaths"), user.getRank().getDeaths())
+						.set(DSL.field("assists"), user.getRank().getAssists())
+						.set(DSL.field("logouts"), user.getRank().getLogouts())
+						.set(DSL.field("permission"), plugin.getPermissionManager().toString(user.getPermissions()))
+						.execute();
+
+				plugin.getDebug().debug("Created new user: " + user.getName());
+			}
 		});
 	}
 
-	public void createUserPlayer(String name, UUID uuid) {
-		plugin.getDataManager().getDatabaseConnector().connectDSL(dslContext -> {
-			dslContext.insertInto(DSL.table(prefix + "users"))
-					.columns(DSL.field("name"), DSL.field("uuid"))
-					.values(name, uuid.toString())
-					.execute();
-		});
-	}
-
-	public void deleteUserPlayer(UUID uuid) {
-		plugin.getDataManager().getDatabaseConnector().connectDSL(dslContext -> {
-			dslContext.deleteFrom(DSL.table(prefix + "users"))
-					.where(DSL.field("uuid").eq(uuid.toString()))
-					.execute();
-		});
-	}
-
-	public void saveUser(VillageMember villageMember) {
-		plugin.getDataManager().getDatabaseConnector().connectDSL(dslContext -> {
-			dslContext.update(DSL.table(prefix + "users"))
-					.set(DSL.field("village_name"), villageMember.getVillage().getVillageName())
-					.set(DSL.field("village_permissions"), plugin.getPermissionManager().toString(villageMember.getPermissions()))
-					.where(DSL.field("uuid").eq(villageMember.getUuid().toString()))
-					.execute();
-		});
-	}
-
-	public void updateMember(String members, String village_name) {
-		plugin.getDataManager().getDatabaseConnector().connectDSL(dslContext -> {
-			dslContext.update(DSL.table(prefix + "villages"))
-					.set(DSL.field("members"), members)
-					.where(DSL.field("village_name").eq(village_name))
-					.execute();
-		});
-	}
-
-	public void saveVillageSync(Village village) {
+	public void insertVillage(Village village) {
+		String members = TextUtils.join(Entity.names(village.getMembers()));
 		String effects_data = village.effectsBuyedToString();
 		String effects_active = village.effectsActiveToString();
-		String ints_data = village.intsToString();
 
-		plugin.getDataManager().getDatabaseConnector().connectDSL(dslContext -> {
-			dslContext.update(DSL.table(prefix + "villages"))
-					.set(DSL.field("tp"), LocationUtils.convertLocactionToString(village.getTeleport()))
-					.set(DSL.field("effects_data"), effects_data)
-					.set(DSL.field("effects_active"), effects_active)
-					.set(DSL.field("ints_data"), ints_data)
-					.set(DSL.field("tag"), village.getTag())
-					.where(DSL.field("village_name").eq(village.getVillageName()))
-					.execute();
+		plugin.getDataManager().getDatabaseConnector().connectDSL(dsl -> {
+			String table = prefix + "villages";
+			String uuid = village.getUUID().toString();
+
+			boolean exists = dsl.fetchExists(
+					dsl.selectOne()
+							.from(table)
+							.where(DSL.field("uuid").eq(uuid))
+			);
+
+			if (exists) {
+				dsl.update(DSL.table(table))
+						.set(DSL.field("name"), village.getName())
+						.set(DSL.field("owner"), village.getOwner().getName())
+						.set(DSL.field("location"), LocationUtils.convertLocactionToString(village.getLocation().get()))
+						.set(DSL.field("tp"), LocationUtils.convertLocactionToString(village.getHome().get()))
+						.set(DSL.field("members"), members)
+						.set(DSL.field("pvp"), village.hasPvPEnabled())
+						.set(DSL.field("tnt"), village.hasTntEnabled())
+						.set(DSL.field("animations_enabled"), village.isAnimationsEnabled())
+						.set(DSL.field("points"), village.getRank().getAveragePoints())
+						.set(DSL.field("lives"), village.getLives())
+						.set(DSL.field("bank"), village.getBank())
+						.set(DSL.field("level"), village.getLevel().getLevel())
+						.set(DSL.field("effects_data"), effects_data)
+						.set(DSL.field("effects_active"), effects_active)
+						.set(DSL.field("protection"), village.getProtection().toEpochMilli())
+						.set(DSL.field("tag"), village.getTag())
+						.where(DSL.field("uuid").eq(uuid))
+						.execute();
+
+				plugin.getDebug().debug("Updated village: " + village.getName());
+			} else {
+				dsl.insertInto(DSL.table(table))
+						.set(DSL.field("uuid"), village.getUUID().toString())
+						.set(DSL.field("name"), village.getName())
+						.set(DSL.field("owner"), village.getOwner().getName())
+						.set(DSL.field("location"), LocationUtils.convertLocactionToString(village.getLocation().get()))
+						.set(DSL.field("tp"), LocationUtils.convertLocactionToString(village.getHome().get()))
+						.set(DSL.field("members"), members)
+						.set(DSL.field("pvp"), village.hasPvPEnabled())
+						.set(DSL.field("tnt"), village.hasTntEnabled())
+						.set(DSL.field("animations_enabled"), village.isAnimationsEnabled())
+						.set(DSL.field("points"), village.getRank().getAveragePoints())
+						.set(DSL.field("lives"), village.getLives())
+						.set(DSL.field("bank"), village.getBank())
+						.set(DSL.field("level"), village.getLevel().getLevel())
+						.set(DSL.field("effects_data"), effects_data)
+						.set(DSL.field("effects_active"), effects_active)
+						.set(DSL.field("protection"), village.getProtection().toEpochMilli())
+						.set(DSL.field("tag"), village.getTag())
+						.execute();
+				plugin.getDebug().debug("Created new village: " + village.getName());
+			}
 		});
 	}
-
-
-	public List<UUID> getUUIDListFromResultSet(Record rs, String columnName) {
-		List<UUID> uuidList = new ArrayList<>();
-		String raw = rs.get(columnName).toString();
-
-		if (raw == null || raw.isEmpty())
-			return uuidList;
-
-		for (String uuidStr : raw.split(";"))
-			try {
-				uuidList.add(UUID.fromString(uuidStr));
-			} catch (IllegalArgumentException e) {
-				plugin.getDebug().debug("Invalid UUID in collum " + columnName + ": " + uuidStr);
-			}
-		return uuidList;
-	}
-
 }

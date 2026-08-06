@@ -1,0 +1,51 @@
+# Village Global Structures Editor. Requires WorldEdit and `settings.use-worldedit: true`.
+enabled: true
+
+menu:
+  title: "&8Village building editor"
+  level-name: "&aLevel &f%level%"
+  level-lore:
+    - "&eLeft click &7- level settings"
+    - "&eRight click &7- edit build"
+    - ""
+    - "&7Schematic: %status%"
+  create-name: "&aCreate a level &f%level%"
+  create-lore:
+    - "&7It creates an empty space"
+    - "&7with a stone base."
+  resume-name: "&eFinish level &f%level%"
+  resume-lore:
+    - "&7Schematic is saved."
+    - "&7Click to set requirements."
+
+settings-menu:
+  title: "&8Level &6%level% &8settings"
+  items:
+    name: "&eRequired Items"
+    lore: ["&7Currently: &f%value%", "", "&eClick to change in the chat"]
+  experience:
+    name: "&aExperience cost"
+    lore: ["&7Currently: &f%value%", "", "&eClick to change in the chat"]
+  economy:
+    name: "&6Economy cost"
+    lore: ["&7Currently: &f%value%", "", "&eClick to change in the chat"]
+  size:
+    name: "&bRegion size"
+    lore: ["&7Currently: &f%value%", "", "&eClick to change in the chat"]
+
+new-level:
+  # Obszar nowego poziomu ma stały rozmiar 5x5x10.
+  base-material: STONE
+
+search:
+  height-offset: 48
+  vertical-step: 12
+  horizontal-step: 32
+  horizontal-radius: 96
+  empty-margin: 8
+  max-volume: 50000
+
+boundary:
+  particle: END_ROD
+  interval-ticks: 5
+  step: 1.0

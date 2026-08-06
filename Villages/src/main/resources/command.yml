@@ -5,14 +5,30 @@ command:
     - vil
   permission: villages.command
 
+spawn:
+  name: spawn
+  aliases:
+    - tpspawn
+  permission: villages.spawn
+  permission-set: villages.spawn.set
+
 command-language:
   admin: admin
   admin_reload: reload
   admin_give: give
   admin_give_villageblock: village
   admin_give_destroyer: destroyer
+  admin_manage: manage
+  admin_settings: settings
+
+  admin_lives: lives
   admin_upgrade: upgrade
   admin_delete: delete
+  admin_protection: protection
+  admin_bank: bank
+
+  admin_add: add
+  admin_remove: remove
 
   chat: chat
   invite: invite
@@ -21,4 +37,9 @@ command-language:
   request_accept: confirm
   request_deny: deny
   teleport: tp
+  edit: edit
+  edit_save: save
+  edit_cancel: cancel
   help: help
+
+  set: set

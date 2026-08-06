@@ -8,10 +8,14 @@ import java.util.NavigableMap;
 import java.util.TreeMap;
 
 public class LevelManager {
+	public static final int MAX_LEVEL = 10;
 
 	private final NavigableMap<Integer, Level> registeredLevels = new TreeMap<>();
 
 	public void addLevel(int level, int costExperience, int costEconomy, int size, Map<XMaterial, Integer> materials) {
+		if (level < 1 || level > MAX_LEVEL) {
+			throw new IllegalArgumentException("Village level must be between 1 and " + MAX_LEVEL);
+		}
 		this.registeredLevels.put(level, new Level(level, costExperience, costEconomy, size, materials));
 	}
 

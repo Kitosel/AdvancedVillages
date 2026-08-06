@@ -1,4 +1,4 @@
-# General Messages
+# General messages
 general:
   nametag:
     prefix: '&8[&6&lVillages&8]'
@@ -9,102 +9,183 @@ general:
     money-add: '&7Added &a%money% &7to your account'
     money-remove: '&7Removed &a%money% &7from your account'
     money-no: "&cYou don't have enough money!"
-    online: '&aPlayer is online'
-    offline: '&cPlayer is offline'
-    is-member: '&cPlayer is member'
-    has-village: '&cThis player has village'
-    you-have-full-eq: '&cYou have full inventory'
-    no-xp: "&cYou don't have enough exp: %xp%"
-    no-items: "&cYou don't have enough items"
-    take-xp: '&aTaked %xp%'
-    take-items: '&aTaked %item% x%amount%'
+    online: '&aThe player is online'
+    offline: '&cThe player is offline'
+    not-found: '&cPlayer data could not be found'
+    is-member: '&cThis player is already a member'
+    has-village: '&cThis player already belongs to a village'
+    you-have-full-eq: '&cYour inventory is full'
+    no-xp: "&cYou don't have enough experience. Required: %xp%"
+    no-items: "&cYou don't have the required items"
+    take-xp: '&7Removed &a%xp% &7experience'
+    take-items: '&7Removed &a%amount%x %item%'
 
 # Commands
 command:
-  reload: '&7All configuration reloaded'
-  no-permission: "&7You don't have permission to use command"
-  village-not-found: '&cCould not find the village of player &f%owner%'
+  no-console: '&cThis command can only be used by a player'
+  not-enabled: '&cThis command is disabled'
+  reload: '&7All configuration files have been reloaded'
+  no-permission: "&cYou don't have permission to use this command"
+  village-not-found: '&cCould not find the village belonging to &f%village_owner%'
+  invalid-number: '&cThe provided value is not a valid number'
+  unknown: '&cUnknown command: &f%input%'
+  usage:
+    chat: '&cUsage: &f/%command% %chat% <message>'
+    invite: '&cUsage: &f/village invite <player>'
+    request: '&cChoose: &f%accept% &cor &f%deny%'
+    build-editor: '&cUsage: &f/village edit [%save%|%cancel%]'
   admin:
-    village-block: '&aYou recived Village Block'
-    destroyer: '&aYou recived Destroyer'
-    upgrade: '&aVillage of player &f%owner% &ahas been upgraded!'
-    delete: '&cVillage of player &f%owner% &chas been deleted!'
+    village-block: '&aYou received a Village Block'
+    destroyer: '&aYou received a Destroyer'
+    upgrade: "&a%village_owner%'s village has been upgraded!"
+    cant-upgrade: '&cThe village has reached the maximum level!'
+    delete: "&c%village_owner%'s village has been deleted!"
+    protection-add: '&7Added protection to &a%village_owner%&7 for &6%time%'
+    protection-remove: "&7Removed protection from &a%village_owner%'s &7village"
+    bank-add: "&7Added &a%money% &7to &a%village_owner%'s &7village bank"
+    bank-remove: "&7Removed &c%money% &7from &a%village_owner%'s &7village bank"
+    lives-add: "&7Added &a%lives% &7lives to &a%village_owner%'s &7village"
+    lives-remove: "&7Removed &c%lives% &7lives from &a%village_owner%'s &7village"
+    already-dying: '&cThis village has no lives remaining'
 
 # Village
 village:
-  disabled-world: "&cYou can't place village in this world"
-  no-permission: "&cYou don't have permission to change that"
-  nearby: "&cYou can't create village because there is another village nearby (minimum %distance% blocks)"
-  spawn-nearby: "&cYou can't create village because there is spawn nearby (minimum %distance% blocks)"
+  disabled-world: "&cYou can't place a village in this world"
+  no-permission: "&cYou don't have permission to change this setting"
+  nearby: "&cYou can't create a village because another village is nearby (minimum distance: %distance% blocks)"
+  spawn-nearby: "&cYou can't create a village this close to spawn (minimum distance: %distance% blocks)"
   cant-edit: "&cYou can't edit this member"
-  effect-not-bought: "&cEffect %effect% was not purchased"
+  effect-not-bought: '&cThe %effect% effect has not been purchased'
+  protected: '&cThis village is currently protected'
 
-  in-village: '&cYou are already in village'
-  no-village: "&cYou don't have village"
-  leave-owner: "&cYou can't leave because you are owner"
-  leave-village: '&aYou leaved village'
-  remove: '&cYou removed village'
-  upgrade: '&6You upgraded village'
+  in-village: '&cYou are already in a village'
+  no-village: "&cYou don't belong to a village"
+  leave-owner: "&cYou can't leave the village while you are its owner"
+  leave-village: '&aYou left the village'
+  remove: '&cYou removed the village'
+  upgrade: '&6You upgraded the village'
+  max-level: '&cThe village has reached the maximum level'
+  upgrade-no-requirements: "&cYou don't meet all requirements needed to upgrade your village"
 
-  upgrade-no-requirements: "&cYou don't meet all the requirements to upgrade your village"
-
-  bank-add: '&7Added to bank: &a%money%'
-  bank-remove: '&7Removed from bank: &c%money%'
-  bank-no-money: "&cBank don't have enough money for withdraw"
+  bank-add: '&7Deposited into the village bank: &a%money%'
+  bank-remove: '&7Withdrawn from the village bank: &c%money%'
+  bank-no-money: "&cThe village bank doesn't have enough money"
 
   # %village_tag% %village_name% %village_owner%
-  enter-village-area-title: '&6You entered village'
+  enter-village-area-title: '&6You entered a village'
   enter-village-area-subtitle: '&7%village_tag%'
   leave-village-area-title: ' '
-  leave-village-area-subtitle: '&6You leave village'
-  chat-format: '&8[&5&lVillage&8] &f%player%&7: &f%message%'
+  leave-village-area-subtitle: '&6You left the village'
+  chat-format: '&8[&5&lVillage&r&8] &f%player%&7: &f%message%'
+  chat-format-owner-color: '&6'
 
-# Tag
+# Village tag
 tag:
-  try-again: 'The tag is already in use'
-  has-spaces: 'Tag has spaces'
-  too-long: 'Tag too long'
-  invalid-chars: 'Tag has invalid chars'
-
+  try-again: 'This tag is already in use'
+  has-spaces: 'The tag cannot contain spaces'
+  too-long: 'The tag is too long'
+  invalid-chars: 'The tag contains invalid characters'
   anvil-name-your-village: 'Name your village'
-  new-village-tag: '&7Your new tag for village is &a%tag%'
+  new-village-tag: '&7Your new village tag is &a%tag%'
   your-village-tag: '&7Your village tag is &a%tag%'
-  closed-name-village-tag: '&cYou closed inventory. No tag has been set'
+  closed-name-village-tag: '&cYou closed the menu, so no tag was set'
   already-name-village-tag: '&cThis tag is already in use'
 
 # Teleport
 teleport:
-  teleporting: '&7Teleporting to village'
-  teleported: '&7You teleported to your village'
-  cooldown: '&7You have to wait %time% before next teleport'
+  teleporting: '&7Teleporting to the village'
+  teleported: '&7You have been teleported to your village'
+  cooldown: '&7You must wait %time% before teleporting again'
   title: '&aTeleporting...'
   subtitle: '&eTeleporting in %time% seconds...'
-  move: '&cTeleport canceled because you move'
-  set-cancel: '&cTeleport set canceled'
-  set: '&6Set teleport to village'
-  set-hover: '&cClick to set teleport'
+  move: '&cTeleportation was canceled because you moved'
+  set-cancel: '&cSetting the teleport location was canceled'
+  set: '&6Set the village teleport location'
+  set-hover: '&cClick to set the teleport location'
   set-title: '&7( &cTeleport &7)'
-  set-subtitle: '&6Teleport set'
+  set-subtitle: '&6Teleport location set'
 
-# Invite
+# Invitations
 invite:
-  cancel: '&7Invite - &cCancel'
-  cancel-hover: '&6Click to cancel'
-  confirm: '&7Invite - &aConfirm'
-  confirm-hover: '&6Click to join'
-
-  no-invite: "&cYou don't have an invite to village"
-  has-invite: '&cPlayer has an invite pending'
-  player-invite: '&7You invited the player &b%player% &7to your village'
-  player-target: '&7%player% invited you to village'
-  target-join-member: '&6%player% &7joined to your village'
-  confirmed: '&7You joined to &6%owner% &7village'
-  canceled: '&7You canceled invite'
+  cancel: '&7Invitation - &cDecline'
+  cancel-hover-click: '&6Click to decline'
+  confirm: '&7Invitation - &aAccept'
+  confirm-hover-click: '&6Click to join'
+  max-members: '&cThe village has reached its member limit'
+  no-invite: "&cYou don't have a pending village invitation"
+  has-invite: '&cThis player already has a pending invitation'
+  player-invite: '&7You invited &b%player% &7to your village'
+  player-target: '&7%player% invited you to a village'
+  target-join-member: '&6%player% &7joined your village'
+  confirmed: "&7You joined &6%village_owner%'s &7village"
+  canceled: '&7You declined the invitation'
 
 # Items
 items:
   village-block: '&d&lVillages'
+  village-block-lore: '&7Place this block on the ground to create a village'
   destroyer: '&6&lDestroyer'
+  destroyer-lore: '&7Use this tool to destroy a village core'
   hearth: '&c&lHearth of the Village'
-  part-of-hearth: '&c&lPart of Hearth of the Village'
+  hearth-lore: '&7Adds a life to your village'
+  part-of-hearth: '&c&lPart of the Village Hearth'
+  part-of-hearth-lore: '&7Use this item to create a Village Hearth'
   destroyer-hearth: '&c&lHearth of the Destroyer'
+  destroyer-hearth-lore: '&7Use this item to create a Destroyer'
+
+# Build editor addon
+build-editor:
+  worldedit-required: '&cThe build editor requires the &fWorldEdit &cplugin to be installed and enabled'
+  disabled: '&cThe build editor is disabled in &faddons/build-editor.yml'
+  setting-required: '&cEnable &fsettings.use-worldedit: true &cin the main configuration first'
+  session-active: '&cYou already have an active session. Save or cancel it first'
+  level-missing: '&cVillage level &f%level% &cdoes not exist'
+  schematic-missing: '&cMissing schematic file: &f%schematic%'
+  schematic-too-large: '&cThis schematic is too large for the editor (&f%blocks% &cblocks)'
+  safe-location-not-found: "&cCouldn't find a safe, empty editing area. Try again somewhere else"
+  started: '&aStarted editing the level &f%level% &abuilding'
+  bounds-help: '&7Particles mark the exact saved area. The central block cannot be removed'
+  commands-help: '&7Save: &f/village edit save &8| &7Cancel: &f/village edit cancel'
+  load-failed: '&cThe schematic could not be loaded or pasted. Check the server console'
+  no-session: "&cYou don't have an active editing session"
+  saved: '&aSaved the level &f%level% &abuilding'
+  saved-help: '&7New villages and future upgrades will use the updated schematic'
+  save-failed: '&cSaving failed. The session is still active, so you can try again'
+  canceled: '&eEditing canceled. The schematic was not changed'
+  core-protected: '&cThe central block is the schematic core and cannot be removed'
+  outside-bounds: '&cYou cannot modify blocks outside the saved schematic area'
+  area-in-use: '&cThis area is currently being used by the build editor'
+  setup-active: '&eFinish the current chat configuration first, or type &ccancel'
+  max-level: '&cYou can create at most 10 consecutive levels'
+  setup-resumed: '&eThe schematic for level %level% already exists. Finish configuring its requirements'
+  new-level-started: '&aCreated an empty 5x5x10 area with a stone base for level %level%'
+  setup-canceled: '&cLevel configuration canceled'
+  invalid-input: '&cInvalid value. Try again'
+  level-config-save-failed: '&cCould not save levels.yml. Check the server console'
+  setup-complete: '&aLevel %level% was created and is now active'
+  level-updated: '&aSaved the settings for level %level%'
+  setup-started: '&eNow configure the upgrade requirements for level %level%'
+  prompt-items: '&eEnter items, e.g. &fIRON_INGOT:64, DIAMOND:8&e. Type &fnone&e to disable this cost'
+  prompt-experience: '&eEnter the required experience as a number (0 disables the cost):'
+  prompt-economy: '&eEnter the economy cost as a number (0 disables the cost):'
+  prompt-size: '&eEnter the region size for this level (minimum 1):'
+  prompt-cancel: '&7Type &ccancel &7to stop'
+
+# Spawn addon
+spawn:
+  spawn-set: '&aThe spawn location has been set'
+  spawn-not-set: '&cThe spawn location has not been set'
+  teleporting: "&eYou will be teleported in &7%seconds% &eseconds. Don't move"
+  title: '&aTeleporting'
+  subtitle: '&eTeleporting in %seconds% seconds...'
+
+# Anti-logout addon
+antilogout:
+  blocked-region: '&7You cannot enter the region &f&n%region%&r&7 during combat!'
+  block-command: '&c&l✖ \n &7You cannot use the command &f&n%command%&r&7 during combat!'
+  quit-broadcast: '&7Player &6%player% &7logged out during combat'
+  started: '&7You started a fight with &f%victim%&7!'
+  attacked: '&7You were attacked by &f%attacker%&7. You are now in combat and cannot log out!'
+  end-combat: '&aYour combat has ended. You may now log out!'
+  remove-combat: '&7Your opponent &f%opponent% &7died. Your combat has ended!'
+  actionbar-message: '&4&lANTI-LOGOUT &8(&c%time%s&8)'

@@ -2,15 +2,17 @@ package pl.kiosel.villages.commands.subcommands;
 
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import pl.kiosel.core.commands.SubCommand;
 import pl.kiosel.core.locale.Locale;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.commands.AVSubCommand;
+import pl.kiosel.villages.data.user.User;
+import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.enums.CommandLang;
 import pl.kiosel.villages.enums.Lang;
-import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.manager.VillageManager;
+import pl.kiosel.villages.manager.VillageUtilsManager;
+import pl.kiosel.villages.settings.Settings;
 
-public class RequestCommand extends SubCommand {
+public class RequestCommand extends AVSubCommand {
 
     @Override
     public String getName() { return "request"; }
@@ -31,35 +33,53 @@ public class RequestCommand extends SubCommand {
 	}
 
 	@Override
-    public void run(Player player, String[] args) {
+	public void run(Player player, User user, String[] args) {
 		Locale locale = plugin.getLocale();
         if (!plugin.getInviteManager().isPlayerInvited(player)) {
 			locale.getMessage(Lang.NO_INVITE.getPath()).sendPrefixedMessage(player);
             return;
         }
 
-        Village village = VillageManager.getVillageByOfflineOwner(player.getName());
+        Village village = user.getPresentVillage();
         if (village != null) {
 			locale.getMessage(Lang.VILLAGE_IN.getPath()).sendPrefixedMessage(player);
             return;
         }
 
-        if (args.length == 1) {
-			player.sendMessage("accept/cancel");
+		if (args.length != 2) {
+			sendUsage(player);
+			return;
 		}
-		if (args.length == 2) {
-			if (args[1].equalsIgnoreCase(plugin.getCommandLang().getCommand(CommandLang.REQUEST_ACCEPT))) {
-				Village inviter = plugin.getInviteManager().getVillageInvited(player);
+
+		if (args[1].equalsIgnoreCase(plugin.getCommandLang().getCommand(CommandLang.REQUEST_ACCEPT))) {
+				Village villageInvited = plugin.getInviteManager().getVillageInvited(player);
+				if (villageInvited == null) {
+					locale.getMessage(Lang.NO_INVITE.getPath()).sendPrefixedMessage(player);
+					return;
+				}
+				if (villageInvited.getMembers().size() >= Settings.VILLAGE_MAX_MEMBERS.getInt()) {
+					locale.getMessage(Lang.MAX_MEMBERS.getPath()).sendPrefixedMessage(player);
+					return;
+				}
 				player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
-				locale.getMessage(Lang.INVITE_CONFIRMED.getPath())
-						.processPlaceholder("owner", inviter.getOwner()).sendPrefixedMessage(player);
+				VillageUtilsManager.replaceWith(player, villageInvited, locale.getMessage(Lang.INVITE_CONFIRMED.getPath()).toText()).sendPrefixedMessage(player);
 				plugin.getInviteManager().acceptInvite(player);
+				return;
 			}
 
-			if (args[1].equalsIgnoreCase(plugin.getCommandLang().getCommand(CommandLang.REQUEST_DENY))) {
+		if (args[1].equalsIgnoreCase(plugin.getCommandLang().getCommand(CommandLang.REQUEST_DENY))) {
 				locale.getMessage(Lang.INVITE_CANCELED.getPath()).sendPrefixedMessage(player);
 				plugin.getInviteManager().denyInvite(player);
+				return;
 			}
-		}
+
+		sendUsage(player);
     }
+
+	private void sendUsage(Player player) {
+		plugin.getLocale().getMessage(Lang.COMMAND_USAGE_REQUEST.getPath())
+				.processPlaceholder("accept", plugin.getCommandLang().getCommand(CommandLang.REQUEST_ACCEPT))
+				.processPlaceholder("deny", plugin.getCommandLang().getCommand(CommandLang.REQUEST_DENY))
+				.sendPrefixedMessage(player);
+	}
 }

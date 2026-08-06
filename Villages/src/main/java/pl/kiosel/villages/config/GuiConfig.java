@@ -84,6 +84,8 @@ public class GuiConfig {
 	public static List<String> guis_village_setting_pvp_lore;
 	public static String guis_village_setting_tnt;
 	public static List<String> guis_village_setting_tnt_lore;
+	public static String guis_village_setting_animations;
+	public static List<String> guis_village_setting_animations_lore;
 	public static String guis_village_setting_tag;
 	public static List<String> guis_village_setting_tag_lore;
 	public static String guis_village_setting_tag_set;
@@ -171,6 +173,8 @@ public class GuiConfig {
 		guis_village_setting_pvp_lore = getList("guis.village.settings.pvp.lore", TextUtils.of("&8——————————", " ", "&7Pvp: %village_pvp%", " ", "&8——————————"));
 		guis_village_setting_tnt = getString("guis.village.settings.tnt.name", "&c&lTNT");
 		guis_village_setting_tnt_lore = getList("guis.village.settings.tnt.lore", TextUtils.of("&8——————————", " ", "&7TNT: %village_tnt%", " ", "&8——————————"));
+		guis_village_setting_animations = getString("guis.village.settings.animations.name", "&d&lAnimations");
+		guis_village_setting_animations_lore = getList("guis.village.settings.animations.lore", TextUtils.of("&8——————————", " ", "&7Animations: %village_animations%", " ", "&8——————————"));
 		guis_village_setting_tag = getString("guis.village.settings.tag.name", "&c&lTag");
 		guis_village_setting_tag_lore = getList("guis.village.settings.tag.lore", TextUtils.of("&8——————————", " ", "&e&lTag: &c%village_tag%", " ", "%istagset%", "&8——————————"));
 		guis_village_setting_tag_set = getString("guis.village.settings.tag_set", "&7Click to set");

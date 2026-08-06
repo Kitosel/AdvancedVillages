@@ -1,23 +1,21 @@
 package pl.kiosel.villages.gui.village;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
-import pl.kiosel.villages.enums.GUIS;
-import pl.kiosel.villages.gui.VillageMenu;
+import pl.kiosel.core.gui.Gui;
+import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.data.village.Village;
+import pl.kiosel.villages.enums.GUIS;
+import pl.kiosel.villages.gui.Item;
+import pl.kiosel.villages.gui.VillageGUIManager;
+import pl.kiosel.villages.gui.VillageMenu;
 
-public class StorageInventory extends VillageMenu {
+public final class StorageInventory extends VillageMenu {
 
-	@Override
-	public Inventory getInventory(Village village, Player player) {
-		Inventory inventory = Bukkit.createInventory(player, GUIS.STORAGE.getSize(), GUIS.STORAGE.getName());
-		for(int x = 0; x < 9; ++x) { inventory.setItem(x, blank(Blank.WHITE)); }
-		inventory.setItem(4, blank(Blank.BACK));
-		inventory.setItem(0, blank(Blank.PREVIUS_PAGE));
-		inventory.setItem(8, blank(Blank.NEXT_PAGE));
-
-		if (village == null) return inventory;
-		return inventory;
+	public StorageInventory(AdvancedVillages plugin, VillageGUIManager menus, Village village,
+	                        Player player, Gui parent) {
+		super(plugin, menus, village, player, GUIS.STORAGE, parent);
+		addBackButton(4);
+		setItem(0, Item.blank(Item.Blank.PREVIUS_PAGE));
+		setItem(8, Item.blank(Item.Blank.NEXT_PAGE));
 	}
 }

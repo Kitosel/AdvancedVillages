@@ -1,79 +1,94 @@
 package pl.kiosel.villages.gui;
 
 import org.bukkit.entity.Player;
+import pl.kiosel.core.gui.Gui;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.data.user.User;
+import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.enums.GUIS;
 import pl.kiosel.villages.gui.village.*;
-import pl.kiosel.villages.data.village.Village;
 
 import java.util.UUID;
 
 public class VillageGUIManager {
 
-    private final AdvancedVillages plugin;
-	private final BankInventory bankInventory;
-	private final EffectsInventory effectsInventory;
-	private final RemoveInventory removeInventory;
-	private final ResidentInventory residentInventory;
-	private final SettingsInventory settingsInventory;
-	private final StoreInventory storeInventory;
-	private final UpgradeInventory upgradeInventory;
-	private final VillageInventory villageInventory;
-	private final TagInventory tagInventory;
-	private final MemberSettingsInventory memberSettingsInventory;
-	private final StorageInventory storageInventory;
+	private final AdvancedVillages plugin;
 
-    public VillageGUIManager(AdvancedVillages plugin) {
-        this.plugin = plugin;
-		bankInventory = new BankInventory();
-		effectsInventory = new EffectsInventory();
-		removeInventory = new RemoveInventory();
-		residentInventory = new ResidentInventory();
-		settingsInventory = new SettingsInventory();
-		storeInventory = new StoreInventory(plugin);
-		upgradeInventory = new UpgradeInventory();
-		storageInventory = new StorageInventory();
-		villageInventory = new VillageInventory();
-		memberSettingsInventory = new MemberSettingsInventory(plugin);
-		tagInventory = new TagInventory();
-    }
+	public VillageGUIManager(AdvancedVillages plugin) {
+		this.plugin = plugin;
+	}
 
-    public void openGui(Village village, Player player, GUIS GUIS) {
-        switch (GUIS) {
-            case VILLAGE:
-                player.openInventory(villageInventory.getInventory(village, player));
-                break;
-            case SETTINGS:
-                player.openInventory(settingsInventory.getInventory(village, player));
-                break;
-            case BANK:
-                player.openInventory(bankInventory.getInventory(village, player));
-                break;
+	public void openGui(Village village, Player player, GUIS type) {
+		if (village == null || player == null) {
+			return;
+		}
+
+		VillageInventory main = new VillageInventory(plugin, this, village, player);
+		Gui gui;
+		switch (type) {
+			case VILLAGE:
+				gui = main;
+				break;
+			case SETTINGS:
+				gui = new SettingsInventory(plugin, this, village, player, main);
+				break;
+			case BANK:
+				gui = new BankInventory(plugin, this, village, player, main);
+				break;
 			case REMOVE:
-				player.openInventory(removeInventory.getInventory(village, player));
+				gui = new RemoveInventory(plugin, this, village, player, main);
 				break;
 			case UPGRADE:
-				player.openInventory(upgradeInventory.getInventory(village, player));
+				gui = new UpgradeInventory(plugin, this, village, player, main);
 				break;
 			case EFFECTS:
-				player.openInventory(effectsInventory.getInventory(village, player));
+				gui = new EffectsInventory(plugin, this, village, player, main);
 				break;
 			case RESIDENT:
-				player.openInventory(residentInventory.getInventory(village, player));
+				gui = new ResidentInventory(plugin, this, village, player, main);
 				break;
 			case STORE:
-				player.openInventory(storeInventory.getInventory(village, player));
+				gui = new StoreInventory(plugin, this, village, player, main);
 				break;
 			case STORAGE:
-				player.openInventory(storageInventory.getInventory(village, player));
+				gui = new StorageInventory(plugin, this, village, player, main);
 				break;
 			case TAG:
-				tagInventory.openInventory(plugin, village).open(player);
+				SettingsInventory settings = new SettingsInventory(plugin, this, village, player, main);
+				gui = new TagInventory(plugin, village, player, settings);
 				break;
-        }
-    }
+			default:
+				gui = main;
+		}
+		plugin.getGuiManager().showGUI(player, gui);
+	}
 
-	public void openMemberSettings(Village village, Player player, UUID member) {
-		player.openInventory(memberSettingsInventory.getInventory(village, player, member));
+	public void openMemberSettings(Player player, UUID member) {
+		Village village = getVillage(player);
+		if (village == null) {
+			return;
+		}
+		VillageInventory main = new VillageInventory(plugin, this, village, player);
+		ResidentInventory residents = new ResidentInventory(plugin, this, village, player, main);
+		plugin.getGuiManager().showGUI(player,
+				new MemberSettingsInventory(plugin, this, village, player, residents, member));
+	}
+
+	public void openMemberRemove(Player player, UUID member) {
+		Village village = getVillage(player);
+		if (village == null) {
+			return;
+		}
+		VillageInventory main = new VillageInventory(plugin, this, village, player);
+		ResidentInventory residents = new ResidentInventory(plugin, this, village, player, main);
+		MemberSettingsInventory settings = new MemberSettingsInventory(
+				plugin, this, village, player, residents, member);
+		plugin.getGuiManager().showGUI(player,
+				new MemberRemoveInventory(plugin, this, village, player, settings, member));
+	}
+
+	private Village getVillage(Player player) {
+		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).orNull();
+		return user == null ? null : user.getPresentVillage();
 	}
 }

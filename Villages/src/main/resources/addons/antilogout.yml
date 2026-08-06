@@ -1,0 +1,74 @@
+#
+# Message types: CHAT, ACTION_BAR, TITLE, NONE
+#
+
+# Permission that allows bypassing the anti-logout system
+combat-bypass: false
+combat-bypass-permission: "advancedvillages.antylogout.bypass"
+
+# Duration of combat (in seconds)
+combat-duration: 20
+
+# Whether combat ends when the opponent dies
+remove-combat-on-opponent-death: true
+
+# Whether to send notifications when combat starts
+combat-start-notifications-enabled: true
+
+# Whether combat can start from mob attacks
+combat-from-mobs: true
+
+# Whether combat can start from projectiles (e.g., arrows)
+combat-from-projectiles: true
+
+# Broadcast when opponent quit while combat
+combat-quit-broadcast: true
+
+# Whether commands are blocked during combat
+commands-blocked-during-combat: true
+
+# List of allowed commands during combat
+combat-command-whitelist: ["msg", "r", "reply"]
+
+# Knockback multiplier when trying to enter a blocked region
+blocked-region-knockback-multiplier: 1
+
+# List of regions players cannot enter during combat
+blocked-regions: ["spawn"]
+
+# Message displayed during combat ///////////
+combat-message:
+  type: ACTION_BAR
+  content: "&4&lANTI-LOGOUT &8(&c{time}s&8)"
+
+# Messages displayed after combat ends /////////////
+combat-end-message:
+  - type: ACTION_BAR
+    content: "&aYour combat has ended. You may now log out!"
+  - type: CHAT
+    content: "&aYour combat has ended. You may now log out!"
+
+# Message for the attacker when combat starts //////////
+combat-start-message-attacker:
+  type: CHAT
+  content: "&7You are starting combat with &f{victim}&7!"
+
+# Message for the victim when combat starts //////////
+combat-start-message-victim:
+  type: CHAT
+  content: "&7You have been attacked by &f{attacker}&7. You are now in combat and cannot log out!"
+
+# Message when the opponent dies ////////////////
+remove-combat-message:
+  - type: CHAT
+    content: "&7Your opponent &f{opponent} &7has died. Your combat has ended!"
+
+# Message when attempting to use a blocked command ////////
+combat-command-blocked-message:
+  - type: TITLE
+    content: "&c&l✖ \n &7You cannot use the command &f&n{command}&r&7 during combat!"
+
+# Message when trying to enter a blocked region during combat ////////////
+combat-blocked-region-enter-message:
+  - type: TITLE
+    content: "&7You cannot enter the region &f&n{region}&r&7 during combat!"

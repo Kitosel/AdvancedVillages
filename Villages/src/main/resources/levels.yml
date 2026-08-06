@@ -1,9 +1,13 @@
+#
+# TO DISABLE BUY TYPE 0
+# Supported levels: 1-9. New levels can be created with /village edit.
+# Keep levels consecutive (Level-1, Level-2, Level-3...).
+#
 Level-1:
-  #DEFAULT VILLAGE
+  #DEFAULT VILLAGE LEVEL
   Cost-item:
     - "IRON_INGOT:32"
     - "DIAMOND:4"
-  Cost-xp: 5
   Cost-eco: 1000
   Size: 25
 Level-2:

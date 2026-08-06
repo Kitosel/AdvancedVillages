@@ -14,9 +14,11 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.potion.PotionEffect;
+import pl.kiosel.dependencies.com.cryptomorin.xseries.XMaterial;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.api.events.PlayerEnterVillageEvent;
-import pl.kiosel.villages.api.events.PlayerExitVillageEvent;
+import pl.kiosel.villages.events.PlayerEnterVillageEvent;
+import pl.kiosel.villages.events.PlayerExitVillageEvent;
+import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.enums.Effects;
 import pl.kiosel.villages.settings.Settings;
 import pl.kiosel.villages.data.village.Village;
@@ -46,8 +48,13 @@ public class PlayerListeners implements Listener {
 		Player player = event.getPlayer();
 		if (isWorldEnabled(player.getWorld())) return;
 
-		Village village = plugin.getVillageManager().getVillageAt(event.getBlock().getLocation());
-		if (village != null && !village.isMember(player)) {
+		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).get();
+		Village village = plugin.getVillageUtilsManager().getVillageAt(event.getBlock().getLocation());
+		if (village == null) return;
+
+		if (event.getBlock().getType().equals(XMaterial.NOTE_BLOCK.get()) && village.isCentralBlock(event.getBlock())) return;
+
+		if (!village.isMember(user)) {
 			event.setCancelled(true);
 			deny(player);
 		}
@@ -58,8 +65,9 @@ public class PlayerListeners implements Listener {
 		Player player = event.getPlayer();
 		if (isWorldEnabled(player.getWorld())) return;
 
-		Village village = plugin.getVillageManager().getVillageAt(event.getBlock().getLocation());
-		if (village != null && !village.isMember(player)) {
+		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).get();
+		Village village = plugin.getVillageUtilsManager().getVillageAt(event.getBlock().getLocation());
+		if (village != null && !village.isMember(user)) {
 			event.setCancelled(true);
 			deny(player);
 		}
@@ -72,10 +80,13 @@ public class PlayerListeners implements Listener {
 		if (event.getClickedBlock() == null) return;
 
 		Block block = event.getClickedBlock();
-		Village village = plugin.getVillageManager().getVillageAt(block.getLocation());
+		Village village = plugin.getVillageUtilsManager().getVillageAt(block.getLocation());
 		if (village == null) return;
 
-		if (!village.isMember(player)) {
+		if (event.getClickedBlock().getType().equals(XMaterial.NOTE_BLOCK.get()) && village.isCentralBlock(event.getClickedBlock())) return;
+
+		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).get();
+		if (!village.isMember(user)) {
 			boolean shouldCancel = isShouldCancel(event.getAction(), block);
 			if (shouldCancel) {
 				event.setCancelled(true);
@@ -91,12 +102,13 @@ public class PlayerListeners implements Listener {
 		Player player = event.getPlayer();
 		if (!isWorldEnabled(player.getWorld())) return;
 
-		Village village = plugin.getVillageManager().getVillageAt(frame.getLocation());
+		Village village = plugin.getVillageUtilsManager().getVillageAt(frame.getLocation());
 		if (village == null)
-			village = plugin.getVillageManager().getVillageAt(frame2.getLocation());
+			village = plugin.getVillageUtilsManager().getVillageAt(frame2.getLocation());
 		if (village == null) return;
 
-		if (!village.isMember(player)) {
+		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).get();
+		if (!village.isMember(user)) {
 			event.setCancelled(true);
 			deny(player);
 		}
@@ -132,28 +144,30 @@ public class PlayerListeners implements Listener {
 		if(event.getEntity() instanceof Player victim && event.getDamager() instanceof Player damager) {
 			if (isWorldEnabled(damager.getWorld())) return;
 
-			Village village = plugin.getVillageManager().getVillageAt(victim.getLocation());
+			Village village = plugin.getVillageUtilsManager().getVillageAt(victim.getLocation());
 			if (village == null) return;
-			if(village.isSameVillage(damager, victim) && !village.getVillageSettings().isPvp()) {
+			if(village.isSameVillage(damager, victim) && !village.isPvp()) {
 				event.setCancelled(true);
 				damager.playSound(damager.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
 			}
 		}
 		if (event.getEntity() instanceof ItemFrame frame && event.getDamager() instanceof Player player) {
 			if (isWorldEnabled(frame.getWorld())) return;
+			User user = plugin.getUserManager().findByUuid(player.getUniqueId()).get();
 
-			Village village = plugin.getVillageManager().getVillageAt(player.getLocation());
+			Village village = plugin.getVillageUtilsManager().getVillageAt(player.getLocation());
 			if (village == null) return;
-			if (!village.isMember(player)) {
+			if (!village.isMember(user)) {
 				event.setCancelled(true);
 			}
 		}
 		if (event.getEntity() instanceof GlowItemFrame frame && event.getDamager() instanceof Player player) {
 			if (isWorldEnabled(frame.getWorld())) return;
+			User user = plugin.getUserManager().findByUuid(player.getUniqueId()).get();
 
-			Village village = plugin.getVillageManager().getVillageAt(player.getLocation());
+			Village village = plugin.getVillageUtilsManager().getVillageAt(player.getLocation());
 			if (village == null) return;
-			if (!village.isMember(player)) {
+			if (!village.isMember(user)) {
 				event.setCancelled(true);
 			}
 		}
@@ -163,11 +177,12 @@ public class PlayerListeners implements Listener {
 	public void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent event) {
 		Player player = event.getPlayer();
 		if (isWorldEnabled(player.getWorld())) return;
+		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).get();
 
 		EntityType type = event.getRightClicked().getType();
 		if (type == EntityType.ITEM_FRAME || type == EntityType.GLOW_ITEM_FRAME || type == EntityType.ARMOR_STAND) {
-			Village village = plugin.getVillageManager().getVillageAt(event.getRightClicked().getLocation());
-			if (village != null && !village.isMember(player)) {
+			Village village = plugin.getVillageUtilsManager().getVillageAt(event.getRightClicked().getLocation());
+			if (village != null && !village.isMember(user)) {
 				event.setCancelled(true);
 				deny(player);
 			}
@@ -178,14 +193,15 @@ public class PlayerListeners implements Listener {
 	public void onPlayerMove(PlayerMoveEvent event) {
 		Player player = event.getPlayer();
 		if (isWorldEnabled(player.getWorld())) return;
+		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).get();
 
 		assert event.getTo() != null;
 		if (event.getFrom().getBlockX() == event.getTo().getBlockX()
 				&& event.getFrom().getBlockZ() == event.getTo().getBlockZ()) return;
 
-		Village village = plugin.getVillageManager().getVillageAt(player.getLocation());
+		Village village = plugin.getVillageUtilsManager().getVillageAt(player.getLocation());
 
-		if (village != null && village.isMember(player)) {
+		if (village != null && village.isMember(user)) {
 			if (village.isRegenerationActive())
 				player.addPotionEffect(new PotionEffect(Effects.REGENERATION.getPotionEffectType(), 40, Settings.EFFECTS_REGENERATION_AMPLIFIER.getInt()));
 			if (village.isSpeedActive())
@@ -210,10 +226,11 @@ public class PlayerListeners implements Listener {
 	@EventHandler
 	public void onPlayerBucketFill(PlayerBucketFillEvent event) {
 		Player player = event.getPlayer();
+		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).get();
 		if (isWorldEnabled(player.getWorld())) return;
 
-		Village village = plugin.getVillageManager().getVillageAt(event.getBlock().getLocation());
-		if (village != null && !village.isMember(player)) {
+		Village village = plugin.getVillageUtilsManager().getVillageAt(event.getBlock().getLocation());
+		if (village != null && !village.isMember(user)) {
 			event.setCancelled(true);
 			deny(player);
 		}
@@ -222,10 +239,11 @@ public class PlayerListeners implements Listener {
 	@EventHandler
 	public void onPlayerBucketEmpty(PlayerBucketEmptyEvent event) {
 		Player player = event.getPlayer();
+		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).get();
 		if (isWorldEnabled(player.getWorld())) return;
 
-		Village village = plugin.getVillageManager().getVillageAt(event.getBlock().getLocation());
-		if (village != null && !village.isMember(player)) {
+		Village village = plugin.getVillageUtilsManager().getVillageAt(event.getBlock().getLocation());
+		if (village != null && !village.isMember(user)) {
 			event.setCancelled(true);
 			deny(player);
 		}

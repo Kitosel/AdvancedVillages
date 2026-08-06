@@ -2,23 +2,24 @@ package pl.kiosel.villages.commands.subcommands;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import pl.kiosel.core.commands.SubCommand;
 import pl.kiosel.core.locale.Locale;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.enums.Lang;
+import pl.kiosel.villages.commands.AVSubCommand;
+import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.manager.VillageManager;
+import pl.kiosel.villages.enums.Lang;
+import pl.kiosel.villages.settings.Settings;
 
-public class InviteCommand extends SubCommand {
-
-    @Override
-    public String getName() { return "leave"; }
+public class InviteCommand extends AVSubCommand {
 
     @Override
-    public String getDescription() { return "Leave village"; }
+    public String getName() { return "invite"; }
 
     @Override
-    public String getUsage() { return "/village leave"; }
+    public String getDescription() { return "Invite a player to your village"; }
+
+    @Override
+    public String getUsage() { return "/village invite <player>"; }
 
 	@Override
 	public String getPermission() { return "villages.command.invite"; }
@@ -30,13 +31,18 @@ public class InviteCommand extends SubCommand {
 	}
 
 	@Override
-    public void run(Player player, String[] args) {
+	public void run(Player player, User user, String[] args) {
 		Locale locale = plugin.getLocale();
-        Village village = VillageManager.getVillageByOfflineOwner(player.getName());
+		Village village = user.getPresentVillage();
         if (village == null) {
 			locale.getMessage(Lang.VILLAGE_NO.getPath()).sendPrefixedMessage(player);
             return;
         }
+
+		if (village.getMembers().size() >= Settings.VILLAGE_MAX_MEMBERS.getInt()) {
+			locale.getMessage(Lang.MAX_MEMBERS.getPath()).sendPrefixedMessage(player);
+			return;
+		}
 
 		if (args.length == 2) {
 			Player invite = Bukkit.getPlayer(args[1]);
@@ -45,7 +51,12 @@ public class InviteCommand extends SubCommand {
 				return;
 			}
 
-			if (plugin.getVillageManager().hasVillage(invite) || village.isMember(invite)) {
+			User inviteUser = plugin.getUserManager().findByPlayer(invite).orNull();
+			if (inviteUser == null) {
+				locale.getMessage(Lang.PLAYER_NOT_FOUND.getPath()).sendPrefixedMessage(player);
+				return;
+			}
+			if (inviteUser.hasVillage()) {
 				locale.getMessage(Lang.HAS_VILLAGE.getPath()).sendPrefixedMessage(player);
 				return;
 			}
@@ -57,6 +68,9 @@ public class InviteCommand extends SubCommand {
 				locale.getMessage(Lang.PLAYER_TARGET.getPath()).processPlaceholder("player", player.getName()).sendPrefixedMessage(invite);
 				plugin.getInviteManager().invitePlayer(village, invite);
 			}
+			return;
 		}
+
+		locale.getMessage(Lang.COMMAND_USAGE_INVITE.getPath()).sendPrefixedMessage(player);
     }
 }

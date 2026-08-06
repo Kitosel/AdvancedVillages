@@ -3,22 +3,22 @@ package pl.kiosel.villages.manager;
 import lombok.Getter;
 import org.bukkit.entity.Player;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.enums.Permission;
-import pl.kiosel.villages.data.village.VillageMember;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class PermissionManager {
 
 	private final AdvancedVillages plugin;
-	@Getter	private final List<Permission> defaultPermission;
+	@Getter	private final Set<Permission> defaultPermission;
 
 	public PermissionManager(AdvancedVillages plugin) {
 		this.plugin = plugin;
-		this.defaultPermission = new ArrayList<>();
+		this.defaultPermission = new HashSet<>();
 		defaultPermission.add(Permission.BANK_ADD);
 		defaultPermission.add(Permission.BANK_REMOVE);
 		defaultPermission.add(Permission.STORE);
@@ -26,13 +26,17 @@ public class PermissionManager {
 		defaultPermission.add(Permission.EFFECTS_BUY);
 	}
 
-	public void addPermission(VillageMember villageMember, Permission permission) {
-		if (!villageMember.getPermissions().contains(permission))
-			villageMember.getPermissions().add(permission);
+	public void addPermission(User user, Permission permission) {
+		if (!user.getPermissions().contains(permission))
+			user.addVillagePermission(permission);
 	}
 
-	public void removePermission(VillageMember villageMember, Permission permission) {
-		villageMember.getPermissions().remove(permission);
+	public void removePermission(User user, Permission permission) {
+		user.removeVillagePermission(permission);
+	}
+
+	public boolean hasPermission(User user, Permission permission) {
+		return user.hasVillagePermission(permission);
 	}
 
 	public boolean hasPermission(Player player, Permission permission) {
@@ -40,26 +44,22 @@ public class PermissionManager {
 	}
 
 	public boolean hasPermission(UUID uuid, Permission permission) {
-		return hasPermission(plugin.getVillageDataManager().getVillageMember(uuid), permission);
+		return plugin.getUserManager().findByUuid(uuid)
+				.map(user -> hasPermission(user, permission))
+				.orElseGet(false);
 	}
 
-	public boolean hasPermission(VillageMember member, Permission permission) {
-		if (member == null) return false;
-		if (member.getVillage().isOwner(member.getUuid())) return true;
-		return member.getPermissions().contains(permission);
-	}
-
-	public String toString(List<Permission> permissions) {
+	public String toString(Set<Permission> permissions) {
 		if (permissions == null || permissions.isEmpty()) {
-			return "";
+			return null;
 		}
 		return permissions.stream()
 				.map(Enum::name)
 				.collect(Collectors.joining(";"));
 	}
 
-	public List<Permission> fromString(String raw) {
-		List<Permission> permissions = new ArrayList<>();
+	public Set<Permission> fromString(String raw) {
+		Set<Permission> permissions = new HashSet<>();
 		if (raw == null || raw.isEmpty()) return permissions;
 
 		for (String s : raw.split(";")) {

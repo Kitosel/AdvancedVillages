@@ -71,6 +71,14 @@ guis:
           - "&7TNT: %village_tnt%"
           - " "
           - "&8——————————"
+      animations:
+        name: "&d&lAnimations"
+        lore:
+          - "&8——————————"
+          - " "
+          - "&7Animations: %village_animations%"
+          - " "
+          - "&8——————————"
       delete:
         name: "&c&l&nDelete village"
         lore:

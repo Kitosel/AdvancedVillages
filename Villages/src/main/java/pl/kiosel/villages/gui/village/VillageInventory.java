@@ -1,38 +1,49 @@
 package pl.kiosel.villages.gui.village;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
+import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.config.GuiConfig;
+import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.enums.GUIS;
 import pl.kiosel.villages.gui.Item;
+import pl.kiosel.villages.gui.VillageGUIManager;
 import pl.kiosel.villages.gui.VillageMenu;
-import pl.kiosel.villages.data.village.Village;
 
-public class VillageInventory extends VillageMenu {
+public final class VillageInventory extends VillageMenu {
 
-	@Override
-	public Inventory getInventory(Village village, Player player) {
-		Inventory inventory = Bukkit.createInventory(player, GUIS.VILLAGE.getSize(), GUIS.VILLAGE.getName());
-		for(int x = 0; x < 9; ++x) { inventory.setItem(x, blank(Item.Blank.WHITE)); }
-		inventory.setItem(4, create(Material.NOTE_BLOCK, GuiConfig.guis_village_settings, GuiConfig.guis_village_settings_lore));
-		inventory.setItem(35, blank(Item.Blank.EXIT));
+	public VillageInventory(AdvancedVillages plugin, VillageGUIManager menus, Village village, Player player) {
+		super(plugin, menus, village, player, GUIS.VILLAGE, null);
 
-		inventory.setItem(11, create(Material.PLAYER_HEAD, GuiConfig.guis_village_members, GuiConfig.guis_village_members_lore));
-//		inventory.setItem(13, create(Material.CHEST, GuiConfig.guis_village_storage, GuiConfig.guis_village_storage_lore));
+		setButton(4, Item.create(Material.NOTE_BLOCK, GuiConfig.guis_village_settings,
+				GuiConfig.guis_village_settings_lore), event -> openFromMain(GUIS.SETTINGS));
+		setButton(35, Item.blank(Item.Blank.EXIT), event -> {
+			playSound(Sound.BLOCK_ANVIL_BREAK, 0.1f, 2.0f);
+			event.gui.exit();
+		});
+
+		setButton(11, Item.create(Material.PLAYER_HEAD, GuiConfig.guis_village_members,
+				GuiConfig.guis_village_members_lore), event -> openFromMain(GUIS.RESIDENT));
+
 		if (village.getLevel().getLevel() > 1) {
-			inventory.setItem(15, create(Material.SUNFLOWER, GuiConfig.guis_village_bank, GuiConfig.guis_village_bank_lore));
+			setButton(15, Item.create(Material.SUNFLOWER, GuiConfig.guis_village_bank,
+					GuiConfig.guis_village_bank_lore), event -> openFromMain(GUIS.BANK));
 		} else {
-			inventory.setItem(15, create(Material.BARRIER, "&cX " + GuiConfig.guis_village_bank, GuiConfig.guis_village_bank_lore));
+			setItem(15, Item.create(Material.BARRIER, "&cX " + GuiConfig.guis_village_bank,
+					GuiConfig.guis_village_bank_lore));
 		}
-		inventory.setItem(21, create(Material.NETHER_STAR, GuiConfig.guis_village_store, GuiConfig.guis_village_store_lore));
+
+		setButton(21, Item.create(Material.NETHER_STAR, GuiConfig.guis_village_store,
+				GuiConfig.guis_village_store_lore), event -> openFromMain(GUIS.STORE));
 		if (village.getLevel().getLevel() > 3) {
-			inventory.setItem(23, create(Material.SPLASH_POTION, GuiConfig.guis_village_effects, GuiConfig.guis_village_effects_lore));
+			setButton(23, Item.create(Material.SPLASH_POTION, GuiConfig.guis_village_effects,
+					GuiConfig.guis_village_effects_lore), event -> openFromMain(GUIS.EFFECTS));
 		} else {
-			inventory.setItem(23, create(Material.BARRIER, "&cX " + GuiConfig.guis_village_effects, GuiConfig.guis_village_effects_lore));
+			setItem(23, Item.create(Material.BARRIER, "&cX " + GuiConfig.guis_village_effects,
+					GuiConfig.guis_village_effects_lore));
 		}
-		inventory.setItem(31, create(Material.DIAMOND, GuiConfig.guis_village_upgrade, GuiConfig.guis_village_upgrade_lore));
-		return inventory;
+		setButton(31, Item.create(Material.DIAMOND, GuiConfig.guis_village_upgrade,
+				GuiConfig.guis_village_upgrade_lore), event -> openFromMain(GUIS.UPGRADE));
 	}
 }

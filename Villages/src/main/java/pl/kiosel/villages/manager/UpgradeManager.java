@@ -1,28 +1,26 @@
 package pl.kiosel.villages.manager;
 
 import org.bukkit.Location;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import pl.kiosel.core.locale.Locale;
 import pl.kiosel.core.utils.PlayerUtils;
 import pl.kiosel.dependencies.com.cryptomorin.xseries.XMaterial;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.data.village.turets.internal.*;
-import pl.kiosel.villages.enums.Lang;
-import pl.kiosel.villages.enums.Upgrade;
-import pl.kiosel.villages.data.village.turets.Turret;
+import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.data.village.level.Level;
+import pl.kiosel.villages.data.village.turets.Turret;
+import pl.kiosel.villages.data.village.turets.internal.*;
 import pl.kiosel.villages.data.village.turets.worldedit.TurretSetWE;
 import pl.kiosel.villages.data.village.turets.worldedit.WorldEditTurret;
+import pl.kiosel.villages.enums.Lang;
+import pl.kiosel.villages.enums.Upgrade;
 import pl.kiosel.villages.settings.Settings;
-import pl.kiosel.villages.data.village.Village;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public class UpgradeManager {
 
@@ -57,15 +55,17 @@ public class UpgradeManager {
 		boolean xpEnabled = Settings.VILLAGE_UPGRADE_XP.getBoolean();
 		boolean itemsEnabled = Settings.VILLAGE_UPGRADE_ITEMS.getBoolean();
 
-		boolean hasMoney = !ecoEnabled || plugin.getApi().hasMoney(player, costEco);
+		boolean hasMoney = !ecoEnabled || plugin.getEconomy().hasBalance(player, costEco);
 		boolean hasXp = !xpEnabled || PlayerUtils.getTotalExperience(player) >= costXp;
 		boolean hasItems = !itemsEnabled || PlayerUtils.hasEnoughItems(player, costMaterial);
 
 		if (!hasMoney || !hasXp || !hasItems) {
 			locale.getMessage(Lang.VILLAGE_NO_REQ_UPGRADE.getPath()).sendPrefixedMessage(player);
 
-			if (!hasMoney)
-				locale.getMessage(Lang.NO_MONEY.getPath()).sendPrefixedMessage(player);
+			if (!hasMoney) {
+				double more_money = costEco - plugin.getEconomy().getBalance(player);
+				locale.getMessage(Lang.NO_MONEY.getPath()).processPlaceholder("money", more_money).sendPrefixedMessage(player);
+			}
 
 			if (!hasXp)
 				locale.getMessage(Lang.NO_XP.getPath())
@@ -85,7 +85,12 @@ public class UpgradeManager {
 		}
 
 		if (ecoEnabled) {
-			plugin.getApi().removeMoney(player, costEco);
+			if (!plugin.getEconomy().withdrawBalance(player, costEco)) {
+				locale.getMessage(Lang.NO_MONEY.getPath())
+						.processPlaceholder("money", costEco)
+						.sendPrefixedMessage(player);
+				return false;
+			}
 			locale.getMessage(Lang.MONEY_REMOVE.getPath())
 					.processPlaceholder("money", costEco)
 					.sendPrefixedMessage(player);
@@ -115,7 +120,11 @@ public class UpgradeManager {
     }
 
     public void upgrade(Village village, Upgrade upgrade) {
-        Location location = village.getLocation();
+        Location location = village.getLocation().get();
+		if (!canPasteLevel(upgrade.getLevel())) {
+			plugin.getLogger().warning("Cannot paste village level " + upgrade.getLevel() + ": compatible turret build is missing.");
+			return;
+		}
         reset(village);
 
 		if (plugin.isWorldedit()) {
@@ -129,42 +138,38 @@ public class UpgradeManager {
     }
 
     public void reset(Village village) {
-        ((TurretReset) turretMap.get(Upgrade.RESET)).setAir(village.getLocation());
+        ((TurretReset) turretMap.get(Upgrade.RESET)).setAir(village.getLocation().get());
     }
 
     public void remove(Village village) {
-        ((TurretReset) turretMap.get(Upgrade.RESET)).removeVillage(village.getLocation());
+        ((TurretReset) turretMap.get(Upgrade.RESET)).removeVillage(village.getLocation().get());
     }
 
-	public void upgradeVillage(Village village) {
-		village.upgrade();
-		Location loc = village.getLocation();
-		Objects.requireNonNull(loc.getWorld()).spawnParticle(Particle.FLAME, loc, 50, 1, 1, 1);
-		loc.getWorld().playSound(loc, Sound.ENTITY_PLAYER_LEVELUP, 10, 1);
+	public boolean upgradeVillage(Village village) {
+		Level nextLevel = plugin.getLevelManager().getLevel(village.getLevel().getLevel() + 1);
+		if (nextLevel == null || !canPasteLevel(nextLevel.getLevel())) {
+			return false;
+		}
+		village.setLevel(nextLevel);
+		plugin.getVillageAnimationManager().playLevelUpgrade(village);
 		plugin.getServer().getScheduler().runTaskLater(plugin, () -> upgrade(village, village.getLevel().getLevel()), 4L);
+		return true;
+	}
+
+	public boolean canPasteLevel(int level) {
+		if (plugin.isWorldedit()) {
+			return new File(plugin.getDataFolder(), "schematics/Turret" + level + ".schem").isFile();
+		}
+		Upgrade upgrade = Upgrade.getByLevel(level);
+		return upgrade.getLevel() == level && turretMap.containsKey(upgrade);
 	}
 
 	public void upgrade(Village village, int level) {
-		switch (level) {
-			case 1:
-				upgrade(village, Upgrade.IRON);
-				break;
-			case 2:
-				upgrade(village, Upgrade.GOLD);
-				break;
-			case 3:
-				upgrade(village, Upgrade.EMERALD);
-				break;
-			case 4:
-				upgrade(village, Upgrade.DIAMOND);
-				break;
-			case 5:
-				upgrade(village, Upgrade.NETHERITE);
-				break;
-		}
+		upgrade(village, Upgrade.getByLevel(level));
 	}
 
 	public static int getCostForLevel(int level) {
-		return AdvancedVillages.getInstance().getLevelManager().getLevel(level).getCostEconomy();
+		Level configured = AdvancedVillages.getInstance().getLevelManager().getLevel(level);
+		return configured == null ? 0 : configured.getCostEconomy();
 	}
 }

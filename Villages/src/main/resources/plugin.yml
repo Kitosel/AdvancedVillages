@@ -8,10 +8,18 @@ website: kiosel.pl
 
 softdepend:
   - PlaceholderAPI
-  - Vault
   - WorldEdit
+  - WorldGuard
+  - Vault
+  - Reserve
+  - PlayerPoints
 
 commands:
   crafting:
     aliases:
       - villagecrafting
+
+permissions:
+  villages.command.edit:
+    description: Allows editing global village building schematics
+    default: op

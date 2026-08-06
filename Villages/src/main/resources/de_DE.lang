@@ -1,0 +1,191 @@
+# Allgemeine Nachrichten
+general:
+  nametag:
+    prefix: '&8[&6&lDörfer&8]'
+    next: '&9Weiter'
+    back: '&9Zurück'
+    exit: '&cSchließen'
+  player:
+    money-add: '&7Deinem Konto wurden &a%money% &7gutgeschrieben'
+    money-remove: '&7Von deinem Konto wurden &a%money% &7abgezogen'
+    money-no: '&cDu hast nicht genug Geld!'
+    online: '&aDer Spieler ist online'
+    offline: '&cDer Spieler ist offline'
+    not-found: '&cDie Spielerdaten wurden nicht gefunden'
+    is-member: '&cDieser Spieler ist bereits Mitglied'
+    has-village: '&cDieser Spieler gehört bereits zu einem Dorf'
+    you-have-full-eq: '&cDein Inventar ist voll'
+    no-xp: '&cDu hast nicht genug Erfahrung. Benötigt: %xp%'
+    no-items: '&cDir fehlen die benötigten Gegenstände'
+    take-xp: '&7Es wurden &a%xp% &7Erfahrung abgezogen'
+    take-items: '&7Es wurden &a%amount%x %item% &7entfernt'
+
+# Befehle
+command:
+  no-console: '&cDieser Befehl kann nur von einem Spieler verwendet werden'
+  not-enabled: '&cDieser Befehl ist deaktiviert'
+  reload: '&7Alle Konfigurationsdateien wurden neu geladen'
+  no-permission: '&cDu hast keine Berechtigung für diesen Befehl'
+  village-not-found: '&cDas Dorf von &f%village_owner% &cwurde nicht gefunden'
+  invalid-number: '&cDer angegebene Wert ist keine gültige Zahl'
+  unknown: '&cUnbekannter Befehl: &f%input%'
+  usage:
+    chat: '&cVerwendung: &f/%command% %chat% <Nachricht>'
+    invite: '&cVerwendung: &f/village invite <Spieler>'
+    request: '&cWähle: &f%accept% &coder &f%deny%'
+    build-editor: '&cVerwendung: &f/village edit [%save%|%cancel%]'
+  admin:
+    village-block: '&aDu hast einen Dorfblock erhalten'
+    destroyer: '&aDu hast einen Zerstörer erhalten'
+    upgrade: '&aDas Dorf von &f%village_owner% &awurde verbessert!'
+    cant-upgrade: '&cDas Dorf hat die höchste Stufe erreicht!'
+    delete: '&cDas Dorf von &f%village_owner% &cwurde gelöscht!'
+    protection-add: '&7Das Dorf von &a%village_owner% &7wurde für &6%time% &7geschützt'
+    protection-remove: '&7Der Schutz des Dorfes von &a%village_owner% &7wurde entfernt'
+    bank-add: '&7Der Dorfbank von &a%village_owner% &7wurden &a%money% &7gutgeschrieben'
+    bank-remove: '&7Von der Dorfbank von &a%village_owner% &7wurden &c%money% &7abgezogen'
+    lives-add: '&7Dem Dorf von &a%village_owner% &7wurden &a%lives% &7Leben hinzugefügt'
+    lives-remove: '&7Dem Dorf von &a%village_owner% &7wurden &c%lives% &7Leben entfernt'
+    already-dying: '&cDieses Dorf hat keine Leben mehr'
+
+# Dorf
+village:
+  disabled-world: '&cDu kannst in dieser Welt kein Dorf platzieren'
+  no-permission: '&cDu darfst diese Einstellung nicht ändern'
+  nearby: '&cDu kannst hier kein Dorf gründen, weil ein anderes Dorf in der Nähe ist (Mindestabstand: %distance% Blöcke)'
+  spawn-nearby: '&cDu kannst so nah am Spawn kein Dorf gründen (Mindestabstand: %distance% Blöcke)'
+  cant-edit: '&cDu kannst dieses Mitglied nicht bearbeiten'
+  effect-not-bought: '&cDer Effekt %effect% wurde nicht gekauft'
+  protected: '&cDieses Dorf ist derzeit geschützt'
+
+  in-village: '&cDu gehörst bereits zu einem Dorf'
+  no-village: '&cDu gehörst zu keinem Dorf'
+  leave-owner: '&cAls Besitzer kannst du das Dorf nicht verlassen'
+  leave-village: '&aDu hast das Dorf verlassen'
+  remove: '&cDu hast das Dorf entfernt'
+  upgrade: '&6Du hast das Dorf verbessert'
+  max-level: '&cDas Dorf hat die höchste Stufe erreicht'
+  upgrade-no-requirements: '&cDu erfüllst nicht alle Voraussetzungen für die Verbesserung deines Dorfes'
+
+  bank-add: '&7In die Dorfbank eingezahlt: &a%money%'
+  bank-remove: '&7Aus der Dorfbank ausgezahlt: &c%money%'
+  bank-no-money: '&cDie Dorfbank hat nicht genug Geld'
+
+  # %village_tag% %village_name% %village_owner%
+  enter-village-area-title: '&6Du hast ein Dorf betreten'
+  enter-village-area-subtitle: '&7%village_tag%'
+  leave-village-area-title: ' '
+  leave-village-area-subtitle: '&6Du hast das Dorf verlassen'
+  chat-format: '&8[&5&lDorf&r&8] &f%player%&7: &f%message%'
+  chat-format-owner-color: '&6'
+
+# Dorfkürzel
+tag:
+  try-again: 'Dieses Kürzel wird bereits verwendet'
+  has-spaces: 'Das Kürzel darf keine Leerzeichen enthalten'
+  too-long: 'Das Kürzel ist zu lang'
+  invalid-chars: 'Das Kürzel enthält ungültige Zeichen'
+  anvil-name-your-village: 'Benenne dein Dorf'
+  new-village-tag: '&7Das neue Kürzel deines Dorfes ist &a%tag%'
+  your-village-tag: '&7Das Kürzel deines Dorfes ist &a%tag%'
+  closed-name-village-tag: '&cDu hast das Menü geschlossen, daher wurde kein Kürzel gesetzt'
+  already-name-village-tag: '&cDieses Kürzel wird bereits verwendet'
+
+# Teleportation
+teleport:
+  teleporting: '&7Teleportation zum Dorf'
+  teleported: '&7Du wurdest zu deinem Dorf teleportiert'
+  cooldown: '&7Du musst vor der nächsten Teleportation %time% warten'
+  title: '&aTeleportation...'
+  subtitle: '&eTeleportation in %time% Sekunden...'
+  move: '&cDie Teleportation wurde abgebrochen, weil du dich bewegt hast'
+  set-cancel: '&cDas Festlegen des Teleportpunkts wurde abgebrochen'
+  set: '&6Teleportpunkt des Dorfes festlegen'
+  set-hover: '&cKlicken, um den Teleportpunkt festzulegen'
+  set-title: '&7( &cTeleportation &7)'
+  set-subtitle: '&6Teleportpunkt festgelegt'
+
+# Einladungen
+invite:
+  cancel: '&7Einladung - &cAblehnen'
+  cancel-hover-click: '&6Klicken, um abzulehnen'
+  confirm: '&7Einladung - &aAnnehmen'
+  confirm-hover-click: '&6Klicken, um beizutreten'
+  max-members: '&cDas Dorf hat sein Mitgliederlimit erreicht'
+  no-invite: '&cDu hast keine ausstehende Dorfeinladung'
+  has-invite: '&cDieser Spieler hat bereits eine ausstehende Einladung'
+  player-invite: '&7Du hast &b%player% &7in dein Dorf eingeladen'
+  player-target: '&7%player% hat dich in ein Dorf eingeladen'
+  target-join-member: '&6%player% &7ist deinem Dorf beigetreten'
+  confirmed: '&7Du bist dem Dorf von &6%village_owner% &7beigetreten'
+  canceled: '&7Du hast die Einladung abgelehnt'
+
+# Gegenstände
+items:
+  village-block: '&d&lDörfer'
+  village-block-lore: '&7Platziere diesen Block auf dem Boden, um ein Dorf zu gründen'
+  destroyer: '&6&lZerstörer'
+  destroyer-lore: '&7Verwende dieses Werkzeug, um einen Dorfkern zu zerstören'
+  hearth: '&c&lHerz des Dorfes'
+  hearth-lore: '&7Fügt deinem Dorf ein Leben hinzu'
+  part-of-hearth: '&c&lTeil des Dorfherzens'
+  part-of-hearth-lore: '&7Verwende diesen Gegenstand, um ein Dorfherz herzustellen'
+  destroyer-hearth: '&c&lHerz des Zerstörers'
+  destroyer-hearth-lore: '&7Verwende diesen Gegenstand, um einen Zerstörer herzustellen'
+
+# Baueditor-Addon
+build-editor:
+  worldedit-required: '&cFür den Baueditor muss das Plugin &fWorldEdit &cinstalliert und aktiviert sein'
+  disabled: '&cDer Baueditor ist in &faddons/build-editor.yml &cdeaktiviert'
+  setting-required: '&cAktiviere zuerst &fsettings.use-worldedit: true &cin der Hauptkonfiguration'
+  session-active: '&cDu hast bereits eine aktive Sitzung. Speichere sie oder brich sie zuerst ab'
+  level-missing: '&cDorfstufe &f%level% &cexistiert nicht'
+  schematic-missing: '&cSchemadatei fehlt: &f%schematic%'
+  schematic-too-large: '&cDieses Schema ist zu groß für den Editor (&f%blocks% &cBlöcke)'
+  safe-location-not-found: '&cEs wurde kein sicherer und leerer Bearbeitungsbereich gefunden. Versuche es an einem anderen Ort'
+  started: '&aBearbeitung des Gebäudes für Stufe &f%level% &agestartet'
+  bounds-help: '&7Partikel markieren den exakt gespeicherten Bereich. Der zentrale Block kann nicht entfernt werden'
+  commands-help: '&7Speichern: &f/village edit save &8| &7Abbrechen: &f/village edit cancel'
+  load-failed: '&cDas Schema konnte nicht geladen oder eingefügt werden. Prüfe die Serverkonsole'
+  no-session: '&cDu hast keine aktive Bearbeitungssitzung'
+  saved: '&aGebäude für Stufe &f%level% &agespeichert'
+  saved-help: '&7Neue Dörfer und zukünftige Verbesserungen verwenden das aktualisierte Schema'
+  save-failed: '&cSpeichern fehlgeschlagen. Die Sitzung bleibt aktiv, sodass du es erneut versuchen kannst'
+  canceled: '&eBearbeitung abgebrochen. Das Schema wurde nicht verändert'
+  core-protected: '&cDer zentrale Block ist der Kern des Schemas und kann nicht entfernt werden'
+  outside-bounds: '&cDu kannst keine Blöcke außerhalb des gespeicherten Schemabereichs verändern'
+  area-in-use: '&cDieser Bereich wird derzeit vom Baueditor verwendet'
+  setup-active: '&eSchließe zuerst die aktuelle Konfiguration im Chat ab oder gib &cabbrechen &eein'
+  max-level: '&cDu kannst höchstens 10 aufeinanderfolgende Stufen erstellen'
+  setup-resumed: '&eDas Schema für Stufe %level% existiert bereits. Schließe die Anforderungen ab'
+  new-level-started: '&aFür Stufe %level% wurde ein leerer 5x5x10-Bereich mit Steinfundament erstellt'
+  setup-canceled: '&cDie Stufenkonfiguration wurde abgebrochen'
+  invalid-input: '&cUngültiger Wert. Versuche es erneut'
+  level-config-save-failed: '&clevels.yml konnte nicht gespeichert werden. Prüfe die Serverkonsole'
+  setup-complete: '&aStufe %level% wurde erstellt und ist jetzt aktiv'
+  level-updated: '&aDie Einstellungen für Stufe %level% wurden gespeichert'
+  setup-started: '&eLege jetzt die Upgrade-Anforderungen für Stufe %level% fest'
+  prompt-items: '&eGib Gegenstände ein, z. B. &fIRON_INGOT:64, DIAMOND:8&e. Gib &fkeine &eein, um die Kosten zu deaktivieren'
+  prompt-experience: '&eGib die erforderliche Erfahrung als Zahl ein (0 deaktiviert die Kosten):'
+  prompt-economy: '&eGib die Wirtschaftskosten als Zahl ein (0 deaktiviert die Kosten):'
+  prompt-size: '&eGib die Regionsgröße für diese Stufe ein (mindestens 1):'
+  prompt-cancel: '&7Gib &cabbrechen &7ein, um den Vorgang zu beenden'
+
+# Spawn-Addon
+spawn:
+  spawn-set: '&aDer Spawnpunkt wurde festgelegt'
+  spawn-not-set: '&cDer Spawnpunkt wurde noch nicht festgelegt'
+  teleporting: '&eDu wirst in &7%seconds% &eSekunden teleportiert. Bewege dich nicht'
+  title: '&aTeleportation'
+  subtitle: '&eTeleportation in %seconds% Sekunden...'
+
+# Anti-Logout-Addon
+antilogout:
+  blocked-region: '&7Du kannst die Region &f&n%region%&r&7 während eines Kampfes nicht betreten!'
+  block-command: '&c&l✖ \n &7Du kannst den Befehl &f&n%command%&r&7 während eines Kampfes nicht verwenden!'
+  quit-broadcast: '&7Spieler &6%player% &7hat sich während eines Kampfes ausgeloggt'
+  started: '&7Du hast einen Kampf mit &f%victim%&7 begonnen!'
+  attacked: '&7Du wurdest von &f%attacker%&7 angegriffen. Du bist jetzt im Kampf und darfst dich nicht ausloggen!'
+  end-combat: '&aDein Kampf ist beendet. Du darfst dich jetzt ausloggen!'
+  remove-combat: '&7Dein Gegner &f%opponent% &7ist gestorben. Dein Kampf ist beendet!'
+  actionbar-message: '&4&lANTI-LOGOUT &8(&c%time%s&8)'

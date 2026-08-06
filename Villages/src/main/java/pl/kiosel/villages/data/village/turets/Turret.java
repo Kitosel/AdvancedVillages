@@ -12,8 +12,16 @@ public abstract class Turret {
         location.getBlock().setType(material);
     }
 
+    public void set(Location location) {
+        set(location, Material.AIR);
+    }
+
     public void set(World world, int x, int y, int z, Material material) {
         set(new Location(world, x, y, z), material);
+    }
+
+    public void set(World world, int x, int y, int z) {
+        set(new Location(world, x, y, z));
     }
 
     public void fill(Location location1, Location location2, Material material) {

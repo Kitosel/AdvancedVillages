@@ -14,8 +14,8 @@ public enum GUIS {
     SETTINGS(GuiConfig.gui_settings, 36),
 	EFFECTS(GuiConfig.gui_effects, 36),
 	STORAGE(GuiConfig.gui_storage, 54),
-	TAG("Name your village", 0),
-    DELETE_MEMBER(GuiConfig.gui_remove_member, 18),
+	TAG("TAG", 0),
+    DELETE_MEMBER(GuiConfig.gui_remove_member, 27),
 	MEMBER_SETTINGS(GuiConfig.gui_member_settings, 18);
 
     @Getter private final String name;

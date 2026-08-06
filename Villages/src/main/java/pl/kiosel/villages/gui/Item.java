@@ -3,14 +3,11 @@ package pl.kiosel.villages.gui;
 import lombok.Getter;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.inventory.meta.components.ToolComponent;
 import pl.kiosel.core.dependencies.de.tr7zw.nbtapi.NBT;
 import pl.kiosel.core.dependencies.de.tr7zw.nbtapi.iface.ReadWriteItemNBT;
 import pl.kiosel.core.utils.ColorUtils;
@@ -67,7 +64,7 @@ public class Item {
         return create(mat, 1, name, null, false);
     }
 
-	public ItemStack addLoreToItemStack(ItemStack original, List<String> loreToAdd) {
+	public static ItemStack addLoreToItemStack(ItemStack original, List<String> loreToAdd) {
 		if (original == null || loreToAdd == null || loreToAdd.isEmpty()) return original;
 
 		ItemStack item = original.clone();
@@ -93,6 +90,7 @@ public class Item {
 			meta.setDisplayName(tl(name));
 			meta.addItemFlags(ItemFlag.values());
 			meta.setUnbreakable(true);
+			meta.addEnchant(Enchantment.MENDING, 1, false);
 			if (lore != null) {
 				meta.setLore(ColorUtils.listColor(lore));
 			}
@@ -110,6 +108,7 @@ public class Item {
 			meta.setDisplayName(tl(name));
 			meta.addItemFlags(ItemFlag.values());
 			meta.setUnbreakable(true);
+			meta.addEnchant(Enchantment.MENDING, 1, false);
 			if (lore != null) {
 				meta.setLore(ColorUtils.listColor(lore));
 			}

@@ -1,0 +1,180 @@
+# Wszystkie wbudowane zmienne maja prosty format %NAZWA%.
+# Przyklady: %PLAYER%, %POINTS%, %G-TAG%, %PTOP-POINTS-1%.
+# PlaceholderAPI tez dziala i jest wykonywane po zmiennych AdvancedVillages.
+
+# Co ile tickow odswiezac dane (20 tickow = 1 sekunda).
+update-interval-ticks: 20
+
+# Ping wyswietlany przy sztucznych wpisach tablisty.
+cells-ping: 0
+
+# true zawsze tworzy 80 pol; false konczy tabliste na ostatnim skonfigurowanym polu.
+fill-cells: true
+use-relationship-colors: false
+
+# Naglowek i stopka moga byc tekstem albo lista linii.
+header:
+  - " "
+  - "&6Advanced&bVillages"
+  - "&7Hi &6%player% "
+  - " "
+footer:
+  - " "
+  - "&aPlay with your friends! :D"
+  - "&7WWW: &6domain.pl - &7&lMoney: &a%vault_eco_balance_fixed%"
+  - " "
+
+# Numery pol mieszcza sie w zakresie 1-80.
+cells:
+  "2": " &b&lSTATISTIC"
+  "4": " &7Nick: &b%PLAYER%"
+  "6": " &7Points: &b%POINTS%"
+  "7": " &7Kills: &b%KILLS%"
+  "8": " &7Deaths: &b%DEATHS%"
+  "9": " &7Asysty: &b%ASSISTS%"
+  "10": " &7KDR: &b%KDR%"
+
+  "12": " &b&lINFORMACJE"
+  "14": " &7Ping: &b%PING%"
+  "15": " &7TPS: &b%TPS%"
+  "17": " &7Online: &b%ONLINE%"
+  "19": " &7Godzina: &b%HOUR%:%MINUTE%:%SECOND%"
+
+  "22": " &b&lSTATYSTYKI WIOSKI"
+  "24": " &7Wioska: &b%G-TAG%"
+  "26": " &7Punkty: &b%G-AVG-POINTS%"
+  "27": " &7Zabojstwa: &b%G-KILLS%"
+  "28": " &7Smierci: &b%G-DEATHS%"
+  "29": " &7Asysty: &b%G-ASSISTS%"
+  "30": " &7KDR: &b%G-KDR%"
+  "32": " &7Zycia: &b%G-LIVES-SYMBOL% &8(&b%G-LIVES%&8)"
+
+  "42": " &b&lTOP &8- &b&lGracze"
+  "44": " &7Gracze: &b%PLAYERS%"
+  "46": " &b1. &7%PTOP-1%"
+  "47": " &b2. &7%PTOP-2%"
+  "48": " &b3. &7%PTOP-3%"
+  "49": " &b4. &7%PTOP-4%"
+  "50": " &b5. &7%PTOP-5%"
+  "51": " &b6. &7%PTOP-6%"
+  "52": " &b7. &7%PTOP-7%"
+  "53": " &b8. &7%PTOP-8%"
+  "54": " &b9. &7%PTOP-9%"
+  "55": " &b10. &7%PTOP-10%"
+  "57": " &7Twoja pozycja: &b%POSITION-POINTS%"
+
+  "62": " &b&lTOP &8- &b&lWioski"
+  "64": " &7Wioski: &b%VILLAGES%"
+  "66": " &b1. &7%GTOP-1%"
+  "67": " &b2. &7%GTOP-2%"
+  "68": " &b3. &7%GTOP-3%"
+  "69": " &b4. &7%GTOP-4%"
+  "70": " &b5. &7%GTOP-5%"
+  "71": " &b6. &7%GTOP-6%"
+  "72": " &b7. &7%GTOP-7%"
+  "73": " &b8. &7%GTOP-8%"
+  "74": " &b9. &7%GTOP-9%"
+  "75": " &b10. &7%GTOP-10%"
+  "77": " &7Pozycja wioski: &b%G-POSITION-AVG_POINTS%"
+
+animation:
+  enabled: true
+  pages:
+    points:
+      duration-seconds: 10
+      cells:
+        "42": " &b&lTOP &8- &b&lPunkty"
+        "46": " &b1. &7%PTOP-POINTS-1%"
+        "47": " &b2. &7%PTOP-POINTS-2%"
+        "48": " &b3. &7%PTOP-POINTS-3%"
+        "49": " &b4. &7%PTOP-POINTS-4%"
+        "50": " &b5. &7%PTOP-POINTS-5%"
+        "51": " &b6. &7%PTOP-POINTS-6%"
+        "52": " &b7. &7%PTOP-POINTS-7%"
+        "53": " &b8. &7%PTOP-POINTS-8%"
+        "54": " &b9. &7%PTOP-POINTS-9%"
+        "55": " &b10. &7%PTOP-POINTS-10%"
+        "57": " &7Twoja pozycja: &b%POSITION-POINTS%"
+        "62": " &b&lTOP &8- &b&lPunkty"
+        "66": " &b1. &7%GTOP-AVG_POINTS-1%"
+        "67": " &b2. &7%GTOP-AVG_POINTS-2%"
+        "68": " &b3. &7%GTOP-AVG_POINTS-3%"
+        "69": " &b4. &7%GTOP-AVG_POINTS-4%"
+        "70": " &b5. &7%GTOP-AVG_POINTS-5%"
+        "71": " &b6. &7%GTOP-AVG_POINTS-6%"
+        "72": " &b7. &7%GTOP-AVG_POINTS-7%"
+        "73": " &b8. &7%GTOP-AVG_POINTS-8%"
+        "74": " &b9. &7%GTOP-AVG_POINTS-9%"
+        "75": " &b10. &7%GTOP-AVG_POINTS-10%"
+        "77": " &7Pozycja wioski: &b%G-POSITION-AVG_POINTS%"
+
+    kills:
+      duration-seconds: 10
+      header:
+        - " "
+        - "&eAdvanced&6Villages"
+        - "&4Hi &a%player% "
+        - " "
+      cells:
+        "42": " &b&lTOP &8- &b&lZabojstwa"
+        "46": " &b1. &7%PTOP-KILLS-1%"
+        "47": " &b2. &7%PTOP-KILLS-2%"
+        "48": " &b3. &7%PTOP-KILLS-3%"
+        "49": " &b4. &7%PTOP-KILLS-4%"
+        "50": " &b5. &7%PTOP-KILLS-5%"
+        "51": " &b6. &7%PTOP-KILLS-6%"
+        "52": " &b7. &7%PTOP-KILLS-7%"
+        "53": " &b8. &7%PTOP-KILLS-8%"
+        "54": " &b9. &7%PTOP-KILLS-9%"
+        "55": " &b10. &7%PTOP-KILLS-10%"
+        "57": " &7Twoja pozycja: &b%POSITION-KILLS%"
+        "62": " &b&lTOP &8- &b&lZabojstwa"
+        "66": " &b1. &7%GTOP-KILLS-1%"
+        "67": " &b2. &7%GTOP-KILLS-2%"
+        "68": " &b3. &7%GTOP-KILLS-3%"
+        "69": " &b4. &7%GTOP-KILLS-4%"
+        "70": " &b5. &7%GTOP-KILLS-5%"
+        "71": " &b6. &7%GTOP-KILLS-6%"
+        "72": " &b7. &7%GTOP-KILLS-7%"
+        "73": " &b8. &7%GTOP-KILLS-8%"
+        "74": " &b9. &7%GTOP-KILLS-9%"
+        "75": " &b10. &7%GTOP-KILLS-10%"
+        "77": " &7Pozycja wioski: &b%G-POSITION-KILLS%"
+
+    deaths:
+      duration-seconds: 10
+      footer:
+        - " "
+        - "&7Strona: &6kiosel.pl"
+        - " "
+      cells:
+        "42": " &b&lTOP &8- &b&lSmierci"
+        "46": " &b1. &7%PTOP-DEATHS-1%"
+        "47": " &b2. &7%PTOP-DEATHS-2%"
+        "48": " &b3. &7%PTOP-DEATHS-3%"
+        "49": " &b4. &7%PTOP-DEATHS-4%"
+        "50": " &b5. &7%PTOP-DEATHS-5%"
+        "51": " &b6. &7%PTOP-DEATHS-6%"
+        "52": " &b7. &7%PTOP-DEATHS-7%"
+        "53": " &b8. &7%PTOP-DEATHS-8%"
+        "54": " &b9. &7%PTOP-DEATHS-9%"
+        "55": " &b10. &7%PTOP-DEATHS-10%"
+        "57": " &7Twoja pozycja: &b%POSITION-DEATHS%"
+        "62": " &b&lTOP &8- &b&lSmierci"
+        "66": " &b1. &7%GTOP-DEATHS-1%"
+        "67": " &b2. &7%GTOP-DEATHS-2%"
+        "68": " &b3. &7%GTOP-DEATHS-3%"
+        "69": " &b4. &7%GTOP-DEATHS-4%"
+        "70": " &b5. &7%GTOP-DEATHS-5%"
+        "71": " &b6. &7%GTOP-DEATHS-6%"
+        "72": " &b7. &7%GTOP-DEATHS-7%"
+        "73": " &b8. &7%GTOP-DEATHS-8%"
+        "74": " &b9. &7%GTOP-DEATHS-9%"
+        "75": " &b10. &7%GTOP-DEATHS-10%"
+        "77": " &7Pozycja wioski: &b%G-POSITION-DEATHS%"
+
+# Opcjonalne tekstury glow. Klucz moze byc numerem pola albo zakresem, np. "1-80".
+# Kazda tekstura wymaga wartosci i podpisu z profilu Minecraft.
+heads:
+  enabled: false
+  textures: {}

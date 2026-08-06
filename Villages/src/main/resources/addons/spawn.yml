@@ -1,0 +1,17 @@
+#Should teleport be canceled when player moves?
+cancel-on-move: true
+
+#Delay when player is teleporting
+delay: 5
+
+#Cooldown between using command
+cooldown: 60
+
+#Cost of teleporting to spawn
+cost: 5
+
+#Settings of messages
+messages:
+  title: true
+  message: true
+  animated-title: true

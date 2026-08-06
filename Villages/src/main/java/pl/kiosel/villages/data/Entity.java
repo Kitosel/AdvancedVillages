@@ -18,7 +18,7 @@ public interface Entity {
 
     enum UnitType {
 
-        GUILD,
+        VILLAGE,
         OFFLINE_USER,
         RANK,
         REGION,

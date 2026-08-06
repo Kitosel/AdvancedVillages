@@ -1,23 +1,23 @@
 package pl.kiosel.villages.manager;
 
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import pl.kiosel.core.chat.AdventureUtils;
+import pl.kiosel.core.dependencies.net.kyori.adventure.text.Component;
+import pl.kiosel.core.dependencies.net.kyori.adventure.text.event.ClickEvent;
+import pl.kiosel.core.dependencies.net.kyori.adventure.text.event.HoverEvent;
 import pl.kiosel.core.locale.Locale;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.data.user.User;
+import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.enums.CommandLang;
 import pl.kiosel.villages.enums.Lang;
 import pl.kiosel.villages.enums.Permission;
-import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.data.village.VillageMember;
+import pl.kiosel.villages.settings.Settings;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import static pl.kiosel.core.utils.ColorUtils.tl;
@@ -25,7 +25,7 @@ import static pl.kiosel.core.utils.ColorUtils.tl;
 public class InviteManager {
 
 	private final AdvancedVillages plugin;
-	private final Map<UUID, Village> invite_players = new HashMap<>();
+	private final Map<UUID, Village> invitedPlayers = new HashMap<>();
 
 	public InviteManager(AdvancedVillages plugin) {
 		this.plugin = plugin;
@@ -33,68 +33,71 @@ public class InviteManager {
 
 	public void invitePlayer(Village village, Player invite) {
 		Locale locale = plugin.getLocale();
-		invite_players.put(invite.getUniqueId(), village);
-
-		TextComponent confirm_message = new TextComponent(locale.getMessage(Lang.INVITE_CONFIRM.getPath()).toText());
-		TextComponent cancel_message = new TextComponent(locale.getMessage(Lang.INVITE_CANCEL.getPath()).toText());
+		UUID playerId = invite.getUniqueId();
+		invitedPlayers.put(playerId, village);
 
 		String request = "/" + plugin.getCommandLang().getCommandName() + " " + plugin.getCommandLang().getCommand(CommandLang.REQUEST);
 
 		String accept = plugin.getCommandLang().getCommand(CommandLang.REQUEST_ACCEPT);
 		String deny = plugin.getCommandLang().getCommand(CommandLang.REQUEST_DENY);
 
-		confirm_message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(locale.getMessage(Lang.INVITE_CONFIRM_HOVER.getPath()).toText()).create()));
-		confirm_message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, request + " " + accept));
+		Component confirm_message = Component
+				.text(locale.getMessage(Lang.INVITE_CONFIRM.getPath()).toText())
+				.hoverEvent(HoverEvent.showText(Component.text(locale.getMessage(Lang.INVITE_CONFIRM_HOVER.getPath()).toText())))
+				.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, request + " " + accept));
 
-		cancel_message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(locale.getMessage(Lang.INVITE_CANCEL_HOVER.getPath()).toText()).create()));
-		cancel_message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, request + " " + deny));
+		Component cancel_message = Component
+				.text(locale.getMessage(Lang.INVITE_CANCEL.getPath()).toText())
+				.hoverEvent(HoverEvent.showText(Component.text(locale.getMessage(Lang.INVITE_CANCEL_HOVER.getPath()).toText())))
+				.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, request + " " + deny));
 
 		invite.sendMessage(tl("&8——————————————————————————"));
-		invite.spigot().sendMessage(confirm_message);
-		invite.spigot().sendMessage(cancel_message);
+		AdventureUtils.sendMessage(confirm_message, invite);
+		AdventureUtils.sendMessage(cancel_message, invite);
 		invite.sendMessage(tl("&8——————————————————————————"));
 
 		new BukkitRunnable() {
 			@Override
 			public void run() {
-				invite_players.remove(invite.getUniqueId());
+				invitedPlayers.remove(playerId, village);
 			}
-		}.runTaskLaterAsynchronously(plugin, 400L);
+		}.runTaskLater(plugin, Settings.VILLAGE_INVITE_EXPIRE.getLong() * 20L);
 	}
 
 	public void acceptInvite(Player player) {
 		Locale locale = plugin.getLocale();
-		VillageManager villageManager = plugin.getVillageManager();
-
-		Village village = invite_players.remove(player.getUniqueId());
+		Village village = invitedPlayers.get(player.getUniqueId());
 		if (village == null) {
 			locale.getMessage(Lang.NO_INVITE.getPath()).sendPrefixedMessage(player);
 			return;
 		}
 
-		for (UUID memberUUID : village.getMembers()) {
-			Player member = Bukkit.getPlayer(memberUUID);
-			if (member != null && member.isOnline()) {
-				locale.getMessage(Lang.TARGET_JOIN_MEMBER.getPath()).processPlaceholder("player", player.getName()).sendPrefixedMessage(member);
-			}
+		Set<Permission> defaultPerms = plugin.getPermissionManager().getDefaultPermission();
+		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).orNull();
+		if (user == null) {
+			locale.getMessage(Lang.PLAYER_NOT_FOUND.getPath()).sendPrefixedMessage(player);
+			invitedPlayers.remove(player.getUniqueId());
+			return;
 		}
-		villageManager.addMember(village, player);
 
-		List<Permission> defaultPerms = plugin.getPermissionManager().getDefaultPermission();
-		VillageMember villageMember = new VillageMember(player.getUniqueId(), village, defaultPerms);
+		user.setVillage(village);
+		user.setPermissions(defaultPerms);
+		village.addMember(user);
+		village.broadcast(locale.getMessage(Lang.TARGET_JOIN_MEMBER.getPath()).processPlaceholder("player", player.getName()).toText());
 
-		plugin.getDatabaseUserManager().addUserToVillage(villageMember, player, false);
+		invitedPlayers.remove(player.getUniqueId());
 	}
 
 	public Village getVillageInvited(Player player) {
-		return invite_players.get(player.getUniqueId());
+		return invitedPlayers.get(player.getUniqueId());
 	}
 
 	public void denyInvite(Player player) {
-		invite_players.remove(player.getUniqueId());
+		if (isPlayerInvited(player))
+			invitedPlayers.remove(player.getUniqueId());
 	}
 
 	public boolean isPlayerInvited(Player invite) {
-		return invite_players.containsKey(invite.getUniqueId());
+		return invitedPlayers.containsKey(invite.getUniqueId());
 	}
 }

@@ -1,48 +1,45 @@
 package pl.kiosel.villages.addons.scoreboard;
 
 import fr.mrmicky.fastboard.FastBoard;
-import org.bukkit.ChatColor;
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
-import pl.kiosel.core.hooks.EconomyManager;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.config.GuiConfig;
-import pl.kiosel.villages.settings.Settings;
+import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.manager.VillageManager;
+import pl.kiosel.villages.manager.VillageUtilsManager;
+import pl.kiosel.villages.settings.Settings;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static pl.kiosel.core.utils.ColorUtils.tl;
 
 public class ScoreboardManager {
 
 	private final AdvancedVillages plugin;
-	private final Map<UUID, FastBoard> boards = new ConcurrentHashMap<>();
-	private final List<String> titleFrames = new ArrayList<>();
-	private int animationIndex = 0;
+	@Getter private final Map<UUID, FastBoard> boards = new HashMap<>();
+	@Getter private final List<String> titleFrames = new ArrayList<>();
+	@Setter @Getter private int animationIndex = 0;
 
 	public ScoreboardManager(AdvancedVillages plugin) {
 		this.plugin = plugin;
-		setupTitleAnimation();
-		startAnimationTask();
-		startUpdateTask();
 	}
 
-	private void setupTitleAnimation() {
-		if (plugin.getScoreboardHandler().scoreboardAnimationEnabled()) {
-			for (String string : plugin.getScoreboardHandler().getTitles()) {
-				this.titleFrames.add(tl(string));
-			}
-		} else {
-			titleFrames.add(plugin.getScoreboardHandler().scoreboardTitle());
-		}
+	public void reloadScoreboard() {
+		this.titleFrames.clear();
+		this.animationIndex = 0;
+		setupTitleAnimation();
 	}
 
 	public void createBoard(Player player) {
+		if (!Settings.ADDONS_SCOREBOARD_ENABLE.getBoolean() || boards.containsKey(player.getUniqueId())) {
+			return;
+		}
 		FastBoard board = new FastBoard(player);
 		boards.put(player.getUniqueId(), board);
+		if (!this.titleFrames.isEmpty()) {
+			board.updateTitle(this.titleFrames.get(0));
+		}
 		updateBoard(board);
 	}
 
@@ -51,60 +48,65 @@ public class ScoreboardManager {
 		if (board != null) board.delete();
 	}
 
-	private void updateBoard(FastBoard board) {
+	public void synchronizeBoards() {
+		if (!Settings.ADDONS_SCOREBOARD_ENABLE.getBoolean()) {
+			clearBoards();
+			return;
+		}
+
+		Set<UUID> onlinePlayers = new HashSet<>();
+		for (Player player : this.plugin.getServer().getOnlinePlayers()) {
+			onlinePlayers.add(player.getUniqueId());
+			createBoard(player);
+			FastBoard board = this.boards.get(player.getUniqueId());
+			if (board != null) {
+				if (!this.titleFrames.isEmpty())
+					board.updateTitle(this.titleFrames.get(0));
+				updateBoard(board);
+			}
+		}
+
+		for (UUID playerId : new HashSet<>(this.boards.keySet())) {
+			if (!onlinePlayers.contains(playerId)) {
+				FastBoard board = this.boards.remove(playerId);
+				if (board != null)
+					board.delete();
+			}
+		}
+	}
+
+	public void clearBoards() {
+		for (FastBoard board : this.boards.values())
+			board.delete();
+		this.boards.clear();
+	}
+
+	private void setupTitleAnimation() {
+		if (plugin.getScoreboardHandler().scoreboardAnimationEnabled())
+			for (String string : plugin.getScoreboardHandler().getTitles())
+				this.titleFrames.add(tl(string));
+
+		if (this.titleFrames.isEmpty())
+			titleFrames.add(tl(plugin.getScoreboardHandler().scoreboardTitle()));
+		for (String s : titleFrames)
+			plugin.getDebug().debug("titleFrames: " + s);
+	}
+
+	public void updateBoard(FastBoard board) {
 		Player player = board.getPlayer();
-		Village village = VillageManager.getVillageByOfflineOwner(player.getName());
+		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).orNull();
+		if (user == null)
+			return;
+		Village village = user.getPresentVillage();
 
 		List<String> lines = new ArrayList<>();
 
 		for (String line : plugin.getScoreboardHandler().getScore()) {
-			line = replaceWith(player, village, line);
+			line = VillageUtilsManager.replaceWith(player, village, line).toText();
 			if (plugin.isPlaceholder())
 				line = plugin.getPlaceholder().replacePlaceholder(player, line);
 			lines.add(line);
 		}
-
-		board.updateTitle(ChatColor.translateAlternateColorCodes('&', titleFrames.get(animationIndex)));
 		board.updateLines(lines);
-	}
-
-	private void startAnimationTask() {
-		new BukkitRunnable() {
-			@Override
-			public void run() {
-				animationIndex = (animationIndex + 1) % titleFrames.size();
-			}
-		}.runTaskTimer(plugin, plugin.getScoreboardHandler().getAnimationSpeed(), plugin.getScoreboardHandler().getAnimationSpeed());
-	}
-
-	private void startUpdateTask() {
-		new BukkitRunnable() {
-			@Override
-			public void run() {
-				if (Settings.ADDONS_SCOREBOARD_ENABLE.getBoolean())
-					for (FastBoard board : boards.values()) {
-						updateBoard(board);
-					}
-			}
-		}.runTaskTimer(plugin, 20L, 40L);
-	}
-
-	private String replaceWith(Player player, Village village, String string) {
-		String notag = GuiConfig.no_tag;
-		String tagset = GuiConfig.guis_village_setting_tag_set;
-		String tagnotset = GuiConfig.guis_village_setting_tag_notset;
-		return tl(string
-				.replace("%player_name%", player.getName())
-				.replace("%player_money%", EconomyManager.getBalance(player)+"")
-				.replace("%village_owner%", village == null ? plugin.getScoreboardHandler().scoreboardNoVillage() : village.getOwner())
-				.replace("%village_name%", village == null ? plugin.getScoreboardHandler().scoreboardNoVillage() : village.getVillageName())
-				.replace("%village_tag%", village == null ? plugin.getScoreboardHandler().scoreboardNoVillage() : village.isTag() ? village.getTag() : notag)
-				.replace("%village_level%", village == null ? "-" : village.getLevel().getLevel()+"")
-				.replace("%village_cost%", village == null ? "-" : village.getLevel().getCostEconomy()+"")
-				.replace("%village_teleport%", village == null ? "-" : village.tpToString())
-				.replace("%village_bank%", village == null ? "-" : village.getBank()+"")
-				.replace("%village_life%", village == null ? "-" : village.getLife()+"")
-				.replace("%village_size%", village == null ? "-" : village.getLevel().getSize()+"")
-				.replace("%istagset%", village == null ? "-" : village.isTag() ? tagnotset : tagset));
 	}
 }

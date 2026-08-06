@@ -1,0 +1,23 @@
+#Configuration
+no-village: '&cNone'
+title: '&6&lVillages'
+score:
+  - '&7----------------'
+  - '&7Nick: &e%player_name%'
+  - '&7Money: &e%player_money%'
+  - '&7Village:'
+  - ' &7Owner: &e%village_owner%'
+  - ' &7Life: &e%village_life%'
+  - ' &7Level: &e%village_level%'
+  - ' &7Tag: &e%village_tag%'
+  - '&7--------&7--------'
+
+#Animated title
+animation:
+  enabled: true
+  speed: 2
+  titles:
+    - '&6&lVillages'
+    - '&b&lVillages'
+    - '&f&lWioski'
+    - '&b&lV&f&li&b&ll&b&ll&f&la&b&lg&f&le&f&ls'

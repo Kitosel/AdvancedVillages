@@ -1,10 +1,11 @@
 package pl.kiosel.villages.data.village;
 
 import org.bukkit.Location;
+import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.level.Level;
 import pl.kiosel.villages.manager.VillageNameGenerator;
 
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class VillageBuilder {
@@ -12,33 +13,38 @@ public class VillageBuilder {
 	private final Village village;
 	private final VillageNameGenerator villageNameGenerator;
 
-	public VillageBuilder(Location location) {
-		this.village = new Village(location);
+	public VillageBuilder(UUID uuid, Location location) {
+		this.village = new Village(uuid, location);
 		this.villageNameGenerator = new VillageNameGenerator();
 	}
 
-	public VillageBuilder setOwner(String owner) {
+	public VillageBuilder setLocation(Location location) {
+		this.village.setLocation(location);
+		return this;
+	}
+
+	public VillageBuilder setTeleport(Location location) {
+		this.village.setHome(location);
+		return this;
+	}
+
+	public VillageBuilder setOwner(User owner) {
 		this.village.setOwner(owner);
 		return this;
 	}
 
-	public VillageBuilder setOwnerUUID(UUID uuid) {
-		this.village.setOwnerUUID(uuid);
-		return this;
-	}
-
-	public VillageBuilder setMembers(List<UUID> members) {
+	public VillageBuilder setMembers(Set<User> members) {
 		this.village.setMembers(members);
 		return this;
 	}
 
-	public VillageBuilder setVillageName(String name) {
-		this.village.setVillageName(name);
+	public VillageBuilder setName(String name) {
+		this.village.setName(name);
 		return this;
 	}
 
 	public VillageBuilder setRandomVillageName() {
-		this.village.setVillageName(villageNameGenerator.getRandomName());
+		this.village.setName(villageNameGenerator.getRandomName());
 		return this;
 	}
 
@@ -47,14 +53,32 @@ public class VillageBuilder {
 		return this;
 	}
 
-	public VillageBuilder setLife(int life) {
-		this.village.setLife(life);
+	public VillageBuilder setLives(int life) {
+		this.village.setLives(life);
 		return this;
 	}
 
 	public VillageBuilder setEffectsDefault() {
 		setEffects(false, false, false, false);
 		setEffectsActive(false, false, false, false);
+		return this;
+	}
+
+	public VillageBuilder setEffects(String effects) {
+		String[] effects_data_array = effects.split(";");
+		this.setEffects(Boolean.parseBoolean(effects_data_array[0]),
+				Boolean.parseBoolean(effects_data_array[1]),
+				Boolean.parseBoolean(effects_data_array[2]),
+				Boolean.parseBoolean(effects_data_array[3]));
+		return this;
+	}
+
+	public VillageBuilder setEffectsActive(String effects) {
+		String[] effects_active_array = effects.split(";");
+		this.setEffectsActive(Boolean.parseBoolean(effects_active_array[0]),
+				Boolean.parseBoolean(effects_active_array[1]),
+				Boolean.parseBoolean(effects_active_array[2]),
+				Boolean.parseBoolean(effects_active_array[3]));
 		return this;
 	}
 
@@ -71,11 +95,6 @@ public class VillageBuilder {
 		this.village.setJumpActive(jump);
 		this.village.setSpeedActive(speed);
 		this.village.setHasteActive(haste);
-		return this;
-	}
-
-	public VillageBuilder setTeleport(Location location) {
-		this.village.setTeleport(location);
 		return this;
 	}
 

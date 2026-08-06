@@ -17,6 +17,11 @@ public class CommandConfig {
 	@Getter private String commandPermission;
 	@Getter private List<String> commandAliases;
 
+	@Getter private String spawnCommandName;
+	@Getter private String spawnCommandPermission;
+	@Getter private String spawnCommandSetPermission;
+	@Getter private List<String> spawnCommandAliases;
+
 	private final Map<String, String> command = new HashMap<>();
 	private final AdvancedVillages plugin;
 
@@ -38,12 +43,15 @@ public class CommandConfig {
 	public void setConfig() {
 		command.clear();
 		plugin.getDebug().debug("Setting command.yml");
-		plugin.getCommandConfig().reloadConfig();
+		if (!plugin.getCommandFile().getFile().exists()) {
+			plugin.saveResource("command.yml", false);
+		}
+		plugin.getCommandFile().load();
 
-		var section = plugin.getCommandConfig().getConfig().getConfigurationSection("command-language");
+		var section = plugin.getCommandFile().getConfigurationSection("command-language");
 		if (section != null) {
 			for (String key : section.getKeys(false)) {
-				String text = plugin.getCommandConfig().getConfig().getString("command-language." + key);
+				String text = plugin.getCommandFile().getString("command-language." + key);
 				if (text != null) {
 					command.put(key, text);
 				}
@@ -53,19 +61,24 @@ public class CommandConfig {
 		commandName = getString("command.name", "village");
 		commandAliases = getList("command.aliases", TextUtils.of("wioski", "vil"));
 		commandPermission = getString("command.permission", "villages.command");
+
+		spawnCommandName = getString("spawn.name", "spawn");
+		spawnCommandAliases = getList("spawn.aliases", TextUtils.of("tpspawn"));
+		spawnCommandPermission = getString("spawn.permission", "villages.spawn");
+		spawnCommandSetPermission = getString("spawn.permission-set", "villages.spawn.set");
 	}
 
 	private String getString(String path, String def) {
 		if (path == null) return def;
-		String value = plugin.getCommandConfig().getConfig().getString(path);
+		String value = plugin.getCommandFile().getString(path);
 		if (value == null || value.trim().isEmpty()) return def;
 		return tl(value);
 	}
 
 	private List<String> getList(String path, List<String> def) {
 		if (path == null) return def;
-		List<String> list = plugin.getCommandConfig().getConfig().getStringList(path);
-		if (list == null || list.isEmpty()) return def;
+		List<String> list = plugin.getCommandFile().getStringList(path);
+		if (list.isEmpty()) return def;
 		return list;
 	}
 }

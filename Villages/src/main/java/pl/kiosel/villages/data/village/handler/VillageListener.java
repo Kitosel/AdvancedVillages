@@ -8,11 +8,12 @@ import org.bukkit.util.Vector;
 import pl.kiosel.core.chat.AdventureUtils;
 import pl.kiosel.core.dependencies.net.kyori.adventure.title.Title;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.enums.Lang;
-import pl.kiosel.villages.api.events.PlayerEnterVillageEvent;
-import pl.kiosel.villages.api.events.PlayerExitVillageEvent;
+import pl.kiosel.villages.events.PlayerEnterVillageEvent;
+import pl.kiosel.villages.events.PlayerExitVillageEvent;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.manager.VillageManager;
+import pl.kiosel.villages.manager.VillageUtilsManager;
 
 import java.time.Duration;
 
@@ -32,12 +33,14 @@ public class VillageListener implements Listener {
         Village village = event.getVillage();
 		if (village==null) return;
 
-        if (!village.isMember(player) && village.getVillageSettings().isProtection()) {
-            push(player, village.getLocation());
+		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).get();
+
+        if (!village.isMember(user) && village.canBeAttacked()) {
+            push(player, village.getLocation().get());
             return;
         }
-		String title = VillageManager.replaceWith(village, plugin.getLocale().getMessage(Lang.ENTER_VILLAGE_AREA_TITLE.getPath()).toString());
-		String subtitle = VillageManager.replaceWith(village, plugin.getLocale().getMessage(Lang.ENTER_VILLAGE_AREA_SUBTITLE.getPath()).toString());
+		String title = VillageUtilsManager.replaceWith(village, plugin.getLocale().getMessage(Lang.ENTER_VILLAGE_AREA_TITLE.getPath()).toString());
+		String subtitle = VillageUtilsManager.replaceWith(village, plugin.getLocale().getMessage(Lang.ENTER_VILLAGE_AREA_SUBTITLE.getPath()).toString());
 		Title titleComponent = AdventureUtils.createTitle(AdventureUtils.formatComponent(title), AdventureUtils.formatComponent(subtitle), times);
 		AdventureUtils.sendTitle(titleComponent, event.getPlayer());
     }
