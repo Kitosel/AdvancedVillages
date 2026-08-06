@@ -27,7 +27,6 @@ out/
 target/
 
 Server/
-Remade/
 
 *.iml
 modules.xml

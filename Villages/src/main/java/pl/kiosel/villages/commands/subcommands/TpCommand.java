@@ -1,13 +1,13 @@
 package pl.kiosel.villages.commands.subcommands;
 
 import org.bukkit.entity.Player;
-import pl.kiosel.villages.Wioski;
-import pl.kiosel.common.command.SubCommand;
+import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.commands.AVSubCommand;
+import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.enums.Lang;
-import pl.kiosel.villages.village.Village;
-import pl.kiosel.villages.village.VillageManager;
+import pl.kiosel.villages.data.village.Village;
 
-public class TpCommand extends SubCommand {
+public class TpCommand extends AVSubCommand {
 
     @Override
     public String getName() { return "tp"; }
@@ -21,12 +21,18 @@ public class TpCommand extends SubCommand {
 	@Override
 	public String getPermission() { return "villages.command.tp"; }
 
+	private final AdvancedVillages plugin;
+
+	public TpCommand(AdvancedVillages plugin) {
+		this.plugin = plugin;
+	}
+
 	@Override
-    public void run(Player player, Wioski plugin, String[] args) {
-        Village village = VillageManager.getVillageByOfflineOwner(player.getName());
+	public void run(Player player, User user, String[] args) {
+        Village village = user.getPresentVillage();
         if (village == null) return;
 
 		if (plugin.getTeleportManager().teleportPlayerToVillage(player))
-			player.sendMessage(plugin.getLang().getMessage(Lang.TELEPORT));
+			plugin.getLocale().getMessage(Lang.TELEPORT.getPath()).sendPrefixedMessage(player);
     }
 }

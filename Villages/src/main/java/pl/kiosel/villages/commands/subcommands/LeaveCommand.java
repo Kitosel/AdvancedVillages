@@ -1,14 +1,14 @@
 package pl.kiosel.villages.commands.subcommands;
 
 import org.bukkit.entity.Player;
-import pl.kiosel.villages.Wioski;
-import pl.kiosel.common.command.SubCommand;
-import pl.kiosel.villages.config.Language;
+import pl.kiosel.core.locale.Locale;
+import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.commands.AVSubCommand;
+import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.enums.Lang;
-import pl.kiosel.villages.village.Village;
-import pl.kiosel.villages.village.VillageManager;
+import pl.kiosel.villages.data.village.Village;
 
-public class LeaveCommand extends SubCommand {
+public class LeaveCommand extends AVSubCommand {
 
     @Override
     public String getName() { return "leave"; }
@@ -22,22 +22,25 @@ public class LeaveCommand extends SubCommand {
 	@Override
 	public String getPermission() { return "villages.command.leave"; }
 
+	private final AdvancedVillages plugin;
+
+	public LeaveCommand(AdvancedVillages plugin) {
+		this.plugin = plugin;
+	}
+
 	@Override
-    public void run(Player player, Wioski plugin, String[] args) {
-        Language lang = plugin.getLang();
-        Village village = VillageManager.getVillageByOfflineOwner(player.getName());
-        if(village != null) {
-            if(village.getOwner().equalsIgnoreCase(player.getName())) {
-                player.sendMessage(lang.getMessage(Lang.LEAVE_OWNER));
+	public void run(Player player, User user, String[] args) {
+		Locale locale = plugin.getLocale();
+		Village village = user.getPresentVillage();
+		if(village != null) {
+            if(village.isOwner(user)) {
+				locale.getMessage(Lang.LEAVE_OWNER.getPath()).sendPrefixedMessage(player);
                 return;
             }
-            VillageManager villageManager = plugin.getVillageManager();
-			plugin.getUserManager().removeUserFromVillage(village, player.getUniqueId());
-			villageManager.removeMember(plugin.getPlayerDataManager().getVillages().get(village.getVillageName()), player);
-
-			player.sendMessage(lang.getMessage(Lang.LEAVE_VILLAGE));
+			user.setVillage(null);
+			locale.getMessage(Lang.LEAVE_VILLAGE.getPath()).sendPrefixedMessage(player);
         } else {
-            player.sendMessage(lang.getMessage(Lang.VILLAGE_NO));
+			locale.getMessage(Lang.VILLAGE_NO.getPath()).sendPrefixedMessage(player);
         }
     }
 }

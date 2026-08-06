@@ -1,23 +1,20 @@
 package pl.kiosel.villages.commands;
 
-import net.kyori.adventure.title.Title;
 import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.checkerframework.checker.units.qual.A;
-import pl.kiosel.common.Callback;
-import pl.kiosel.common.command.SimpleCommand;
-import pl.kiosel.common.utils.AdventureUtils;
-import pl.kiosel.common.utils.MessagesUtils;
-import pl.kiosel.common.utils.WorldEditUtils;
-import pl.kiosel.villages.Wioski;
-import pl.kiosel.common.utils.TabUtils;
+import pl.kiosel.core.chat.AdventureUtils;
+import pl.kiosel.core.commands.SimpleCommand;
+import pl.kiosel.core.dependencies.net.kyori.adventure.title.Title;
+import pl.kiosel.core.hooks.WorldEditHook;
+import pl.kiosel.core.utils.TabUtils;
+import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.data.user.User;
+import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.enums.Permission;
-import pl.kiosel.villages.village.Village;
-import pl.kiosel.villages.village.VillageMember;
-import pl.kiosel.villages.village.VillageNameGenerator;
+import pl.kiosel.villages.manager.VillageNameGenerator;
 
 import java.io.File;
 import java.util.Collections;
@@ -26,10 +23,10 @@ import java.util.UUID;
 
 public class CommandTest extends SimpleCommand {
 
-	private final Wioski plugin;
+	private final AdvancedVillages plugin;
 	private final VillageNameGenerator generator;
 
-	public CommandTest(Wioski plugin) {
+	public CommandTest(AdvancedVillages plugin) {
 		super("test", List.of("testing"), "wioski.testingcommand");
 		this.plugin = plugin;
 		this.generator = new VillageNameGenerator();
@@ -42,8 +39,8 @@ public class CommandTest extends SimpleCommand {
 			return false;
 		}
 		Player player = (Player) sender;
+		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).get();
 
-		VillageMember member = plugin.getPlayerDataManager().getVillageMember(player.getUniqueId());
 		if (args.length == 1) {
 			switch (args[0]) {
 				case "anvil":
@@ -72,47 +69,35 @@ public class CommandTest extends SimpleCommand {
 				case "villages":
 					break;
 				case "adv_title":
-					Title title = MessagesUtils.createTitle(AdventureUtils.formatComponent("test1"), AdventureUtils.formatComponent("test2"));
-					MessagesUtils.sendTitle(title, player);
+					Title title = AdventureUtils.createTitle(AdventureUtils.formatComponent("test1"), AdventureUtils.formatComponent("test2"));
+					AdventureUtils.sendTitle(title, player);
 					break;
 				case "adv_actionbar":
-					MessagesUtils.sendActionBar(AdventureUtils.formatComponent("test1"), player);
+					AdventureUtils.sendActionBar(AdventureUtils.formatComponent("test1"), player);
 					break;
 				case "test1":
 //					player.sendMessage("teststeststest");
-					OfflinePlayer player1 = Bukkit.getOfflinePlayer(UUID.fromString("cb8b7c68-1787-3a6e-aebb-221c0218b1bb"));
-					player.sendMessage("player: " + player1.getName());
+//					OfflinePlayer player1 = Bukkit.getOfflinePlayer(UUID.fromString("cb8b7c68-1787-3a6e-aebb-221c0218b1bb"));
+//					player.sendMessage("player: " + player1.getName());
 					break;
 				case "worldedit_test":
 					File file = new File(plugin.getDataFolder(), "schematics/Turret" + "1" + ".schem");
-					Bukkit.getScheduler().runTask(plugin, () -> WorldEditUtils.pasteSchematic(file, player.getLocation()));
+					Bukkit.getScheduler().runTask(plugin, () -> WorldEditHook.pasteSchematic(file, player.getLocation()));
 					break;
 				case "addpermission":
-					if (member == null) {
+					if (user == null) {
 						player.sendMessage("member is null");
 						break;
 					}
-					plugin.getPermissionManager().addPermission(member, Permission.EFFECTS_TOGGLE);
+					plugin.getPermissionManager().addPermission(user, Permission.EFFECTS_TOGGLE);
 					player.sendMessage("added perm");
 					break;
-				case "villagemember":
-					plugin.getUserManager().getUser(player.getUniqueId(), new Callback<>(plugin) {
-						@Override
-						public void onResult(VillageMember result) {
-							if (result == null) {
-								player.sendMessage("You dont have village");
-							} else {
-								player.sendMessage("You are in village: " + result.getVillage().getVillageName());
-							}
-						}
-					});
-					break;
 				case "getPermissions":
-					if (member == null) {
+					if (user == null) {
 						player.sendMessage("member is null");
 						break;
 					}
-					player.sendMessage(plugin.getPermissionManager().toString(member.getPermissions()));
+					player.sendMessage(plugin.getPermissionManager().toString(user.getPermissions()));
 					break;
 			}
 		}
@@ -123,13 +108,13 @@ public class CommandTest extends SimpleCommand {
 					break;
 				case "villages_owner":
 					player.sendMessage(tl("&7Villages:"));
-					for (String s : plugin.getPlayerDataManager().getVillageOwners()) {
+					for (String s : plugin.getVillageManager().getVillageOwners()) {
 						player.sendMessage(s);
 					}
 					break;
 				case "villages_names":
 					player.sendMessage(tl("&7Villages:"));
-					for (String s : plugin.getPlayerDataManager().getVillageNamesAsList()) {
+					for (String s : plugin.getVillageManager().getVillageNamesAsList()) {
 						player.sendMessage(s);
 					}
 					break;
@@ -140,7 +125,7 @@ public class CommandTest extends SimpleCommand {
 					player.sendMessage("another is null");
 					return false;
 				}
-				VillageMember member2 = plugin.getPlayerDataManager().getVillageMember(another.getUniqueId());
+				User member2 = plugin.getUserManager().findByPlayer(another).get();
 				if (member2 == null) {
 					player.sendMessage("member is null");
 					return false;
@@ -155,7 +140,8 @@ public class CommandTest extends SimpleCommand {
 	public List<String> tabComplete(CommandSender sender, String[] args) {
 		if (args.length == 1) {
 			return TabUtils.returnWith(args[0], List.of(
-					"anvil", "villages", "adv_title", "adv_actionbar", "test1", "worldedit_test", "addpermission", "villagemember", "getPermissions"
+					"anvil", "villages", "adv_title", "adv_actionbar", "test1", "worldedit_test",
+					"addpermission", "villagemember", "getPermissions"
 			));
 		}
 		if (args.length == 2) {
@@ -166,9 +152,9 @@ public class CommandTest extends SimpleCommand {
 		}
 		if (args.length == 3) {
 			if (args[1].equalsIgnoreCase("villages_owner"))
-				return TabUtils.returnWith(args[2], plugin.getPlayerDataManager().getVillageOwners());
+				return TabUtils.returnWith(args[2], plugin.getVillageManager().getVillageOwners());
 			if (args[1].equalsIgnoreCase("villages_names"))
-				return TabUtils.returnWith(args[2], plugin.getPlayerDataManager().getVillageNamesAsList());
+				return TabUtils.returnWith(args[2], plugin.getVillageManager().getVillageNamesAsList());
 		}
 		return TabUtils.returnEmpty();
 	}

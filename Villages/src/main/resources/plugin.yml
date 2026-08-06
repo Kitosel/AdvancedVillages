@@ -1,10 +1,17 @@
-main: pl.kiosel.villages.Wioski
+main: pl.kiosel.villages.AdvancedVillages
 version: '${project.version}'
-name: Wioski
+name: AdvancedVillages
 authors: [ Kiosel ]
 api-version: 1.13
 description: Rewrite for plugin Wioski
 website: kiosel.pl
 
-depend: [ Vault ]
-loadbefore: [ PlaceholderAPI ]
+softdepend:
+  - PlaceholderAPI
+  - Vault
+  - WorldEdit
+
+commands:
+  crafting:
+    aliases:
+      - villagecrafting

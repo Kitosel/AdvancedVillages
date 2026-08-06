@@ -11,8 +11,17 @@ command-language:
   admin_give: give
   admin_give_villageblock: village
   admin_give_destroyer: destroyer
+  admin_manage: manage
+  admin_settings: settings
+
+  admin_lives: lives
   admin_upgrade: upgrade
   admin_delete: delete
+  admin_protection: protection
+  admin_bank: bank
+
+  admin_add: add
+  admin_remove: remove
 
   chat: chat
   invite: invite
