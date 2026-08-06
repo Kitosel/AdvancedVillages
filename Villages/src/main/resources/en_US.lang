@@ -1,0 +1,117 @@
+# General Messages
+general:
+  nametag:
+    prefix: '&8[&6&lVillages&8]'
+    next: '&9Next'
+    back: '&9Back'
+    exit: '&cExit'
+  player:
+    money-add: '&7Added &a%money% &7to your account'
+    money-remove: '&7Removed &a%money% &7from your account'
+    money-no: "&cYou don't have enough money!"
+    online: '&aPlayer is online'
+    offline: '&cPlayer is offline'
+    is-member: '&cPlayer is member'
+    has-village: '&cThis player has village'
+    you-have-full-eq: '&cYou have full inventory'
+    no-xp: "&cYou don't have enough exp: %xp%"
+    no-items: "&cYou don't have enough items"
+    take-xp: '&aTaked %xp%'
+    take-items: '&aTaked %item% x%amount%'
+
+# Commands
+command:
+  reload: '&7All configuration reloaded'
+  no-permission: "&7You don't have permission to use command"
+  village-not-found: '&cCould not find the village of player &f%village_owner%'
+  invalid-number: '&c%args% &7is not a number!'
+  admin:
+    village-block: '&aYou recived Village Block'
+    destroyer: '&aYou recived Destroyer'
+    upgrade: '&aVillage of player &f%village_owner% &ahas been upgraded!'
+    delete: '&cVillage of player &f%village_owner% &chas been deleted!'
+    protection-add: '&7Added protection for the &a%village_owner% &7with a time of &6%time%' #%time% %full_time%
+    protection-remove: '&7Removed protecion for the village &a%village_owner%'
+    bank-add: '&7Added &a%money% &7to &a%village_owner% &7bank'
+    bank-remove: '&7Removed &c%money% &7from &a%village_owner% &7bank'
+    lives-add: '&7Added &a%lives% &7to &a%village_owner%'
+    lives-remove: '&7Removed &c%lives% &7from &a%village_owner%'
+
+# Village
+village:
+  disabled-world: "&cYou can't place village in this world"
+  no-permission: "&cYou don't have permission to change that"
+  nearby: "&cYou can't create village because there is another village nearby (minimum %distance% blocks)"
+  spawn-nearby: "&cYou can't create village because there is spawn nearby (minimum %distance% blocks)"
+  cant-edit: "&cYou can't edit this member"
+  effect-not-bought: "&cEffect %effect% was not purchased"
+
+  in-village: '&cYou are already in village'
+  no-village: "&cYou don't have village"
+  leave-owner: "&cYou can't leave because you are owner"
+  leave-village: '&aYou leaved village'
+  remove: '&cYou removed village'
+  upgrade: '&6You upgraded village'
+
+  upgrade-no-requirements: "&cYou don't meet all the requirements to upgrade your village"
+
+  bank-add: '&7Added to bank: &a%money%'
+  bank-remove: '&7Removed from bank: &c%money%'
+  bank-no-money: "&cBank don't have enough money for withdraw"
+
+  # %village_tag% %village_name% %village_owner%
+  enter-village-area-title: '&6You entered village'
+  enter-village-area-subtitle: '&7%village_tag%'
+  leave-village-area-title: ' '
+  leave-village-area-subtitle: '&6You leave village'
+  chat-format: '&8[&5&lVillage&8] &f%player%&7: &f%message%'
+
+# Tag
+tag:
+  try-again: 'The tag is already in use'
+  has-spaces: 'Tag has spaces'
+  too-long: 'Tag too long'
+  invalid-chars: 'Tag has invalid chars'
+
+  anvil-name-your-village: 'Name your village'
+  new-village-tag: '&7Your new tag for village is &a%tag%'
+  your-village-tag: '&7Your village tag is &a%tag%'
+  closed-name-village-tag: '&cYou closed inventory. No tag has been set'
+  already-name-village-tag: '&cThis tag is already in use'
+
+# Teleport
+teleport:
+  teleporting: '&7Teleporting to village'
+  teleported: '&7You teleported to your village'
+  cooldown: '&7You have to wait %time% before next teleport'
+  title: '&aTeleporting...'
+  subtitle: '&eTeleporting in %time% seconds...'
+  move: '&cTeleport canceled because you move'
+  set-cancel: '&cTeleport set canceled'
+  set: '&6Set teleport to village'
+  set-hover: '&cClick to set teleport'
+  set-title: '&7( &cTeleport &7)'
+  set-subtitle: '&6Teleport set'
+
+# Invite
+invite:
+  cancel: '&7Invite - &cCancel'
+  cancel-hover: '&6Click to cancel'
+  confirm: '&7Invite - &aConfirm'
+  confirm-hover: '&6Click to join'
+
+  no-invite: "&cYou don't have an invite to village"
+  has-invite: '&cPlayer has an invite pending'
+  player-invite: '&7You invited the player &b%player% &7to your village'
+  player-target: '&7%player% invited you to village'
+  target-join-member: '&6%player% &7joined to your village'
+  confirmed: '&7You joined to &6%village_owner% &7village'
+  canceled: '&7You canceled invite'
+
+# Items
+items:
+  village-block: '&d&lVillages'
+  destroyer: '&6&lDestroyer'
+  hearth: '&c&lHearth of the Village'
+  part-of-hearth: '&c&lPart of Hearth of the Village'
+  destroyer-hearth: '&c&lHearth of the Destroyer'
