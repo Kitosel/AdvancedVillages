@@ -57,10 +57,12 @@ village:
   cant-edit: '&cNie możesz edytować tego członka'
   effect-not-bought: '&cEfekt %effect% nie został zakupiony'
   protected: '&cTa wioska jest obecnie chroniona'
+  remove-member: '&7Usunąłeś &6%player% &7z wioski'
 
   in-village: '&cNależysz już do wioski'
   no-village: '&cNie należysz do żadnej wioski'
   leave-owner: '&cNie możesz opuścić wioski, będąc jej właścicielem'
+  confirm-leave-village: '&4Aby opuścić &6wioskę&4, wioske wpisz komendę &ljeszcze raz'
   leave-village: '&aOpuściłeś wioskę'
   remove: '&cUsunąłeś wioskę'
   upgrade: '&6Ulepszyłeś wioskę'
@@ -72,10 +74,10 @@ village:
   bank-no-money: '&cW banku wioski nie ma wystarczająco pieniędzy'
 
   # %village_tag% %village_name% %village_owner%
-  enter-village-area-title: '&6Wszedłeś na teren wioski'
-  enter-village-area-subtitle: '&7%village_tag%'
-  leave-village-area-title: ' '
-  leave-village-area-subtitle: '&6Opuściłeś teren wioski'
+  enter-area-title: '&6Wszedłeś na teren wioski'
+  enter-area-subtitle: '&7%village_tag%'
+  leave-area-title: ' '
+  leave-area-subtitle: '&6Opuściłeś teren wioski'
   chat-format: '&8[&5&lWioska&r&8] &f%player%&7: &f%message%'
   chat-format-owner-color: '&6'
 
@@ -104,6 +106,7 @@ teleport:
   set-hover: '&cKliknij, aby ustawić miejsce teleportacji'
   set-title: '&7( &cTeleportacja &7)'
   set-subtitle: '&6Ustawiono miejsce teleportacji'
+  outside-region: '&cJesteś poza obszarem wioski'
 
 # Zaproszenia
 invite:

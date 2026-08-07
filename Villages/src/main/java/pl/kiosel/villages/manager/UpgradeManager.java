@@ -31,9 +31,14 @@ public class UpgradeManager {
     public UpgradeManager(AdvancedVillages plugin) {
         this.plugin = plugin;
         setTurret();
-		if (plugin.isWorldedit())
-			worldEditTurret = new WorldEditTurret(plugin);
+		this.refreshWorldEditIntegration();
     }
+
+	public void refreshWorldEditIntegration() {
+		this.worldEditTurret = this.plugin.isWorldedit()
+				? new WorldEditTurret(this.plugin)
+				: null;
+	}
 
     private void setTurret() {
         turretMap.put(Upgrade.IRON, new TurretSetOak());
@@ -127,7 +132,7 @@ public class UpgradeManager {
 		}
         reset(village);
 
-		if (plugin.isWorldedit()) {
+		if (this.canUseWorldEdit()) {
 			worldEditTurret.pasteVillage(location, upgrade.getLevel());
 			plugin.getServer().getScheduler().runTaskLater(plugin, () ->
 					turretMap.get(Upgrade.WORLDEDIT).setTurret(location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ()),
@@ -151,13 +156,14 @@ public class UpgradeManager {
 			return false;
 		}
 		village.setLevel(nextLevel);
+		village.getRegion().get().setSize(nextLevel.getSize());
 		plugin.getVillageAnimationManager().playLevelUpgrade(village);
 		plugin.getServer().getScheduler().runTaskLater(plugin, () -> upgrade(village, village.getLevel().getLevel()), 4L);
 		return true;
 	}
 
 	public boolean canPasteLevel(int level) {
-		if (plugin.isWorldedit()) {
+		if (this.canUseWorldEdit()) {
 			return new File(plugin.getDataFolder(), "schematics/Turret" + level + ".schem").isFile();
 		}
 		Upgrade upgrade = Upgrade.getByLevel(level);
@@ -171,5 +177,14 @@ public class UpgradeManager {
 	public static int getCostForLevel(int level) {
 		Level configured = AdvancedVillages.getInstance().getLevelManager().getLevel(level);
 		return configured == null ? 0 : configured.getCostEconomy();
+	}
+
+	public static int getSizeForLevel(int level) {
+		Level configured = AdvancedVillages.getInstance().getLevelManager().getLevel(level);
+		return configured == null ? 0 : configured.getSize();
+	}
+
+	private boolean canUseWorldEdit() {
+		return this.plugin.isWorldedit() && this.worldEditTurret != null;
 	}
 }

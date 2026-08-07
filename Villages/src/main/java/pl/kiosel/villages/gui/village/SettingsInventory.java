@@ -29,7 +29,7 @@ public final class SettingsInventory extends VillageMenu {
 				village.isAnimationsEnabled()), event -> toggleAnimations());
 		setButton(19, Item.create(Material.FEATHER, 1,
 				GuiConfig.guis_village_setting_teleport,
-				replaceWith(GuiConfig.guis_village_setting_teleport_lore), false), event -> toggleTeleport());
+				replaceWith(GuiConfig.guis_village_setting_teleport_lore), false), event -> setTeleport());
 		setButton(21, Item.create(Material.MOJANG_BANNER_PATTERN, 1,
 				GuiConfig.guis_village_setting_tag,
 				replaceWith(GuiConfig.guis_village_setting_tag_lore), false), event -> openTag(event.gui));
@@ -55,7 +55,7 @@ public final class SettingsInventory extends VillageMenu {
 		reopen(GUIS.SETTINGS);
 	}
 
-	private void toggleTeleport() {
+	private void setTeleport() {
 		if (!canChangeSettings()) return;
 		TeleportManager teleportManager = plugin.getTeleportManager();
 		exit();

@@ -4,6 +4,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import pl.kiosel.core.locale.Message;
 import pl.kiosel.core.utils.ColorUtils;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.data.user.User;
@@ -25,18 +26,14 @@ public class ChatListener implements Listener {
 		if (Settings.CHAT_FORMAT_ENABLED.getBoolean()) {
 			String messageFormat;
 			if (user.hasVillage()) {
-				messageFormat = VillageUtilsManager.replaceWith(player, user.getPresentVillage(), Settings.CHAT_FORMAT_VILLAGE.getString())
-						.processPlaceholder("message", event.getMessage()).toText();
+				messageFormat = VillageUtilsManager.replaceWith(player, user.getPresentVillage(), Settings.CHAT_FORMAT_VILLAGE.getString()).toText();
 			} else {
-				messageFormat = ColorUtils.tl(Settings.CHAT_FORMAT_NO_VILLAGE.getString()
-						.replace("%message%", event.getMessage())
-						.replace("%player%", player.getName()));
+				messageFormat = VillageUtilsManager.replacePlayer(player, Settings.CHAT_FORMAT_NO_VILLAGE.getString()).toText();
 			}
 			if (plugin.isPlaceholder()) {
-				event.setFormat(plugin.getPlaceholder().replacePlaceholder(player, messageFormat));
-			} else {
-				event.setFormat(messageFormat);
+				messageFormat = plugin.getPlaceholder().replacePlaceholder(player, messageFormat);
 			}
+			event.setFormat(ColorUtils.tl(new Message(messageFormat).processPlaceholder("message", event.getMessage()).toText()));
 		}
 	}
 }

@@ -3,17 +3,14 @@ package pl.kiosel.villages.commands.subcommands;
 import org.bukkit.entity.Player;
 import panda.std.Option;
 import pl.kiosel.core.configuration.editor.PluginConfigGui;
-import pl.kiosel.core.locale.Locale;
 import pl.kiosel.core.math.MathUtils;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.commands.AVSubCommand;
 import pl.kiosel.villages.config.CommandConfig;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.enums.CommandLang;
-import pl.kiosel.villages.enums.GUIS;
-import pl.kiosel.villages.enums.Lang;
-import pl.kiosel.villages.enums.Upgrade;
+import pl.kiosel.villages.data.village.level.Level;
+import pl.kiosel.villages.enums.*;
 import pl.kiosel.villages.events.VillageUpgradeEvent;
 import pl.kiosel.villages.manager.VillageUtilsManager;
 
@@ -36,16 +33,19 @@ public class AdminCommand extends AVSubCommand {
 	@Override
 	public String getPermission() { return "villages.command.admin"; }
 
+	@Override
+	public Permission getVillagePermission() { return Permission.UNSET; }
+
 	private final AdvancedVillages plugin;
 
 	public AdminCommand(AdvancedVillages plugin) {
+		super(plugin);
 		this.plugin = plugin;
 	}
 
 	@Override
 	public void run(Player player, User user, String[] args) {
 		CommandConfig commandConfig = plugin.getCommandLang();
-		Locale locale = plugin.getLocale();
 
 		String adminCmd = commandConfig.getCommand(CommandLang.ADMIN).toLowerCase();
 		String reloadCmd = commandConfig.getCommand(CommandLang.ADMIN_RELOAD).toLowerCase();
@@ -73,7 +73,7 @@ public class AdminCommand extends AVSubCommand {
 
 		if (input.equals(reloadCmd)) {
 			plugin.reloadConfig();
-			locale.getMessage(Lang.COMMAND_RELOAD.getPath()).sendPrefixedMessage(player);
+			sendLocalized(player, Lang.COMMAND_RELOAD);
 			return;
 		}
 
@@ -88,13 +88,13 @@ public class AdminCommand extends AVSubCommand {
 
 				if (giveType.equals(giveVillageCmd)) {
 					player.getInventory().addItem(plugin.getApi().createVillageBlock());
-					locale.getMessage(Lang.COMMAND_ADMIN_VILLAGE_BLOCK.getPath()).sendPrefixedMessage(player);
+					sendLocalized(player, Lang.COMMAND_ADMIN_VILLAGE_BLOCK);
 					return;
 				}
 
 				if (giveType.equals(giveDestroyerCmd)) {
 					player.getInventory().addItem(plugin.getApi().createDestroyer());
-					locale.getMessage(Lang.COMMAND_ADMIN_DESTROYER.getPath()).sendPrefixedMessage(player);
+					sendLocalized(player, Lang.COMMAND_ADMIN_DESTROYER);
 					return;
 				}
 			}
@@ -113,13 +113,13 @@ public class AdminCommand extends AVSubCommand {
 			String owner = args[2];
 			Option<User> ownerOption = plugin.getUserManager().findByName(owner);
 			if (ownerOption.isEmpty()) {
-				locale.getMessage(Lang.COMMAND_VILLAGE_NOT_FOUND.getPath()).processPlaceholder("owner", owner).sendPrefixedMessage(player);
+				sendLocalized(player, Lang.COMMAND_VILLAGE_NOT_FOUND, "village_owner", owner);
 				return;
 			}
 			User userOwner = ownerOption.get();
 			Village village = userOwner.getPresentVillage();
 			if (village == null) {
-				locale.getMessage(Lang.COMMAND_VILLAGE_NOT_FOUND.getPath()).processPlaceholder("owner", owner).sendPrefixedMessage(player);
+				sendLocalized(player, Lang.COMMAND_VILLAGE_NOT_FOUND, "village_owner", owner);
 				return;
 			}
 
@@ -127,19 +127,17 @@ public class AdminCommand extends AVSubCommand {
 				String manage = args[3].toLowerCase();
 				if (manage.equals(deleteCmd)) {
 					plugin.getVillageGui().openGui(village, player, GUIS.REMOVE);
-					locale.getMessage(Lang.COMMAND_ADMIN_DELETE.getPath()).processPlaceholder("owner", owner).sendPrefixedMessage(player);
+					sendLocalized(player, Lang.COMMAND_ADMIN_DELETE, "village_owner", owner);
 				}
 				if (manage.equals(upgradeCmd)) {
 					int currentLevel = village.getLevel().getLevel();
-					pl.kiosel.villages.data.village.level.Level nextLevel = plugin.getLevelManager().getLevel(currentLevel + 1);
+					Level nextLevel = plugin.getLevelManager().getLevel(currentLevel + 1);
 					if (nextLevel == null) {
-						locale.getMessage(Lang.VILLAGE_MAX_LEVEL.getPath()).sendPrefixedMessage(player);
+						sendLocalized(player, Lang.VILLAGE_MAX_LEVEL, "village_owner", owner);
 						return;
 					}
 					if (!plugin.getUpgradeManager().canPasteLevel(nextLevel.getLevel())) {
-						locale.getMessage(Lang.BUILD_EDITOR_SCHEMATIC_MISSING.getPath())
-								.processPlaceholder("schematic", "Turret" + nextLevel.getLevel() + ".schem")
-								.sendPrefixedMessage(player);
+						sendLocalized(player, Lang.BUILD_EDITOR_SCHEMATIC_MISSING, "schematic", "Turret" + nextLevel.getLevel() + ".schem");
 						return;
 					}
 					VillageUpgradeEvent villageUpgradeEvent = new VillageUpgradeEvent(
@@ -150,8 +148,11 @@ public class AdminCommand extends AVSubCommand {
 					plugin.getServer().getPluginManager().callEvent(villageUpgradeEvent);
 					if (villageUpgradeEvent.isCancelled()) return;
 
-					plugin.getUpgradeManager().upgradeVillage(village);
-					locale.getMessage(Lang.COMMAND_ADMIN_UPGRADE.getPath()).processPlaceholder("owner", owner).sendPrefixedMessage(player);
+					if (plugin.getUpgradeManager().upgradeVillage(village)) {
+						sendLocalized(player, Lang.COMMAND_ADMIN_UPGRADE, "village_owner", owner);
+					} else {
+						player.sendMessage("error while upgrading the village");
+					}
 				}
 				if (manage.equals(livesCmd)
 						|| manage.equals(protectionCmd)
@@ -166,7 +167,7 @@ public class AdminCommand extends AVSubCommand {
 				if (manage.equals(protectionCmd)) {
 					if (addrem.equals(removeCmd)) {
 						village.setProtection(Instant.now());
-						VillageUtilsManager.replaceWith(player, village, Lang.COMMAND_ADMIN_PROTECTION_REMOVE.getPath()).sendPrefixedMessage(player);
+						VillageUtilsManager.replaceWith(player, village, Lang.COMMAND_ADMIN_PROTECTION_REMOVE).sendPrefixedMessage(player);
 					} else if (addrem.equals(addCmd)) {
 						player.sendMessage(tl("&c/village "+adminCmd+" " + manageCmd + " <owner> " + manage + " <" + addCmd + "|" + removeCmd + "> " + " <number> <time unit>"));
 					}
@@ -181,7 +182,7 @@ public class AdminCommand extends AVSubCommand {
 				String addrem = args[4].toLowerCase();
 				Integer number = MathUtils.parseInt(args[5]);
 				if (number==null) {
-					locale.getMessage(Lang.COMMAND_INVALID.getPath()).sendPrefixedMessage(player);
+					sendLocalized(player, Lang.COMMAND_INVALID, "village_owner", owner);
 					return;
 				}
 				if (manage.equals(protectionCmd)) {
@@ -190,8 +191,8 @@ public class AdminCommand extends AVSubCommand {
 					}
 				}
 				if (manage.equals(bankCmd)) {
-					String bank_add = locale.getMessage(Lang.COMMAND_ADMIN_BANK_ADD.getPath()).toText();
-					String bank_remove = locale.getMessage(Lang.COMMAND_ADMIN_BANK_REMOVE.getPath()).toText();
+					String bank_add = getMessage(Lang.COMMAND_ADMIN_BANK_ADD.getPath()).toText();
+					String bank_remove = getMessage(Lang.COMMAND_ADMIN_BANK_REMOVE.getPath()).toText();
 					if (addrem.equals(addCmd)) {
 						village.addBank(number);
 						VillageUtilsManager.replaceWith(player, village, bank_add)
@@ -207,8 +208,8 @@ public class AdminCommand extends AVSubCommand {
 					return;
 				}
 				if (manage.equals(livesCmd)) {
-					String live_add = locale.getMessage(Lang.COMMAND_ADMIN_LIVES_ADD.getPath()).toText();
-					String live_remove = locale.getMessage(Lang.COMMAND_ADMIN_LIVES_REMOVE.getPath()).toText();
+					String live_add = getMessage(Lang.COMMAND_ADMIN_LIVES_ADD.getPath()).toText();
+					String live_remove = getMessage(Lang.COMMAND_ADMIN_LIVES_REMOVE.getPath()).toText();
 					if (addrem.equals(addCmd)) {
 						village.setLives(village.getLives() + number);
 						VillageUtilsManager.replaceWith(player, village, live_add)
@@ -217,7 +218,7 @@ public class AdminCommand extends AVSubCommand {
 					}
 					if (addrem.equals(removeCmd)) {
 						if (village.getLives() <= 0) {
-							locale.getMessage(Lang.COMMAND_ADMIN_ALREADY_DYING.getPath()).sendPrefixedMessage(player);
+							sendLocalized(player, Lang.COMMAND_ADMIN_ALREADY_DYING, "village_owner", owner);
 							return;
 						}
 						village.setLives(village.getLives() - number);
@@ -234,7 +235,7 @@ public class AdminCommand extends AVSubCommand {
 				String addrem = args[4].toLowerCase();
 				Integer number = MathUtils.parseInt(args[5]);
 				if (number==null) {
-					locale.getMessage(Lang.COMMAND_INVALID.getPath()).sendPrefixedMessage(player);
+					sendLocalized(player, Lang.COMMAND_INVALID);
 					return;
 				}
 				String unit = args[6].toLowerCase();
@@ -263,11 +264,11 @@ public class AdminCommand extends AVSubCommand {
 								duration = Duration.ofSeconds(number);
 								break;
 							default:
-								locale.getMessage(Lang.COMMAND_INVALID.getPath()).sendPrefixedMessage(player);
+								sendLocalized(player, Lang.COMMAND_INVALID);
 								return;
 						}
 						village.setProtection(Instant.now().plus(duration));
-						VillageUtilsManager.replaceWith(player, village, locale.getMessage(Lang.COMMAND_ADMIN_PROTECTION_ADD.getPath()).toText())
+						VillageUtilsManager.replaceWith(player, village, Lang.COMMAND_ADMIN_PROTECTION_ADD)
 								.processPlaceholder("time", number + " " + unit)
 								.processPlaceholder("full_time", Instant.now().plus(duration).toString())
 								.sendPrefixedMessage(player);
@@ -276,8 +277,6 @@ public class AdminCommand extends AVSubCommand {
 				return;
 			}
 		}
-		locale.getMessage(Lang.COMMAND_UNKNOWN.getPath())
-				.processPlaceholder("input", input)
-				.sendPrefixedMessage(player);
+		sendLocalized(player, Lang.COMMAND_UNKNOWN, "input", input);
 	}
 }

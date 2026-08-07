@@ -1,6 +1,7 @@
 package pl.kiosel.villages;
 
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
@@ -61,8 +62,6 @@ import pl.kiosel.villages.settings.Settings;
 import pl.kiosel.villages.storage.DataHelper;
 import pl.kiosel.villages.storage.Dataloader;
 import pl.kiosel.villages.storage.migrations._1_InitialMigration;
-import pl.kiosel.villages.storage.migrations._2_VillageTntMigration;
-import pl.kiosel.villages.storage.migrations._3_VillageAnimationsMigration;
 
 import java.io.File;
 import java.io.IOException;
@@ -128,6 +127,8 @@ public final class AdvancedVillages extends MetaPlugin {
 
 	@Getter private CombatManager combatManager;
 	@Getter private CombatConfig combatConfig;
+	@Getter private volatile boolean dataReady;
+	private boolean runtimeHandlersRegistered;
 
 	@Override
 	public void onPluginLoad() {
@@ -149,14 +150,20 @@ public final class AdvancedVillages extends MetaPlugin {
 			getLogger().warning("Economy '" + Settings.ECONOMY_PLUGIN.getString() + "' is unavailable. Selecting automatically.");
 		}
 
-		this.economy = getHookManager().getEconomyHookRegistry().getActive().orElseThrow(() ->
-				new IllegalStateException("No supported economy plugin found"));
+		this.economy = getHookManager().getEconomyHookRegistry().getActive().orElseThrow(() -> {
+			emergencyStop();
+			return new IllegalStateException("No supported economy plugin found");
+		});
 
 		setLocale(Settings.LANGUAGE_MODE.getString(), false);
 
 		this.registerConfig();
 		this.loadConfigs();
-		this.loadLevels();
+		if (!this.loadLevels()) {
+			getLogger().severe("No valid village level configuration is available. Disabling the plugin.");
+			emergencyStop();
+			return;
+		}
 
 		if (!isDev()) {
 			getDebug().debug("Checking license");
@@ -185,17 +192,14 @@ public final class AdvancedVillages extends MetaPlugin {
 		getDebug().debug("Set Village api");
 		this.api = new VillageAPI(this);
 
-		initDatabase(new _1_InitialMigration(), new _2_VillageTntMigration(), new _3_VillageAnimationsMigration());
+		initDatabase(new _1_InitialMigration());
 
 		if(getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
 			getDebug().debug("Hooked PlaceholderApi");
 			this.placeholder = new PlaceholderManager(this);
 			this.placeholder.register();
 		}
-		if(getServer().getPluginManager().isPluginEnabled("WorldEdit") && Settings.WORLDEDIT.getBoolean()) {
-			getDebug().debug("Hooked WorldEdit");
-			this.worldedit = true;
-		}
+		this.updateWorldEditState();
 
 		if (this.worldedit)
 			saveSchematics();
@@ -228,32 +232,7 @@ public final class AdvancedVillages extends MetaPlugin {
 
 		this.spawnManager = new SpawnManager(this);
 
-		CommandManager commandManager = new CommandManager(this);
-		commandManager.addCommand(new CommandCrafting(this, this.guiManager));
-
-		registerCommands("village",
-				new CommandVillage(this),
-				new CommandSpawn(this),
-				isDev() ? new CommandTest(this) : null
-		);
-
-		registerListeners(
-				new JoinListener(this),
-				new QuitListener(this),
-				new BlockListener(this),
-				new InteractListener(this),
-				new MoveListener(this),
-				new ChatListener(this),
-				new InteractBlockListeners(this),
-				new PlayerListeners(this),
-				new VillageListener(this),
-				new BlockItemListener(this),
-				new SpawnListener(this),
-				this.villageBuildEditorManager == null ? null : new BuildEditorListener(this.villageBuildEditorManager),
-				new CombatListener(this, this.combatManager, this.combatConfig),
-				WorldGuardHook.isEnabled() ? new CombatRegionListener(this.combatManager, this.combatConfig) : null
-		);
-		getDebug().debug("Plugin enabled");
+		getDebug().debug("Plugin initialized; waiting for data");
 	}
 
 	@Override
@@ -280,13 +259,21 @@ public final class AdvancedVillages extends MetaPlugin {
 			}
 			getServer().getScheduler().cancelTasks(this);
 		});
+		runShutdownStep("clearing runtime views", () -> {
+			if (this.scoreboardManager != null) {
+				this.scoreboardManager.clearBoards();
+			}
+			if (this.combatManager != null) {
+				this.combatManager.clear();
+			}
+		});
 		runShutdownStep("unregistering recipes", () -> {
 			if (this.craftingManager != null) {
 				this.craftingManager.unRegisterRecipe();
 			}
 		});
 		runShutdownStep("saving data", () -> {
-			if (this.dataloader != null) {
+			if (this.dataReady && this.dataloader != null) {
 				this.dataloader.save(false);
 			}
 		});
@@ -307,20 +294,42 @@ public final class AdvancedVillages extends MetaPlugin {
 		});
 		runShutdownStep("unregistering listeners", () -> HandlerList.unregisterAll(this));
 		runShutdownStep("closing debug output", () -> getDebug().close());
+		this.dataReady = false;
+		this.runtimeHandlersRegistered = false;
+		this.worldedit = false;
+		instance = null;
 	}
 
 	@Override
-	public void onDataLoad() {
+	public synchronized void onDataLoad() {
+		if (!Bukkit.isPrimaryThread()) {
+			getServer().getScheduler().runTask(this, this::onDataLoad);
+			return;
+		}
+		if (this.dataReady) {
+			getLogger().warning("Ignoring duplicate data-load callback");
+			return;
+		}
+
 		getDebug().debug("Loading data");
-		this.dataHelper = new DataHelper(this);
+		try {
+			this.dataHelper = new DataHelper(this);
 
-		this.dataloader = new Dataloader(this);
-		this.dataloader.load(this.getDataManager());
+			this.dataloader = new Dataloader(this);
+			this.dataloader.load(this.getDataManager());
+			this.dataReady = true;
 
-		this.villageDataTaskHandler = new VillageDataTaskHandler(this);
-		this.villageDataTaskHandler.startHandler();
-		this.villageAnimationManager.start();
-		this.refreshOnlineAddons();
+			this.registerRuntimeHandlers();
+			this.synchronizeOnlineUsers();
+			this.villageDataTaskHandler = new VillageDataTaskHandler(this);
+			this.villageDataTaskHandler.startHandler();
+			this.villageAnimationManager.start();
+			this.refreshOnlineAddons();
+			getDebug().debug("Plugin enabled");
+		} catch (RuntimeException exception) {
+			getLogger().log(Level.SEVERE, "Could not finish loading village data", exception);
+			emergencyStop();
+		}
 	}
 
 	@Override
@@ -339,7 +348,11 @@ public final class AdvancedVillages extends MetaPlugin {
 			this.spawnManager.cancelAll(true);
 		}
 		this.loadLevels();
-		if (getServer().getPluginManager().isPluginEnabled("WorldEdit") && Settings.WORLDEDIT.getBoolean()) {
+		this.updateWorldEditState();
+		if (this.upgradeManager != null) {
+			this.upgradeManager.refreshWorldEditIntegration();
+		}
+		if (this.worldedit) {
 			this.saveSchematics();
 		}
 		if (this.villageBuildEditorManager != null) {
@@ -354,7 +367,55 @@ public final class AdvancedVillages extends MetaPlugin {
 	@Override
 	public List<Config> getExtraConfig() {
 		return List.of(this.spawnFile, this.levelsFile, this.combatFile, this.commandFile,
-				this.villageAnimationFile, this.buildEditorFile);
+				this.scoreboardFile, this.villageAnimationFile, this.buildEditorFile);
+	}
+
+	private void registerRuntimeHandlers() {
+		if (this.runtimeHandlersRegistered) {
+			return;
+		}
+
+		CommandManager commandManager = new CommandManager(this);
+		commandManager.addCommand(new CommandCrafting(this, this.guiManager));
+
+		registerCommands("village",
+				new CommandVillage(this),
+				new CommandSpawn(this),
+				isDev() ? new CommandTest(this) : null
+		);
+
+		registerListeners(
+				new JoinListener(this),
+				new QuitListener(this),
+				new BlockListener(this),
+				new InteractListener(this),
+				new MoveListener(this),
+				new ChatListener(this),
+				new InteractBlockListeners(this),
+				new PlayerListeners(this),
+				new VillageListener(this),
+				new BlockItemListener(this),
+				new SpawnListener(this),
+				this.villageBuildEditorManager == null ? null : new BuildEditorListener(this.villageBuildEditorManager),
+				new CombatListener(this, this.combatManager, this.combatConfig),
+				WorldGuardHook.isEnabled() ? new CombatRegionListener(this.combatManager, this.combatConfig) : null
+		);
+		this.runtimeHandlersRegistered = true;
+	}
+
+	private void synchronizeOnlineUsers() {
+		for (Player player : this.getServer().getOnlinePlayers()) {
+			this.userManager.getOrCreate(player);
+		}
+	}
+
+	private void updateWorldEditState() {
+		boolean available = getServer().getPluginManager().isPluginEnabled("WorldEdit")
+				&& Settings.WORLDEDIT.getBoolean();
+		if (available != this.worldedit) {
+			getLogger().info("WorldEdit village builds " + (available ? "enabled" : "disabled"));
+		}
+		this.worldedit = available;
 	}
 
 	private void registerPlaceholders() {
@@ -401,10 +462,9 @@ public final class AdvancedVillages extends MetaPlugin {
 		this.levelsFile.load();
 	}
 
-	private void loadLevels() {
+	private boolean loadLevels() {
 		getDebug().debug("Loading levels from file");
-		this.levelManager = new LevelManager();
-		this.levelManager.clear();
+		LevelManager loadedLevels = new LevelManager();
 		for (String levelName : this.levelsFile.getKeys(false)) {
 			ConfigurationSection levels = this.levelsFile.getConfigurationSection(levelName);
 			if (levels == null || !levelName.toLowerCase().startsWith("level-")) {
@@ -437,11 +497,28 @@ public final class AdvancedVillages extends MetaPlugin {
 						materials.put(material, amount);
 					}
 				}
-				this.levelManager.addLevel(level, costExperience, costEconomy, size, materials);
+				loadedLevels.addLevel(level, costExperience, costEconomy, size, materials);
 			} catch (NumberFormatException exception) {
 				getLogger().log(Level.WARNING, "Ignoring invalid level definition: " + levelName, exception);
 			}
 		}
+
+		if (!loadedLevels.isLevel(1)) {
+			getLogger().severe("levels.yml must contain a valid level-1 section");
+			return false;
+		}
+
+		int highestLevel = loadedLevels.getHighestLevel().getLevel();
+		for (int level = 1; level <= highestLevel; level++) {
+			if (!loadedLevels.isLevel(level)) {
+				getLogger().severe("levels.yml is missing level-" + level
+						+ "; keeping the previous level configuration");
+				return false;
+			}
+		}
+
+		this.levelManager = loadedLevels;
+		return true;
 	}
 
 	public void reloadLevels() {

@@ -30,7 +30,7 @@ public class CombatMessage {
 	}
 
 	private String[] processMessageContent(Player player, String content, Map<String, Object> replacements) {
-		if (replacements != null && !replacements.isEmpty()) {
+		if (replacements != null && !replacements.isEmpty() && AdvancedVillages.getInstance().isPlaceholder()) {
 			content = AdvancedVillages.getInstance().getPlaceholder().replacePlaceholder(player, content, replacements);
 		}
 		return content.split("\n");

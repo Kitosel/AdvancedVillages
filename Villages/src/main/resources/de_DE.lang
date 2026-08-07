@@ -57,10 +57,12 @@ village:
   cant-edit: '&cDu kannst dieses Mitglied nicht bearbeiten'
   effect-not-bought: '&cDer Effekt %effect% wurde nicht gekauft'
   protected: '&cDieses Dorf ist derzeit geschützt'
+  remove-member: '&7Du hast &6%player% &7aus dem Dorf entfernt'
 
   in-village: '&cDu gehörst bereits zu einem Dorf'
   no-village: '&cDu gehörst zu keinem Dorf'
   leave-owner: '&cAls Besitzer kannst du das Dorf nicht verlassen'
+  confirm-leave-village: '&4Um das &6Dorf&4 zu verlassen, gib den Befehl &lerneut&4 ein'
   leave-village: '&aDu hast das Dorf verlassen'
   remove: '&cDu hast das Dorf entfernt'
   upgrade: '&6Du hast das Dorf verbessert'
@@ -72,10 +74,10 @@ village:
   bank-no-money: '&cDie Dorfbank hat nicht genug Geld'
 
   # %village_tag% %village_name% %village_owner%
-  enter-village-area-title: '&6Du hast ein Dorf betreten'
-  enter-village-area-subtitle: '&7%village_tag%'
-  leave-village-area-title: ' '
-  leave-village-area-subtitle: '&6Du hast das Dorf verlassen'
+  enter-area-title: '&6Du hast ein Dorf betreten'
+  enter-area-subtitle: '&7%village_tag%'
+  leave-area-title: ' '
+  leave-area-subtitle: '&6Du hast das Dorf verlassen'
   chat-format: '&8[&5&lDorf&r&8] &f%player%&7: &f%message%'
   chat-format-owner-color: '&6'
 
@@ -104,6 +106,7 @@ teleport:
   set-hover: '&cKlicken, um den Teleportpunkt festzulegen'
   set-title: '&7( &cTeleportation &7)'
   set-subtitle: '&6Teleportpunkt festgelegt'
+  outside-region: '&cDu befindest dich außerhalb des Dorfes'
 
 # Einladungen
 invite:

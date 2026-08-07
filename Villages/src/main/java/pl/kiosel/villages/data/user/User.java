@@ -47,6 +47,7 @@ public class User extends AbstractMutableEntity {
 
     void setName(String name) {
         this.name = name;
+		this.markChanged();
     }
 
     @Override

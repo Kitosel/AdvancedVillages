@@ -3,12 +3,12 @@ package pl.kiosel.villages.commands.subcommands;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import pl.kiosel.core.math.MathUtils;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.commands.AVSubCommand;
 import pl.kiosel.villages.data.user.User;
-import pl.kiosel.villages.enums.Lang;
 import pl.kiosel.villages.data.village.Village;
+import pl.kiosel.villages.enums.Lang;
+import pl.kiosel.villages.enums.Permission;
 
 public class TeleportSetCommand extends AVSubCommand {
 
@@ -24,9 +24,13 @@ public class TeleportSetCommand extends AVSubCommand {
 	@Override
 	public String getPermission() { return ""; }
 
+	@Override
+	public Permission getVillagePermission() { return Permission.SETTINGS; }
+
 	private final AdvancedVillages plugin;
 
 	public TeleportSetCommand(AdvancedVillages plugin) {
+		super(plugin);
 		this.plugin = plugin;
 	}
 
@@ -43,13 +47,15 @@ public class TeleportSetCommand extends AVSubCommand {
 			return;
 		}
 
-		Location loc = player.getLocation();
-		loc.setYaw(MathUtils.roundFloat(loc.getYaw(), 100));
-		loc.setPitch(MathUtils.roundFloat(loc.getPitch(), 100));
-		plugin.getTeleportManager().setTeleportToVillage(loc, village);
-		plugin.getTeleportManager().removeTeleportTask(player);
-		plugin.getLocale().getMessage(Lang.TELEPORT_SET_TITLE.getPath()).sendTitle(player);
-		plugin.getLocale().getMessage(Lang.TELEPORT_SET_SUBTITLE.getPath()).sendActionBar(player);
-		player.playSound(loc, Sound.ENTITY_PLAYER_LEVELUP, 10, 1);
+		if (village.getRegion().get().isIn(player.getLocation())) {
+			Location loc = player.getLocation();
+			plugin.getTeleportManager().setTeleportToVillage(loc, village);
+			plugin.getTeleportManager().removeTeleportTask(player);
+			getMessage(Lang.TELEPORT_SET_TITLE.getPath()).sendTitle(player);
+			getMessage(Lang.TELEPORT_SET_SUBTITLE.getPath()).sendActionBar(player);
+			player.playSound(loc, Sound.ENTITY_PLAYER_LEVELUP, 10, 1);
+		} else {
+			sendLocalized(player, Lang.TELEPORT_SET_OUT_OF_VILLAGE);
+		}
 	}
 }

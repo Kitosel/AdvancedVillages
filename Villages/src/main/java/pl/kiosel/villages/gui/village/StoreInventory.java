@@ -23,10 +23,10 @@ public final class StoreInventory extends VillageMenu {
 		addBackButton(4);
 
 		ItemStack villageHearth = Item.addLoreToItemStack(
-				plugin.getApi().createVillageHearth(), List.of("Buy for 240$"));
+				plugin.getApi().createHearthPart(), List.of("Buy for 240$"));
 		ItemStack destroyerHearth = Item.addLoreToItemStack(
 				plugin.getApi().createDestroyerHearth(), List.of("Buy for 120$"));
-		setButton(19, villageHearth, event -> buyItem(240, plugin.getApi().createVillageHearth()));
+		setButton(19, villageHearth, event -> buyItem(240, plugin.getApi().createHearthPart()));
 		setButton(21, destroyerHearth, event -> buyItem(120, plugin.getApi().createDestroyerHearth()));
 	}
 

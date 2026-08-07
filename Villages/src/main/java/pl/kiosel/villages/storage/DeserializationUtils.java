@@ -9,8 +9,11 @@ import pl.kiosel.villages.data.user.BukkitUserProfile;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.user.UserManager;
 import pl.kiosel.villages.data.user.UserProfile;
+import pl.kiosel.villages.data.village.Region;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.data.village.VillageManager;
+import pl.kiosel.villages.data.village.level.Level;
+import pl.kiosel.villages.data.village.level.LevelManager;
 
 import java.time.Instant;
 import java.util.List;
@@ -76,29 +79,48 @@ public final class DeserializationUtils {
 		village.setPvP((boolean) values[6]);
 		village.setLives((int) values[7]);
 		village.setBank((int) values[8]);
-		village.setLevel(plugin.getLevelManager().getLevel((int) values[9]));
+		LevelManager levelManager = plugin.getLevelManager();
+		int storedLevel = (int) values[9];
+		Level villageLevel = levelManager.getLevel(storedLevel);
+		if (villageLevel == null) {
+			villageLevel = storedLevel > levelManager.getHighestLevel().getLevel()
+					? levelManager.getHighestLevel()
+					: levelManager.getLowestLevel();
+			CoreLogger.getInstance().warning("Village '" + villageName + "' references unavailable level "
+					+ storedLevel + "; using level " + villageLevel.getLevel());
+		}
+		village.setLevel(villageLevel);
+
+		Location villageLocation = village.getLocation().orNull();
+		if (villageLocation != null) {
+			Region region = new Region(village, villageLocation, villageLevel.getSize());
+			village.setRegion(region);
+			region.markUnchanged();
+		}
 
 		String effects_data = (String) values[10];
 		String effects_active = (String) values[11];
 
-		List<String> data = TextUtils.fromString(effects_data);
-		List<String> active = TextUtils.fromString(effects_active);
+		List<String> data = TextUtils.isEmpty(effects_data)
+				? List.of()
+				: TextUtils.fromString(effects_data);
+		List<String> active = TextUtils.isEmpty(effects_active)
+				? List.of()
+				: TextUtils.fromString(effects_active);
 
-		village.setRegeneration(Boolean.parseBoolean(data.get(0)));
-		village.setSpeed(Boolean.parseBoolean(data.get(1)));
-		village.setJump(Boolean.parseBoolean(data.get(2)));
-		village.setHaste(Boolean.parseBoolean(data.get(3)));
+		village.setRegeneration(readBoolean(data, 0));
+		village.setSpeed(readBoolean(data, 1));
+		village.setJump(readBoolean(data, 2));
+		village.setHaste(readBoolean(data, 3));
 
-		village.setRegenerationActive(Boolean.parseBoolean(active.get(0)));
-		village.setSpeedActive(Boolean.parseBoolean(active.get(1)));
-		village.setJumpActive(Boolean.parseBoolean(active.get(2)));
-		village.setHasteActive(Boolean.parseBoolean(active.get(3)));
+		village.setRegenerationActive(readBoolean(active, 0));
+		village.setSpeedActive(readBoolean(active, 1));
+		village.setJumpActive(readBoolean(active, 2));
+		village.setHasteActive(readBoolean(active, 3));
 
 		village.setProtection((Instant) values[12]);
 		village.setTnt((boolean) values[14]);
-		// The last value was added by the animations migration.  Keeping the
-		// fallback makes deserialization safe for integrations passing the old
-		// 15-value representation.
+
 		if (values.length > 15 && values[15] != null) {
 			village.setAnimationsEnabled((boolean) values[15]);
 		}
@@ -107,5 +129,9 @@ public final class DeserializationUtils {
 		village.markUnchanged();
         return Option.of(village);
     }
+
+	private static boolean readBoolean(List<String> values, int index) {
+		return index < values.size() && Boolean.parseBoolean(values.get(index));
+	}
 
 }

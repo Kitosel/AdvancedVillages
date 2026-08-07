@@ -13,8 +13,6 @@ gui-remove-member: "&cRemove member"
 blank: "&7&kBlank"
 exit: "&7Exit"
 back: "&cBack"
-yes: "&aYes"
-no: "&cNo"
 next: "&aNext page"
 previous: "&cPrevious page"
 
@@ -23,6 +21,9 @@ no-tag: "&cNONE"
 
 on: "&aON"
 off: "&cOFF"
+
+yes: "&aYes"
+no: "&cNo"
 
 guis:
   village:
@@ -36,21 +37,21 @@ guis:
       teleport:
         name: "&b&lTeleport"
         lore:
-          - "&8——————————"
+          - "&8—————————————"
           - " "
           - "%village_teleport%"
           - " "
           - "&7Click to set"
-          - "&8——————————"
+          - "&8—————————————"
       tag:
         name: "&c&lTag"
         lore:
-          - "&8——————————"
+          - "&8—————————————"
           - " "
           - "&e&lTag: &c%village_tag%"
           - " "
           - "%istagset%"
-          - "&8——————————"
+          - "&8—————————————"
         # %istagset% >>>
         tag_set: "&7Set"
         tag_not_set: "&7Click to set"
@@ -58,35 +59,35 @@ guis:
       pvp:
         name: "&f&lPVP"
         lore:
-          - "&8——————————"
+          - "&8—————————————"
           - " "
           - "&7Pvp: %village_pvp%"
           - " "
-          - "&8——————————"
+          - "&8—————————————"
       tnt:
         name: "&c&lTNT"
         lore:
-          - "&8——————————"
+          - "&8—————————————"
           - " "
           - "&7TNT: %village_tnt%"
           - " "
-          - "&8——————————"
+          - "&8—————————————"
       animations:
         name: "&d&lAnimations"
         lore:
-          - "&8——————————"
+          - "&8—————————————"
           - " "
           - "&7Animations: %village_animations%"
           - " "
-          - "&8——————————"
+          - "&8—————————————"
       delete:
         name: "&c&l&nDelete village"
         lore:
-          - "&8——————————"
+          - "&8—————————————"
           - " "
           - "&7Click to delete"
           - " "
-          - "&8——————————"
+          - "&8—————————————"
     #
     # STORE
     #
@@ -173,8 +174,7 @@ guis:
         name-upgraded: "&bUpgraded"
         lore:
           - "&7Level &c%village_level% &f-> &e%village_next_level%"
-          - "&7Ochrona: &c15x15 &7-> &e25x25"
-          - "&7Magazyn &c1 &f-> &e2 &7linie"
+          - "&7Size: &c%village_size% &7-> &e%village_next_size%"
           - "&eCost: &a%village_cost%"
     #
     # BANK

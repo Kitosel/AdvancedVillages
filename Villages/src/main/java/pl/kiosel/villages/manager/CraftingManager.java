@@ -45,7 +45,7 @@ public class CraftingManager {
 				.shape( "^&^",
 						"#%#",
 						"^&^")
-				.setIngredient('^', plugin.getApi().createVillageHearth())
+				.setIngredient('^', plugin.getApi().createHearthPart())
 				.setIngredient('%', XMaterial.TOTEM_OF_UNDYING)
 				.setIngredient('&', XMaterial.DIAMOND_BLOCK)
 				.setIngredient('#', XMaterial.NETHERITE_INGOT)

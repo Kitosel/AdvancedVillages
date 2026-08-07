@@ -31,6 +31,11 @@ public class PermissionManager {
 			user.addVillagePermission(permission);
 	}
 
+	public boolean hasCommandPermission(Player player, Permission permission) {
+		if (permission.equals(Permission.UNSET)) return true;
+		return hasPermission(player.getUniqueId(), permission);
+	}
+
 	public void removePermission(User user, Permission permission) {
 		user.removeVillagePermission(permission);
 	}

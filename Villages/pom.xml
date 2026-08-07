@@ -171,6 +171,13 @@
             <artifactId>MetaCore</artifactId>
             <version>4.0.2-SNAPSHOT</version>
             <scope>compile</scope>
+            <exclusions>
+                <!-- MetaCore already contains every expressible class. -->
+                <exclusion>
+                    <groupId>org.panda-lang</groupId>
+                    <artifactId>expressible</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>

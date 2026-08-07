@@ -59,7 +59,8 @@ public final class MemberRemoveInventory extends VillageMenu {
 		}
 		village.removeMember(member);
 		member.removeVillage();
-		plugin.getLocale().getMessage(Lang.VILLAGE_REMOVE.getPath()).sendPrefixedMessage(viewer);
+		plugin.getLocale().getMessage(Lang.VILLAGE_REMOVE_MEMBER.getPath())
+				.processPlaceholder("player", member.getName()).sendPrefixedMessage(viewer);
 		playSound(Sound.BLOCK_NOTE_BLOCK_FLUTE, 2.0f, 0.0f);
 		gui.exit();
 	}

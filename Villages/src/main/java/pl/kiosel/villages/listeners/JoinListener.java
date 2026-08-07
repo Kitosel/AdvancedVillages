@@ -21,17 +21,7 @@ public class JoinListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-		User user = this.userManager.findByPlayer(player)
-				.peek(foundUser -> foundUser.getProfile().refresh())
-				.orElseGet(() -> {
-					UserProfile profile = new BukkitUserProfile(player.getUniqueId(), this.plugin.getMetaServer());
-					return this.userManager.create(player.getUniqueId(), player.getName(), profile);
-				});
-
-		String playerName = player.getName();
-		if (!user.getName().equals(playerName)) {
-			this.userManager.updateUsername(user, playerName);
-		}
+		User user = this.userManager.getOrCreate(player);
 		UserCache cache = user.getCache();
 		plugin.getScoreboardManager().createBoard(player);
 

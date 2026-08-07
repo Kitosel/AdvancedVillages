@@ -57,10 +57,12 @@ village:
   cant-edit: "&cYou can't edit this member"
   effect-not-bought: '&cThe %effect% effect has not been purchased'
   protected: '&cThis village is currently protected'
+  remove-member: '&7You removed &6%player% &7from the village'
 
   in-village: '&cYou are already in a village'
   no-village: "&cYou don't belong to a village"
   leave-owner: "&cYou can't leave the village while you are its owner"
+  confirm-leave-village: '&4To leave the &6village&4, enter the command &lagain'
   leave-village: '&aYou left the village'
   remove: '&cYou removed the village'
   upgrade: '&6You upgraded the village'
@@ -72,10 +74,10 @@ village:
   bank-no-money: "&cThe village bank doesn't have enough money"
 
   # %village_tag% %village_name% %village_owner%
-  enter-village-area-title: '&6You entered a village'
-  enter-village-area-subtitle: '&7%village_tag%'
-  leave-village-area-title: ' '
-  leave-village-area-subtitle: '&6You left the village'
+  enter-area-title: '&6You entered a village'
+  enter-area-subtitle: '&7%village_tag%'
+  leave-area-title: ' '
+  leave-area-subtitle: '&6You left the village'
   chat-format: '&8[&5&lVillage&r&8] &f%player%&7: &f%message%'
   chat-format-owner-color: '&6'
 
@@ -104,6 +106,7 @@ teleport:
   set-hover: '&cClick to set the teleport location'
   set-title: '&7( &cTeleport &7)'
   set-subtitle: '&6Teleport location set'
+  outside-region: '&cYou are outside the village'
 
 # Invitations
 invite:

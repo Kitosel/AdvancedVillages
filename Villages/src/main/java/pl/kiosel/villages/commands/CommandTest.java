@@ -24,7 +24,7 @@ public class CommandTest extends SimpleCommand {
 	private final VillageNameGenerator generator;
 
 	public CommandTest(AdvancedVillages plugin) {
-		super("test", List.of("testing"), "wioski.testingcommand");
+		super(plugin, "test");
 		this.plugin = plugin;
 		this.generator = new VillageNameGenerator();
 	}
@@ -57,6 +57,11 @@ public class CommandTest extends SimpleCommand {
 //					OfflinePlayer player1 = Bukkit.getOfflinePlayer(UUID.fromString("cb8b7c68-1787-3a6e-aebb-221c0218b1bb"));
 //					player.sendMessage("player: " + player1.getName());
 					break;
+				case "memory_test":
+					player.sendMessage(player.toString());
+					player.sendMessage("test1");
+					player.sendMessage(player + " ");
+					break;
 				case "worldedit_test":
 					File file = new File(plugin.getDataFolder(), "schematics/Turret" + "1" + ".schem");
 					Bukkit.getScheduler().runTask(plugin, () -> WorldEditHook.pasteSchematic(file, player.getLocation()));
@@ -78,6 +83,9 @@ public class CommandTest extends SimpleCommand {
 					break;
 				case "villagemembers":
 					player.sendMessage("provide a village");
+					break;
+				case "local":
+					player.sendMessage("provide a node");
 					break;
 			}
 		}
@@ -121,6 +129,9 @@ public class CommandTest extends SimpleCommand {
 				}
 				player.sendMessage(plugin.getPermissionManager().toString(member2.getPermissions()));
 			}
+			if (args[0].equalsIgnoreCase("local")) {
+				plugin.getLocale().getMessage(args[1]).sendPrefixedMessage(player);
+			}
 		}
 		return false;
 	}
@@ -130,7 +141,8 @@ public class CommandTest extends SimpleCommand {
 		if (args.length == 1) {
 			return TabUtils.returnWith(args[0], List.of(
 					"villages", "adv_title", "adv_actionbar", "test1", "worldedit_test",
-					"addpermission", "villagemembers", "getPermissions"
+					"addpermission", "villagemembers", "getPermissions", "memory_test",
+					"local"
 			));
 		}
 		if (args.length == 2) {

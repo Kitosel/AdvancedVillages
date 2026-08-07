@@ -73,11 +73,11 @@ public class Settings {
 
         // convert economy settings
         if (CONFIG.getBoolean("Economy.Use Vault Economy") && plugin.getHookManager().getEconomyHookRegistry().isEnabled("Vault")) {
-            CONFIG.set("Main.Economy", "Vault");
+            CONFIG.set("settings.economy", "Vault");
         } else if (CONFIG.getBoolean("Economy.Use Reserve Economy") && plugin.getHookManager().getEconomyHookRegistry().isEnabled("Reserve")) {
-            CONFIG.set("Main.Economy", "Reserve");
+            CONFIG.set("settings.economy", "Reserve");
         } else if (CONFIG.getBoolean("Economy.Use Player Points Economy") && plugin.getHookManager().getEconomyHookRegistry().isEnabled("PlayerPoints")) {
-            CONFIG.set("Main.Economy", "PlayerPoints");
+            CONFIG.set("settings.economy", "PlayerPoints");
         }
 
         CONFIG.saveChanges();

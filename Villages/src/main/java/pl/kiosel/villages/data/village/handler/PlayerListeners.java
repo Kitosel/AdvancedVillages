@@ -4,7 +4,10 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.entity.*;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.GlowItemFrame;
+import org.bukkit.entity.ItemFrame;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -16,12 +19,12 @@ import org.bukkit.event.player.*;
 import org.bukkit.potion.PotionEffect;
 import pl.kiosel.dependencies.com.cryptomorin.xseries.XMaterial;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.data.user.User;
+import pl.kiosel.villages.data.village.Village;
+import pl.kiosel.villages.enums.Effects;
 import pl.kiosel.villages.events.PlayerEnterVillageEvent;
 import pl.kiosel.villages.events.PlayerExitVillageEvent;
-import pl.kiosel.villages.data.user.User;
-import pl.kiosel.villages.enums.Effects;
 import pl.kiosel.villages.settings.Settings;
-import pl.kiosel.villages.data.village.Village;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -29,7 +32,7 @@ import java.util.Set;
 public class PlayerListeners implements Listener {
 
 	private final AdvancedVillages plugin;
-	private final Set<String> insideVillagePlayers = new HashSet<>();
+	private final Set<Player> insideVillagePlayers = new HashSet<>();
 
 	public PlayerListeners(AdvancedVillages plugin) {
 		this.plugin = plugin;
@@ -196,8 +199,8 @@ public class PlayerListeners implements Listener {
 		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).get();
 
 		assert event.getTo() != null;
-		if (event.getFrom().getBlockX() == event.getTo().getBlockX()
-				&& event.getFrom().getBlockZ() == event.getTo().getBlockZ()) return;
+		if (event.getFrom().getX() == event.getTo().getX()
+				&& event.getFrom().getZ() == event.getTo().getZ()) return;
 
 		Village village = plugin.getVillageUtilsManager().getVillageAt(player.getLocation());
 
@@ -212,14 +215,14 @@ public class PlayerListeners implements Listener {
 				player.addPotionEffect(new PotionEffect(Effects.HASTE.getPotionEffectType(), 40, Settings.EFFECTS_HASTE_AMPLIFIER.getInt()));
 		}
 
-		if (insideVillagePlayers.contains(player.getName())) {
+		if (insideVillagePlayers.contains(player)) {
 			if (village == null) {
-				insideVillagePlayers.remove(player.getName());
+				insideVillagePlayers.remove(player);
 				plugin.getServer().getPluginManager().callEvent(new PlayerExitVillageEvent(player));
 			}
 		} else if (village != null) {
-			insideVillagePlayers.add(player.getName());
-			plugin.getServer().getPluginManager().callEvent(new PlayerEnterVillageEvent(village, player));
+			insideVillagePlayers.add(player);
+			plugin.getServer().getPluginManager().callEvent(new PlayerEnterVillageEvent(village, player, insideVillagePlayers));
 		}
 	}
 

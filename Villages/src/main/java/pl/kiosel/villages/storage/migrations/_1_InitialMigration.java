@@ -25,7 +25,7 @@ public class _1_InitialMigration extends DataMigration {
 					"`members` TEXT NOT NULL, " +
 					"`pvp` BOOLEAN NOT NULL, " +
 					"`tnt` BOOLEAN NOT NULL, " +
-					"`animations_enabled` BOOLEAN NOT NULL DEFAULT TRUE, " +
+					"`trails` BOOLEAN NOT NULL DEFAULT TRUE, " +
 					"`lives` INT NOT NULL, " +
 					"`bank` INT NOT NULL, " +
 					"`level` INT NOT NULL, " +

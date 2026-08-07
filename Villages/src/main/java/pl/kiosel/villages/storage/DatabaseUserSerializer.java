@@ -51,8 +51,9 @@ public final class DatabaseUserSerializer {
 
     public static void serialize(User user) {
 		AdvancedVillages plugin = AdvancedVillages.getInstance();
+		long changeVersion = user.getChangeVersion();
 		plugin.getDataHelper().insertUser(user);
-        user.markUnchanged();
+		user.markUnchanged(changeVersion);
     }
 
     public static void updatePoints(User user) {

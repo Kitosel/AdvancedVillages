@@ -4,8 +4,9 @@ import org.bukkit.entity.Player;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.commands.AVSubCommand;
 import pl.kiosel.villages.data.user.User;
-import pl.kiosel.villages.enums.Lang;
 import pl.kiosel.villages.data.village.Village;
+import pl.kiosel.villages.enums.Lang;
+import pl.kiosel.villages.enums.Permission;
 
 public class TpCommand extends AVSubCommand {
 
@@ -21,9 +22,13 @@ public class TpCommand extends AVSubCommand {
 	@Override
 	public String getPermission() { return "villages.command.tp"; }
 
+	@Override
+	public Permission getVillagePermission() { return Permission.UNSET; }
+
 	private final AdvancedVillages plugin;
 
 	public TpCommand(AdvancedVillages plugin) {
+		super(plugin);
 		this.plugin = plugin;
 	}
 
@@ -33,6 +38,6 @@ public class TpCommand extends AVSubCommand {
         if (village == null) return;
 
 		if (plugin.getTeleportManager().teleportPlayerToVillage(player))
-			plugin.getLocale().getMessage(Lang.TELEPORT.getPath()).sendPrefixedMessage(player);
+			sendLocalized(player, Lang.TELEPORT);
     }
 }

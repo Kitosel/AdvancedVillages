@@ -9,6 +9,7 @@ import pl.kiosel.villages.config.GuiConfig;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.data.village.VillageManager;
+import pl.kiosel.villages.enums.Lang;
 import pl.kiosel.villages.storage.DatabaseUserSerializer;
 import pl.kiosel.villages.storage.DatabaseVillageSerializer;
 
@@ -128,16 +129,25 @@ public class VillageUtilsManager {
 
 	}
 
+	public static Message replacePlayer(Player player, String message) {
+		return new Message(message)
+				.processPlaceholder("player", player.getName())
+				.processPlaceholder("player_money", AdvancedVillages.getInstance().getEconomy().getBalance(player))
+				.processPlaceholder("player_ping", player.getPing())
+				.processPlaceholder("player_world", player.getWorld().getName());
+	}
+
+	public static Message replaceWith(Player player, Village village, Lang lang) {
+		return replaceWith(player, village, AdvancedVillages.getInstance().getLocale().getMessage(lang.getPath()).toText());
+	}
+
 	public static Message replaceWith(Player player, Village village, String message) {
 		String notag = GuiConfig.no_tag;
 		String tagset = GuiConfig.guis_village_setting_tag_set;
 		String tagnotset = GuiConfig.guis_village_setting_tag_notset;
 		String noVillage = AdvancedVillages.getInstance().getScoreboardHandler().scoreboardNoVillage();
 
-		return AdvancedVillages.getInstance().getLocale().newMessage(message)
-				.processPlaceholder("player", player.getName())
-				.processPlaceholder("player_name", player.getName())
-				.processPlaceholder("player_money", AdvancedVillages.getInstance().getEconomy().getBalance(player))
+		return replacePlayer(player, message)
 				.processPlaceholder("village_owner", village == null ? noVillage : village.getOwner().getName())
 				.processPlaceholder("village_name", village == null ? noVillage : village.getName())
 				.processPlaceholder("village_tag", village == null ? noVillage : village.isTag() ? village.getTag() : notag)

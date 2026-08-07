@@ -8,9 +8,10 @@ import org.jetbrains.annotations.NotNull;
 import pl.kiosel.core.dependencies.de.tr7zw.nbtapi.NBT;
 import pl.kiosel.core.dependencies.de.tr7zw.nbtapi.iface.ReadWriteItemNBT;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.addons.trials.VillageAnimationManager;
 import pl.kiosel.villages.addons.buildeditor.VillageBuildEditorManager;
+import pl.kiosel.villages.addons.trials.VillageAnimationManager;
 import pl.kiosel.villages.data.user.User;
+import pl.kiosel.villages.data.user.UserManager;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.data.village.VillageManager;
 import pl.kiosel.villages.enums.Lang;
@@ -41,6 +42,15 @@ public class VillageAPI {
         return plugin.getVillageManager();
     }
 
+	@NotNull
+	public UserManager getUserManager() {
+		return plugin.getUserManager();
+	}
+
+	public boolean isDataReady() {
+		return plugin.isDataReady();
+	}
+
     @NotNull
     public VillageRemoveManager getVillageRemoveManager() {
         return plugin.getVillageRemoveManager();
@@ -63,6 +73,9 @@ public class VillageAPI {
 
 	@Nullable
 	public Village getVillage(String playerName) {
+		if (playerName == null) {
+			return null;
+		}
 		return plugin.getUserManager().findByName(playerName)
 				.map(User::getPresentVillage)
 				.orNull();
@@ -70,11 +83,14 @@ public class VillageAPI {
 
 	@Nullable
 	public Village getVillage(Player player) {
-		return getVillage(player.getUniqueId());
+		return player == null ? null : getVillage(player.getUniqueId());
 	}
 
 	@Nullable
 	public Village getVillage(UUID uuid) {
+		if (uuid == null) {
+			return null;
+		}
 		return plugin.getUserManager().findByUuid(uuid)
 				.map(User::getPresentVillage)
 				.orNull();
@@ -109,7 +125,7 @@ public class VillageAPI {
 				List.of(plugin.getLocale().getMessage(Lang.VILLAGE_HEARTH_BLOCK_LORE.getPath()).toString()));
 	}
 
-	public ItemStack createVillageHearth() {
+	public ItemStack createHearthPart() {
 		return Item.createNoPlaceNoCraft(Material.REDSTONE_BLOCK,
 				plugin.getLocale().getMessage(Lang.VILLAGE_PART_HEARTH_BLOCK_NAME.getPath()).toString(),
 				List.of(plugin.getLocale().getMessage(Lang.VILLAGE_PART_HEARTH_BLOCK_LORE.getPath()).toString()));

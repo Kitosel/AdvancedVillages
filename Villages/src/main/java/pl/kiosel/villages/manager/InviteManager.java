@@ -15,10 +15,7 @@ import pl.kiosel.villages.enums.Lang;
 import pl.kiosel.villages.enums.Permission;
 import pl.kiosel.villages.settings.Settings;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static pl.kiosel.core.utils.ColorUtils.tl;
 
@@ -26,6 +23,7 @@ public class InviteManager {
 
 	private final AdvancedVillages plugin;
 	private final Map<UUID, Village> invitedPlayers = new HashMap<>();
+	private final Set<UUID> confirmLeave = new HashSet<>();
 
 	public InviteManager(AdvancedVillages plugin) {
 		this.plugin = plugin;
@@ -86,6 +84,18 @@ public class InviteManager {
 		village.broadcast(locale.getMessage(Lang.TARGET_JOIN_MEMBER.getPath()).processPlaceholder("player", player.getName()).toText());
 
 		invitedPlayers.remove(player.getUniqueId());
+	}
+
+	public void addConfirm(UUID uuid) {
+		confirmLeave.add(uuid);
+	}
+
+	public void removeConfirm(UUID uuid) {
+		confirmLeave.remove(uuid);
+	}
+
+	public boolean isConfirm(UUID uuid) {
+		return confirmLeave.contains(uuid);
 	}
 
 	public Village getVillageInvited(Player player) {

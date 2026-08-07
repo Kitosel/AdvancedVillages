@@ -9,24 +9,23 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
-import pl.kiosel.core.dependencies.de.tr7zw.nbtapi.NBT;
-import pl.kiosel.core.dependencies.de.tr7zw.nbtapi.iface.ReadableItemNBT;
 import pl.kiosel.core.locale.Locale;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.data.user.User;
+import pl.kiosel.villages.data.village.Region;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.data.village.VillageBuilder;
 import pl.kiosel.villages.data.village.level.Level;
 import pl.kiosel.villages.enums.Lang;
 import pl.kiosel.villages.enums.Permission;
 import pl.kiosel.villages.events.VillageCreateEvent;
+import pl.kiosel.villages.gui.Item;
 import pl.kiosel.villages.settings.Settings;
 
 import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
-import java.util.function.Function;
 
 public class BlockListener implements Listener {
 
@@ -42,14 +41,13 @@ public class BlockListener implements Listener {
 		Block block = event.getBlock();
 
 		if (block.getType() != Material.NOTE_BLOCK) return;
-		Boolean villageBlockTag = NBT.get(event.getItemInHand(),
-				(Function<ReadableItemNBT, Boolean>) nbt -> nbt.getBoolean("villageBlock"));
+		boolean villageBlockTag = Item.hasTag(event.getItemInHand(), "villageBlock");
 		boolean legacyVillageBlock = event.getItemInHand().hasItemMeta()
 				&& Objects.requireNonNull(event.getItemInHand().getItemMeta()).hasDisplayName()
 				&& event.getItemInHand().getItemMeta().hasLore()
 				&& event.getItemInHand().getItemMeta().getDisplayName().equalsIgnoreCase(
 						plugin.getLocale().getMessage(Lang.VILLAGE_BLOCK_NAME.getPath()).toString());
-		if (!Boolean.TRUE.equals(villageBlockTag) && !legacyVillageBlock) return;
+		if (!villageBlockTag && !legacyVillageBlock) return;
 
 		User user = this.plugin.getUserManager().findByPlayer(player).orNull();
 		if (user == null) return;
@@ -68,7 +66,7 @@ public class BlockListener implements Listener {
 			return;
 		}
 
-		int minDistance = Settings.VILLAGE_MINIMAL_DISTANCE.getInt();
+		int minDistance = Settings.VILLAGE_MINIMAL_DISTANCE.getInt() + 10;
 		if (plugin.getVillageUtilsManager().isVillageNearby(block.getLocation(), minDistance)) {
 			locale.getMessage(Lang.VILLAGE_NEARBY.getPath())
 					.processPlaceholder("distance", minDistance).sendPrefixedMessage(player);
@@ -82,6 +80,8 @@ public class BlockListener implements Listener {
 		}
 
 		Level level = plugin.getLevelManager().getLowestLevel();
+
+		if (!plugin.getUpgradeManager().canUpgrade(player, level)) return;
 
 		Village village = new VillageBuilder(null, block.getLocation())
 				.setOwner(user)
@@ -100,7 +100,8 @@ public class BlockListener implements Listener {
 			return;
 		}
 
-		if (!plugin.getUpgradeManager().canUpgrade(player, level)) return;
+		Region region = new Region(village, village.getLocation().orElseGet(block.getLocation()), level.getSize());
+		village.setRegion(region);
 
 		village.setPvP(true);
 		village.setProtection(Instant.now().plus(Duration.ofHours(24)));

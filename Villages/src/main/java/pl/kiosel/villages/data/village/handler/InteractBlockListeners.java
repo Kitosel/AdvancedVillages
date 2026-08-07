@@ -1,6 +1,8 @@
 package pl.kiosel.villages.data.village.handler;
 
-import org.bukkit.*;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -11,19 +13,16 @@ import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.BlockVector;
-import pl.kiosel.core.dependencies.de.tr7zw.nbtapi.NBT;
-import pl.kiosel.core.dependencies.de.tr7zw.nbtapi.iface.ReadableItemNBT;
 import pl.kiosel.core.utils.Cuboid;
 import pl.kiosel.dependencies.com.cryptomorin.xseries.XMaterial;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.enums.Lang;
+import pl.kiosel.villages.gui.Item;
 import pl.kiosel.villages.manager.VillageUtilsManager;
 
 import java.util.Objects;
-import java.util.function.Function;
 
 public class InteractBlockListeners implements Listener {
 
@@ -86,7 +85,7 @@ public class InteractBlockListeners implements Listener {
 		if (!cuboid.contains(location)) return;
 
 		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).get();
-		ItemStack hand = player.getInventory().getItemInHand();
+		ItemStack hand = player.getInventory().getItemInMainHand();
 
 		if (block.getType() != XMaterial.NOTE_BLOCK.get()) {
 			event.setCancelled(true);
@@ -96,19 +95,18 @@ public class InteractBlockListeners implements Listener {
 
 		if (!village.isMember(user)) {
 			event.setCancelled(true);
-			Boolean tag = NBT.get(hand, (Function<ReadableItemNBT, Boolean>) nbt -> nbt.getBoolean("noBreak"));
-			if (Boolean.TRUE.equals(tag)) {
+			if (Item.hasTag(hand, "noBreak")) {
 				if (!village.canBeAttacked()) {
 					plugin.getLocale().getMessage(Lang.VILLAGE_PROTECTED.getPath()).sendPrefixedMessage(player);
 					player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT, 1.0f, 0.0f);
 					return;
 				}
-				Objects.requireNonNull(location.getWorld()).dropItem(location.add(0.5, 1, 0.5), plugin.getApi().createVillageHearth(), item -> {
+				Objects.requireNonNull(location.getWorld()).dropItem(location.add(0.5, 1, 0.5), plugin.getApi().createHearthPart(), item -> {
 					item.setGlowing(true);
 					item.setUnlimitedLifetime(true);
 					item.setVelocity(location.getDirection().multiply(0).setY(0.5));
 				});
-				plugin.getDebug().debug("Gracz " + player.getName() + " niszczy centralny blok wioski " + village.getName());
+				plugin.getDebug().debug("Player " + player.getName() + " destroy central block of village " + village.getName());
 				plugin.getVillageUtilsManager().destroyVillage(village, 1);
 				player.playSound(player.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1.0f, 1.0f);
 			}

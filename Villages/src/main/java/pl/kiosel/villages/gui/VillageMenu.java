@@ -103,7 +103,6 @@ public abstract class VillageMenu extends SimplePagedGui {
 			return false;
 		}
 		action.onClick(new GuiClickEvent(manager, this, player, event, event.getSlot(), true));
-		// Dźwięki są przypisane do konkretnych akcji, więc wyłączamy domyślny dźwięk MetaCore.
 		return false;
 	}
 
@@ -151,9 +150,11 @@ public abstract class VillageMenu extends SimplePagedGui {
 		List<String> list = new ArrayList<>();
 		for (String line : strings) {
 			list.add(line
+					.replace("%village_cost%", Integer.toString(UpgradeManager.getCostForLevel(level + 1)))
 					.replace("%village_level%", Integer.toString(level))
 					.replace("%village_next_level%", Integer.toString(level + 1))
-					.replace("%village_cost%", Integer.toString(UpgradeManager.getCostForLevel(level + 1))));
+					.replace("%village_size%", Integer.toString(UpgradeManager.getSizeForLevel(level)))
+					.replace("%village_next_size%", Integer.toString(UpgradeManager.getSizeForLevel(level + 1))));
 		}
 		return list;
 	}
@@ -178,7 +179,7 @@ public abstract class VillageMenu extends SimplePagedGui {
 			list.add(line
 					.replace("%PLAYER%", playerName)
 					.replace("%PLAYER_LAST_ONLINE%", player.isOnline() ? nowOnline : lastOnline)
-					.replace("%PLAYER%_UUID", player.getUniqueId().toString()));
+					.replace("%PLAYER_UUID%", player.getUniqueId().toString()));
 		}
 		return list;
 	}

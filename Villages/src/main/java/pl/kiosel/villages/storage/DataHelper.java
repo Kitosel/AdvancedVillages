@@ -8,8 +8,6 @@ import pl.kiosel.villages.data.Entity;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.Village;
 
-import java.util.*;
-
 public class DataHelper {
 
 	private final AdvancedVillages plugin;
@@ -93,7 +91,7 @@ public class DataHelper {
 						.set(DSL.field("members"), members)
 						.set(DSL.field("pvp"), village.hasPvPEnabled())
 						.set(DSL.field("tnt"), village.hasTntEnabled())
-						.set(DSL.field("animations_enabled"), village.isAnimationsEnabled())
+						.set(DSL.field("trails"), village.isAnimationsEnabled())
 						.set(DSL.field("points"), village.getRank().getAveragePoints())
 						.set(DSL.field("lives"), village.getLives())
 						.set(DSL.field("bank"), village.getBank())
@@ -116,7 +114,7 @@ public class DataHelper {
 						.set(DSL.field("members"), members)
 						.set(DSL.field("pvp"), village.hasPvPEnabled())
 						.set(DSL.field("tnt"), village.hasTntEnabled())
-						.set(DSL.field("animations_enabled"), village.isAnimationsEnabled())
+						.set(DSL.field("trails"), village.isAnimationsEnabled())
 						.set(DSL.field("points"), village.getRank().getAveragePoints())
 						.set(DSL.field("lives"), village.getLives())
 						.set(DSL.field("bank"), village.getBank())

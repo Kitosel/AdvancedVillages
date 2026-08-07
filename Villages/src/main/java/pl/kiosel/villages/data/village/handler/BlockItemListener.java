@@ -2,22 +2,16 @@ package pl.kiosel.villages.data.village.handler;
 
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.inventory.ItemStack;
-import pl.kiosel.core.dependencies.de.tr7zw.nbtapi.NBT;
-import pl.kiosel.core.dependencies.de.tr7zw.nbtapi.iface.ReadableItemNBT;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.enums.Lang;
-import pl.kiosel.villages.data.village.Village;
-
-import java.util.function.Function;
+import pl.kiosel.villages.gui.Item;
 
 public class BlockItemListener implements Listener {
 
@@ -32,8 +26,7 @@ public class BlockItemListener implements Listener {
 		ItemStack item = event.getItemInHand();
 		if (item == null || item.getType() == Material.AIR) return;
 
-		Boolean tag = NBT.get(item, (Function<ReadableItemNBT, Boolean>) nbt -> nbt.getBoolean("noPlace"));
-		if (tag)
+		if (Item.hasTag(item, "noPlace"))
 			event.setCancelled(true);
 	}
 
@@ -47,12 +40,12 @@ public class BlockItemListener implements Listener {
 		for (ItemStack item : event.getInventory().getMatrix()) {
 			if (item == null || item.getType() == Material.AIR) continue;
 
-			Boolean tag = NBT.get(item, (Function<ReadableItemNBT, Boolean>) (nbt) -> nbt.getBoolean("noPlace"));
 			String displayName = (item.hasItemMeta() && item.getItemMeta().hasDisplayName())
 					? item.getItemMeta().getDisplayName()
 					: "";
 
-			if (tag || (displayName.contains(plugin.getLocale().getMessage(Lang.VILLAGE_HEARTH_BLOCK_NAME.getPath()).toString()))
+			if (Item.hasTag(item, "noPlace")
+					|| (displayName.contains(plugin.getLocale().getMessage(Lang.VILLAGE_HEARTH_BLOCK_NAME.getPath()).toString()))
 					|| (displayName.contains(plugin.getLocale().getMessage(Lang.VILLAGE_DESTROYER_NAME.getPath()).toString()))) {
 				event.setCancelled(true);
 

@@ -26,7 +26,7 @@ public class CommandSpawn extends SimpleCommand {
 	private final SpawnManager spawnManager;
 
 	public CommandSpawn(AdvancedVillages plugin) {
-		super(plugin.getCommandLang().getSpawnCommandName(), plugin.getCommandLang().getSpawnCommandAliases(),
+		super(plugin, plugin.getCommandLang().getSpawnCommandName(), plugin.getCommandLang().getSpawnCommandAliases(),
 				plugin.getCommandLang().getSpawnCommandPermission());
 		this.plugin = plugin;
 		this.spawnManager = plugin.getSpawnManager();

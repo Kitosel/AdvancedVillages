@@ -1,7 +1,6 @@
 package pl.kiosel.villages.data.village;
 
 import lombok.Getter;
-import lombok.Setter;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -31,7 +30,7 @@ public class Village extends AbstractMutableEntity {
 
     @Getter private final VillageRank rank;
     @Getter private int lives, bank;
-	@Getter @Setter private Level level;
+	@Getter private Level level;
 
 	@Getter private Option<Region> region = Option.none();
 	@Getter private Option<Location> home = Option.none();
@@ -49,7 +48,7 @@ public class Village extends AbstractMutableEntity {
 
 	@Getter
 	private boolean animationsEnabled = true;
-	@Getter @Setter
+	@Getter
 	private boolean speedActive, jumpActive, regenerationActive, hasteActive;
 
     public Village(UUID uuid, String name, String tag) {
@@ -121,6 +120,11 @@ public class Village extends AbstractMutableEntity {
 
 	public void setBank(int bank) {
 		this.bank = Math.max(0, bank);
+		this.markChanged();
+	}
+
+	public void setLevel(Level level) {
+		this.level = level;
 		this.markChanged();
 	}
 
@@ -293,6 +297,26 @@ public class Village extends AbstractMutableEntity {
 
 	public void setHaste(boolean haste) {
 		this.haste = haste;
+		this.markChanged();
+	}
+
+	public void setSpeedActive(boolean speedActive) {
+		this.speedActive = speedActive;
+		this.markChanged();
+	}
+
+	public void setJumpActive(boolean jumpActive) {
+		this.jumpActive = jumpActive;
+		this.markChanged();
+	}
+
+	public void setRegenerationActive(boolean regenerationActive) {
+		this.regenerationActive = regenerationActive;
+		this.markChanged();
+	}
+
+	public void setHasteActive(boolean hasteActive) {
+		this.hasteActive = hasteActive;
 		this.markChanged();
 	}
 

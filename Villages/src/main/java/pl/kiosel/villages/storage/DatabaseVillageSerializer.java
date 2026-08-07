@@ -38,16 +38,16 @@ public final class DatabaseVillageSerializer {
         try {
             id = resultSet.getString("uuid");
             name = resultSet.getString("name");
-            String os = resultSet.getString("owner");
+			String os = resultSet.getString("owner");
 			String loc = resultSet.getString("location");
 			String tp = resultSet.getString("tp");
             String membersString = resultSet.getString("members");
 			boolean pvp = resultSet.getBoolean("pvp");
 			boolean tnt = resultSet.getBoolean("tnt");
-			boolean animationsEnabled = resultSet.getBoolean("animations_enabled");
-			Integer lives = resultSet.getInt("lives");
-			Integer bank = resultSet.getInt("bank");
-			Integer level = resultSet.getInt("level");
+			boolean trails = resultSet.getBoolean("trails");
+			int lives = resultSet.getInt("lives");
+			int bank = resultSet.getInt("bank");
+			int level = resultSet.getInt("level");
 			String effects_data = resultSet.getString("effects_data");
 			String effects_active = resultSet.getString("effects_active");
             Instant protection = TimeUtils.positiveOrNullInstant(resultSet.getLong("protection"));
@@ -113,7 +113,7 @@ public final class DatabaseVillageSerializer {
             values[12] = protection;
             values[13] = tag;
 			values[14] = tnt;
-			values[15] = animationsEnabled;
+			values[15] = trails;
 
             return DeserializationUtils.deserializeVillage(plugin.getVillageManager(), values);
         } catch (Exception exception) {
@@ -126,8 +126,9 @@ public final class DatabaseVillageSerializer {
 
     public static void serialize(Village village) {
 		AdvancedVillages plugin = AdvancedVillages.getInstance();
+		long changeVersion = village.getChangeVersion();
 		plugin.getDataHelper().insertVillage(village);
-		village.markUnchanged();
+		village.markUnchanged(changeVersion);
     }
 
     public static void delete(Village village, DataManager connection, SQLTable villageTable) throws SQLException {

@@ -55,12 +55,14 @@ public enum Lang {
 	TELEPORT_SET_HOVER("teleport.set-hover"),
 	TELEPORT_SET_TITLE("teleport.set-title"),
 	TELEPORT_SET_SUBTITLE("teleport.set-subtitle"),
+	TELEPORT_SET_OUT_OF_VILLAGE("teleport.outside-region"),
 
 	DISABLED_WORLD("village.disabled-world"),
 	VILLAGE_NO_PERMISSION("village.no-permission"),
 	VILLAGE_NEARBY("village.nearby"),
 	VILLAGE_SPAWN("village.spawn-nearby"),
 	VILLAGE_REMOVE("village.remove"),
+	VILLAGE_REMOVE_MEMBER("village.remove-member"),
 	VILLAGE_UPGRADE("village.upgrade"),
 	VILLAGE_CHAT_FORMAT("village.chat-format"),
 	VILLAGE_NO_REQ_UPGRADE("village.upgrade-no-requirements"),
@@ -71,6 +73,7 @@ public enum Lang {
     VILLAGE_NO("village.no-village"),
     LEAVE_OWNER("village.leave-owner"),
     LEAVE_VILLAGE("village.leave-village"),
+	LEAVE_CONFIRM_VILLAGE("village.confirm-leave-village"),
 	CANT_EDIT("village.cant-edit"),
 	EFFECT_NOT_BUY("village.effect-not-bought"),
 
@@ -78,10 +81,10 @@ public enum Lang {
 	BANK_REMOVE("village.bank-remove"),
 	BANK_NO_MONEY("village.bank-no-money"),
 
-	ENTER_VILLAGE_AREA_TITLE("village.enter-village-area-title"),
-	ENTER_VILLAGE_AREA_SUBTITLE("village.enter-village-area-subtitle"),
-	LEAVE_VILLAGE_AREA_TITLE("village.leave-village-area-title"),
-	LEAVE_VILLAGE_AREA_SUBTITLE("village.leave-village-area-subtitle"),
+	ENTER_VILLAGE_AREA_TITLE("village.enter-area-title"),
+	ENTER_VILLAGE_AREA_SUBTITLE("village.enter-area-subtitle"),
+	LEAVE_VILLAGE_AREA_TITLE("village.leave-area-title"),
+	LEAVE_VILLAGE_AREA_SUBTITLE("village.leave-area-subtitle"),
 
 	ANVIL_NAME("tag.anvil-name-your-village"),
 	TAG_VILLAGE("tag.your-village-tag"),

@@ -26,6 +26,22 @@ public class UserManager {
 		return this.plugin.getMetaServer().getPlayer(user.getUUID());
 	}
 
+	public User getOrCreate(Player player) {
+		Validate.notNull(player, "player can't be null!");
+
+		User user = this.findByUuid(player.getUniqueId())
+				.peek(foundUser -> foundUser.getProfile().refresh())
+				.orElseGet(() -> {
+					UserProfile profile = new BukkitUserProfile(player.getUniqueId(), this.plugin.getMetaServer());
+					return this.create(player.getUniqueId(), player.getName(), profile);
+				});
+
+		if (!user.getName().equals(player.getName())) {
+			this.updateUsername(user, player.getName());
+		}
+		return user;
+	}
+
     public int countUsers() {
         return this.usersByUuid.size();
     }

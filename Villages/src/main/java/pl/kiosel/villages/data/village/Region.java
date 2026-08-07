@@ -44,7 +44,7 @@ public class Region extends AbstractMutableEntity {
     }
 
     public synchronized void update() {
-        super.markChanged();
+		super.markChanged();
 
         if (this.center == null) {
             return;
@@ -102,12 +102,12 @@ public class Region extends AbstractMutableEntity {
 
     public void setName(String name) {
         this.name = name;
-        super.markChanged();
-    }
+		super.markChanged();
+	}
 
 	public void setVillage(Village village) {
         this.village = village;
-        super.markChanged();
+		super.markChanged();
     }
 
     void setCenter(Location location) {
@@ -118,10 +118,10 @@ public class Region extends AbstractMutableEntity {
 
 	void setEnlargementLevel(int enlargementLevel) {
         this.enlargementLevel = enlargementLevel;
-        super.markChanged();
+		super.markChanged();
     }
 
-	void setSize(int size) {
+	public void setSize(int size) {
         this.size = size;
         this.update();
     }

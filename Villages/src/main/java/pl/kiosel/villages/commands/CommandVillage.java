@@ -29,7 +29,7 @@ public class CommandVillage extends SimpleCommand {
 	private final PermissionManager permissionManager;
 
 	public CommandVillage(AdvancedVillages plugin) {
-		super(plugin.getCommandLang().getCommandName(), plugin.getCommandLang().getCommandAliases(), plugin.getCommandLang().getCommandPermission());
+		super(plugin, plugin.getCommandLang().getCommandName(), plugin.getCommandLang().getCommandAliases(), plugin.getCommandLang().getCommandPermission());
 		this.plugin = plugin;
 		this.commandConfig = plugin.getCommandLang();
 		this.permissionManager = plugin.getPermissionManager();
@@ -53,12 +53,12 @@ public class CommandVillage extends SimpleCommand {
 			plugin.getLocale().getMessage(Lang.COMMAND_RELOAD.getPath()).sendPrefixedMessage(sender);
 			return false;
 		}
+		Player player = (Player) sender;
 		if (args.length == 0) {
-			help(sender);
+			help(player);
 			return false;
 		}
 
-		Player player = (Player) sender;
 		Option<User> userOption = plugin.getUserManager().findByUuid(player.getUniqueId());
 		if (userOption.isEmpty()) {
 			return false;
@@ -68,10 +68,10 @@ public class CommandVillage extends SimpleCommand {
 		AVSubCommand sub = subCommandMap.get(input);
 
 		if (sub != null) {
-			if (player.hasPermission(sub.getPermission())) {
+			if (player.hasPermission(sub.getPermission())  && permissionManager.hasCommandPermission(player, sub.getVillagePermission())) {
 				sub.run(player, user, args);
 			} else {
-				plugin.getLocale().getMessage(Lang.COMMAND_NO_PERMISSION.getPath()).sendPrefixedMessage(sender);
+				sendLocalized(player, Lang.COMMAND_NO_PERMISSION.getPath());
 			}
 			return true;
 		}
@@ -81,14 +81,14 @@ public class CommandVillage extends SimpleCommand {
 			return true;
 		}
 
-		help(sender);
+		help(player);
 		return false;
 	}
 
-	public void help(CommandSender sender) {
+	public void help(Player sender) {
 		sender.sendMessage(tl("&8--------------------------------"));
 		for (AVSubCommand sub : subCommandMap.values()) {
-			if (sender.hasPermission(sub.getPermission())) {
+			if (sender.hasPermission(sub.getPermission()) && permissionManager.hasCommandPermission(sender, sub.getVillagePermission())) {
 				sender.sendMessage(sub.getUsage() + " - " + sub.getDescription());
 			}
 		}
