@@ -1,10 +1,26 @@
 # Allgemeine Nachrichten
 general:
+  separator: '&8——————————————————————————'
+  addon-disabled: '&cDas Add-on %addon% ist derzeit deaktiviert.'
   nametag:
-    prefix: '&8[&6&lDörfer&8]'
+    prefix: '&8[&6&lDörfer&r&8]'
     next: '&9Weiter'
     back: '&9Zurück'
     exit: '&cSchließen'
+    blank: '&7&kLeer'
+    previous: '&cZurück'
+    'on': '&aAN'
+    'off': '&cAUS'
+    'yes': '&aJa'
+    'no': '&cNein'
+  time:
+    second: { one: 'Sekunde', few: 'Sekunden', many: 'Sekunden' }
+    minute: { one: 'Minute', few: 'Minuten', many: 'Minuten' }
+    hour: { one: 'Stunde', few: 'Stunden', many: 'Stunden' }
+    day: { one: 'Tag', few: 'Tage', many: 'Tage' }
+    week: { one: 'Woche', few: 'Wochen', many: 'Wochen' }
+    month: { one: 'Monat', few: 'Monate', many: 'Monate' }
+    year: { one: 'Jahr', few: 'Jahre', many: 'Jahre' }
   player:
     money-add: '&7Deinem Konto wurden &a%money% &7gutgeschrieben'
     money-remove: '&7Von deinem Konto wurden &a%money% &7abgezogen'
@@ -17,6 +33,7 @@ general:
     you-have-full-eq: '&cDein Inventar ist voll'
     no-xp: '&cDu hast nicht genug Erfahrung. Benötigt: %xp%'
     no-items: '&cDir fehlen die benötigten Gegenstände'
+    missing-item: '  &7• &f%item% &cx%amount%'
     take-xp: '&7Es wurden &a%xp% &7Erfahrung abgezogen'
     take-items: '&7Es wurden &a%amount%x %item% &7entfernt'
 
@@ -47,9 +64,18 @@ command:
     lives-add: '&7Dem Dorf von &a%village_owner% &7wurden &a%lives% &7Leben hinzugefügt'
     lives-remove: '&7Dem Dorf von &a%village_owner% &7wurden &c%lives% &7Leben entfernt'
     already-dying: '&cDieses Dorf hat keine Leben mehr'
+    upgrade-failed: '&cDas Dorf konnte nicht verbessert werden. Prüfe die Serverkonsole'
+    usage:
+      root: '&c/%command% %admin% <%reload%|%give%|%manage%|%settings%>'
+      give: '&c/%command% %admin% %give% <%village_block%|%destroyer%>'
+      manage: '&c/%command% %admin% %manage% <Besitzer> <%upgrade%|%lives%|%protection%|%remove%>'
+      action: '&c/%command% %admin% %manage% <Besitzer> %action% <%add%|%remove%>'
+      number: '&c/%command% %admin% %manage% <Besitzer> %action% <%add%|%remove%> <Zahl>'
+      duration: '&c/%command% %admin% %manage% <Besitzer> %action% <%add%|%remove%> <Zahl> <Zeiteinheit>'
 
 # Dorf
 village:
+  created: '%separator%\n &aDu hast ein &6Dorf gegründet! &7Du hast &4%default_lives% &7Dorfleben. \n&7Schütze es, damit du es nicht verlierst. \n&7Das Dorf wurde für &6%time% &7geschützt. \n%separator%'
   disabled-world: '&cDu kannst in dieser Welt kein Dorf platzieren'
   no-permission: '&cDu darfst diese Einstellung nicht ändern'
   nearby: '&cDu kannst hier kein Dorf gründen, weil ein anderes Dorf in der Nähe ist (Mindestabstand: %distance% Blöcke)'
@@ -57,13 +83,24 @@ village:
   cant-edit: '&cDu kannst dieses Mitglied nicht bearbeiten'
   effect-not-bought: '&cDer Effekt %effect% wurde nicht gekauft'
   protected: '&cDieses Dorf ist derzeit geschützt'
+  protected-offline-members: '&cEin Dorf kann nicht angegriffen werden, wenn keiner seiner Mitglieder aktiv ist.'
   remove-member: '&7Du hast &6%player% &7aus dem Dorf entfernt'
+
+  attacked:
+    title: '&8&k[&r &4WARNUNG &8&k]'
+    subtitle: '&7Dein &eDorf &7hat ein Leben verloren!'
+    message: '%separator% \n&e%attacker% &chat deinem Dorf ein Leben genommen \n&cDein Dorf hat jetzt &e%village_lives%&7/&b%max_lives% &cLeben \n&cDer Schutz vor einem weiteren Angriff wurde für &d%time% &caktiviert \n%separator%'
+  destroyed:
+    title: '&8&k[&r &4WARNUNG &8&k]'
+    subtitle: '&7Dein &eDorf &7wurde zerstört!'
+    message: '%separator% \n&e%attacker% &chat dein Dorf zerstört \n%separator%'
 
   in-village: '&cDu gehörst bereits zu einem Dorf'
   no-village: '&cDu gehörst zu keinem Dorf'
   leave-owner: '&cAls Besitzer kannst du das Dorf nicht verlassen'
   confirm-leave-village: '&4Um das &6Dorf&4 zu verlassen, gib den Befehl &lerneut&4 ein'
   leave-village: '&aDu hast das Dorf verlassen'
+  leave-village-broadcast: '&c%player% hat dein Dorf verlassen'
   remove: '&cDu hast das Dorf entfernt'
   upgrade: '&6Du hast das Dorf verbessert'
   max-level: '&cDas Dorf hat die höchste Stufe erreicht'
@@ -92,6 +129,7 @@ tag:
   your-village-tag: '&7Das Kürzel deines Dorfes ist &a%tag%'
   closed-name-village-tag: '&cDu hast das Menü geschlossen, daher wurde kein Kürzel gesetzt'
   already-name-village-tag: '&cDieses Kürzel wird bereits verwendet'
+  no-tag: '&cKEINS'
 
 # Teleportation
 teleport:
@@ -120,6 +158,7 @@ invite:
   player-invite: '&7Du hast &b%player% &7in dein Dorf eingeladen'
   player-target: '&7%player% hat dich in ein Dorf eingeladen'
   target-join-member: '&6%player% &7ist deinem Dorf beigetreten'
+  target-decline-member: '&6%player% &hat den Beitritt zu deinem Dorf abgelehnt'
   confirmed: '&7Du bist dem Dorf von &6%village_owner% &7beigetreten'
   canceled: '&7Du hast die Einladung abgelehnt'
 
@@ -139,7 +178,6 @@ items:
 # Baueditor-Addon
 build-editor:
   worldedit-required: '&cFür den Baueditor muss das Plugin &fWorldEdit &cinstalliert und aktiviert sein'
-  disabled: '&cDer Baueditor ist in &faddons/build-editor.yml &cdeaktiviert'
   setting-required: '&cAktiviere zuerst &fsettings.use-worldedit: true &cin der Hauptkonfiguration'
   session-active: '&cDu hast bereits eine aktive Sitzung. Speichere sie oder brich sie zuerst ab'
   level-missing: '&cDorfstufe &f%level% &cexistiert nicht'
@@ -179,10 +217,9 @@ spawn:
   spawn-set: '&aDer Spawnpunkt wurde festgelegt'
   spawn-not-set: '&cDer Spawnpunkt wurde noch nicht festgelegt'
   teleporting: '&eDu wirst in &7%seconds% &eSekunden teleportiert. Bewege dich nicht'
-  title: '&aTeleportation'
-  subtitle: '&eTeleportation in %seconds% Sekunden...'
 
 # Anti-Logout-Addon
+# Verwende \n innerhalb einer Nachricht für eine neue Chatzeile.
 antilogout:
   blocked-region: '&7Du kannst die Region &f&n%region%&r&7 während eines Kampfes nicht betreten!'
   block-command: '&c&l✖ \n &7Du kannst den Befehl &f&n%command%&r&7 während eines Kampfes nicht verwenden!'
@@ -192,3 +229,131 @@ antilogout:
   end-combat: '&aDein Kampf ist beendet. Du darfst dich jetzt ausloggen!'
   remove-combat: '&7Dein Gegner &f%opponent% &7ist gestorben. Dein Kampf ist beendet!'
   actionbar-message: '&4&lANTI-LOGOUT &8(&c%time%s&8)'
+
+# Dorfaufgaben-Addon
+quests:
+  command-description: 'Dorfaufgaben öffnen'
+  completed: '&aDein Dorf hat die Aufgabe &f%quest% &aabgeschlossen! Belohnungen: &6%bank%$&a, &e%experience% EP &aund &b%points% Punkte&a.'
+  activated: '&aDie Aufgabe &f%quest% &awurde für dein Dorf aktiviert.'
+  gui:
+    menu-name: '&eDorfaufgaben'
+    menu-lore: '&7Erfüllt gemeinsam tägliche und wöchentliche Aufgaben.'
+    daily: '&eTägliche Aufgabe'
+    weekly: '&6Wöchentliche Aufgabe'
+    progress: '&7Fortschritt: &e%progress%&7/&e%required%'
+    completed: '&aAbgeschlossen! &7(%progress%/%required%)'
+    active: '&aAktiv - Fortschritt wird gesammelt'
+    inactive: '&cInaktiv - Fortschritt wird nicht gesammelt'
+    activate: '&eKlicke, um diese Aufgabe für das Dorf zu aktivieren.'
+    reset: '&7Zurücksetzung in: &f%time%'
+    rewards: '&6Belohnungen:'
+    reward-bank: '&7 • Dorfbank: &6%amount%$'
+    reward-experience: '&7 • Jedes Online-Mitglied: &e%amount% EP'
+    reward-points: '&7 • Jedes Mitglied: &b%amount% Punkte'
+    none: '&cEs sind derzeit keine Aufgaben konfiguriert.'
+  tasks:
+    monster-hunt:
+      name: '&cMonsterjagd'
+      description: '&7Besiegt gemeinsam feindliche Kreaturen.'
+    mining-shift:
+      name: '&bBergbauschicht'
+      description: '&7Baut grundlegende Erze für das Dorf ab.'
+    wood-supplies:
+      name: '&6Holzvorräte'
+      description: '&7Sammelt Holz für den Ausbau des Dorfes.'
+    village-treasury:
+      name: '&eDorfschatzkammer'
+      description: '&7Zahlt Geld in die Dorfbank ein.'
+    great-hunt:
+      name: '&4Große Jagd'
+      description: '&7Besiegt während der Woche feindliche Kreaturen.'
+    construction-shift:
+      name: '&6Bauschicht'
+      description: '&7Platziert Baublöcke für das Dorf.'
+    workshop-orders:
+      name: '&eWerkstattaufträge'
+      description: '&7Stellt nützliche Vorräte für die Dorfbewohner her.'
+    village-angler:
+      name: '&bDorfangler'
+      description: '&7Fangt Fische für die Vorräte des Dorfes.'
+    foundry-shift:
+      name: '&7Hüttenschicht'
+      description: '&7Schmelzt grundlegende Metalle in Öfen.'
+    animal-care:
+      name: '&aTierpflege'
+      description: '&7Züchtet während der Woche Nutztiere.'
+    master-enchanter:
+      name: '&5Meisterverzauberer'
+      description: '&7Verzaubert Ausrüstung für das Dorf.'
+    experience-drive:
+      name: '&dErfahrungssammlung'
+      description: '&7Sammelt gemeinsam Erfahrung für das Dorf.'
+
+# Aktivitätsprotokoll des Dorfes
+logs:
+  system: 'Dorfsystem'
+  gui:
+    menu-name: '&6Aktivitätsprotokoll'
+    menu-lore: '&7Zeigt wichtige Änderungen und Aktionen im Dorf.'
+    none: '&7Es wurden noch keine Aktivitäten aufgezeichnet.'
+    actor: '&7Ausgeführt von: &f%actor%'
+    date: '&7Datum: &f%date%'
+    grouped: '&8Zusammengefasste Aktionen: &7%count%'
+  types:
+    village-created: '&aDorf erstellt'
+    member-join: '&aMitglied beigetreten'
+    member-leave: '&eMitglied ausgetreten'
+    member-kick: '&cMitglied entfernt'
+    member-permission: '&bMitgliedsberechtigung'
+    bank-deposit: '&aBankeinzahlung'
+    bank-withdraw: '&cBankauszahlung'
+    quest-completed: '&eAufgabe abgeschlossen'
+    setting-changed: '&dEinstellung geändert'
+    village-upgrade: '&bDorf verbessert'
+    village-attack: '&cDorf angegriffen'
+  entries:
+    village-created: '&7Das Dorf wurde erstellt.'
+    member-join: '&f%member% &7ist dem Dorf beigetreten.'
+    member-leave: '&f%member% &7hat das Dorf verlassen.'
+    member-kick: '&f%member% &7wurde aus dem Dorf entfernt.'
+    member-permission: '&7Berechtigung &f%permission% &7für &f%member%&7: %value%&7.'
+    bank-deposit: '&a%amount%$ &7wurden in die Dorfbank eingezahlt.'
+    bank-withdraw: '&c%amount%$ &7wurden aus der Dorfbank ausgezahlt.'
+    quest-completed: '&7Das Dorf hat die Aufgabe %quest% &7abgeschlossen.'
+    setting-changed: '&f%setting% &7wurde auf %value% &7gesetzt.'
+    village-upgrade: '&7Das Dorf hat Stufe &b%level% &7erreicht.'
+    village-attack: '&7Das Dorf wurde angegriffen. Verbleibende Leben: &c%lives%&7.'
+  settings:
+    pvp: 'PVP'
+    tnt: 'TNT-Schaden'
+    animations: 'Dorfanimationen'
+    teleport: 'Teleportposition'
+    tag: 'Dorfkürzel'
+    effect-regeneration: 'Regenerationseffekt'
+    effect-speed: 'Geschwindigkeitseffekt'
+    effect-jump: 'Sprungeffekt'
+    effect-haste: 'Eileeffekt'
+    protection: 'Schutz'
+    lives: 'Dorfleben'
+  permissions:
+    owner: 'Besitzer'
+    settings: 'Einstellungen'
+    invite: 'Einladungen'
+    store: 'Laden'
+    effects-buy: 'Effekte kaufen'
+    effects-toggle: 'Effekte umschalten'
+    upgrade: 'Verbesserungen'
+    storage: 'Lager'
+    bank-add: 'Bankeinzahlungen'
+    bank-remove: 'Bankauszahlungen'
+    quest-toggle: 'Aufgabenaktivierung'
+  values:
+    updated: '&aaktualisiert'
+    purchased: '&agekauft'
+    removed: '&centfernt'
+
+# PvP-Rangliste
+ranking:
+  kill: '&aDu hast &f%victim% &abesiegt und &e%points% &aRanglistenpunkte erhalten.'
+  death: '&cDu wurdest von &f%killer% &cbesiegt und hast &e%points% &cRanglistenpunkte verloren.'
+  assist: '&bDu hast beim Besiegen von &f%victim% &bgeholfen und &e%points% &bRanglistenpunkte erhalten.'

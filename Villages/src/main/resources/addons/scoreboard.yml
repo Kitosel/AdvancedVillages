@@ -8,6 +8,7 @@ score:
   - '&7Village:'
   - ' &7Owner: &e%village_owner%'
   - ' &7Life: &e%village_life%'
+  - ' &7      &e%village_life_as_symbol%'
   - ' &7Level: &e%village_level%'
   - ' &7Tag: &e%village_tag%'
   - '&7--------&7--------'

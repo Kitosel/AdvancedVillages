@@ -1,6 +1,6 @@
 package pl.kiosel.villages.addons.trials.animation.pattern;
 
-import org.bukkit.Particle;
+import pl.kiosel.dependencies.com.cryptomorin.xseries.particles.XParticle;
 import pl.kiosel.villages.addons.trials.animation.CentralAnimationFrame;
 import pl.kiosel.villages.addons.trials.animation.LevelAnimationStyle;
 
@@ -17,7 +17,7 @@ public final class OrbitsPattern implements AnimationPattern {
         int perOrbit = Math.max(3, frame.getCount() / 3);
         for (int orbit = 0; orbit < 3; orbit++) {
             double yaw = orbit * Math.PI * 2 / 3;
-            Particle particle = orbit == 1 ? style.getSecondaryParticle() : style.getParticle();
+            XParticle particle = orbit == 1 ? style.getSecondaryParticle() : style.getParticle();
             for (int index = 0; index < perOrbit; index++) {
                 double angle = Math.PI * 2 * index / perOrbit
                         + frame.getPhase() * (orbit == 1 ? -1 : 1);

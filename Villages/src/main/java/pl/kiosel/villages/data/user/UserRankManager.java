@@ -1,7 +1,6 @@
 package pl.kiosel.villages.data.user;
 
 import panda.std.Option;
-import panda.std.stream.PandaStream;
 import pl.kiosel.villages.data.rank.RankManager;
 import pl.kiosel.villages.data.user.top.UserTop;
 
@@ -14,9 +13,7 @@ public class UserRankManager extends RankManager<UserTop, UserRank> {
     }
 
     public void register(String id, UserTop userTop) {
-        PandaStream.of(id)
-                .find(top -> top.equalsIgnoreCase(id))
-                .peek(enabledTop -> this.addTop(id, userTop));
+		this.addTop(id, userTop);
     }
 
     public void register(Map<String, UserTop> topsToRegister) {

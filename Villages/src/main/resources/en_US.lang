@@ -1,10 +1,27 @@
 # General messages
+# Use \n inside a message to start a new chat line.
 general:
+  separator: '&8——————————————————————————'
+  addon-disabled: '&cAddon %addon% is currently disabled.'
   nametag:
-    prefix: '&8[&6&lVillages&8]'
+    prefix: '&8[&6&lVillages&r&8]'
     next: '&9Next'
     back: '&9Back'
     exit: '&cExit'
+    blank: '&7&kBlank'
+    previous: '&cPrevious'
+    'on': '&aON'
+    'off': '&cOFF'
+    'yes': '&aYes'
+    'no': '&cNo'
+  time:
+    second: { one: 'second', few: 'seconds', many: 'seconds' }
+    minute: { one: 'minute', few: 'minutes', many: 'minutes' }
+    hour: { one: 'hour', few: 'hours', many: 'hours' }
+    day: { one: 'day', few: 'days', many: 'days' }
+    week: { one: 'week', few: 'weeks', many: 'weeks' }
+    month: { one: 'month', few: 'months', many: 'months' }
+    year: { one: 'year', few: 'years', many: 'years' }
   player:
     money-add: '&7Added &a%money% &7to your account'
     money-remove: '&7Removed &a%money% &7from your account'
@@ -17,6 +34,7 @@ general:
     you-have-full-eq: '&cYour inventory is full'
     no-xp: "&cYou don't have enough experience. Required: %xp%"
     no-items: "&cYou don't have the required items"
+    missing-item: '  &7• &f%item% &cx%amount%'
     take-xp: '&7Removed &a%xp% &7experience'
     take-items: '&7Removed &a%amount%x %item%'
 
@@ -47,9 +65,18 @@ command:
     lives-add: "&7Added &a%lives% &7lives to &a%village_owner%'s &7village"
     lives-remove: "&7Removed &c%lives% &7lives from &a%village_owner%'s &7village"
     already-dying: '&cThis village has no lives remaining'
+    upgrade-failed: '&cThe village could not be upgraded. Check the server console'
+    usage:
+      root: '&c/%command% %admin% <%reload%|%give%|%manage%|%settings%>'
+      give: '&c/%command% %admin% %give% <%village_block%|%destroyer%>'
+      manage: '&c/%command% %admin% %manage% <owner> <%upgrade%|%lives%|%protection%|%remove%>'
+      action: '&c/%command% %admin% %manage% <owner> %action% <%add%|%remove%>'
+      number: '&c/%command% %admin% %manage% <owner> %action% <%add%|%remove%> <number>'
+      duration: '&c/%command% %admin% %manage% <owner> %action% <%add%|%remove%> <number> <time unit>'
 
 # Village
 village:
+  created: "%separator% \n&7You've created a &6village! \n&7You have &4%default_lives% &7village lives. \n&7Protect it so you don't lose it. \n&7The village received protection for &6%time% \n%separator%"
   disabled-world: "&cYou can't place a village in this world"
   no-permission: "&cYou don't have permission to change this setting"
   nearby: "&cYou can't create a village because another village is nearby (minimum distance: %distance% blocks)"
@@ -57,13 +84,27 @@ village:
   cant-edit: "&cYou can't edit this member"
   effect-not-bought: '&cThe %effect% effect has not been purchased'
   protected: '&cThis village is currently protected'
+  protected-offline-members: '&cA village cannot be attacked when none of its members are active.'
   remove-member: '&7You removed &6%player% &7from the village'
+  have-tag: '&cA village must have a tag to be &4&lupgraded'
+  attacked:
+    title: '&8&k[&r &4WARNING &8&k]'
+    subtitle: '&7Your &eVillage &7lost life!'
+    message: '%separator% \n&e%attacker% &ctook away your village life \n&cYour village now have &e%village_lives%&7/&b%max_lives% &clives \n&cDefenses against the attack were activated for &d%time% \n%separator%'
+  destroyed:
+    title: '&8&k[&r &4WARNING &8&k]'
+    subtitle: '&7Your &eVillage &7has been destroyed!'
+    message: '%separator% \n&e%attacker% &cdestroyed your village \n%separator%'
+
+  attacker-attacked: '%separator%\n &4You attacked a %village_tag% &6village\n%separator%'
+  attacker-destroyed: '%separator%\n &4You destroyed a %village_tag% &6village\n%separator%'
 
   in-village: '&cYou are already in a village'
   no-village: "&cYou don't belong to a village"
   leave-owner: "&cYou can't leave the village while you are its owner"
   confirm-leave-village: '&4To leave the &6village&4, enter the command &lagain'
   leave-village: '&aYou left the village'
+  leave-village-broadcast: '&c%player% left your village'
   remove: '&cYou removed the village'
   upgrade: '&6You upgraded the village'
   max-level: '&cThe village has reached the maximum level'
@@ -92,6 +133,7 @@ tag:
   your-village-tag: '&7Your village tag is &a%tag%'
   closed-name-village-tag: '&cYou closed the menu, so no tag was set'
   already-name-village-tag: '&cThis tag is already in use'
+  no-tag: '&cNONE'
 
 # Teleport
 teleport:
@@ -120,6 +162,7 @@ invite:
   player-invite: '&7You invited &b%player% &7to your village'
   player-target: '&7%player% invited you to a village'
   target-join-member: '&6%player% &7joined your village'
+  target-decline-member: '&6%player% &crejected to join your village'
   confirmed: "&7You joined &6%village_owner%'s &7village"
   canceled: '&7You declined the invitation'
 
@@ -139,7 +182,6 @@ items:
 # Build editor addon
 build-editor:
   worldedit-required: '&cThe build editor requires the &fWorldEdit &cplugin to be installed and enabled'
-  disabled: '&cThe build editor is disabled in &faddons/build-editor.yml'
   setting-required: '&cEnable &fsettings.use-worldedit: true &cin the main configuration first'
   session-active: '&cYou already have an active session. Save or cancel it first'
   level-missing: '&cVillage level &f%level% &cdoes not exist'
@@ -179,8 +221,6 @@ spawn:
   spawn-set: '&aThe spawn location has been set'
   spawn-not-set: '&cThe spawn location has not been set'
   teleporting: "&eYou will be teleported in &7%seconds% &eseconds. Don't move"
-  title: '&aTeleporting'
-  subtitle: '&eTeleporting in %seconds% seconds...'
 
 # Anti-logout addon
 antilogout:
@@ -192,3 +232,131 @@ antilogout:
   end-combat: '&aYour combat has ended. You may now log out!'
   remove-combat: '&7Your opponent &f%opponent% &7died. Your combat has ended!'
   actionbar-message: '&4&lANTI-LOGOUT &8(&c%time%s&8)'
+
+# Village quests addon
+quests:
+  command-description: 'Open village quests'
+  completed: '&aYour village completed &f%quest%&a! Rewards: &6%bank%$&a, &e%experience% XP &aand &b%points% points&a.'
+  activated: '&aQuest &f%quest% &ahas been activated for your village.'
+  gui:
+    menu-name: '&eVillage quests'
+    menu-lore: '&7Complete shared daily and weekly quests.'
+    daily: '&eDaily quest'
+    weekly: '&6Weekly quest'
+    progress: '&7Progress: &e%progress%&7/&e%required%'
+    completed: '&aCompleted! &7(%progress%/%required%)'
+    active: '&aActive - progress is being collected'
+    inactive: '&cInactive - progress is not being collected'
+    activate: '&eClick to activate this quest for the village.'
+    reset: '&7Resets in: &f%time%'
+    rewards: '&6Rewards:'
+    reward-bank: '&7 • Village bank: &6%amount%$'
+    reward-experience: '&7 • Every online member: &e%amount% XP'
+    reward-points: '&7 • Every member: &b%amount% points'
+    none: '&cNo quests are currently configured.'
+  tasks:
+    monster-hunt:
+      name: '&cMonster hunt'
+      description: '&7Defeat hostile creatures together with your village.'
+    mining-shift:
+      name: '&bMining shift'
+      description: '&7Mine basic ores for the village.'
+    wood-supplies:
+      name: '&6Wood supplies'
+      description: '&7Collect logs needed to expand the village.'
+    village-treasury:
+      name: '&eVillage treasury'
+      description: '&7Deposit money into the village bank.'
+    great-hunt:
+      name: '&4Great hunt'
+      description: '&7Defeat hostile creatures throughout the week.'
+    construction-shift:
+      name: '&6Construction shift'
+      description: '&7Place building blocks for the village.'
+    workshop-orders:
+      name: '&eWorkshop orders'
+      description: '&7Craft useful supplies for village members.'
+    village-angler:
+      name: '&bVillage angler'
+      description: '&7Catch fish for the village pantry.'
+    foundry-shift:
+      name: '&7Foundry shift'
+      description: '&7Smelt basic metals in furnaces.'
+    animal-care:
+      name: '&aAnimal care'
+      description: '&7Breed farm animals throughout the week.'
+    master-enchanter:
+      name: '&5Master enchanter'
+      description: '&7Enchant equipment for the village.'
+    experience-drive:
+      name: '&dExperience drive'
+      description: '&7Collect experience together as a village.'
+
+# Village activity logs addon
+logs:
+  system: 'Village system'
+  gui:
+    menu-name: '&6Activity logs'
+    menu-lore: '&7View important changes and actions in the village.'
+    none: '&7There are no recorded activities yet.'
+    actor: '&7Performed by: &f%actor%'
+    date: '&7Date: &f%date%'
+    grouped: '&8Merged actions: &7%count%'
+  types:
+    village-created: '&aVillage created'
+    member-join: '&aMember joined'
+    member-leave: '&eMember left'
+    member-kick: '&cMember removed'
+    member-permission: '&bMember permission'
+    bank-deposit: '&aBank deposit'
+    bank-withdraw: '&cBank withdrawal'
+    quest-completed: '&eQuest completed'
+    setting-changed: '&dSetting changed'
+    village-upgrade: '&bVillage upgraded'
+    village-attack: '&cVillage attacked'
+  entries:
+    village-created: '&7The village was created.'
+    member-join: '&f%member% &7joined the village.'
+    member-leave: '&f%member% &7left the village.'
+    member-kick: '&f%member% &7was removed from the village.'
+    member-permission: '&7Permission &f%permission% &7for &f%member%&7: %value%&7.'
+    bank-deposit: '&7Deposited &a%amount%$ &7into the village bank.'
+    bank-withdraw: '&7Withdrew &c%amount%$ &7from the village bank.'
+    quest-completed: '&7The village completed quest %quest%&7.'
+    setting-changed: '&7Changed &f%setting% &7to %value%&7.'
+    village-upgrade: '&7The village reached level &b%level%&7.'
+    village-attack: '&7The village was attacked. Remaining lives: &c%lives%&7.'
+  settings:
+    pvp: 'PVP'
+    tnt: 'TNT damage'
+    animations: 'village animations'
+    teleport: 'teleport location'
+    tag: 'village tag'
+    effect-regeneration: 'regeneration effect'
+    effect-speed: 'speed effect'
+    effect-jump: 'jump effect'
+    effect-haste: 'haste effect'
+    protection: 'protection'
+    lives: 'village lives'
+  permissions:
+    owner: 'owner'
+    settings: 'settings'
+    invite: 'inviting'
+    store: 'store'
+    effects-buy: 'buying effects'
+    effects-toggle: 'toggling effects'
+    upgrade: 'upgrading'
+    storage: 'storage'
+    bank-add: 'bank deposits'
+    bank-remove: 'bank withdrawals'
+    quest-toggle: 'quest activation'
+  values:
+    updated: '&aupdated'
+    purchased: '&apurchased'
+    removed: '&cremoved'
+
+# PvP ranking
+ranking:
+  kill: '&aYou defeated &f%victim%&a and gained &e%points% &aranking points.'
+  death: '&cYou were defeated by &f%killer%&c and lost &e%points% &cranking points.'
+  assist: '&bYou assisted in defeating &f%victim%&b and gained &e%points% &branking points.'

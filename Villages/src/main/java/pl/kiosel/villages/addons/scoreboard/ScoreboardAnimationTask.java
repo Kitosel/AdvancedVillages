@@ -31,10 +31,6 @@ public class ScoreboardAnimationTask implements MetaTask {
 
 		for (FastBoard board : scoreboardManager.getBoards().values()) {
 			board.updateTitle(title);
-
-//			if (plugin.isDev()) {
-//				board.getPlayer().sendMessage("Frame index: " + next + " | Title: " + title);
-//			}
 		}
 	}
 

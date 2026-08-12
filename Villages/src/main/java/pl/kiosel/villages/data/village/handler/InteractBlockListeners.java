@@ -11,6 +11,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.player.PlayerBucketEmptyEvent;
+import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import pl.kiosel.core.utils.Cuboid;
@@ -21,6 +23,7 @@ import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.enums.Lang;
 import pl.kiosel.villages.gui.Item;
 import pl.kiosel.villages.manager.VillageUtilsManager;
+import pl.kiosel.villages.settings.Settings;
 
 import java.util.Objects;
 
@@ -43,7 +46,7 @@ public class InteractBlockListeners implements Listener {
 
 	private boolean isInEnabledWorld(Location loc) {
 		if (loc == null || loc.getWorld() == null) return true;
-		return plugin.getBlacklistHandler().isBlacklisted(loc.getWorld());
+		return plugin.getVillageUtilsManager().isBlacklisted(loc.getWorld());
 	}
 
 	@EventHandler(priority = EventPriority.NORMAL)
@@ -96,8 +99,14 @@ public class InteractBlockListeners implements Listener {
 		if (!village.isMember(user)) {
 			event.setCancelled(true);
 			if (Item.hasTag(hand, "noBreak")) {
+				event.setCancelled(true);
+				if (Settings.VILLAGE_ATTACK_WHEN_OFFLINE.getBoolean()) {
+					plugin.getMessages().get(Lang.VILLAGE_PROTECTED_OFFLINE).sendPrefixedMessage(player);
+					player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT, 1.0f, 0.0f);
+					return;
+				}
 				if (!village.canBeAttacked()) {
-					plugin.getLocale().getMessage(Lang.VILLAGE_PROTECTED.getPath()).sendPrefixedMessage(player);
+					plugin.getMessages().get(Lang.VILLAGE_PROTECTED).sendPrefixedMessage(player);
 					player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT, 1.0f, 0.0f);
 					return;
 				}
@@ -107,7 +116,7 @@ public class InteractBlockListeners implements Listener {
 					item.setVelocity(location.getDirection().multiply(0).setY(0.5));
 				});
 				plugin.getDebug().debug("Player " + player.getName() + " destroy central block of village " + village.getName());
-				plugin.getVillageUtilsManager().destroyVillage(village, 1);
+				plugin.getVillageUtilsManager().attackOnVillage(village, 1, player);
 				player.playSound(player.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1.0f, 1.0f);
 			}
 			return;
@@ -261,6 +270,42 @@ public class InteractBlockListeners implements Listener {
 					event.setCancelled(true);
 					return;
 				}
+			}
+		}
+	}
+
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onBucket(PlayerBucketEmptyEvent event) {
+		Location pistonLocation = event.getBlock().getLocation();
+		if (isInEnabledWorld(pistonLocation)) return;
+
+		Village village = villageManager.getVillageAt(event.getBlock().getLocation());
+		if (village != null) {
+			Cuboid cuboid = new Cuboid(
+					village.getLocation().get().clone().add(minX, minY, minZ),
+					village.getLocation().get().clone().add(maxX, maxY, maxZ)
+			);
+
+			if (cuboid.contains(event.getBlock().getLocation()) || cuboid.contains(pistonLocation)) {
+				event.setCancelled(true);
+			}
+		}
+	}
+
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onBucket(PlayerBucketFillEvent event) {
+		Location pistonLocation = event.getBlock().getLocation();
+		if (isInEnabledWorld(pistonLocation)) return;
+
+		Village village = villageManager.getVillageAt(event.getBlock().getLocation());
+		if (village != null) {
+			Cuboid cuboid = new Cuboid(
+					village.getLocation().get().clone().add(minX, minY, minZ),
+					village.getLocation().get().clone().add(maxX, maxY, maxZ)
+			);
+
+			if (cuboid.contains(event.getBlock().getLocation()) || cuboid.contains(pistonLocation)) {
+				event.setCancelled(true);
 			}
 		}
 	}

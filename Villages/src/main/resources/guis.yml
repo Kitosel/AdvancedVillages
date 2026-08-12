@@ -7,23 +7,27 @@ gui-upgrade: "Village - &bUpgrade"
 gui-settings: "Village - &cSettings"
 gui-effects: "Village - &dEffects"
 gui-storage: "Village - &2Storage"
+gui-logs: "Village - &6Activity logs"
+gui-quests: "Village - &eQuests"
 gui-member-settings: "Village - &7Member Settings"
 gui-remove-member: "&cRemove member"
+gui-delete-village: "&7Do you want to delete village?"
 
-blank: "&7&kBlank"
-exit: "&7Exit"
-back: "&cBack"
-next: "&aNext page"
-previous: "&cPrevious page"
-
-delete-village: "&7Do you want to delete village?"
-no-tag: "&cNONE"
-
-on: "&aON"
-off: "&cOFF"
-
-yes: "&aYes"
-no: "&cNo"
+# Shared menu layout. Rows must be between 1 and 6.
+# Every item can use: slot, material, amount, name, lore, glow and enabled.
+layout:
+  village: { rows: 4, back-slot: 4 }
+  bank: { rows: 4, back-slot: 4 }
+  store: { rows: 4, back-slot: 4 }
+  resident: { rows: 4, back-slot: 4 }
+  remove: { rows: 3, back-slot: 4 }
+  upgrade: { rows: 4, back-slot: 4 }
+  settings: { rows: 4, back-slot: 4 }
+  effects: { rows: 4, back-slot: 4 }
+  quests: { rows: 4, back-slot: 4 }
+  logs: { rows: 4, back-slot: 4 }
+  delete-member: { rows: 3, back-slot: 4 }
+  member-settings: { rows: 3, back-slot: 8 }
 
 guis:
   village:
@@ -31,10 +35,14 @@ guis:
     # SETTINGS
     #
     settings:
+      slot: 4
+      material: NOTE_BLOCK
       name: "&lSettings"
       lore:
         - "&7Manage Village"
       teleport:
+        slot: 19
+        material: FEATHER
         name: "&b&lTeleport"
         lore:
           - "&8—————————————"
@@ -44,6 +52,8 @@ guis:
           - "&7Click to set"
           - "&8—————————————"
       tag:
+        slot: 21
+        material: MOJANG_BANNER_PATTERN
         name: "&c&lTag"
         lore:
           - "&8—————————————"
@@ -57,6 +67,8 @@ guis:
         tag_not_set: "&7Click to set"
         # %istagset% ^^^
       pvp:
+        slot: 25
+        material: NETHERITE_SWORD
         name: "&f&lPVP"
         lore:
           - "&8—————————————"
@@ -65,6 +77,8 @@ guis:
           - " "
           - "&8—————————————"
       tnt:
+        slot: 23
+        material: TNT
         name: "&c&lTNT"
         lore:
           - "&8—————————————"
@@ -73,6 +87,8 @@ guis:
           - " "
           - "&8—————————————"
       animations:
+        slot: 13
+        material: AMETHYST_SHARD
         name: "&d&lAnimations"
         lore:
           - "&8—————————————"
@@ -81,6 +97,8 @@ guis:
           - " "
           - "&8—————————————"
       delete:
+        slot: 31
+        material: ORANGE_BED
         name: "&c&l&nDelete village"
         lore:
           - "&8—————————————"
@@ -92,24 +110,34 @@ guis:
     # STORE
     #
     store:
+      slot: 21
+      material: NETHER_STAR
       name: "&3Store"
       lore:
         - "&7Village store"
-    #
-    # STORAGE
-    #
-    storage:
-      name: "&3Storage"
-      lore:
-        - "&7Village storage"
+      hearth:
+        slot: 19
+        price: 240
+        lore:
+          - "&7Buy for &6%price%$"
+      destroyer:
+        slot: 21
+        price: 120
+        lore:
+          - "&7Buy for &6%price%$"
     #
     # MEMBERS
     #
     members:
+      slot: 11
+      material: PLAYER_HEAD
+      start-slot: 9
+      compact-start-slot: 19
       name: "&cMembers"
       lore:
         - "&7Manage members"
       owner:
+        enabled: true
         name: "&6%PLAYER% &cOWNER"
         lore:
           - "&7Role: &cOwner"
@@ -117,6 +145,7 @@ guis:
           - "&7Last online: %PLAYER_LAST_ONLINE%"
           - " "
       resident:
+        enabled: true
         name: "%PLAYER%"
         lore:
           - "&7Role: &cMember"
@@ -127,26 +156,36 @@ guis:
     # EFFECTS
     #
     effects:
+      slot: 23
+      material: SPLASH_POTION
       name: "&dEffects"
       lore:
         - "&7Add effects for"
         - "&7Members of village"
       regeneration:
+        slot: 19
+        material: FEATHER
         name: "&cRegeneration"
         lore:
           - "&7Gives &cRegeneration &7effect"
           - "&7Amplifier: &6%amplifier%"
       speed:
+        slot: 21
+        material: RABBIT_FOOT
         name: "&bSpeed"
         lore:
           - "&7Gives &bSpeed &7effect"
           - "&7Amplifier: &6%amplifier%"
       jump:
+        slot: 23
+        material: SLIME_BALL
         name: "&aJump boost"
         lore:
           - "&7Gives &aJump boost &7effect"
           - "&7Amplifier: &6%amplifier%"
       haste:
+        slot: 25
+        material: GOLDEN_PICKAXE
         name: "&eHaste"
         lore:
           - "&7Gives &eHaste &7effect"
@@ -156,36 +195,122 @@ guis:
         lore:
           - "&7Gives &e%effect% &7effect"
           - "&7Price: &6%price%"
+      purchase-regeneration:
+        slot: 28
+        material: PAPER
+      purchase-speed:
+        slot: 30
+        material: PAPER
+      purchase-jump:
+        slot: 32
+        material: PAPER
+      purchase-haste:
+        slot: 34
+        material: PAPER
     #
     # UPGRADE
     #
     upgrade:
+      slot: 31
+      material: DIAMOND
       name: "&bUpgrade"
       lore:
         - "&7Upgrade village"
       upgrade-button:
+        slot: 13
         name: "&aUpgrade village"
         lore:
           - "&7Actual level: &e%village_level%"
           - "&7Cost: &a%village_cost%"
           - "&cClick to &6Upgrade"
       info:
+        material: PAPER
         name: "&cTo upgrade:"
         name-upgraded: "&bUpgraded"
         lore:
           - "&7Level &c%village_level% &f-> &e%village_next_level%"
           - "&7Size: &c%village_size% &7-> &e%village_next_size%"
           - "&eCost: &a%village_cost%"
+      max-level:
+        slot: 13
+        material: BARRIER
+        name: "&cMaximum level"
+        lore:
+          - "&7The village has reached the "
+          - "&7highest level set in levels.yml."
     #
     # BANK
     #
     bank:
+      slot: 15
+      material: SUNFLOWER
       name: "&6Bank"
       lore:
         - "&7Village bank"
       account_balance:
+        slot: 13
+        material: PAPER
         name: "&6Bank&7: %village_balance%"
       add:
         name: "&aAdd to bank"
       remove:
         name: "&cRemove from bank"
+      deposit-all: { slot: 11, material: GREEN_DYE, amount: 1 }
+      withdraw-all: { slot: 15, material: RED_DYE, amount: 1 }
+      deposit-1: { slot: 20, material: EMERALD, amount: 1 }
+      deposit-5: { slot: 21, material: EMERALD, amount: 5 }
+      deposit-10: { slot: 22, material: EMERALD, amount: 10 }
+      deposit-100: { slot: 23, material: EMERALD_BLOCK, amount: 1 }
+      deposit-1000: { slot: 24, material: EMERALD_BLOCK, amount: 10 }
+      withdraw-1: { slot: 29, material: REDSTONE, amount: 1 }
+      withdraw-5: { slot: 30, material: REDSTONE, amount: 5 }
+      withdraw-10: { slot: 31, material: REDSTONE, amount: 10 }
+      withdraw-100: { slot: 32, material: REDSTONE_BLOCK, amount: 1 }
+      withdraw-1000: { slot: 33, material: REDSTONE_BLOCK, amount: 10 }
+    quests:
+      slot: 13
+      material: WRITABLE_BOOK
+    logs:
+      slot: 27
+      material: BOOK
+    exit:
+      slot: 35
+      material: ARROW
+
+  remove:
+    confirm: { slot: 12, material: LIME_CONCRETE }
+    info: { slot: 13, material: PAPER }
+    cancel: { slot: 14, material: RED_CONCRETE }
+
+  delete-member:
+    confirm: { slot: 12, material: LIME_CONCRETE }
+    member:
+      slot: 13
+      material: PLAYER_HEAD
+      name: "%player%"
+      lore:
+        - "&7Remove: &6%player%"
+    cancel: { slot: 14, material: RED_CONCRETE }
+
+  member-settings:
+    header:
+      slot: 4
+      material: PLAYER_HEAD
+      name: "%player%"
+      lore:
+        - "&7Settings of: &6%player%"
+    not-found: { slot: 13, material: BARRIER, name: "&cPlayer not found" }
+    permissions:
+      settings: { slot: 9, material: NOTE_BLOCK, name: "SETTINGS" }
+      invite: { slot: 10, material: TOTEM_OF_UNDYING, name: "INVITE" }
+      store: { slot: 11, material: ENDER_EYE, name: "STORE" }
+      effects-buy: { slot: 12, material: POTION, name: "EFFECTS BUY" }
+      effects-toggle: { slot: 13, material: SPLASH_POTION, name: "EFFECTS TOGGLE" }
+      upgrade: { slot: 14, material: DIAMOND, name: "UPGRADE" }
+      bank-add: { slot: 15, material: GREEN_CONCRETE_POWDER, name: "BANK ADD" }
+      bank-remove: { slot: 16, material: RED_CONCRETE_POWDER, name: "BANK REMOVE" }
+      quest: { slot: 17, material: BOOK, name: "QUEST" }
+    remove:
+      slot: 22
+      material: BARRIER
+      name: "Remove from village"

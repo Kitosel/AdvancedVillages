@@ -10,7 +10,7 @@ import pl.kiosel.core.utils.NumberRange;
 import pl.kiosel.core.utils.format.RangeFormatting;
 import pl.kiosel.core.utils.format.RawString;
 import pl.kiosel.core.utils.format.Replaceable;
-import pl.kiosel.villages.config.TablistConfiguration;
+import pl.kiosel.villages.addons.tablist.TablistConfiguration;
 import pl.kiosel.villages.config.TempMessages;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.user.UserRankManager;

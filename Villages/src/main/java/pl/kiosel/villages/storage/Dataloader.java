@@ -62,6 +62,8 @@ public class Dataloader {
 	public void load(DataManager connection) {
 		this.loadUsers(connection);
 		this.loadVillage(connection);
+		this.plugin.getQuestManager().load();
+		this.plugin.getLogManager().load();
 	}
 
 	public void loadUsers(DataManager connection) {
@@ -119,5 +121,8 @@ public class Dataloader {
 				}
 			}
 		}
+
+		this.plugin.getQuestManager().save(ignoreNotChanged);
+		this.plugin.getLogManager().save();
 	}
 }

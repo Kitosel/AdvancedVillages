@@ -7,7 +7,8 @@ import pl.kiosel.core.gui.Gui;
 import pl.kiosel.core.gui.GuiUtils;
 import pl.kiosel.core.lootables.RecipeBuilder;
 import pl.kiosel.dependencies.com.cryptomorin.xseries.XMaterial;
-import pl.kiosel.villages.config.GuiConfig;
+import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.enums.Lang;
 
 import java.util.List;
 import java.util.Map;
@@ -53,10 +54,9 @@ public class GUICreateCrafting extends Gui {
 		setItem(25, recipe.getResult());
 
 		setDefaultItem(glass1);
-		setButton(4, 8,
-				GuiUtils.createButtonItem(XMaterial.TIPPED_ARROW, GuiConfig.guis_back),
+		setButton(4, 8, GuiUtils.createButtonItem(XMaterial.TIPPED_ARROW,
+				AdvancedVillages.getInstance().getMessages().text(Lang.BACK)),
 				event -> this.guiManager.showGUI(player, parent)
 		);
 	}
-
 }

@@ -1,11 +1,29 @@
 # Cosmetic effects for village creation, upgrades and removal.
 # The per-village switch is available in the village settings GUI.
+# https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Sound.html
 creation:
   enabled: true
   duration-ticks: 28
   particle: END_ROD
   count: 4
   radius: 1.25
+  # A sound while creating the village
+  play-sound:
+    sound: ENTITY_PLAYER_LEVELUP
+    pitch: 1.0
+    volume: 0.3
+
+upgrade:
+  enabled: true
+  duration-ticks: 30
+  particle: END_ROD
+  count: 6
+  radius: 1.35
+  # A sound while upgrading the village
+  play-sound:
+    sound: ENTITY_PLAYER_LEVELUP
+    pitch: 1.0
+    volume: 0.2
 
 central-block:
   enabled: true

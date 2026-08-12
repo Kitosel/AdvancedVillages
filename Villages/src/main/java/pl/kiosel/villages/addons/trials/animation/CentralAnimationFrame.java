@@ -2,8 +2,8 @@ package pl.kiosel.villages.addons.trials.animation;
 
 import lombok.Getter;
 import org.bukkit.Location;
-import org.bukkit.Particle;
 import org.bukkit.entity.Player;
+import pl.kiosel.dependencies.com.cryptomorin.xseries.particles.XParticle;
 
 import java.util.List;
 
@@ -30,16 +30,17 @@ public final class CentralAnimationFrame {
         this.scale = scale;
     }
 
-	public Particle alternatingParticle(int index, int secondaryEvery) {
+	public XParticle alternatingParticle(int index, int secondaryEvery) {
         return index % secondaryEvery == 0 ? style.getSecondaryParticle() : style.getParticle();
     }
 
-    public void emit(Particle particle, double offsetX, double offsetY, double offsetZ) {
+    public void emit(XParticle particle, double offsetX, double offsetY, double offsetZ) {
         double x = center.getX() + offsetX;
         double y = center.getY() + offsetY;
         double z = center.getZ() + offsetZ;
         for (Player viewer : viewers) {
-            viewer.spawnParticle(particle, x, y, z, 1, 0, 0, 0, 0);
+            if (particle.get() != null)
+                viewer.spawnParticle(particle.get(), x, y, z, 1, 0, 0, 0, 0);
         }
     }
 }

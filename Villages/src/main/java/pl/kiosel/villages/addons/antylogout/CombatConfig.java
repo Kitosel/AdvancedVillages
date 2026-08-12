@@ -2,105 +2,47 @@ package pl.kiosel.villages.addons.antylogout;
 
 import pl.kiosel.core.configuration.Config;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.settings.Settings;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.LinkedHashSet;
 
-public class CombatConfig {
+/** Loads a validated, immutable anti-logout configuration snapshot. */
+public final class CombatConfig {
 
-	private final AdvancedVillages plugin;
-	private final Config configuration;
+	private static final String DEFAULT_BYPASS_PERMISSION = "advancedvillages.antylogout.bypass";
+
+	private final Config file;
+	private volatile CombatSettings settings;
 
 	public CombatConfig(AdvancedVillages plugin) {
-		this.plugin = plugin;
-		this.configuration = plugin.getCombatFile();
+		this.file = plugin.getCombatFile();
+		this.reload();
 	}
 
-	public String getCombatBypassPermission() {
-		return this.configuration.getString("combat-bypass-permission");
+	public synchronized void reload() {
+		String bypassPermission = this.file.getString("combat-bypass-permission", DEFAULT_BYPASS_PERMISSION);
+		if (bypassPermission == null || bypassPermission.trim().isEmpty()) {
+			bypassPermission = DEFAULT_BYPASS_PERMISSION;
+		}
+
+		this.settings = new CombatSettings(
+				Settings.ADDONS_ANTYLOGOUT_ENABLE.getBoolean(),
+				this.file.getBoolean("combat-bypass", false),
+				bypassPermission.trim(),
+				this.file.getBoolean("combat-quit-broadcast", true),
+				this.file.getLong("combat-duration", 20L),
+				this.file.getBoolean("combat-start-notifications-enabled", true),
+				this.file.getBoolean("remove-combat-on-opponent-death", true),
+				this.file.getBoolean("combat-from-mobs", true),
+				this.file.getBoolean("combat-from-projectiles", true),
+				this.file.getBoolean("commands-blocked-during-combat", true),
+				new LinkedHashSet<>(this.file.getStringList("combat-command-whitelist")),
+				this.file.getDouble("blocked-region-knockback-multiplier", 1.0D),
+				new LinkedHashSet<>(this.file.getStringList("blocked-regions"))
+		);
 	}
 
-	public boolean isBypass() {
-		return this.configuration.getBoolean("combat-bypass");
-	}
-
-	public boolean isBroadcast() {
-		return this.configuration.getBoolean("combat-quit-broadcast");
-	}
-
-	public long getCombatDuration() {
-		return this.configuration.getLong("combat-duration");
-	}
-
-	public boolean isCombatStartNotificationsEnabled() {
-		return this.configuration.getBoolean("combat-start-notifications-enabled");
-	}
-
-	public boolean isRemoveCombatOnOpponentDeath() {
-		return this.configuration.getBoolean("remove-combat-on-opponent-death");
-	}
-
-	public boolean isCombatFromMobs() {
-		return this.configuration.getBoolean("combat-from-mobs");
-	}
-
-	public boolean isCombatFromProjectiles() {
-		return this.configuration.getBoolean("combat-from-projectiles");
-	}
-
-	public boolean isCommandsBlockedDuringCombat() {
-		return this.configuration.getBoolean("commands-blocked-during-combat");
-	}
-
-	public Set<String> getCombatCommandWhitelist() {
-		return new HashSet<>(this.configuration.getStringList("combat-command-whitelist"));
-	}
-
-	public double getCombatBlockedRegionKnockbackMultiplier() {
-		return this.configuration.getDouble("blocked-region-knockback-multiplier");
-	}
-
-	public Set<String> getCombatBlockedRegions() {
-		return new HashSet<>(this.configuration.getStringList("blocked-regions"));
-	}
-
-	public CombatMessage getCombatStartMessageAttacker() {
-		return this.getMessage("combat-start-message-attacker");
-	}
-
-	public CombatMessage getCombatStartMessageVictim() {
-		return this.getMessage("combat-start-message-victim");
-	}
-
-	public CombatMessage getCombatMessage() {
-		return this.getMessage("combat-message");
-	}
-
-	public Set<CombatMessage> getCombatEndMessages() {
-		return this.getMessages("combat-end-message");
-	}
-
-	public Set<CombatMessage> getRemoveCombatMessage() {
-		return this.getMessages("remove-combat-message");
-	}
-
-	public Set<CombatMessage> getCombatCommandBlockedMessage() {
-		return this.getMessages("combat-command-blocked-message");
-	}
-
-	public Set<CombatMessage> getCombatBlockedRegionEnterMessage() {
-		return this.getMessages("combat-blocked-region-enter-message");
-	}
-
-	private CombatMessage getMessage(String path) {
-		return new CombatMessage(Objects.requireNonNull(this.configuration.getConfigurationSection(path)).getValues(false));
-	}
-
-	private Set<CombatMessage> getMessages(String path) {
-		List<String> rawMessages = this.configuration.getStringList(path);
-		return rawMessages.stream().map(CombatMessage::new).collect(Collectors.toSet());
+	public CombatSettings snapshot() {
+		return this.settings;
 	}
 }

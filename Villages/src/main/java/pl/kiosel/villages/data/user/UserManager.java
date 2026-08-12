@@ -122,7 +122,7 @@ public class UserManager {
      */
     public Option<User> findByPlayer(@NotNull Player player) {
         if (player.getUniqueId().version() == 2) {
-            return Option.of(new User(player.getUniqueId(), player.getName(), new NPCUserProfile()));
+            return Option.of(new User(player.getUniqueId(), player.getName(), new NPCUserProfile(), this.startingPoints()));
         }
 
         return this.findByUuid(player.getUniqueId());
@@ -160,7 +160,7 @@ public class UserManager {
         Validate.notNull(userProfile, "userProfile can't be null!");
         Validate.isTrue(UserValidator.validateUsername(name) == UserValidator.NameResult.VALID, "name is not valid!");
 
-        User user = new User(uuid, name, userProfile);
+        User user = new User(uuid, name, userProfile, this.startingPoints());
         this.addUser(user);
 
         return user;
@@ -225,5 +225,11 @@ public class UserManager {
     public boolean playedBefore(String nickname, boolean ignoreCase) {
         return this.findByName(nickname, ignoreCase).isPresent();
     }
+
+	private int startingPoints() {
+		return this.plugin.getRankingManager() == null
+				? 1000
+				: this.plugin.getRankingManager().getStartingPoints();
+	}
 
 }

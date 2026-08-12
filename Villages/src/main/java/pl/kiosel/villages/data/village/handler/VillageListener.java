@@ -5,14 +5,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.util.Vector;
-import pl.kiosel.core.chat.AdventureUtils;
 import pl.kiosel.core.dependencies.net.kyori.adventure.title.Title;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.data.user.User;
+import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.enums.Lang;
 import pl.kiosel.villages.events.PlayerEnterVillageEvent;
 import pl.kiosel.villages.events.PlayerExitVillageEvent;
-import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.manager.VillageUtilsManager;
 
 import java.time.Duration;
@@ -39,18 +38,16 @@ public class VillageListener implements Listener {
             push(player, village.getLocation().get());
             return;
         }
-		String title = VillageUtilsManager.replaceWith(village, plugin.getLocale().getMessage(Lang.ENTER_VILLAGE_AREA_TITLE.getPath()).toString());
-		String subtitle = VillageUtilsManager.replaceWith(village, plugin.getLocale().getMessage(Lang.ENTER_VILLAGE_AREA_SUBTITLE.getPath()).toString());
-		Title titleComponent = AdventureUtils.createTitle(AdventureUtils.formatComponent(title), AdventureUtils.formatComponent(subtitle), times);
-		AdventureUtils.sendTitle(titleComponent, event.getPlayer());
+		String title = VillageUtilsManager.replaceWith(village, plugin.getMessages().get(Lang.ENTER_VILLAGE_AREA_TITLE).toString());
+		String subtitle = VillageUtilsManager.replaceWith(village, plugin.getMessages().get(Lang.ENTER_VILLAGE_AREA_SUBTITLE).toString());
+		plugin.getMessages().sendTitle(player, title, subtitle, times);
     }
 
     @EventHandler
     public void onExit(PlayerExitVillageEvent event) {
-		String title = plugin.getLocale().getMessage(Lang.LEAVE_VILLAGE_AREA_TITLE.getPath()).toString();
-		String subtitle = plugin.getLocale().getMessage(Lang.LEAVE_VILLAGE_AREA_SUBTITLE.getPath()).toString();
-		Title titleComponent = AdventureUtils.createTitle(AdventureUtils.formatComponent(title), AdventureUtils.formatComponent(subtitle), times);
-		AdventureUtils.sendTitle(titleComponent, event.getPlayer());
+		String title = plugin.getMessages().get(Lang.LEAVE_VILLAGE_AREA_TITLE).toString();
+		String subtitle = plugin.getMessages().get(Lang.LEAVE_VILLAGE_AREA_SUBTITLE).toString();
+		plugin.getMessages().sendTitle(event.getPlayer(), title, subtitle, times);
     }
 
 	public void push(Player player, Location blockLocation) {

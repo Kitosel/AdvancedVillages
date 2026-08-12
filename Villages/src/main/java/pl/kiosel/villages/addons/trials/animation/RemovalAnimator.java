@@ -25,7 +25,7 @@ public final class RemovalAnimator {
     }
 
     public long play(Village village) {
-        Location center = VillageAnimationLocations.centralBlock(village);
+        Location center = village.getAnimation();
         World world = center.getWorld();
         if (world == null) {
             return 0L;

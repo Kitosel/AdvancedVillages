@@ -1,4 +1,11 @@
 # Village Global Structures Editor. Requires WorldEdit and `settings.use-worldedit: true`.
+# !---------------------------------!
+# Please use the Build Editor
+# instead of inserting a schematic
+# created separately with WorldEdit.
+# It could disrupt the
+# entire logic of the system
+# !---------------------------------!
 enabled: true
 
 menu:

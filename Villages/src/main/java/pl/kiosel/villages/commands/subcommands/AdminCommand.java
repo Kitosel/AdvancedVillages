@@ -4,7 +4,9 @@ import org.bukkit.entity.Player;
 import panda.std.Option;
 import pl.kiosel.core.configuration.editor.PluginConfigGui;
 import pl.kiosel.core.math.MathUtils;
+import pl.kiosel.core.utils.TimeUtils;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.addons.logs.VillageLogType;
 import pl.kiosel.villages.commands.AVSubCommand;
 import pl.kiosel.villages.config.CommandConfig;
 import pl.kiosel.villages.data.user.User;
@@ -16,8 +18,6 @@ import pl.kiosel.villages.manager.VillageUtilsManager;
 
 import java.time.Duration;
 import java.time.Instant;
-
-import static pl.kiosel.core.utils.ColorUtils.tl;
 
 public class AdminCommand extends AVSubCommand {
 
@@ -32,6 +32,9 @@ public class AdminCommand extends AVSubCommand {
 
 	@Override
 	public String getPermission() { return "villages.command.admin"; }
+
+	@Override
+	public boolean requireVillage() { return false; }
 
 	@Override
 	public Permission getVillagePermission() { return Permission.UNSET; }
@@ -65,7 +68,7 @@ public class AdminCommand extends AVSubCommand {
 		String removeCmd = commandConfig.getCommand(CommandLang.ADMIN_REMOVE).toLowerCase();
 
 		if (args.length < 2) {
-			player.sendMessage(tl("&c/village "+adminCmd+" <"+reloadCmd+"|"+giveCmd+"|"+manageCmd+"|"+settingsCmd+">"));
+			sendUsage(player, Lang.COMMAND_ADMIN_USAGE_ROOT, null);
 			return;
 		}
 
@@ -98,7 +101,7 @@ public class AdminCommand extends AVSubCommand {
 					return;
 				}
 			}
-			player.sendMessage(tl("&c/village "+adminCmd+" " + giveCmd + " <" + giveVillageCmd + "|" + giveDestroyerCmd + ">"));
+			sendUsage(player, Lang.COMMAND_ADMIN_USAGE_GIVE, null);
 			return;
 		}
 
@@ -107,7 +110,7 @@ public class AdminCommand extends AVSubCommand {
 			//     -1      0     1      2     3   args
 			// /villages admin manage owner type
 			if (args.length <= 3) {
-				player.sendMessage(tl("&c/village "+adminCmd+" " + manageCmd + " <owner> " + " <" + upgradeCmd + "|" + livesCmd + "|" + protectionCmd + "|" + removeCmd + ">"));
+				sendUsage(player, Lang.COMMAND_ADMIN_USAGE_MANAGE, null);
 				return;
 			}
 			String owner = args[2];
@@ -149,15 +152,17 @@ public class AdminCommand extends AVSubCommand {
 					if (villageUpgradeEvent.isCancelled()) return;
 
 					if (plugin.getUpgradeManager().upgradeVillage(village)) {
+						plugin.getLogManager().record(village, VillageLogType.VILLAGE_UPGRADE, player,
+								"level", nextLevel.getLevel());
 						sendLocalized(player, Lang.COMMAND_ADMIN_UPGRADE, "village_owner", owner);
 					} else {
-						player.sendMessage("error while upgrading the village");
+						sendLocalized(player, Lang.COMMAND_ADMIN_UPGRADE_FAILED);
 					}
 				}
 				if (manage.equals(livesCmd)
 						|| manage.equals(protectionCmd)
 						|| manage.equals(bankCmd)) {
-					player.sendMessage(tl("&c/village "+adminCmd+" " + manageCmd + " <owner> " + manage + " <" + addCmd + "|" + removeCmd + ">"));
+					sendUsage(player, Lang.COMMAND_ADMIN_USAGE_ACTION, manage);
 				}
 				return;
 			}
@@ -167,13 +172,15 @@ public class AdminCommand extends AVSubCommand {
 				if (manage.equals(protectionCmd)) {
 					if (addrem.equals(removeCmd)) {
 						village.setProtection(Instant.now());
+						plugin.getLogManager().record(village, VillageLogType.SETTING_CHANGED, player,
+								"setting", "protection", "value", "removed");
 						VillageUtilsManager.replaceWith(player, village, Lang.COMMAND_ADMIN_PROTECTION_REMOVE).sendPrefixedMessage(player);
 					} else if (addrem.equals(addCmd)) {
-						player.sendMessage(tl("&c/village "+adminCmd+" " + manageCmd + " <owner> " + manage + " <" + addCmd + "|" + removeCmd + "> " + " <number> <time unit>"));
+						sendUsage(player, Lang.COMMAND_ADMIN_USAGE_DURATION, manage);
 					}
 				}
 				if (manage.equals(bankCmd) || manage.equals(livesCmd)) {
-					player.sendMessage(tl("&c/village "+adminCmd+" " + manageCmd + " <owner> " + manage + " <" + addCmd + "|" + removeCmd + "> " + " <number>"));
+					sendUsage(player, Lang.COMMAND_ADMIN_USAGE_NUMBER, manage);
 				}
 				return;
 			}
@@ -187,7 +194,7 @@ public class AdminCommand extends AVSubCommand {
 				}
 				if (manage.equals(protectionCmd)) {
 					if (addrem.equals(addCmd)) {
-						player.sendMessage(tl("&c/village "+adminCmd+" " + manageCmd + " <owner> " + manage + " <" + addCmd + "|" + removeCmd + "> " + " <number> <time unit>"));
+						sendUsage(player, Lang.COMMAND_ADMIN_USAGE_DURATION, manage);
 					}
 				}
 				if (manage.equals(bankCmd)) {
@@ -195,12 +202,16 @@ public class AdminCommand extends AVSubCommand {
 					String bank_remove = getMessage(Lang.COMMAND_ADMIN_BANK_REMOVE.getPath()).toText();
 					if (addrem.equals(addCmd)) {
 						village.addBank(number);
+						plugin.getLogManager().record(village, VillageLogType.BANK_DEPOSIT, player,
+								"amount", number);
 						VillageUtilsManager.replaceWith(player, village, bank_add)
 								.processPlaceholder("money", number)
 								.sendPrefixedMessage(player);
 					}
 					if (addrem.equals(removeCmd)) {
 						village.removeBank(number);
+						plugin.getLogManager().record(village, VillageLogType.BANK_WITHDRAW, player,
+								"amount", number);
 						VillageUtilsManager.replaceWith(player, village, bank_remove)
 								.processPlaceholder("money", number)
 								.sendPrefixedMessage(player);
@@ -212,6 +223,8 @@ public class AdminCommand extends AVSubCommand {
 					String live_remove = getMessage(Lang.COMMAND_ADMIN_LIVES_REMOVE.getPath()).toText();
 					if (addrem.equals(addCmd)) {
 						village.setLives(village.getLives() + number);
+						plugin.getLogManager().record(village, VillageLogType.SETTING_CHANGED, player,
+								"setting", "lives", "value", village.getLives());
 						VillageUtilsManager.replaceWith(player, village, live_add)
 								.processPlaceholder("lives", number)
 								.sendPrefixedMessage(player);
@@ -222,6 +235,8 @@ public class AdminCommand extends AVSubCommand {
 							return;
 						}
 						village.setLives(village.getLives() - number);
+						plugin.getLogManager().record(village, VillageLogType.SETTING_CHANGED, player,
+								"setting", "lives", "value", village.getLives());
 						VillageUtilsManager.replaceWith(player, village, live_remove)
 								.processPlaceholder("lives", number)
 								.sendPrefixedMessage(player);
@@ -241,33 +256,14 @@ public class AdminCommand extends AVSubCommand {
 				String unit = args[6].toLowerCase();
 				if (manage.equals(protectionCmd)) {
 					if (addrem.equals(addCmd)) {
-						Duration duration;
-						switch (unit) {
-							case "d":
-							case "day":
-							case "days":
-								duration = Duration.ofDays(number);
-								break;
-							case "h":
-							case "hor":
-							case "hours":
-								duration = Duration.ofHours(number);
-								break;
-							case "m":
-							case "min":
-							case "minutes":
-								duration = Duration.ofMinutes(number);
-								break;
-							case "s":
-							case "sec":
-							case "seconds":
-								duration = Duration.ofSeconds(number);
-								break;
-							default:
-								sendLocalized(player, Lang.COMMAND_INVALID);
-								return;
+						Duration duration = TimeUtils.getDuration(unit, number);
+						if (duration==null) {
+							sendLocalized(player, Lang.COMMAND_INVALID);
+							return;
 						}
 						village.setProtection(Instant.now().plus(duration));
+						plugin.getLogManager().record(village, VillageLogType.SETTING_CHANGED, player,
+								"setting", "protection", "value", number + " " + unit);
 						VillageUtilsManager.replaceWith(player, village, Lang.COMMAND_ADMIN_PROTECTION_ADD)
 								.processPlaceholder("time", number + " " + unit)
 								.processPlaceholder("full_time", Instant.now().plus(duration).toString())
@@ -278,5 +274,25 @@ public class AdminCommand extends AVSubCommand {
 			}
 		}
 		sendLocalized(player, Lang.COMMAND_UNKNOWN, "input", input);
+	}
+
+	private void sendUsage(Player player, Lang message, String action) {
+		CommandConfig config = this.plugin.getCommandLang();
+		this.plugin.getMessages().format(message,
+				"command", config.getCommandName(),
+				"admin", config.getCommand(CommandLang.ADMIN),
+				"reload", config.getCommand(CommandLang.ADMIN_RELOAD),
+				"give", config.getCommand(CommandLang.ADMIN_GIVE),
+				"manage", config.getCommand(CommandLang.ADMIN_MANAGE),
+				"settings", config.getCommand(CommandLang.ADMIN_SETTINGS),
+				"village_block", config.getCommand(CommandLang.ADMIN_GIVE_VILLAGE),
+				"destroyer", config.getCommand(CommandLang.ADMIN_GIVE_DESTROYER),
+				"upgrade", config.getCommand(CommandLang.ADMIN_UPGRADE),
+				"lives", config.getCommand(CommandLang.ADMIN_LIVES),
+				"protection", config.getCommand(CommandLang.ADMIN_PROTECTION),
+				"remove", config.getCommand(CommandLang.ADMIN_REMOVE),
+				"add", config.getCommand(CommandLang.ADMIN_ADD),
+				"action", action == null ? "" : action
+		).sendMessage(player);
 	}
 }

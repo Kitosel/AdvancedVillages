@@ -5,11 +5,7 @@ import pl.kiosel.core.utils.TextUtils;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.enums.CommandLang;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static pl.kiosel.core.utils.ColorUtils.tl;
+import java.util.*;
 
 public class CommandConfig {
 
@@ -22,7 +18,7 @@ public class CommandConfig {
 	@Getter private String spawnCommandSetPermission;
 	@Getter private List<String> spawnCommandAliases;
 
-	private final Map<String, String> command = new HashMap<>();
+	private volatile Map<String, String> command = Collections.emptyMap();
 	private final AdvancedVillages plugin;
 
 	public CommandConfig(AdvancedVillages plugin) {
@@ -37,26 +33,12 @@ public class CommandConfig {
 		if (message.contains(" ")) {
 			message = lang.getDef();
 		}
-		return message.toLowerCase();
+		return message.toLowerCase(Locale.ROOT);
 	}
 
 	public void setConfig() {
-		command.clear();
 		plugin.getDebug().debug("Setting command.yml");
-		if (!plugin.getCommandFile().getFile().exists()) {
-			plugin.saveResource("command.yml", false);
-		}
-		plugin.getCommandFile().load();
-
-		var section = plugin.getCommandFile().getConfigurationSection("command-language");
-		if (section != null) {
-			for (String key : section.getKeys(false)) {
-				String text = plugin.getCommandFile().getString("command-language." + key);
-				if (text != null) {
-					command.put(key, text);
-				}
-			}
-		}
+		this.reloadArguments();
 
 		commandName = getString("command.name", "village");
 		commandAliases = getList("command.aliases", TextUtils.of("wioski", "vil"));
@@ -65,6 +47,21 @@ public class CommandConfig {
 		spawnCommandName = getString("spawn.name", "spawn");
 		spawnCommandAliases = getList("spawn.aliases", TextUtils.of("tpspawn"));
 		spawnCommandPermission = getString("spawn.permission", "villages.spawn");
+	}
+
+	public void reloadArguments() {
+		Map<String, String> refreshed = new HashMap<>();
+
+		var section = plugin.getCommandFile().getConfigurationSection("command-language");
+		if (section != null) {
+			for (String key : section.getKeys(false)) {
+				String text = plugin.getCommandFile().getString("command-language." + key);
+				if (text != null) {
+					refreshed.put(key, text);
+				}
+			}
+		}
+		this.command = Collections.unmodifiableMap(refreshed);
 		spawnCommandSetPermission = getString("spawn.permission-set", "villages.spawn.set");
 	}
 
@@ -72,7 +69,7 @@ public class CommandConfig {
 		if (path == null) return def;
 		String value = plugin.getCommandFile().getString(path);
 		if (value == null || value.trim().isEmpty()) return def;
-		return tl(value);
+		return value;
 	}
 
 	private List<String> getList(String path, List<String> def) {

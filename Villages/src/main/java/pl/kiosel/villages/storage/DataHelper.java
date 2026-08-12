@@ -19,6 +19,12 @@ public class DataHelper {
 	}
 
 	public void deleteVillage(Village village) {
+		if (plugin.getQuestManager() != null) {
+			plugin.getQuestManager().delete(village);
+		}
+		if (plugin.getLogManager() != null) {
+			plugin.getLogManager().delete(village);
+		}
 		plugin.getDataManager().getDatabaseConnector().connectDSL(dslContext -> {
 			dslContext.deleteFrom(DSL.table(prefix + "villages"))
 					.where(DSL.field("uuid").eq(village.getUUID().toString()))

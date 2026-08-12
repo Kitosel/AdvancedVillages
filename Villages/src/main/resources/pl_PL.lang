@@ -1,10 +1,26 @@
 # Wiadomości ogólne
 general:
+  separator: '&8————————————————————————————'
+  addon-disabled: '&cDodatek %addon% jest aktualnie wyłączony.'
   nametag:
-    prefix: '&8[&6&lWioski&8]'
+    prefix: '&8[&6&lWioski&r&8]'
     next: '&9Dalej'
     back: '&9Wstecz'
     exit: '&cWyjdź'
+    blank: '&7&kPuste'
+    previous: '&cPoprzednia'
+    'on': '&aON'
+    'off': '&cOFF'
+    'yes': '&aTak'
+    'no': '&cNie'
+  time:
+    second: { one: 'sekunda', few: 'sekundy', many: 'sekund' }
+    minute: { one: 'minuta', few: 'minuty', many: 'minut' }
+    hour: { one: 'godzina', few: 'godziny', many: 'godzin' }
+    day: { one: 'dzień', few: 'dni', many: 'dni' }
+    week: { one: 'tydzień', few: 'tygodnie', many: 'tygodni' }
+    month: { one: 'miesiąc', few: 'miesiące', many: 'miesięcy' }
+    year: { one: 'rok', few: 'lata', many: 'lat' }
   player:
     money-add: '&7Dodano &a%money% &7do twojego konta'
     money-remove: '&7Pobrano &a%money% &7z twojego konta'
@@ -17,6 +33,7 @@ general:
     you-have-full-eq: '&cTwój ekwipunek jest pełny'
     no-xp: '&cNie masz wystarczająco doświadczenia. Wymagane: %xp%'
     no-items: '&cNie masz wymaganych przedmiotów'
+    missing-item: '  &7• &f%item% &cx%amount%'
     take-xp: '&7Pobrano &a%xp% &7doświadczenia'
     take-items: '&7Pobrano &a%amount%x %item%'
 
@@ -47,9 +64,18 @@ command:
     lives-add: '&7Dodano &a%lives% &7żyć wiosce gracza &a%village_owner%'
     lives-remove: '&7Usunięto &c%lives% &7żyć wiosce gracza &a%village_owner%'
     already-dying: '&cTa wioska nie ma już żadnych żyć'
+    upgrade-failed: '&cNie udało się ulepszyć wioski. Sprawdź konsolę serwera'
+    usage:
+      root: '&c/%command% %admin% <%reload%|%give%|%manage%|%settings%>'
+      give: '&c/%command% %admin% %give% <%village_block%|%destroyer%>'
+      manage: '&c/%command% %admin% %manage% <właściciel> <%upgrade%|%lives%|%protection%|%remove%>'
+      action: '&c/%command% %admin% %manage% <właściciel> %action% <%add%|%remove%>'
+      number: '&c/%command% %admin% %manage% <właściciel> %action% <%add%|%remove%> <liczba>'
+      duration: '&c/%command% %admin% %manage% <właściciel> %action% <%add%|%remove%> <liczba> <jednostka czasu>'
 
 # Wioska
 village:
+  created: '%separator%\n &aStworzyłeś &6wioskę! &7Masz &4%default_lives% &7życia wioski. \n&7Chroń ją aby jej nie stracić. \n&7Wioska dostała ochronę na &6%time% \n%separator%'
   disabled-world: '&cNie możesz postawić wioski w tym świecie'
   no-permission: '&cNie masz uprawnień do zmiany tego ustawienia'
   nearby: '&cNie możesz utworzyć wioski, ponieważ w pobliżu znajduje się inna wioska (minimalna odległość: %distance% bloków)'
@@ -57,13 +83,24 @@ village:
   cant-edit: '&cNie możesz edytować tego członka'
   effect-not-bought: '&cEfekt %effect% nie został zakupiony'
   protected: '&cTa wioska jest obecnie chroniona'
+  protected-offline-members: '&cWioska nie może być zaatakowana kiedy każdy z jej członków jest nieobecny.'
   remove-member: '&7Usunąłeś &6%player% &7z wioski'
+
+  attacked:
+    title: '&8&k[&r &4UWAGA &8&k]'
+    subtitle: '&7Twoja &ewioska &7straciła życie!'
+    message: '%separator% \n&e%attacker% &codebrał życie twojej wiosce \n&cTwoja wioska ma teraz &e%village_lives%&7/&b%max_lives% &czyć \n&cOchrona przed kolejnym atakiem została włączona na &d%time% \n%separator%'
+  destroyed:
+    title: '&8&k[&r &4UWAGA &8&k]'
+    subtitle: '&7Twoja &ewioska &7została zniszczona!'
+    message: '%separator% \n&e%attacker% &czniszczył twoją wioskę \n%separator%'
 
   in-village: '&cNależysz już do wioski'
   no-village: '&cNie należysz do żadnej wioski'
   leave-owner: '&cNie możesz opuścić wioski, będąc jej właścicielem'
   confirm-leave-village: '&4Aby opuścić &6wioskę&4, wioske wpisz komendę &ljeszcze raz'
   leave-village: '&aOpuściłeś wioskę'
+  leave-village-broadcast: '&c%player% opuścił twoją wioskę'
   remove: '&cUsunąłeś wioskę'
   upgrade: '&6Ulepszyłeś wioskę'
   max-level: '&cWioska osiągnęła maksymalny poziom'
@@ -92,6 +129,7 @@ tag:
   your-village-tag: '&7Tag twojej wioski to &a%tag%'
   closed-name-village-tag: '&cZamknąłeś menu, więc tag nie został ustawiony'
   already-name-village-tag: '&cTen tag jest już używany'
+  no-tag: '&cBRAK'
 
 # Teleportacja
 teleport:
@@ -120,6 +158,7 @@ invite:
   player-invite: '&7Zaprosiłeś gracza &b%player% &7do swojej wioski'
   player-target: '&7Gracz %player% zaprosił cię do wioski'
   target-join-member: '&7Gracz &6%player% &7dołączył do twojej wioski'
+  target-decline-member: '&6%player% &odmówił dołączenia do twojej wioski'
   confirmed: '&7Dołączyłeś do wioski gracza &6%village_owner%'
   canceled: '&7Odrzuciłeś zaproszenie'
 
@@ -139,7 +178,6 @@ items:
 # Dodatek edytora budowli
 build-editor:
   worldedit-required: '&cEdytor budowli wymaga zainstalowanego i włączonego pluginu &fWorldEdit'
-  disabled: '&cEdytor budowli jest wyłączony w &faddons/build-editor.yml'
   setting-required: '&cNajpierw włącz &fsettings.use-worldedit: true &cw głównej konfiguracji'
   session-active: '&cMasz już aktywną sesję. Najpierw ją zapisz lub anuluj'
   level-missing: '&cPoziom wioski &f%level% &cnie istnieje'
@@ -179,10 +217,9 @@ spawn:
   spawn-set: '&aUstawiono lokalizację spawnu'
   spawn-not-set: '&cLokalizacja spawnu nie została ustawiona'
   teleporting: '&eZostaniesz przeteleportowany za &7%seconds% &esekund. Nie ruszaj się'
-  title: '&aTeleportowanie'
-  subtitle: '&eTeleportacja za %seconds% sekund...'
 
 # Dodatek antylogout
+# Użyj \n wewnątrz wiadomości, aby rozpocząć nową linię czatu.
 antilogout:
   blocked-region: '&7Nie możesz wejść do regionu &f&n%region%&r&7 podczas walki!'
   block-command: '&c&l✖ \n &7Nie możesz użyć komendy &f&n%command%&r&7 podczas walki!'
@@ -192,3 +229,131 @@ antilogout:
   end-combat: '&aTwoja walka dobiegła końca. Możesz się teraz wylogować!'
   remove-combat: '&7Twój przeciwnik &f%opponent% &7zginął. Walka dobiegła końca!'
   actionbar-message: '&4&lANTY-LOGOUT &8(&c%time%s&8)'
+
+# Dodatek z zadaniami wioskowymi
+quests:
+  command-description: 'Otwiera zadania wioskowe'
+  completed: '&aTwoja wioska ukończyła zadanie &f%quest%&a! Nagrody: &6%bank%$&a, &e%experience% EXP &ai &b%points% punktów&a.'
+  activated: '&aZadanie &f%quest% &azostało włączone dla twojej wioski.'
+  gui:
+    menu-name: '&eZadania wioskowe'
+    menu-lore: '&7Wykonujcie wspólnie zadania dzienne i tygodniowe.'
+    daily: '&eZadanie dzienne'
+    weekly: '&6Zadanie tygodniowe'
+    progress: '&7Postęp: &e%progress%&7/&e%required%'
+    completed: '&aUkończono! &7(%progress%/%required%)'
+    active: '&aAktywne - postęp jest naliczany'
+    inactive: '&cNieaktywne - postęp nie jest naliczany'
+    activate: '&eKliknij, aby włączyć to zadanie dla wioski.'
+    reset: '&7Reset za: &f%time%'
+    rewards: '&6Nagrody:'
+    reward-bank: '&7 • Bank wioski: &6%amount%$'
+    reward-experience: '&7 • Każdy członek online: &e%amount% EXP'
+    reward-points: '&7 • Każdy członek: &b%amount% punktów'
+    none: '&cNie skonfigurowano żadnych zadań.'
+  tasks:
+    monster-hunt:
+      name: '&cPolowanie na potwory'
+      description: '&7Wspólnie pokonujcie wrogie stworzenia.'
+    mining-shift:
+      name: '&bGórnicza zmiana'
+      description: '&7Wydobywajcie podstawowe rudy dla wioski.'
+    wood-supplies:
+      name: '&6Zapasy drewna'
+      description: '&7Zbierajcie drewno potrzebne do rozbudowy wioski.'
+    village-treasury:
+      name: '&eSkarbiec wioski'
+      description: '&7Wpłacajcie pieniądze do banku wioski.'
+    great-hunt:
+      name: '&4Wielkie polowanie'
+      description: '&7Pokonujcie wrogie stworzenia przez cały tydzień.'
+    construction-shift:
+      name: '&6Zmiana budowlana'
+      description: '&7Stawiajcie bloki potrzebne do rozbudowy wioski.'
+    workshop-orders:
+      name: '&eZamówienia warsztatu'
+      description: '&7Twórzcie przydatne przedmioty dla mieszkańców.'
+    village-angler:
+      name: '&bWioskowy wędkarz'
+      description: '&7Łówcie ryby do wioskowych zapasów.'
+    foundry-shift:
+      name: '&7Zmiana w hucie'
+      description: '&7Przetapiajcie podstawowe metale w piecach.'
+    animal-care:
+      name: '&aOpieka nad zwierzętami'
+      description: '&7Rozmnażajcie zwierzęta hodowlane przez cały tydzień.'
+    master-enchanter:
+      name: '&5Mistrz zaklinania'
+      description: '&7Zaklinajcie wyposażenie dla wioski.'
+    experience-drive:
+      name: '&dZbiórka doświadczenia'
+      description: '&7Wspólnie zdobywajcie doświadczenie dla wioski.'
+
+# Dodatek historii aktywności wioski
+logs:
+  system: 'System wioski'
+  gui:
+    menu-name: '&6Historia aktywności'
+    menu-lore: '&7Zobacz ważne zmiany i działania w wiosce.'
+    none: '&7Nie zapisano jeszcze żadnych aktywności.'
+    actor: '&7Wykonał: &f%actor%'
+    date: '&7Data: &f%date%'
+    grouped: '&8Połączone działania: &7%count%'
+  types:
+    village-created: '&aUtworzenie wioski'
+    member-join: '&aDołączenie członka'
+    member-leave: '&eOdejście członka'
+    member-kick: '&cUsunięcie członka'
+    member-permission: '&bUprawnienie członka'
+    bank-deposit: '&aWpłata do banku'
+    bank-withdraw: '&cWypłata z banku'
+    quest-completed: '&eUkończenie zadania'
+    setting-changed: '&dZmiana ustawienia'
+    village-upgrade: '&bUlepszenie wioski'
+    village-attack: '&cAtak na wioskę'
+  entries:
+    village-created: '&7Wioska została utworzona.'
+    member-join: '&f%member% &7dołączył do wioski.'
+    member-leave: '&f%member% &7opuścił wioskę.'
+    member-kick: '&f%member% &7został usunięty z wioski.'
+    member-permission: '&7Uprawnienie &f%permission% &7dla &f%member%&7: %value%&7.'
+    bank-deposit: '&7Wpłacono &a%amount%$ &7do banku wioski.'
+    bank-withdraw: '&7Wypłacono &c%amount%$ &7z banku wioski.'
+    quest-completed: '&7Wioska ukończyła zadanie %quest%&7.'
+    setting-changed: '&7Zmieniono &f%setting% &7na %value%&7.'
+    village-upgrade: '&7Wioska osiągnęła poziom &b%level%&7.'
+    village-attack: '&7Wioska została zaatakowana. Pozostałe życia: &c%lives%&7.'
+  settings:
+    pvp: 'PVP'
+    tnt: 'obrażenia od TNT'
+    animations: 'animacje wioski'
+    teleport: 'lokalizację teleportu'
+    tag: 'tag wioski'
+    effect-regeneration: 'efekt regeneracji'
+    effect-speed: 'efekt szybkości'
+    effect-jump: 'efekt skoku'
+    effect-haste: 'efekt pośpiechu'
+    protection: 'ochronę'
+    lives: 'życia wioski'
+  permissions:
+    owner: 'właściciel'
+    settings: 'ustawienia'
+    invite: 'zapraszanie'
+    store: 'sklep'
+    effects-buy: 'kupowanie efektów'
+    effects-toggle: 'włączanie efektów'
+    upgrade: 'ulepszanie'
+    storage: 'magazyn'
+    bank-add: 'wpłaty do banku'
+    bank-remove: 'wypłaty z banku'
+    quest-toggle: 'aktywowanie zadań'
+  values:
+    updated: '&azaktualizowano'
+    purchased: '&akupiono'
+    removed: '&cusunięto'
+
+# Ranking PvP
+ranking:
+  kill: '&aPokonałeś gracza &f%victim%&a i zdobyłeś &e%points% &apunktów rankingu.'
+  death: '&cZostałeś pokonany przez &f%killer%&c i straciłeś &e%points% &cpunktów rankingu.'
+  assist: '&bPomogłeś pokonać gracza &f%victim%&b i zdobyłeś &e%points% &bpunktów rankingu.'

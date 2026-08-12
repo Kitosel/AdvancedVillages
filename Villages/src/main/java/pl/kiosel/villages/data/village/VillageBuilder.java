@@ -44,7 +44,7 @@ public class VillageBuilder {
 	}
 
 	public VillageBuilder setRandomVillageName() {
-		this.village.setName(villageNameGenerator.getRandomName());
+		this.setName(villageNameGenerator.getRandomName());
 		return this;
 	}
 

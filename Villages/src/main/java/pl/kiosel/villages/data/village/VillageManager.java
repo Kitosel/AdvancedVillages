@@ -130,11 +130,10 @@ public class VillageManager {
      *
      * @param village village to add
      */
-    public Village addVillage(Village village) {
+    public void addVillage(Village village) {
         Validate.notNull(village, "village can't be null!");
         this.villageMap.put(village.getUUID(), village);
-        return village;
-    }
+	}
 
     /**
      * Remove village from storage. If you think you should use this method you probably shouldn't - instead use {@link VillageManager#deleteVillage(AdvancedVillages, Village)}.
@@ -151,12 +150,18 @@ public class VillageManager {
      *
      * @param village village to delete
      */
-    public void deleteVillage(AdvancedVillages plugin, Village village) {
+	public void deleteVillage(AdvancedVillages plugin, Village village) {
         if (village == null) {
             return;
         }
 
 		village.getMembers().forEach(User::removeVillage);
+		if (plugin.getQuestManager() != null) {
+			plugin.getQuestManager().delete(village);
+		}
+		if (plugin.getLogManager() != null) {
+			plugin.getLogManager().delete(village);
+		}
         this.deleteVillage(village);
     }
 

@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import pl.kiosel.core.gui.AnvilGui;
 import pl.kiosel.core.gui.Gui;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.addons.logs.VillageLogType;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.enums.Lang;
 import pl.kiosel.villages.gui.Item;
@@ -22,13 +23,13 @@ public final class TagInventory extends AnvilGui {
 		this.village = village;
 		this.viewer = player;
 
-		setTitle(plugin.getLocale().getMessage(Lang.ANVIL_NAME.getPath()).toString());
+		setTitle(plugin.getMessages().get(Lang.ANVIL_NAME).toString());
 		setInput(Item.create(Material.NAME_TAG, "*NAME*"));
-		setOutputPrompt(plugin.getLocale().getMessage(Lang.ANVIL_NAME.getPath()).toString());
+		setOutputPrompt(plugin.getMessages().get(Lang.ANVIL_NAME).toString());
 		setAction(event -> submit());
 		setOnClose(event -> {
 			if (!village.isTag()) {
-				plugin.getLocale().getMessage(Lang.TAG_NO_SET_VILLAGE.getPath()).sendPrefixedMessage(event.player);
+				plugin.getMessages().get(Lang.TAG_NO_SET_VILLAGE).sendPrefixedMessage(event.player);
 			}
 		});
 	}
@@ -49,16 +50,16 @@ public final class TagInventory extends AnvilGui {
 			message(Lang.TAG_INVALID_CHARS);
 			return;
 		}
-		boolean occupied = plugin.getVillageManager().getVillages().stream()
-				.map(Village::getTag)
-				.anyMatch(existing -> existing != null && existing.equalsIgnoreCase(tag));
+		boolean occupied = plugin.getVillageManager().tagExists(tag);
 		if (occupied) {
 			message(Lang.TAG_ALREADY_SET_VILLAGE);
 			return;
 		}
 
 		village.setTag(tag);
-		plugin.getLocale().getMessage(Lang.TAG_NEW_VILLAGE.getPath())
+		plugin.getLogManager().record(village, VillageLogType.SETTING_CHANGED, viewer,
+				"setting", "tag", "value", tag);
+		plugin.getMessages().get(Lang.TAG_NEW_VILLAGE)
 				.processPlaceholder("tag", tag).sendPrefixedMessage(viewer);
 		if (getParent() != null) {
 			plugin.getGuiManager().showGUI(viewer, getParent());
@@ -68,6 +69,6 @@ public final class TagInventory extends AnvilGui {
 	}
 
 	private void message(Lang message) {
-		plugin.getLocale().getMessage(message.getPath()).sendPrefixedMessage(viewer);
+		plugin.getMessages().get(message).sendPrefixedMessage(viewer);
 	}
 }

@@ -130,7 +130,20 @@ public class CommandTest extends SimpleCommand {
 				player.sendMessage(plugin.getPermissionManager().toString(member2.getPermissions()));
 			}
 			if (args[0].equalsIgnoreCase("local")) {
-				plugin.getLocale().getMessage(args[1]).sendPrefixedMessage(player);
+				plugin.getMessages().get(args[1]).sendPrefixedMessage(player);
+			}
+		}
+		if (args.length == 3) {
+			if (args[1].equals("region")) {
+				Option<Village> village2 = plugin.getVillageManager().findByName(args[2]);
+				if (village2 == null) {
+					player.sendMessage("village is null");
+					return false;
+				}
+				player.sendMessage(village2.get().getRegion().toString());
+				player.sendMessage(village2.get().getRegion().get().toString());
+				player.sendMessage(village2.get().getRegion().get().getCenter().toString());
+				player.sendMessage(village2.get().getRegion().get().getSize() + "");
 			}
 		}
 		return false;
@@ -147,7 +160,7 @@ public class CommandTest extends SimpleCommand {
 		}
 		if (args.length == 2) {
 			if (args[0].equalsIgnoreCase("villages"))
-				return TabUtils.returnWith(args[1], List.of("random_name", "villages_owner", "villages_names"));
+				return TabUtils.returnWith(args[1], List.of("random_name", "villages_owner", "villages_names", "region"));
 			if (args[0].equalsIgnoreCase("getPermissions"))
 				return TabUtils.onlinePlayers();
 			if (args[0].equalsIgnoreCase("villagemembers"))
@@ -156,7 +169,7 @@ public class CommandTest extends SimpleCommand {
 		if (args.length == 3) {
 			if (args[1].equalsIgnoreCase("villages_owner"))
 				return TabUtils.returnWith(args[2], plugin.getVillageManager().getVillageOwners());
-			if (args[1].equalsIgnoreCase("villages_names"))
+			if (args[1].equalsIgnoreCase("villages_names") || args[1].equalsIgnoreCase("region"))
 				return TabUtils.returnWith(args[2], plugin.getVillageManager().getVillageNamesAsList());
 		}
 		return TabUtils.returnEmpty();

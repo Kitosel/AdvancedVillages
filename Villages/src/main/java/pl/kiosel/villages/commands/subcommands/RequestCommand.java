@@ -2,6 +2,8 @@ package pl.kiosel.villages.commands.subcommands;
 
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import pl.kiosel.core.chat.AdventureUtils;
+import pl.kiosel.core.locale.Message;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.commands.AVSubCommand;
 import pl.kiosel.villages.data.user.User;
@@ -27,6 +29,9 @@ public class RequestCommand extends AVSubCommand {
 	public String getPermission() { return "villages.command.request"; }
 
 	@Override
+	public boolean requireVillage() { return false; }
+
+	@Override
 	public Permission getVillagePermission() { return Permission.UNSET; }
 
 	private final AdvancedVillages plugin;
@@ -43,8 +48,7 @@ public class RequestCommand extends AVSubCommand {
             return;
         }
 
-        Village village = user.getPresentVillage();
-        if (village != null) {
+        if (user.getPresentVillage() != null) {
 			sendLocalized(player, Lang.VILLAGE_IN);
             return;
         }
@@ -53,8 +57,9 @@ public class RequestCommand extends AVSubCommand {
 			sendUsage(player);
 			return;
 		}
+		String arg1 = args[1].toLowerCase();
 
-		if (args[1].equalsIgnoreCase(plugin.getCommandLang().getCommand(CommandLang.REQUEST_ACCEPT))) {
+		if (arg1.equals(plugin.getCommandLang().getCommand(CommandLang.REQUEST_ACCEPT))) {
 				Village villageInvited = plugin.getInviteManager().getVillageInvited(player);
 				if (villageInvited == null) {
 					sendLocalized(player, Lang.NO_INVITE);
@@ -70,7 +75,11 @@ public class RequestCommand extends AVSubCommand {
 				return;
 			}
 
-		if (args[1].equalsIgnoreCase(plugin.getCommandLang().getCommand(CommandLang.REQUEST_DENY))) {
+		if (arg1.equals(plugin.getCommandLang().getCommand(CommandLang.REQUEST_DENY))) {
+			Village villageInvited = plugin.getInviteManager().getVillageInvited(player);
+			Message message = VillageUtilsManager.replaceWith(player, villageInvited, Lang.INVITE_DECLINE);
+			villageInvited.broadcast(AdventureUtils.toLegacy(message.getPrefixedMessage()));
+
 			sendLocalized(player, Lang.INVITE_CANCELED);
 			plugin.getInviteManager().denyInvite(player);
 			return;

@@ -6,6 +6,7 @@ import pl.kiosel.core.hooks.economy.EconomyHook;
 import pl.kiosel.core.hooks.economy.EconomyHookRegistry;
 import pl.kiosel.villages.AdvancedVillages;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,6 +35,8 @@ public class Settings {
 	public static final ConfigSetting ADDONS_SCOREBOARD_ENABLE = new ConfigSetting(CONFIG, "addons.scoreboard", true);
 	public static final ConfigSetting ADDONS_TABLIST_ENABLE = new ConfigSetting(CONFIG, "addons.tablist", true);
 	public static final ConfigSetting ADDONS_SPAWN_ENABLE = new ConfigSetting(CONFIG, "addons.spawn", true);
+	public static final ConfigSetting ADDONS_QUESTS_ENABLE = new ConfigSetting(CONFIG, "addons.quests", true,
+			"Should shared village quests be enabled?");
 	public static final ConfigSetting ADDONS_VILLAGE_ANIMATIONS_ENABLE = new ConfigSetting(CONFIG, "addons.village-animations", true,
 			"Should village creation, level and removal animations be enabled globally?");
 
@@ -52,11 +55,19 @@ public class Settings {
 	public static final ConfigSetting VILLAGE_SPAWN_MINIMAL_DISTANCE = new ConfigSetting(CONFIG, "village.spawn-minimal-distance", 1000);
 	public static final ConfigSetting VILLAGE_MAX_MEMBERS = new ConfigSetting(CONFIG, "village.max-members", 7, "Real max is 27");
 	public static final ConfigSetting VILLAGE_MAX_TAG_LENGTH = new ConfigSetting(CONFIG, "village.tag-max-length", 5);
+	public static final ConfigSetting VILLAGE_DESTROY_UNIT = new ConfigSetting(CONFIG, "village.destroy.unit", "hours", "How many hours village should be protected after attack");
+	public static final ConfigSetting VILLAGE_DESTROY_DURATION = new ConfigSetting(CONFIG, "village.destroy.duration", 12);
+	public static final ConfigSetting VILLAGE_DEFAULT_LIVES = new ConfigSetting(CONFIG, "village.default-lives", 3);
+	public static final ConfigSetting VILLAGE_MAX_LIVES = new ConfigSetting(CONFIG, "village.max-lives", 3);
 	public static final ConfigSetting VILLAGE_REMOVE_BEACONS = new ConfigSetting(CONFIG, "village.remove-beacons", true, "Remove beacons when deleting a village?");
 	public static final ConfigSetting VILLAGE_INVITE_EXPIRE = new ConfigSetting(CONFIG, "village.invite-expire", 30, "How long until the invitation expires? (seconds)");
 	public static final ConfigSetting VILLAGE_UPGRADE_ECO = new ConfigSetting(CONFIG, "village.upgrade.eco", true);
 	public static final ConfigSetting VILLAGE_UPGRADE_XP = new ConfigSetting(CONFIG, "village.upgrade.xp", false);
 	public static final ConfigSetting VILLAGE_UPGRADE_ITEMS = new ConfigSetting(CONFIG, "village.upgrade.items", true);
+	public static final ConfigSetting VILLAGE_UPGRADE_NO_TAG = new ConfigSetting(CONFIG, "village.upgrade-without-tag", false, "Can a village be upgraded without being tagged?");
+	public static final ConfigSetting VILLAGE_BLACKLIST_AS_WHITELIST = new ConfigSetting(CONFIG, "village.blacklist-as-whitelist", false, "Invert blacklist into whitelist");
+	public static final ConfigSetting VILLAGE_BLACKLISTED_WORLDS = new ConfigSetting(CONFIG, "village.blacklisted-worlds", Arrays.asList("world_nether", "world_the_end", "world1", "world2"), "Where village can't be placed");
+	public static final ConfigSetting VILLAGE_ATTACK_WHEN_OFFLINE = new ConfigSetting(CONFIG, "village.attack-when-offline", false, "Can a village be attacked when none of its members are present?");
 
 	public static final ConfigSetting EFFECTS_REGENERATION_COST = new ConfigSetting(CONFIG, "village.effects.regeneration.cost", 125);
 	public static final ConfigSetting EFFECTS_REGENERATION_AMPLIFIER = new ConfigSetting(CONFIG, "village.effects.regeneration.amplifier", 1);

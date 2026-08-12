@@ -1,0 +1,16 @@
+# Persistent village activity history.
+# Entries are cached in memory and written during the regular asynchronous data save.
+enabled: true
+
+# Both the GUI cache and database are bounded to this number for each village.
+max-entries-per-village: 100
+
+# Entries older than this are removed during a data save.
+retention-days: 30
+
+# Repeated bank operations and changes of the same setting made by one player
+# inside this window are merged into one entry. Set to 0 to disable merging.
+anti-spam-window-seconds: 10
+
+# Used only to display dates in the history GUI.
+time-zone: "Europe/Warsaw"

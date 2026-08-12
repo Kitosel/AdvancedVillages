@@ -3,10 +3,10 @@ package pl.kiosel.villages.manager;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import pl.kiosel.core.locale.Locale;
 import pl.kiosel.core.utils.PlayerUtils;
 import pl.kiosel.dependencies.com.cryptomorin.xseries.XMaterial;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.config.VillageMessages;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.data.village.level.Level;
 import pl.kiosel.villages.data.village.turets.Turret;
@@ -54,7 +54,7 @@ public class UpgradeManager {
 		int costEco = level.getCostEconomy();
 		int costXp = level.getCostExperience();
 		List<ItemStack> costMaterial = level.getItemMaterials();
-		Locale locale = plugin.getLocale();
+		VillageMessages messages = plugin.getMessages();
 
 		boolean ecoEnabled = Settings.VILLAGE_UPGRADE_ECO.getBoolean();
 		boolean xpEnabled = Settings.VILLAGE_UPGRADE_XP.getBoolean();
@@ -65,23 +65,23 @@ public class UpgradeManager {
 		boolean hasItems = !itemsEnabled || PlayerUtils.hasEnoughItems(player, costMaterial);
 
 		if (!hasMoney || !hasXp || !hasItems) {
-			locale.getMessage(Lang.VILLAGE_NO_REQ_UPGRADE.getPath()).sendPrefixedMessage(player);
+			messages.sendPrefixed(player, Lang.VILLAGE_NO_REQ_UPGRADE);
 
 			if (!hasMoney) {
 				double more_money = costEco - plugin.getEconomy().getBalance(player);
-				locale.getMessage(Lang.NO_MONEY.getPath()).processPlaceholder("money", more_money).sendPrefixedMessage(player);
+				messages.sendPrefixed(player, Lang.NO_MONEY, "money", more_money);
 			}
 
 			if (!hasXp)
-				locale.getMessage(Lang.NO_XP.getPath())
-						.processPlaceholder("xp", costXp)
-						.sendPrefixedMessage(player);
+				messages.sendPrefixed(player, Lang.NO_XP, "xp", costXp);
 
 			if (!hasItems) {
-				locale.getMessage(Lang.NO_ITEMS.getPath()).sendPrefixedMessage(player);
+				messages.sendPrefixed(player, Lang.NO_ITEMS);
 				Map<XMaterial, Integer> missing = PlayerUtils.getMissingItems(player, costMaterial);
 				for (Map.Entry<XMaterial, Integer> entry : missing.entrySet()) {
-					player.sendMessage("  §7• §f" + entry.getKey().name() + " §cx" + entry.getValue());
+					messages.send(player, Lang.MISSING_ITEM,
+							"item", entry.getKey().name(),
+							"amount", entry.getValue());
 				}
 			}
 
@@ -91,30 +91,23 @@ public class UpgradeManager {
 
 		if (ecoEnabled) {
 			if (!plugin.getEconomy().withdrawBalance(player, costEco)) {
-				locale.getMessage(Lang.NO_MONEY.getPath())
-						.processPlaceholder("money", costEco)
-						.sendPrefixedMessage(player);
+				messages.sendPrefixed(player, Lang.NO_MONEY, "money", costEco);
 				return false;
 			}
-			locale.getMessage(Lang.MONEY_REMOVE.getPath())
-					.processPlaceholder("money", costEco)
-					.sendPrefixedMessage(player);
+			messages.sendPrefixed(player, Lang.MONEY_REMOVE, "money", costEco);
 		}
 
 		if (xpEnabled) {
 			PlayerUtils.removeExperience(player, costXp);
-			locale.getMessage(Lang.TAKE_XP.getPath())
-					.processPlaceholder("xp", costXp)
-					.sendPrefixedMessage(player);
+			messages.sendPrefixed(player, Lang.TAKE_XP, "xp", costXp);
 		}
 
 		if (itemsEnabled) {
 			PlayerUtils.removeItem(player, costMaterial);
 			for (ItemStack stack : costMaterial) {
-				locale.getMessage(Lang.TAKE_ITEMS.getPath())
-						.processPlaceholder("item", stack.getType().name())
-						.processPlaceholder("amount", stack.getAmount())
-						.sendPrefixedMessage(player);
+				messages.sendPrefixed(player, Lang.TAKE_ITEMS,
+						"item", stack.getType().name(),
+						"amount", stack.getAmount());
 			}
 		}
 		return true;

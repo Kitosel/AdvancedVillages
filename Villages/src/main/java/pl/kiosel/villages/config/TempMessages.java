@@ -20,14 +20,6 @@ public class TempMessages {
 	public static RawString gtopPoints = new RawString(" &7[&b%POINTS-FORMAT%&7]");
 	public static RawString ptopPoints = new RawString(" &7[%POINTS%&7]");
 
-	public static String pvpStatusOn = "&aWlaczone";
-	public static String pvpStatusOff = "&cWylaczone";
-
-	public static int warLives = 3;
-	public static RawString full = new RawString("&c\u2764");
-	public static RawString empty = new RawString("&8\u2764");
-	public static RawString more = new RawString("&a+");
-
 	public static List<RangeFormatting> pointsFormat = Arrays.asList(
 			new RangeFormatting(0, 749, "&4%POINTS%"),
 			new RangeFormatting(750, 999, "&c%POINTS%"),

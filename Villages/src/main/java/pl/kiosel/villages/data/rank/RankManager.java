@@ -6,18 +6,18 @@ import java.util.*;
 
 public abstract class RankManager<T extends Top<R>, R extends Rank<?>> {
 
-    protected final Map<String, T> topMap = new HashMap<>();
+    protected final Map<String, T> topMap = new LinkedHashMap<>();
 
     public Map<String, T> getTopMap() {
         return new HashMap<>(this.topMap);
     }
 
     public Set<String> getTopIds() {
-        return this.topMap.keySet();
+		return Collections.unmodifiableSet(new LinkedHashSet<>(this.topMap.keySet()));
     }
 
     public Set<T> getTops() {
-        return new HashSet<>(this.topMap.values());
+		return Collections.unmodifiableSet(new LinkedHashSet<>(this.topMap.values()));
     }
 
     public Option<T> getTop(String id) {

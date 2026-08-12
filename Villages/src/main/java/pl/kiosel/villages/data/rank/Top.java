@@ -1,30 +1,30 @@
 package pl.kiosel.villages.data.rank;
 
-import com.google.common.collect.Iterables;
+import lombok.Getter;
 import panda.std.Option;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.NavigableSet;
-import java.util.TreeSet;
 import java.util.function.BiFunction;
 
 public class Top<T> {
 
+    @Getter
     private final TopComparator<T> comparator;
     private final BiFunction<String, TopComparator<T>, NavigableSet<T>> recalculateFunction;
-    private NavigableSet<T> values;
+	private volatile List<T> values;
 
     public Top(TopComparator<T> comparator, BiFunction<String, TopComparator<T>, NavigableSet<T>> recalculateFunction) {
         this.comparator = comparator;
         this.recalculateFunction = recalculateFunction;
-        this.values = new TreeSet<>(comparator);
+		this.values = Collections.emptyList();
     }
 
-    public TopComparator<T> getComparator() {
-        return this.comparator;
-    }
-
-    public Option<T> get(int place) {
-        return Option.when(place > 0 && place <= this.values.size(), () -> Iterables.get(this.values, place - 1));
+	public Option<T> get(int place) {
+		List<T> snapshot = this.values;
+		return Option.when(place > 0 && place <= snapshot.size(), () -> snapshot.get(place - 1));
     }
 
     public int count() {
@@ -32,7 +32,9 @@ public class Top<T> {
     }
 
     public void recalculate(String id) {
-        this.values = this.recalculateFunction.apply(id, this.comparator);
+		this.values = Collections.unmodifiableList(new ArrayList<>(
+				this.recalculateFunction.apply(id, this.comparator)
+		));
     }
 
 }

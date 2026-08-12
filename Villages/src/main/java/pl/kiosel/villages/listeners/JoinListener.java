@@ -5,8 +5,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.addons.tablist.PlayerList;
-import pl.kiosel.villages.data.user.*;
+import pl.kiosel.villages.data.user.User;
+import pl.kiosel.villages.data.user.UserManager;
 
 public class JoinListener implements Listener {
 
@@ -20,15 +20,9 @@ public class JoinListener implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
+		Player player = event.getPlayer();
 		User user = this.userManager.getOrCreate(player);
-		UserCache cache = user.getCache();
 		plugin.getScoreboardManager().createBoard(player);
-
-		if (this.plugin.getTablistConfig().isEnabled()) {
-			PlayerList playerList = this.plugin.getIndividualPlayerList(user);
-			playerList.send();
-			cache.setPlayerList(playerList);
-		}
-    }
+		this.plugin.getTablistManager().handleJoin(player, user);
+	}
 }

@@ -103,7 +103,8 @@ public class VillageRank extends Rank<Village> implements Comparable<VillageRank
     }
 
     private int calculateAverage(int value) {
-        return value / this.entity.getMembers().size();
+		int memberCount = this.entity.getMembers().size();
+		return memberCount == 0 ? 0 : value / memberCount;
     }
 
     @Override

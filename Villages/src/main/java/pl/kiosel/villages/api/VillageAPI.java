@@ -9,6 +9,9 @@ import pl.kiosel.core.dependencies.de.tr7zw.nbtapi.NBT;
 import pl.kiosel.core.dependencies.de.tr7zw.nbtapi.iface.ReadWriteItemNBT;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.addons.buildeditor.VillageBuildEditorManager;
+import pl.kiosel.villages.addons.logs.VillageLogManager;
+import pl.kiosel.villages.addons.quests.VillageQuestManager;
+import pl.kiosel.villages.addons.ranking.RankingManager;
 import pl.kiosel.villages.addons.trials.VillageAnimationManager;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.user.UserManager;
@@ -18,6 +21,7 @@ import pl.kiosel.villages.enums.Lang;
 import pl.kiosel.villages.gui.Item;
 import pl.kiosel.villages.manager.UpgradeManager;
 import pl.kiosel.villages.manager.VillageRemoveManager;
+import pl.kiosel.villages.manager.teleport.TeleportManager;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -61,6 +65,11 @@ public class VillageAPI {
         return plugin.getUpgradeManager();
     }
 
+	@NotNull
+	public TeleportManager getTeleportManager() {
+		return plugin.getTeleportManager();
+	}
+
     @NotNull
 	public VillageAnimationManager getAnimationManager() {
 		return plugin.getVillageAnimationManager();
@@ -69,6 +78,19 @@ public class VillageAPI {
 	@Nullable
 	public VillageBuildEditorManager getBuildEditorManager() {
 		return plugin.getVillageBuildEditorManager();
+	}
+
+	@NotNull
+	public VillageQuestManager getQuestManager() {
+		return plugin.getQuestManager();
+	}
+
+	public VillageLogManager getLogManager() {
+		return plugin.getLogManager();
+	}
+
+	public RankingManager getRankingManager() {
+		return plugin.getRankingManager();
 	}
 
 	@Nullable
@@ -107,33 +129,33 @@ public class VillageAPI {
 
     public ItemStack createVillageBlock() {
 		ItemStack item = Item.create(Material.NOTE_BLOCK,
-				plugin.getLocale().getMessage(Lang.VILLAGE_BLOCK_NAME.getPath()).toString(),
-				List.of(plugin.getLocale().getMessage(Lang.VILLAGE_BLOCK_LORE.getPath()).toString()), true);
+				plugin.getMessages().get(Lang.VILLAGE_BLOCK_NAME).toString(),
+				List.of(plugin.getMessages().get(Lang.VILLAGE_BLOCK_LORE).toString()), true);
 		NBT.modify(item, (Consumer<ReadWriteItemNBT>) nbt -> nbt.setBoolean("villageBlock", true));
 		return item;
     }
 
 	public ItemStack createDestroyer() {
 		return Item.createDestroyer(Material.GOLDEN_PICKAXE,
-				plugin.getLocale().getMessage(Lang.VILLAGE_DESTROYER_NAME.getPath()).toString(),
-				List.of(plugin.getLocale().getMessage(Lang.VILLAGE_DESTROYER_LORE.getPath()).toString()));
+				plugin.getMessages().get(Lang.VILLAGE_DESTROYER_NAME).toString(),
+				List.of(plugin.getMessages().get(Lang.VILLAGE_DESTROYER_LORE).toString()));
 	}
 
 	public ItemStack createHearth() {
 		return Item.createNoPlaceNoCraft(Material.BARRIER,
-				plugin.getLocale().getMessage(Lang.VILLAGE_HEARTH_BLOCK_NAME.getPath()).toString(),
-				List.of(plugin.getLocale().getMessage(Lang.VILLAGE_HEARTH_BLOCK_LORE.getPath()).toString()));
+				plugin.getMessages().get(Lang.VILLAGE_HEARTH_BLOCK_NAME).toString(),
+				List.of(plugin.getMessages().get(Lang.VILLAGE_HEARTH_BLOCK_LORE).toString()));
 	}
 
 	public ItemStack createHearthPart() {
 		return Item.createNoPlaceNoCraft(Material.REDSTONE_BLOCK,
-				plugin.getLocale().getMessage(Lang.VILLAGE_PART_HEARTH_BLOCK_NAME.getPath()).toString(),
-				List.of(plugin.getLocale().getMessage(Lang.VILLAGE_PART_HEARTH_BLOCK_LORE.getPath()).toString()));
+				plugin.getMessages().get(Lang.VILLAGE_PART_HEARTH_BLOCK_NAME).toString(),
+				List.of(plugin.getMessages().get(Lang.VILLAGE_PART_HEARTH_BLOCK_LORE).toString()));
 	}
 
 	public ItemStack createDestroyerHearth() {
 		return Item.createNoPlaceNoCraft(Material.GOLD_BLOCK,
-				plugin.getLocale().getMessage(Lang.VILLAGE_DESTROYER_HEARTH_NAME.getPath()).toString(),
-				List.of(plugin.getLocale().getMessage(Lang.VILLAGE_DESTROYER_HEARTH_LORE.getPath()).toString()));
+				plugin.getMessages().get(Lang.VILLAGE_DESTROYER_HEARTH_NAME).toString(),
+				List.of(plugin.getMessages().get(Lang.VILLAGE_DESTROYER_HEARTH_LORE).toString()));
 	}
 }

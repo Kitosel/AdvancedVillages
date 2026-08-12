@@ -32,8 +32,6 @@ public class BlockItemListener implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onPlayerCraft(CraftItemEvent event) {
-		if (event.getRecipe() == null) return;
-
 		if (plugin.getCraftingManager().isCustomRecipe(event.getRecipe()))
 			return;
 
@@ -45,13 +43,12 @@ public class BlockItemListener implements Listener {
 					: "";
 
 			if (Item.hasTag(item, "noPlace")
-					|| (displayName.contains(plugin.getLocale().getMessage(Lang.VILLAGE_HEARTH_BLOCK_NAME.getPath()).toString()))
-					|| (displayName.contains(plugin.getLocale().getMessage(Lang.VILLAGE_DESTROYER_NAME.getPath()).toString()))) {
+					|| (displayName.contains(plugin.getMessages().get(Lang.VILLAGE_HEARTH_BLOCK_NAME).toString()))
+					|| (displayName.contains(plugin.getMessages().get(Lang.VILLAGE_DESTROYER_NAME).toString()))) {
 				event.setCancelled(true);
 
-				if (event.getWhoClicked() instanceof Player player) {
+				if (event.getWhoClicked() instanceof Player player)
 					player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.2f, 1f);
-				}
 				return;
 			}
 		}

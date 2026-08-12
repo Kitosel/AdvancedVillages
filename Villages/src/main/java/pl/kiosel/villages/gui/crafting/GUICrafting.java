@@ -6,7 +6,7 @@ import pl.kiosel.core.gui.CustomizableGui;
 import pl.kiosel.core.gui.GuiUtils;
 import pl.kiosel.dependencies.com.cryptomorin.xseries.XMaterial;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.config.GuiConfig;
+import pl.kiosel.villages.enums.Lang;
 
 public class GUICrafting extends CustomizableGui {
 
@@ -40,6 +40,7 @@ public class GUICrafting extends CustomizableGui {
 		setButton(1, 6, plugin.getApi().createHearth(), (event) ->
 				this.guiManager.showGUI(player, new GUICreateCrafting(player, this, plugin.getCraftingManager().getHearth())));
 
-		setButton(2, 8, GuiUtils.createButtonItem(XMaterial.SPECTRAL_ARROW, GuiConfig.guis_exit), (event) -> player.closeInventory());
+		setButton(2, 8, GuiUtils.createButtonItem(XMaterial.SPECTRAL_ARROW,
+				plugin.getMessages().text(Lang.EXIT)), (event) -> player.closeInventory());
 	}
 }

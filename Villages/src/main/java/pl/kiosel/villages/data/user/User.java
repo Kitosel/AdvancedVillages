@@ -25,13 +25,13 @@ public class User extends AbstractMutableEntity {
     @Getter
 	private final UserProfile profile;
 
-    User(UUID uuid, String name, UserProfile profile) {
+    User(UUID uuid, String name, UserProfile profile, int startingPoints) {
         this.uuid = uuid;
         this.name = name;
         this.profile = profile;
 
         this.cache = new UserCache(this);
-        this.rank = new UserRank(this, 1000);
+        this.rank = new UserRank(this, startingPoints);
 
         this.markChanged();
     }

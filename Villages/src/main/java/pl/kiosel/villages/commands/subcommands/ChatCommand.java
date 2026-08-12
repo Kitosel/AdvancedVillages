@@ -4,7 +4,6 @@ import org.bukkit.entity.Player;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.commands.AVSubCommand;
 import pl.kiosel.villages.data.user.User;
-import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.enums.CommandLang;
 import pl.kiosel.villages.enums.Lang;
 import pl.kiosel.villages.enums.Permission;
@@ -22,6 +21,9 @@ public class ChatCommand extends AVSubCommand {
 
 	@Override
 	public String getPermission() { return "villages.command.chat"; }
+
+	@Override
+	public boolean requireVillage() { return true; }
 
 	@Override
 	public Permission getVillagePermission() { return Permission.UNSET; }
@@ -42,15 +44,10 @@ public class ChatCommand extends AVSubCommand {
 					.sendPrefixedMessage(player);
 			return;
 		}
-		Village village = user.getPresentVillage();
-		if (village == null) {
-			sendLocalized(player, Lang.VILLAGE_NO);
-			return;
-		}
 		String message = String.join(" ", args).substring(args[0].length()).trim();
 		String formatted = getMessage(Lang.VILLAGE_CHAT_FORMAT.getPath()).
 				processPlaceholder("player", player.getName()).
 				processPlaceholder("message", message).toString();
-		village.broadcast(formatted);
+		user.getPresentVillage().broadcast(formatted);
 	}
 }

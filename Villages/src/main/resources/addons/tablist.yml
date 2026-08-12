@@ -1,18 +1,18 @@
-# Wszystkie wbudowane zmienne maja prosty format %NAZWA%.
-# Przyklady: %PLAYER%, %POINTS%, %G-TAG%, %PTOP-POINTS-1%.
-# PlaceholderAPI tez dziala i jest wykonywane po zmiennych AdvancedVillages.
+# All built-in variables follow the simple format %NAME%.
+# Examples: %PLAYER%, %POINTS%, %G-TAG%, %PTOP-POINTS-1%.
+# The PlaceholderAPI also works and is executed after the AdvancedVillages variables.
 
-# Co ile tickow odswiezac dane (20 tickow = 1 sekunda).
+# How many ticks should the data be refreshed every (20 ticks = 1 second)?
 update-interval-ticks: 20
 
-# Ping wyswietlany przy sztucznych wpisach tablisty.
+# A ping is displayed next to fake entries in the table.
 cells-ping: 0
 
-# true zawsze tworzy 80 pol; false konczy tabliste na ostatnim skonfigurowanym polu.
+# true always create 80 fields; false ends tablist in last configured field
 fill-cells: true
 use-relationship-colors: false
 
-# Naglowek i stopka moga byc tekstem albo lista linii.
+# Header and footer can be single string or list
 header:
   - " "
   - "&6Advanced&bVillages"
@@ -24,9 +24,9 @@ footer:
   - "&7WWW: &6domain.pl - &7&lMoney: &a%vault_eco_balance_fixed%"
   - " "
 
-# Numery pol mieszcza sie w zakresie 1-80.
+# The field numbers range from 1 to 80
 cells:
-  "2": " &b&lSTATISTIC"
+  "2": " &c&lSTATISTIC"
   "4": " &7Nick: &b%PLAYER%"
   "6": " &7Points: &b%POINTS%"
   "7": " &7Kills: &b%KILLS%"
@@ -40,17 +40,17 @@ cells:
   "17": " &7Online: &b%ONLINE%"
   "19": " &7Godzina: &b%HOUR%:%MINUTE%:%SECOND%"
 
-  "22": " &b&lSTATYSTYKI WIOSKI"
-  "24": " &7Wioska: &b%G-TAG%"
-  "26": " &7Punkty: &b%G-AVG-POINTS%"
-  "27": " &7Zabojstwa: &b%G-KILLS%"
-  "28": " &7Smierci: &b%G-DEATHS%"
-  "29": " &7Asysty: &b%G-ASSISTS%"
+  "22": " &c&lVillage Statistics"
+  "24": " &7Village: &b%G-TAG%"
+  "26": " &7Points: &b%G-AVG-POINTS%"
+  "27": " &7Kills: &b%G-KILLS%"
+  "28": " &7Deaths: &b%G-DEATHS%"
+  "29": " &7Assists: &b%G-ASSISTS%"
   "30": " &7KDR: &b%G-KDR%"
-  "32": " &7Zycia: &b%G-LIVES-SYMBOL% &8(&b%G-LIVES%&8)"
+  "32": " &7Lives: &b%G-LIVES-SYMBOL% &8(&b%G-LIVES%&8)"
 
-  "42": " &b&lTOP &8- &b&lGracze"
-  "44": " &7Gracze: &b%PLAYERS%"
+  "42": " &6&lTOP &8- &b&lPlayers"
+  "44": " &7Players: &b%PLAYERS%"
   "46": " &b1. &7%PTOP-1%"
   "47": " &b2. &7%PTOP-2%"
   "48": " &b3. &7%PTOP-3%"
@@ -61,10 +61,10 @@ cells:
   "53": " &b8. &7%PTOP-8%"
   "54": " &b9. &7%PTOP-9%"
   "55": " &b10. &7%PTOP-10%"
-  "57": " &7Twoja pozycja: &b%POSITION-POINTS%"
+  "57": " &7Your position: &b%POSITION-POINTS%"
 
-  "62": " &b&lTOP &8- &b&lWioski"
-  "64": " &7Wioski: &b%VILLAGES%"
+  "62": " &d&lTOP &8- &b&lVillages"
+  "64": " &7Villages: &b%VILLAGES%"
   "66": " &b1. &7%GTOP-1%"
   "67": " &b2. &7%GTOP-2%"
   "68": " &b3. &7%GTOP-3%"
@@ -75,7 +75,7 @@ cells:
   "73": " &b8. &7%GTOP-8%"
   "74": " &b9. &7%GTOP-9%"
   "75": " &b10. &7%GTOP-10%"
-  "77": " &7Pozycja wioski: &b%G-POSITION-AVG_POINTS%"
+  "77": " &7Village position: &b%G-POSITION-AVG_POINTS%"
 
 animation:
   enabled: true

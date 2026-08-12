@@ -1,10 +1,12 @@
 package pl.kiosel.villages.addons.trials.animation;
 
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.scheduler.BukkitRunnable;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.data.village.Village;
 
+import java.util.Objects;
 import java.util.function.Predicate;
 
 public final class CreationAnimator {
@@ -21,7 +23,9 @@ public final class CreationAnimator {
     }
 
     public void play(Village village) {
-        Location center = VillageAnimationLocations.centralBlock(village);
+        Location center = village.getAnimation();
+        Sound sound = Objects.requireNonNull(settings.getSound().parseSound());
+	    Objects.requireNonNull(center.getWorld()).playSound(village.getLocation().get(), sound, settings.getVolume(), settings.getPitch());
         new BukkitRunnable() {
             private int tick;
 
@@ -41,7 +45,8 @@ public final class CreationAnimator {
                             0.15 + progress * 1.6,
                             Math.sin(angle) * radius
                     );
-                    center.getWorld().spawnParticle(settings.getParticle(), point,
+					assert settings.getParticle().get() != null;
+	                center.getWorld().spawnParticle(settings.getParticle().get(), point,
                             settings.getCount(), 0, 0, 0, 0);
                 }
 

@@ -53,7 +53,6 @@ public class BukkitUserProfile implements UserProfile {
 
     @Override
     public boolean isVanished() {
-        // Should work with VanishNoPacket, SuperVanish and PremiumVanish
         return this.getPlayer()
                 .map(player -> player.getMetadata("vanished"))
                 .map(metadata -> metadata.stream().anyMatch(MetadataValue::asBoolean))

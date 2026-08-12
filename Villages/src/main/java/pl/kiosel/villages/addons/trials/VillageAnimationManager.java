@@ -84,7 +84,7 @@ public final class VillageAnimationManager {
 
     private void loadComponents() {
         this.settings = VillageAnimationSettings.load(config);
-        this.centralAnimator = new CentralBlockAnimator(plugin, settings.getCentral(), this::canAnimate);
+        this.centralAnimator = new CentralBlockAnimator(plugin, settings.getCentral(), settings.getUpgraded(), this::canAnimate);
         this.creationAnimator = new CreationAnimator(plugin, settings.getCreation(), this::canAnimate);
         this.removalAnimator = new RemovalAnimator(plugin, settings.getRemoval());
     }

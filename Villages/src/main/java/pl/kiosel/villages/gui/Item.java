@@ -3,24 +3,20 @@ package pl.kiosel.villages.gui;
 import lombok.Getter;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.SkullMeta;
 import pl.kiosel.core.dependencies.de.tr7zw.nbtapi.NBT;
-import pl.kiosel.core.dependencies.de.tr7zw.nbtapi.iface.ReadWriteItemNBT;
 import pl.kiosel.core.dependencies.de.tr7zw.nbtapi.iface.ReadableItemNBT;
-import pl.kiosel.core.utils.ColorUtils;
-import pl.kiosel.villages.config.GuiConfig;
+import pl.kiosel.core.utils.ItemCreator;
+import pl.kiosel.dependencies.com.cryptomorin.xseries.XItemFlag;
+import pl.kiosel.dependencies.com.cryptomorin.xseries.XMaterial;
+import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.enums.Lang;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Function;
-
-import static pl.kiosel.core.utils.ColorUtils.tl;
 
 public class Item {
 
@@ -31,26 +27,18 @@ public class Item {
 		return Boolean.TRUE.equals(NBT.get(item, (Function<ReadableItemNBT, Boolean>) nbt -> nbt.getBoolean(key)));
 	}
 
-    public static ItemStack create(Material material, int x, String name, List<String> lore, boolean enchant) {
-        ItemStack item = new ItemStack(material, x);
-        ItemMeta meta = item.getItemMeta();
-
-        if(meta != null) {
-			meta.setDisplayName(tl(name));
-			meta.addItemFlags(ItemFlag.values());
-            if (enchant) {
-                meta.addEnchant(Enchantment.MENDING, 1, false);
-            }
-            if (lore != null) {
-                meta.setLore(ColorUtils.listColor(lore));
-            }
-            item.setItemMeta(meta);
-        }
-        return item;
+    public static ItemStack create(Material material, int amount, String name, List<String> lore, boolean enchant) {
+		ItemCreator itemCreator = ItemCreator.of(material).amount(amount)
+				.name(name).glow(enchant)
+				.hideAttributes().flags(XItemFlag.values());
+		if (lore != null) {
+			itemCreator.lore(lore);
+		}
+        return itemCreator.make();
     }
 
-	public static ItemStack create(Material mat, int x, String name) {
-		return create(mat, x, name, null, false);
+	public static ItemStack create(Material mat, int amount, String name) {
+		return create(mat, amount, name, null, false);
 	}
 
 	public static ItemStack create(Material mat, String name, List<String> lore, boolean enchant) {
@@ -65,8 +53,8 @@ public class Item {
         return create(mat, 1, name, lore, false);
     }
 
-	public static ItemStack create(Material mat, int x, String name, List<String> lore) {
-		return create(mat, x, name, lore, false);
+	public static ItemStack create(Material mat, int amount, String name, List<String> lore) {
+		return create(mat, amount, name, lore, false);
 	}
 
     public static ItemStack create(Material mat, String name) {
@@ -91,80 +79,53 @@ public class Item {
 	}
 
 	public static ItemStack createNoPlaceNoCraft(Material material, String name, List<String> lore) {
-		ItemStack item = new ItemStack(material, 1);
-		NBT.modify(item, (Consumer<ReadWriteItemNBT>) nbt -> nbt.setBoolean("noPlace", true));
-		ItemMeta meta = item.getItemMeta();
-
-		if(meta != null) {
-			meta.setDisplayName(tl(name));
-			meta.addItemFlags(ItemFlag.values());
-			meta.setUnbreakable(true);
-			meta.addEnchant(Enchantment.MENDING, 1, false);
-			if (lore != null) {
-				meta.setLore(ColorUtils.listColor(lore));
-			}
-			item.setItemMeta(meta);
-		}
-		return item;
+		return ItemCreator.of(material).name(name).lore(lore)
+				.nbtBoolean("noPlace", true)
+				.hideAll().hideAttributes()
+				.make();
 	}
 
 	public static ItemStack createDestroyer(Material material, String name, List<String> lore) {
-		ItemStack item = new ItemStack(material, 1);
-		NBT.modify(item, (Consumer<ReadWriteItemNBT>) nbt -> nbt.setBoolean("noBreak", true));
-		ItemMeta meta = item.getItemMeta();
-
-		if(meta != null) {
-			meta.setDisplayName(tl(name));
-			meta.addItemFlags(ItemFlag.values());
-			meta.setUnbreakable(true);
-			meta.addEnchant(Enchantment.MENDING, 1, false);
-			if (lore != null) {
-				meta.setLore(ColorUtils.listColor(lore));
-			}
-			item.setItemMeta(meta);
-		}
-		return item;
+		return ItemCreator.of(material).name(name).lore(lore)
+				.nbtBoolean("noBreak", true)
+				.unbreakable().glow().hideAll().hideAttributes()
+				.make();
 	}
 
 	public static ItemStack createHead(OfflinePlayer player, String name, List<String> lore) {
-		ItemStack item = new ItemStack(Material.PLAYER_HEAD, 1);
-		NBT.modify(item, (Consumer<ReadWriteItemNBT>) nbt -> nbt.setString("player", player.getName()));
-		NBT.modify(item, (Consumer<ReadWriteItemNBT>) nbt -> nbt.setUUID("uuid", player.getUniqueId()));
-		SkullMeta meta = (SkullMeta) item.getItemMeta();
-
-		if(meta != null) {
-			meta.setDisplayName(tl(name));
-			meta.addItemFlags(ItemFlag.values());
-			meta.setOwningPlayer(player);
-			if (lore != null) {
-				meta.setLore(ColorUtils.listColor(lore));
-			}
-			item.setItemMeta(meta);
-		}
-		return item;
+		return ItemCreator.playerHead().name(name).lore(lore)
+				.nbtString("player", player.getName())
+				.nbtUUID("uuid", player.getUniqueId())
+				.skullOwner(player)
+				.hideAll().hideAttributes()
+				.make();
 	}
 
     public static ItemStack blank(Blank blank) {
-        return create(blank.getMaterial(), blank.getName());
+        return create(blank.getMaterial().get(), blank.getName());
     }
 
     public enum Blank {
-        WHITE(Material.WHITE_STAINED_GLASS_PANE, GuiConfig.guis_blank),
-        GRAY(Material.GRAY_STAINED_GLASS, GuiConfig.guis_blank),
-        BLACK(Material.BLACK_STAINED_GLASS, GuiConfig.guis_blank),
-		BACK(Material.ARROW, GuiConfig.guis_exit),
-		NEXT_PAGE(Material.SPECTRAL_ARROW, GuiConfig.guis_next),
-		PREVIUS_PAGE(Material.SPECTRAL_ARROW, GuiConfig.guis_previous),
-        EXIT(Material.ARROW, GuiConfig.guis_exit);
+		WHITE(XMaterial.WHITE_STAINED_GLASS_PANE, Lang.BLANK),
+		GRAY(XMaterial.GRAY_STAINED_GLASS, Lang.BLANK),
+		BLACK(XMaterial.BLACK_STAINED_GLASS, Lang.BLANK),
+		BACK(XMaterial.ARROW, Lang.BACK),
+		NEXT_PAGE(XMaterial.SPECTRAL_ARROW, Lang.NEXT),
+		PREVIUS_PAGE(XMaterial.SPECTRAL_ARROW, Lang.PREVIOUS),
+		EXIT(XMaterial.ARROW, Lang.EXIT);
 
         @Getter
-        private final Material material;
-        @Getter
-        private final String name;
+        private final XMaterial material;
+		private final Lang name;
 
-        Blank(Material material, String name) {
-            this.material = material;
-            this.name = name;
-        }
+		Blank(XMaterial material, Lang name) {
+			this.material = material;
+			this.name = name;
+		}
+
+		public String getName() {
+			AdvancedVillages plugin = AdvancedVillages.getInstance();
+			return plugin == null ? this.name.name() : plugin.getMessages().text(this.name);
+		}
     }
 }

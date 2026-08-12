@@ -1,3 +1,5 @@
+# Root command names, aliases and permissions are applied on a full server restart.
+# Values under command-language (and spawn.permission-set) are applied by plugin reload.
 command:
   name: village
   aliases:

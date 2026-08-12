@@ -1,81 +1,74 @@
 package pl.kiosel.villages.data.rank;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
-import pl.kiosel.core.utils.NumberRange;
+import lombok.Getter;
 
-import java.util.Map;
-import java.util.function.BiFunction;
+import java.util.Locale;
 
+/** Small, deterministic calculator used by the live ranking manager. */
 public final class RankSystem {
 
-    private final Map<Type, RankingAlgorithm> map;
+	private final Type type;
+	private final int eloKFactor;
+	private final int staticWinnerGain;
+	private final int staticLoserLoss;
+	private final double percentTransfer;
 
-    private RankSystem(Map<Type, RankingAlgorithm> map) {
-        this.map = map;
-    }
+	public RankSystem(Type type, int eloKFactor, int staticWinnerGain,
+	                  int staticLoserLoss, double percentTransfer) {
+		this.type = type;
+		this.eloKFactor = Math.max(1, eloKFactor);
+		this.staticWinnerGain = Math.max(0, staticWinnerGain);
+		this.staticLoserLoss = Math.max(0, staticLoserLoss);
+		this.percentTransfer = Math.max(0.0D, percentTransfer);
+	}
 
-    public RankResult calculate(Type type, int attackerPoints, int victimPoints) {
-        return this.map.get(type).apply(attackerPoints, victimPoints);
-    }
+	public RankResult calculate(int winnerPoints, int loserPoints) {
+		switch (this.type) {
+			case STATIC:
+				return new RankResult(this.staticWinnerGain, this.staticLoserLoss);
+			case PERCENT:
+				int transfer = this.percentTransfer <= 0.0D
+						? 0
+						: Math.max(1, safeRound(loserPoints * this.percentTransfer / 100.0D));
+				return new RankResult(transfer, transfer);
+			case ELO:
+			default:
+				double expectedWinner = 1.0D /
+						(1.0D + Math.pow(10.0D, (loserPoints - winnerPoints) / 400.0D));
+				int change = Math.max(1, safeRound(this.eloKFactor * (1.0D - expectedWinner)));
+				return new RankResult(change, change);
+		}
+	}
 
-	public static Map<NumberRange, Integer> eloConstants;
+	private static int safeRound(double value) {
+		return (int) Math.min(Integer.MAX_VALUE, Math.max(0L, Math.round(value)));
+	}
 
-    public static RankSystem create() {
-        ImmutableMap<Type, RankingAlgorithm> build = new ImmutableMap.Builder<Type, RankingAlgorithm>()
-                .put(Type.ELO, (attackerPoints, victimPoints) -> {
-                    int attackerElo = NumberRange.inRange(attackerPoints, eloConstants).orElseGet(0);
-                    int victimElo = NumberRange.inRange(victimPoints, eloConstants).orElseGet(0);
+	public enum Type {
+		ELO,
+		PERCENT,
+		STATIC;
 
-                    double attackerE = 1.0D / (1.0D + Math.pow(10.0D, (victimPoints - attackerPoints) / 400.0D));
-                    double victimE = 1.0D / (1.0D + Math.pow(10.0D, (attackerPoints - victimPoints) / 400.0D));
+		public static Type parse(String value) {
+			if (value == null) {
+				return ELO;
+			}
+			try {
+				return valueOf(value.trim().toUpperCase(Locale.ROOT));
+			} catch (IllegalArgumentException ignored) {
+				return ELO;
+			}
+		}
+	}
 
-                    attackerElo = (int) Math.round(attackerElo * (1 - attackerE));
-                    victimElo = (int) Math.round(victimElo * (0 - victimE) * -1);
+	@Getter
+	public static final class RankResult {
+		private final int winnerGain;
+		private final int loserLoss;
 
-                    return new RankResult(attackerElo, victimElo);
-                })
-                .put(Type.PERCENT, (attackerPoints, victimPoints) -> new RankResult((int) (victimPoints * (1.0 / 100.0))))
-                .put(Type.STATIC, (attackerPoints, victimPoints) -> new RankResult(15, 10))
-                .build();
-
-        return new RankSystem(Maps.newEnumMap(build));
-    }
-
-    public enum Type {
-
-        ELO,
-        PERCENT,
-        STATIC
-
-    }
-
-    public static class RankResult {
-
-        private final int attackerPoints;
-        private final int victimPoints;
-
-        public RankResult(int attackerPoints, int victimPoints) {
-            this.attackerPoints = attackerPoints;
-            this.victimPoints = victimPoints;
-        }
-
-        public RankResult(int samePoints) {
-            this.attackerPoints = samePoints;
-            this.victimPoints = samePoints;
-        }
-
-        public int getAttackerPoints() {
-            return this.attackerPoints;
-        }
-
-        public int getVictimPoints() {
-            return this.victimPoints;
-        }
-
-    }
-
-    public interface RankingAlgorithm extends BiFunction<Integer, Integer, RankResult> {
-    }
-
+		private RankResult(int winnerGain, int loserLoss) {
+			this.winnerGain = winnerGain;
+			this.loserLoss = loserLoss;
+		}
+	}
 }

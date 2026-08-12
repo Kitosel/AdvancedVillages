@@ -1,219 +1,125 @@
 package pl.kiosel.villages.config;
 
-import pl.kiosel.core.utils.TextUtils;
+import org.bukkit.Material;
+import pl.kiosel.core.configuration.Config;
+import pl.kiosel.core.utils.NumberUtils;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.enums.GUIS;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static pl.kiosel.core.utils.ColorUtils.tl;
 
-public class GuiConfig {
+/**
+ * Typed, reloadable access to guis.yml. Existing name/lore paths remain valid;
+ * layout and item metadata can now be changed without touching Java code.
+ */
+public final class GuiConfig {
 
-    private final AdvancedVillages plugin;
+	private final AdvancedVillages plugin;
+	private final Config file;
+	private final Set<String> reportedProblems = new HashSet<>();
+	private volatile Map<GUIS, GuiMenuConfig> menus = Collections.emptyMap();
 
-    public GuiConfig(AdvancedVillages plugin) {
-        this.plugin = plugin;
-    }
+	public GuiConfig(AdvancedVillages plugin) {
+		this.plugin = plugin;
+		this.file = plugin.getGuiConfig();
+		this.reload();
+	}
 
-    public static String gui_village;
-    public static String gui_bank;
-    public static String gui_store;
-    public static String gui_resident;
-    public static String gui_remove;
-    public static String gui_upgrade;
-    public static String gui_settings;
-    public static String gui_effects;
-	public static String gui_storage;
-	public static String gui_member_settings;
-    public static String gui_remove_member;
+	public synchronized void reload() {
+		EnumMap<GUIS, GuiMenuConfig> loaded = new EnumMap<>(GUIS.class);
+		for (GUIS type : GUIS.values()) {
+			String layoutPath = "layout." + type.getId();
+			int rows = NumberUtils.clamp(this.file.getInt(layoutPath + ".rows", type.getDefaultRows()), 1, 6);
+			int size = rows * 9;
+			int defaultBack = Math.min(type.getDefaultBackSlot(), size - 1);
+			int backSlot = this.file.getInt(layoutPath + ".back-slot", defaultBack);
+			if (backSlot < 0 || backSlot >= size) {
+				this.warnOnce(layoutPath + ".back-slot",
+						"Invalid back slot " + backSlot + " for " + type.getId() + "; using " + defaultBack);
+				backSlot = defaultBack;
+			}
 
-    public static String yes;
-    public static String no;
+			String title = this.text(type.getTitlePath(), type.getDefaultTitle());
+			loaded.put(type, new GuiMenuConfig(type.getId(), title, rows, backSlot));
+		}
+		this.menus = Collections.unmodifiableMap(loaded);
+	}
 
-	public static String on;
-	public static String off;
+	public GuiMenuConfig menu(GUIS type) {
+		GuiMenuConfig menu = this.menus.get(type);
+		if (menu != null) {
+			return menu;
+		}
+		return new GuiMenuConfig(type.getId(), tl(type.getDefaultTitle()), type.getDefaultRows(), 4);
+	}
 
-	public static String delete_village;
+	public GuiItemConfig item(GUIS menu, String path, int defaultSlot, Material defaultMaterial,
+	                          String defaultName, List<String> defaultLore) {
+		return this.item(menu, path, defaultSlot, defaultMaterial, 1, defaultName, defaultLore, false);
+	}
 
-    public static String guis_village_settings;
-    public static List<String> guis_village_settings_lore;
+	public GuiItemConfig item(GUIS menu, String path, int defaultSlot, Material defaultMaterial,
+	                          int defaultAmount, String defaultName, List<String> defaultLore,
+	                          boolean defaultGlow) {
+		GuiMenuConfig menuConfig = this.menu(menu);
+		int configuredSlot = this.file.getInt(path + ".slot", defaultSlot);
+		int slot = menuConfig.validSlot(configuredSlot, defaultSlot);
+		if (slot != configuredSlot) {
+			this.warnOnce(path + ".slot",
+					"Invalid slot " + configuredSlot + " for " + menu.getId() + "; using " + slot);
+		}
 
-    public static String guis_village_store;
-    public static List<String> guis_village_store_lore;
+		Material material = this.material(path + ".material", defaultMaterial);
+		int amount = NumberUtils.clamp(this.file.getInt(path + ".amount", defaultAmount), 1,
+				Math.max(1, material.getMaxStackSize()));
+		String name = this.text(path + ".name", defaultName);
+		List<String> lore = this.list(path + ".lore", defaultLore);
+		boolean glow = this.file.getBoolean(path + ".glow", defaultGlow);
+		boolean enabled = this.file.getBoolean(path + ".enabled", true);
+		return new GuiItemConfig(path, slot, material, amount, name, lore, glow, enabled);
+	}
 
-	public static String guis_village_members;
-	public static List<String> guis_village_members_lore;
+	public String text(String path, String fallback) {
+		String value = this.file.getString(path);
+		return tl(value == null ? fallback : value);
+	}
 
-	public static String guis_village_members_owner;
-	public static List<String> guis_village_members_owner_lore;
-	public static String guis_village_members_member;
-	public static List<String> guis_village_members_member_lore;
+	public List<String> list(String path, List<String> fallback) {
+		List<String> configured = this.file.getStringList(path);
+		List<String> source = this.file.contains(path) ? configured : fallback;
+		if (source == null || source.isEmpty()) {
+			return Collections.emptyList();
+		}
+		List<String> colored = new ArrayList<>(source.size());
+		for (String line : source) {
+			colored.add(tl(line == null ? "" : line));
+		}
+		return Collections.unmodifiableList(colored);
+	}
 
-	public static String guis_village_storage;
-	public static List<String> guis_village_storage_lore;
+	public int integer(String path, int fallback, int minimum, int maximum) {
+		return NumberUtils.clamp(this.file.getInt(path, fallback), minimum, maximum);
+	}
 
-	public static String guis_village_effects;
-    public static List<String> guis_village_effects_lore;
+	private Material material(String path, Material fallback) {
+		String raw = this.file.getString(path);
+		if (raw == null || raw.trim().isEmpty()) {
+			return fallback;
+		}
+		Material material = Material.matchMaterial(raw.trim().toUpperCase(Locale.ROOT));
+		if (material == null || material.isAir()) {
+			this.warnOnce(path, "Invalid GUI material '" + raw + "' at " + path
+					+ "; using " + fallback.name());
+			return fallback;
+		}
+		return material;
+	}
 
-	public static String guis_village_effects_regen;
-	public static List<String> guis_village_effects_regen_lore;
-	public static String guis_village_effects_speed;
-	public static List<String> guis_village_effects_speed_lore;
-	public static String guis_village_effects_jump;
-	public static List<String> guis_village_effects_jump_lore;
-	public static String guis_village_effects_haste;
-	public static List<String> guis_village_effects_haste_lore;
-	public static String guis_village_effects_paper;
-	public static List<String> guis_village_effects_paper_lore;
-
-    public static String guis_village_upgrade;
-    public static List<String> guis_village_upgrade_lore;
-
-	public static String guis_village_upgrade_button;
-	public static List<String> guis_village_upgrade_button_lore;
-
-	public static String guis_village_upgrade_info_button;
-	public static String guis_village_upgrade_info_button_upgraded;
-	public static List<String> guis_village_upgrade_info_lore;
-
-	public static String guis_village_bank;
-	public static List<String> guis_village_bank_lore;
-
-	public static String guis_village_setting_pvp;
-	public static List<String> guis_village_setting_pvp_lore;
-	public static String guis_village_setting_tnt;
-	public static List<String> guis_village_setting_tnt_lore;
-	public static String guis_village_setting_animations;
-	public static List<String> guis_village_setting_animations_lore;
-	public static String guis_village_setting_tag;
-	public static List<String> guis_village_setting_tag_lore;
-	public static String guis_village_setting_tag_set;
-	public static String guis_village_setting_tag_notset;
-	public static String guis_village_setting_teleport;
-	public static List<String> guis_village_setting_teleport_lore;
-	public static String guis_village_setting_delete;
-	public static List<String> guis_village_setting_delete_lore;
-
-	public static String no_tag;
-
-	public static String guis_village_bank_balance;
-	public static String guis_village_bank_add;
-	public static String guis_village_bank_remove;
-
-	public static String guis_next;
-	public static String guis_previous;
-    public static String guis_exit;
-    public static String guis_back;
-    public static String guis_blank;
-
-    public void setConfig() {
-		plugin.getDebug().debug("Setting guis.yml");
-        plugin.getGuiConfig().reloadConfig();
-
-        gui_village = getString("gui-village", "Village");
-        gui_bank = getString("gui-bank", "Village - &6&lBank");
-        gui_store = getString("gui-store", "Village - &aStore");
-        gui_resident = getString("gui-resident", "Village - &eMembers");
-        gui_remove = getString("gui-remove", "Village - &c&lRemove");
-        gui_upgrade = getString("gui-upgrade", "Village - &bUpgrade");
-        gui_settings = getString("gui-settings", "Village - &cSettings");
-        gui_effects = getString("gui-effects", "Village - &dEffects");
-		gui_storage = getString("gui-storage", "Village - &2Storage");
-		gui_member_settings = getString("gui-member-settings", "Village - &7Member Settings");
-        gui_remove_member = getString("gui-remove_member", "&cRemove member");
-
-		delete_village = getString("delete-village", "&7Do you want to delete village?");
-
-        guis_village_settings = getString("guis.village.settings.name", "&lSettings");
-        guis_village_settings_lore = getList("guis.village.settings.lore", TextUtils.of("&7Manage Village"));
-        guis_village_store = getString("guis.village.store.name", "&3Store");
-        guis_village_store_lore = getList("guis.village.store.lore", TextUtils.of("&7Village store"));
-        guis_village_members = getString("guis.village.members.name", "&cMembers");
-        guis_village_members_lore = getList("guis.village.members.lore", TextUtils.of("&7Manage members"));
-
-		guis_village_storage = getString("guis.village.storage.name", "3Store");
-		guis_village_storage_lore = getList("guis.village.storage.lore", TextUtils.of("&7Village store"));
-
-        guis_village_effects = getString("guis.village.effects.name", "&dEffects");
-        guis_village_effects_lore = getList("guis.village.effects.lore", TextUtils.of("&7Add effects for", "&7Members of village"));
-
-		guis_village_effects_regen = getString("guis.village.effects.regeneration.name", "&cRegeneration");
-		guis_village_effects_regen_lore = getList("guis.village.effects.regeneration.lore", TextUtils.of("&7Gives &cRegeneration &7effect", "&7Amplifier: &6%amplifier%"));
-		guis_village_effects_speed = getString("guis.village.effects.speed.name", "&bSpeed");
-		guis_village_effects_speed_lore = getList("guis.village.effects.speed.lore", TextUtils.of("&7Gives &bSpeed &7effect", "&7Amplifier: &6%amplifier%"));
-		guis_village_effects_jump = getString("guis.village.effects.jump.name", "&aJump boost");
-		guis_village_effects_jump_lore = getList("guis.village.effects.jump.lore", TextUtils.of("&7Gives &aJump boost &7effect", "&7Amplifier: &6%amplifier%"));
-		guis_village_effects_haste = getString("guis.village.effects.haste.name", "&eHaste");
-		guis_village_effects_haste_lore = getList("guis.village.effects.haste.lore", TextUtils.of("&7Gives &eHaste &7effect", "&7Amplifier: &6%amplifier%"));
-
-		guis_village_effects_paper = getString("guis.village.effects.price_paper.name", "&eClick to buy");
-		guis_village_effects_paper_lore = getList("guis.village.effects.price_paper.lore", TextUtils.of("&7Gives &e%effect% &7effect", "&7Price: &6%price%"));
-
-		guis_village_members_owner = getString("guis.village.members.owner.name", "&6%PLAYER% &cOWNER");
-		guis_village_members_owner_lore = getList("guis.village.members.owner.lore", TextUtils.of("&7Role: &cOwner", " ", "&7Last online: %last_online%", " "));
-		guis_village_members_member = getString("guis.village.members.resident.name", "&&7Role: &cMember");
-		guis_village_members_member_lore = getList("guis.village.members.resident.lore", TextUtils.of("&7Role: &cMember", " ", "&7Last online: %last_online%", " "));
-
-		guis_village_upgrade = getString("guis.village.upgrade.name", "&bUpgrade");
-        guis_village_upgrade_lore = getList("guis.village.upgrade.lore", TextUtils.of("&7Upgrade village"));
-		guis_village_upgrade_button = getString("guis.village.upgrade.upgrade-button.name", "&aUpgrade village");
-		guis_village_upgrade_button_lore = getList("guis.village.upgrade.upgrade-button.lore", TextUtils.of("&7Actual level: &e%level%", "&7Cost: &a%cost%", "&cClick to &6Upgrade"));
-		guis_village_upgrade_info_button = getString("guis.village.upgrade.info.name", "&cTo upgrade:");
-		guis_village_upgrade_info_button_upgraded = getString("guis.village.upgrade.info.name-upgraded", "&bUpgraded");
-		guis_village_upgrade_info_lore = getList("guis.village.upgrade.info.lore", TextUtils.of("&7Level &c%level% &f-> &e%next_level%"));
-
-		guis_village_bank = getString("guis.village.bank.name", "&6Bank");
-        guis_village_bank_lore = getList("guis.village.bank.lore", TextUtils.of("&7Village bank"));
-		guis_village_bank_balance = getString("guis.village.bank.account_balance.name", "&6Bank&7: %village_balance%");
-		guis_village_bank_add = getString("guis.village.bank.add.name", "&aAdd to bank");
-		guis_village_bank_remove = getString("guis.village.bank.remove.name", "&cRemove from bank");
-
-		guis_village_setting_pvp = getString("guis.village.settings.pvp.name", "&f&lPVP");
-		guis_village_setting_pvp_lore = getList("guis.village.settings.pvp.lore", TextUtils.of("&8——————————", " ", "&7Pvp: %village_pvp%", " ", "&8——————————"));
-		guis_village_setting_tnt = getString("guis.village.settings.tnt.name", "&c&lTNT");
-		guis_village_setting_tnt_lore = getList("guis.village.settings.tnt.lore", TextUtils.of("&8——————————", " ", "&7TNT: %village_tnt%", " ", "&8——————————"));
-		guis_village_setting_animations = getString("guis.village.settings.animations.name", "&d&lAnimations");
-		guis_village_setting_animations_lore = getList("guis.village.settings.animations.lore", TextUtils.of("&8——————————", " ", "&7Animations: %village_animations%", " ", "&8——————————"));
-		guis_village_setting_tag = getString("guis.village.settings.tag.name", "&c&lTag");
-		guis_village_setting_tag_lore = getList("guis.village.settings.tag.lore", TextUtils.of("&8——————————", " ", "&e&lTag: &c%village_tag%", " ", "%istagset%", "&8——————————"));
-		guis_village_setting_tag_set = getString("guis.village.settings.tag_set", "&7Click to set");
-		guis_village_setting_tag_notset = getString("guis.village.settings.tag_not_set", "&7Set");
-		guis_village_setting_teleport = getString("guis.village.settings.teleport.name", "&b&lTeleport");
-		guis_village_setting_teleport_lore = getList("guis.village.settings.teleport.lore", TextUtils.of("&8——————————", " ", "%village_teleport%", " ", "&7Click to set", "&8——————————"));
-		guis_village_setting_delete = getString("guis.village.settings.delete.name", "&c&l&nDelete village");
-		guis_village_setting_delete_lore = getList("guis.village.settings.delete.lore", TextUtils.of("&8——————————", " ", "&7Click to delete", " ", "&8——————————"));
-
-		no_tag = getString("no-tag", "&cNONE");
-
-		guis_next = getString("next", "&aNext page");
-		guis_previous = getString("previous", "&cPrevious page");
-        guis_exit = getString("exit", "&7Exit");
-        guis_back = getString("back", "&cBack");
-        guis_blank = getString("blank", "&7&kBlank");
-
-		yes = getString("yes", "&aYes");
-		no = getString("no", "&cNo");
-
-		on = getString("yes", "&aON");
-		off = getString("no", "&cOFF");
-    }
-
-    private String getString(String path, String def) {
-        if(path == null) return tl(def);
-		String message = plugin.getGuiConfig().getConfig().getString(path);
-        if(message == null || message.isBlank()) return tl(def);
-
-        return tl(message);
-    }
-
-    private List<String> getList(String path, List<String> def) {
-        if(path == null) return def;
-        List<String> lore = new ArrayList<>();
-
-        for(String s : plugin.getGuiConfig().getConfig().getStringList(path)) {
-            lore.add(tl(s));
-        }
-        return lore;
-    }
+	private void warnOnce(String key, String message) {
+		if (this.reportedProblems.add(key)) {
+			this.plugin.getLogger().warning(message);
+		}
+	}
 }

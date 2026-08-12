@@ -1,28 +1,35 @@
 package pl.kiosel.villages.enums;
 
 import lombok.Getter;
-import pl.kiosel.villages.config.GuiConfig;
 
+@Getter
 public enum GUIS {
 
-    VILLAGE(GuiConfig.gui_village, 36),
-    BANK(GuiConfig.gui_bank, 36),
-    STORE(GuiConfig.gui_store, 36),
-    RESIDENT(GuiConfig.gui_resident, 36),
-    REMOVE(GuiConfig.gui_remove, 27),
-    UPGRADE(GuiConfig.gui_upgrade, 36),
-    SETTINGS(GuiConfig.gui_settings, 36),
-	EFFECTS(GuiConfig.gui_effects, 36),
-	STORAGE(GuiConfig.gui_storage, 54),
-	TAG("TAG", 0),
-    DELETE_MEMBER(GuiConfig.gui_remove_member, 27),
-	MEMBER_SETTINGS(GuiConfig.gui_member_settings, 18);
+	VILLAGE("village", "gui-village", "Village", 4, 4),
+	BANK("bank", "gui-bank", "Village - &6&lBank", 4, 4),
+	STORE("store", "gui-store", "Village - &aStore", 4, 4),
+	RESIDENT("resident", "gui-resident", "Village - &eMembers", 4, 4),
+	REMOVE("remove", "gui-remove", "Village - &c&lRemove", 3, 4),
+	UPGRADE("upgrade", "gui-upgrade", "Village - &bUpgrade", 4, 4),
+	SETTINGS("settings", "gui-settings", "Village - &cSettings", 4, 4),
+	EFFECTS("effects", "gui-effects", "Village - &dEffects", 4, 4),
+	QUESTS("quests", "gui-quests", "Village - &eQuests", 4, 4),
+	LOGS("logs", "gui-logs", "Village - &6Activity logs", 4, 4),
+	TAG("tag", "gui-tag", "TAG", 1, 4),
+	DELETE_MEMBER("delete-member", "gui-remove-member", "&cRemove member", 3, 4),
+	MEMBER_SETTINGS("member-settings", "gui-member-settings", "Village - &7Member Settings", 3, 8);
 
-    @Getter private final String name;
-    @Getter private final int size;
+	private final String id;
+	private final String titlePath;
+	private final String defaultTitle;
+	private final int defaultRows;
+	private final int defaultBackSlot;
 
-    GUIS(String name, int size) {
-        this.name = name;
-        this.size = size;
-    }
+	GUIS(String id, String titlePath, String defaultTitle, int defaultRows, int defaultBackSlot) {
+		this.id = id;
+		this.titlePath = titlePath;
+		this.defaultTitle = defaultTitle;
+		this.defaultRows = defaultRows;
+		this.defaultBackSlot = defaultBackSlot;
+	}
 }

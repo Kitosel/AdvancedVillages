@@ -5,12 +5,12 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import pl.kiosel.core.gui.Gui;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.config.GuiConfig;
+import pl.kiosel.villages.addons.logs.VillageLogType;
+import pl.kiosel.villages.config.GuiItemConfig;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.enums.GUIS;
 import pl.kiosel.villages.enums.Lang;
 import pl.kiosel.villages.enums.Permission;
-import pl.kiosel.villages.gui.Item;
 import pl.kiosel.villages.gui.VillageGUIManager;
 import pl.kiosel.villages.gui.VillageMenu;
 import pl.kiosel.villages.settings.Settings;
@@ -23,70 +23,78 @@ public final class EffectsInventory extends VillageMenu {
 	public EffectsInventory(AdvancedVillages plugin, VillageGUIManager menus, Village village,
 	                        Player player, Gui parent) {
 		super(plugin, menus, village, player, GUIS.EFFECTS, parent);
-		addBackButton(4);
+		addBackButton();
 
-		List<String> regeneration = replaceEffects(GuiConfig.guis_village_effects_regen_lore,
-				Integer.toString(Settings.EFFECTS_REGENERATION_COST.getInt()),
-				Integer.toString(Settings.EFFECTS_REGENERATION_AMPLIFIER.getInt()),
-				GuiConfig.guis_village_effects_regen);
-		List<String> speed = replaceEffects(GuiConfig.guis_village_effects_speed_lore,
-				Integer.toString(Settings.EFFECTS_SPEED_COST.getInt()),
-				Integer.toString(Settings.EFFECTS_SPEED_AMPLIFIER.getInt()),
-				GuiConfig.guis_village_effects_speed);
-		List<String> jump = replaceEffects(GuiConfig.guis_village_effects_jump_lore,
-				Integer.toString(Settings.EFFECTS_JUMP_BOOST_COST.getInt()),
-				Integer.toString(Settings.EFFECTS_JUMP_BOOST_AMPLIFIER.getInt()),
-				GuiConfig.guis_village_effects_jump);
-		List<String> haste = replaceEffects(GuiConfig.guis_village_effects_haste_lore,
-				Integer.toString(Settings.EFFECTS_HASTE_COST.getInt()),
-				Integer.toString(Settings.EFFECTS_HASTE_AMPLIFIER.getInt()),
-				GuiConfig.guis_village_effects_haste);
-
-		setButton(19, Item.create(Material.FEATHER, GuiConfig.guis_village_effects_regen,
-				regeneration, village.isRegenerationActive()), event -> toggle(
-				village::isRegeneration, () -> village.setRegenerationActive(!village.isRegenerationActive()),
-				GuiConfig.guis_village_effects_regen));
-		setButton(21, Item.create(Material.RABBIT_FOOT, GuiConfig.guis_village_effects_speed,
-				speed, village.isSpeedActive()), event -> toggle(
-				village::isSpeed, () -> village.setSpeedActive(!village.isSpeedActive()),
-				GuiConfig.guis_village_effects_speed));
-		setButton(23, Item.create(Material.SLIME_BALL, GuiConfig.guis_village_effects_jump,
-				jump, village.isJumpActive()), event -> toggle(
-				village::isJump, () -> village.setJumpActive(!village.isJumpActive()),
-				GuiConfig.guis_village_effects_jump));
-		setButton(25, Item.create(Material.GOLDEN_PICKAXE, GuiConfig.guis_village_effects_haste,
-				haste, village.isHasteActive()), event -> toggle(
-				village::isHaste, () -> village.setHasteActive(!village.isHasteActive()),
-				GuiConfig.guis_village_effects_haste));
-
-		setButton(28, Item.create(Material.PAPER, GuiConfig.guis_village_effects_paper,
-				regeneration, village.isRegeneration()), event -> buy(
-				village::isRegeneration, () -> village.setRegeneration(true),
-				Settings.EFFECTS_REGENERATION_COST.getDouble()));
-		setButton(30, Item.create(Material.PAPER, GuiConfig.guis_village_effects_paper,
-				speed, village.isSpeed()), event -> buy(
-				village::isSpeed, () -> village.setSpeed(true), Settings.EFFECTS_SPEED_COST.getDouble()));
-		setButton(32, Item.create(Material.PAPER, GuiConfig.guis_village_effects_paper,
-				jump, village.isJump()), event -> buy(
-				village::isJump, () -> village.setJump(true), Settings.EFFECTS_JUMP_BOOST_COST.getDouble()));
-		setButton(34, Item.create(Material.PAPER, GuiConfig.guis_village_effects_paper,
-				haste, village.isHaste()), event -> buy(
-				village::isHaste, () -> village.setHaste(true), Settings.EFFECTS_HASTE_COST.getDouble()));
+		addEffect("regeneration", 19, 28, Material.FEATHER, village::isRegeneration,
+				village::isRegenerationActive,
+				() -> village.setRegenerationActive(!village.isRegenerationActive()),
+				() -> village.setRegeneration(true), Settings.EFFECTS_REGENERATION_COST.getDouble(),
+				Settings.EFFECTS_REGENERATION_AMPLIFIER.getInt(), "&cRegeneration", "effect-regeneration");
+		addEffect("speed", 21, 30, Material.RABBIT_FOOT, village::isSpeed,
+				village::isSpeedActive, () -> village.setSpeedActive(!village.isSpeedActive()),
+				() -> village.setSpeed(true), Settings.EFFECTS_SPEED_COST.getDouble(),
+				Settings.EFFECTS_SPEED_AMPLIFIER.getInt(), "&bSpeed", "effect-speed");
+		addEffect("jump", 23, 32, Material.SLIME_BALL, village::isJump,
+				village::isJumpActive, () -> village.setJumpActive(!village.isJumpActive()),
+				() -> village.setJump(true), Settings.EFFECTS_JUMP_BOOST_COST.getDouble(),
+				Settings.EFFECTS_JUMP_BOOST_AMPLIFIER.getInt(), "&aJump boost", "effect-jump");
+		addEffect("haste", 25, 34, Material.GOLDEN_PICKAXE, village::isHaste,
+				village::isHasteActive, () -> village.setHasteActive(!village.isHasteActive()),
+				() -> village.setHaste(true), Settings.EFFECTS_HASTE_COST.getDouble(),
+				Settings.EFFECTS_HASTE_AMPLIFIER.getInt(), "&eHaste", "effect-haste");
 	}
 
-	private void toggle(BooleanSupplier purchased, Runnable action, String effectName) {
+	private void addEffect(String id, int toggleSlot, int purchaseSlot, Material material,
+	                       BooleanSupplier purchased, BooleanSupplier active, Runnable toggleAction,
+	                       Runnable purchaseAction, double price, int amplifier,
+	                       String fallbackName, String setting) {
+		List<String> fallbackEffectLore = List.of(
+				"&7Gives %effect% &7effect",
+				"&7Amplifier: &6%amplifier%"
+		);
+		GuiItemConfig effect = plugin.getGuiSettings().item(GUIS.EFFECTS,
+				"guis.village.effects." + id, toggleSlot, material, fallbackName, fallbackEffectLore);
+		List<String> effectLore = replaceEffects(effect.getLore(), Double.toString(price),
+				Integer.toString(amplifier), effect.getName());
+		if (effect.isEnabled()) {
+			setButton(effect.getSlot(), effect.createItem(effect.getName(), effectLore,
+					effect.isGlow() || active.getAsBoolean()), event -> toggle(
+					purchased, active, toggleAction, effect.getName(), setting));
+		}
+
+		String paperName = plugin.getGuiSettings().text(
+				"guis.village.effects.price_paper.name", "&eClick to buy");
+		List<String> paperLore = plugin.getGuiSettings().list(
+				"guis.village.effects.price_paper.lore",
+				List.of("&7Gives %effect% &7effect", "&7Price: &6%price%"));
+		GuiItemConfig purchase = plugin.getGuiSettings().item(GUIS.EFFECTS,
+				"guis.village.effects.purchase-" + id, purchaseSlot, Material.PAPER,
+				paperName, paperLore);
+		List<String> purchaseLore = replaceEffects(purchase.getLore(), Double.toString(price),
+				Integer.toString(amplifier), effect.getName());
+		if (purchase.isEnabled()) {
+			setButton(purchase.getSlot(), purchase.createItem(purchase.getName(), purchaseLore,
+					purchase.isGlow() || purchased.getAsBoolean()), event -> buy(
+					purchased, purchaseAction, price, setting));
+		}
+	}
+
+	private void toggle(BooleanSupplier purchased, BooleanSupplier active, Runnable action,
+	                    String effectName, String setting) {
 		if (!hasPermission(Permission.EFFECTS_TOGGLE)) return;
 		if (!purchased.getAsBoolean()) {
-			plugin.getLocale().getMessage(Lang.EFFECT_NOT_BUY.getPath())
+			getMessages().get(Lang.EFFECT_NOT_BUY)
 					.processPlaceholder("effect", effectName).sendPrefixedMessage(viewer);
 			return;
 		}
 		action.run();
+		plugin.getLogManager().record(village, VillageLogType.SETTING_CHANGED, viewer,
+				"setting", setting, "value", active.getAsBoolean());
 		playToggleSound();
 		reopen(GUIS.EFFECTS);
 	}
 
-	private void buy(BooleanSupplier purchased, Runnable action, double price) {
+	private void buy(BooleanSupplier purchased, Runnable action, double price, String setting) {
 		if (!hasPermission(Permission.EFFECTS_BUY)) return;
 		if (purchased.getAsBoolean()) {
 			viewer.playSound(viewer.getLocation(), Sound.BLOCK_NOTE_BLOCK_GUITAR, 10, 0);
@@ -94,12 +102,14 @@ public final class EffectsInventory extends VillageMenu {
 		}
 		if (!plugin.getEconomy().hasBalance(viewer, price)) {
 			double missing = price - plugin.getEconomy().getBalance(viewer);
-			plugin.getLocale().getMessage(Lang.NO_MONEY.getPath())
+			getMessages().get(Lang.NO_MONEY)
 					.processPlaceholder("money", missing).sendPrefixedMessage(viewer);
 			return;
 		}
 		plugin.getEconomy().withdrawBalance(viewer, price);
 		action.run();
+		plugin.getLogManager().record(village, VillageLogType.SETTING_CHANGED, viewer,
+				"setting", setting, "value", "purchased");
 		viewer.playSound(viewer.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 10, 2);
 		reopen(GUIS.EFFECTS);
 	}

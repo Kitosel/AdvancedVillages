@@ -6,14 +6,11 @@ import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.Scoreboard;
 import org.jetbrains.annotations.Nullable;
 import panda.std.Option;
-import pl.kiosel.villages.addons.tablist.PlayerList;
 
 public class UserCache {
 
     private final User user;
 
-    @Setter
-	private PlayerList playerList;
     private Option<Scoreboard> scoreboard = Option.none();
 
     @Setter
@@ -27,10 +24,6 @@ public class UserCache {
 
     public UserCache(User user) {
         this.user = user;
-    }
-
-    public Option<PlayerList> getPlayerList() {
-        return Option.of(this.playerList);
     }
 
 	public synchronized Option<Scoreboard> getScoreboard() {

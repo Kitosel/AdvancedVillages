@@ -25,6 +25,9 @@ public class InviteCommand extends AVSubCommand {
 	public String getPermission() { return "villages.command.invite"; }
 
 	@Override
+	public boolean requireVillage() { return true; }
+
+	@Override
 	public Permission getVillagePermission() { return Permission.INVITE; }
 
 	private final AdvancedVillages plugin;
@@ -37,11 +40,6 @@ public class InviteCommand extends AVSubCommand {
 	@Override
 	public void run(Player player, User user, String[] args) {
 		Village village = user.getPresentVillage();
-        if (village == null) {
-			sendLocalized(player, Lang.VILLAGE_NO);
-            return;
-        }
-
 		if (village.getMembers().size() >= Settings.VILLAGE_MAX_MEMBERS.getInt()) {
 			sendLocalized(player, Lang.MAX_MEMBERS);
 			return;

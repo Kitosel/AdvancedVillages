@@ -3,15 +3,15 @@ package pl.kiosel.villages.data.rank;
 import pl.kiosel.villages.data.Entity;
 import pl.kiosel.villages.data.MutableEntity;
 
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class Rank<T extends MutableEntity> {
 
     protected final T entity;
-    protected Map<String, Integer> position = new HashMap<>();
+    protected final Map<String, Integer> position = new ConcurrentHashMap<>();
 
     protected Rank(T entity) {
         this.entity = entity;

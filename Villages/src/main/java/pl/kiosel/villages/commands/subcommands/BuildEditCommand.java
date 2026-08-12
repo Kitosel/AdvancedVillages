@@ -30,6 +30,9 @@ public final class BuildEditCommand extends AVSubCommand {
     @Override
     public String getPermission() { return "villages.command.edit"; }
 
+	@Override
+	public boolean requireVillage() { return false; }
+
     @Override
     public Permission getVillagePermission() { return Permission.UNSET; }
 

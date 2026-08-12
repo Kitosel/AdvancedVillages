@@ -3,11 +3,11 @@ package pl.kiosel.villages.addons.buildeditor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import pl.kiosel.core.gui.CustomizableGui;
+import pl.kiosel.core.gui.Gui;
 import pl.kiosel.core.gui.GuiUtils;
 import pl.kiosel.dependencies.com.cryptomorin.xseries.XMaterial;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.config.GuiConfig;
+import pl.kiosel.villages.enums.Lang;
 import pl.kiosel.villages.enums.Upgrade;
 import pl.kiosel.villages.gui.Item;
 
@@ -17,10 +17,9 @@ import java.util.List;
 
 import static pl.kiosel.core.utils.ColorUtils.tl;
 
-public final class EditorMenu extends CustomizableGui {
+public final class EditorMenu extends Gui {
 
 	public EditorMenu(AdvancedVillages plugin, Player player, VillageBuildEditorManager manager) {
-		super(plugin, "build_editor");
 		setRows(4);
 		setTitle(tl(manager.getConfig().getString("menu.title", "&8Village building editor")));
 		setDefaultItem(GuiUtils.getBorderItem(XMaterial.BLACK_STAINED_GLASS_PANE));
@@ -51,7 +50,8 @@ public final class EditorMenu extends CustomizableGui {
 			});
 		}
 
-		setButton(3, 8, GuiUtils.createButtonItem(XMaterial.SPECTRAL_ARROW, GuiConfig.guis_exit), event -> player.closeInventory());
+		setButton(3, 8, GuiUtils.createButtonItem(XMaterial.SPECTRAL_ARROW,
+				plugin.getMessages().text(Lang.EXIT)), event -> player.closeInventory());
 	}
 
 	private ItemStack createLevelItem(Material material, int level, boolean exists, VillageBuildEditorManager manager) {

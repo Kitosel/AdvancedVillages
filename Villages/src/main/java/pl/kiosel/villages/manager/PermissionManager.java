@@ -24,6 +24,7 @@ public class PermissionManager {
 		defaultPermission.add(Permission.STORE);
 		defaultPermission.add(Permission.UPGRADE);
 		defaultPermission.add(Permission.EFFECTS_BUY);
+		defaultPermission.add(Permission.QUEST_TOGGLE);
 	}
 
 	public void addPermission(User user, Permission permission) {
@@ -71,7 +72,7 @@ public class PermissionManager {
 			try {
 				permissions.add(Permission.valueOf(s.trim()));
 			} catch (IllegalArgumentException e) {
-				plugin.getLogger().warning("Nieprawidłowy PERM: " + s);
+				plugin.getLogger().warning("Invalid PERM: " + s);
 			}
 		}
 		return permissions;

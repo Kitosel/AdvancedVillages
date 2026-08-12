@@ -6,8 +6,9 @@ import pl.kiosel.core.chat.AdventureUtils;
 import pl.kiosel.core.dependencies.net.kyori.adventure.text.Component;
 import pl.kiosel.core.dependencies.net.kyori.adventure.text.event.ClickEvent;
 import pl.kiosel.core.dependencies.net.kyori.adventure.text.event.HoverEvent;
-import pl.kiosel.core.locale.Locale;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.addons.logs.VillageLogType;
+import pl.kiosel.villages.config.VillageMessages;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.enums.CommandLang;
@@ -16,8 +17,6 @@ import pl.kiosel.villages.enums.Permission;
 import pl.kiosel.villages.settings.Settings;
 
 import java.util.*;
-
-import static pl.kiosel.core.utils.ColorUtils.tl;
 
 public class InviteManager {
 
@@ -30,7 +29,7 @@ public class InviteManager {
 	}
 
 	public void invitePlayer(Village village, Player invite) {
-		Locale locale = plugin.getLocale();
+		VillageMessages messages = plugin.getMessages();
 		UUID playerId = invite.getUniqueId();
 		invitedPlayers.put(playerId, village);
 
@@ -40,19 +39,19 @@ public class InviteManager {
 		String deny = plugin.getCommandLang().getCommand(CommandLang.REQUEST_DENY);
 
 		Component confirm_message = Component
-				.text(locale.getMessage(Lang.INVITE_CONFIRM.getPath()).toText())
-				.hoverEvent(HoverEvent.showText(Component.text(locale.getMessage(Lang.INVITE_CONFIRM_HOVER.getPath()).toText())))
+				.text(messages.get(Lang.INVITE_CONFIRM).toText())
+				.hoverEvent(HoverEvent.showText(Component.text(messages.get(Lang.INVITE_CONFIRM_HOVER).toText())))
 				.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, request + " " + accept));
 
 		Component cancel_message = Component
-				.text(locale.getMessage(Lang.INVITE_CANCEL.getPath()).toText())
-				.hoverEvent(HoverEvent.showText(Component.text(locale.getMessage(Lang.INVITE_CANCEL_HOVER.getPath()).toText())))
+				.text(messages.get(Lang.INVITE_CANCEL).toText())
+				.hoverEvent(HoverEvent.showText(Component.text(messages.get(Lang.INVITE_CANCEL_HOVER).toText())))
 				.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, request + " " + deny));
 
-		invite.sendMessage(tl("&8——————————————————————————"));
+		messages.send(invite, Lang.SEPARATOR);
 		AdventureUtils.sendMessage(confirm_message, invite);
 		AdventureUtils.sendMessage(cancel_message, invite);
-		invite.sendMessage(tl("&8——————————————————————————"));
+		messages.send(invite, Lang.SEPARATOR);
 
 		new BukkitRunnable() {
 			@Override
@@ -63,25 +62,27 @@ public class InviteManager {
 	}
 
 	public void acceptInvite(Player player) {
-		Locale locale = plugin.getLocale();
+		VillageMessages messages = plugin.getMessages();
 		Village village = invitedPlayers.get(player.getUniqueId());
 		if (village == null) {
-			locale.getMessage(Lang.NO_INVITE.getPath()).sendPrefixedMessage(player);
+			messages.sendPrefixed(player, Lang.NO_INVITE);
 			return;
 		}
 
 		Set<Permission> defaultPerms = plugin.getPermissionManager().getDefaultPermission();
 		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).orNull();
 		if (user == null) {
-			locale.getMessage(Lang.PLAYER_NOT_FOUND.getPath()).sendPrefixedMessage(player);
+			messages.sendPrefixed(player, Lang.PLAYER_NOT_FOUND);
 			invitedPlayers.remove(player.getUniqueId());
 			return;
 		}
+		village.broadcast(messages.text(Lang.TARGET_JOIN_MEMBER, "player", player.getName()));
 
 		user.setVillage(village);
 		user.setPermissions(defaultPerms);
 		village.addMember(user);
-		village.broadcast(locale.getMessage(Lang.TARGET_JOIN_MEMBER.getPath()).processPlaceholder("player", player.getName()).toText());
+		plugin.getLogManager().record(village, VillageLogType.MEMBER_JOIN, player,
+				"member", player.getName());
 
 		invitedPlayers.remove(player.getUniqueId());
 	}

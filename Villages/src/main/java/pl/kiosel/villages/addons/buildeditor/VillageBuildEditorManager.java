@@ -1,33 +1,21 @@
 package pl.kiosel.villages.addons.buildeditor;
 
-import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.WorldEdit;
-import com.sk89q.worldedit.WorldEditException;
-import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
-import com.sk89q.worldedit.extent.clipboard.Clipboard;
-import com.sk89q.worldedit.extent.clipboard.io.*;
-import com.sk89q.worldedit.function.operation.ForwardExtentCopy;
-import com.sk89q.worldedit.function.operation.Operation;
-import com.sk89q.worldedit.function.operation.Operations;
-import com.sk89q.worldedit.math.BlockVector3;
-import com.sk89q.worldedit.regions.CuboidRegion;
-import com.sk89q.worldedit.session.ClipboardHolder;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 import pl.kiosel.core.compatibility.CompatibleMaterial;
 import pl.kiosel.core.configuration.Config;
+import pl.kiosel.core.hooks.WorldEditHook;
 import pl.kiosel.dependencies.com.cryptomorin.xseries.XMaterial;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.data.village.Region;
+import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.data.village.level.Level;
 import pl.kiosel.villages.enums.Lang;
 import pl.kiosel.villages.settings.Settings;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
@@ -113,8 +101,8 @@ public final class VillageBuildEditorManager {
         }
 
         try {
-            Clipboard clipboard = readClipboard(schematicFile);
-            RelativeBounds relative = RelativeBounds.fromClipboard(clipboard);
+			WorldEditHook.Schematic schematic = WorldEditHook.loadSchematic(schematicFile);
+			RelativeBounds relative = RelativeBounds.fromSchematic(schematic);
             long maxVolume = Math.max(1L, config.getLong("search.max-volume", 50_000L));
             if (relative.volume() > maxVolume) {
                 sendLocalized(player, Lang.BUILD_EDITOR_SCHEMATIC_TOO_LARGE, "blocks", relative.volume());
@@ -131,15 +119,15 @@ public final class VillageBuildEditorManager {
             int margin = Math.max(0, config.getInt("search.empty-margin", 8));
             BuildEditorBounds cleanupBounds = bounds.expand(margin);
             try {
-                pasteClipboard(clipboard, origin);
-                origin.getBlock().setType(Material.NOTE_BLOCK, false);
-            } catch (WorldEditException exception) {
-                clearArea(cleanupBounds);
-                throw exception;
-            }
+				WorldEditHook.pasteSchematic(schematic, origin, false, false);
+				origin.getBlock().setType(Material.NOTE_BLOCK, false);
+			} catch (IOException exception) {
+				clearArea(cleanupBounds);
+				throw exception;
+			}
 
             beginSession(player, level, origin, bounds, cleanupBounds, false);
-        } catch (IOException | WorldEditException exception) {
+		} catch (IOException exception) {
             plugin.getLogger().severe("Failed to start editing level " + level + ": " + exception.getMessage());
             sendLocalized(player, Lang.BUILD_EDITOR_LOAD_FAILED);
         }
@@ -181,9 +169,9 @@ public final class VillageBuildEditorManager {
         BuildEditorBounds bounds = relative.at(origin);
         int margin = Math.max(0, config.getInt("search.empty-margin", 8));
         BuildEditorBounds cleanupBounds = bounds.expand(margin);
-        Material baseMaterial = Material.matchMaterial(config.getString("new-level.base-material", "STONE"));
-        if (baseMaterial == null || !baseMaterial.isBlock()) {
-            baseMaterial = Material.STONE;
+        XMaterial baseMaterial = XMaterial.matchXMaterial(Material.valueOf(config.getString("new-level.base-material", "STONE")));
+        if (!Objects.requireNonNull(baseMaterial.get()).isBlock()) {
+            baseMaterial = XMaterial.STONE;
         }
         createStoneBase(bounds, origin.add(0, 3, 0), baseMaterial);
         beginSession(player, level, origin, bounds, cleanupBounds, true);
@@ -223,7 +211,7 @@ public final class VillageBuildEditorManager {
         File temp = new File(target.getParentFile(), target.getName() + ".tmp");
 
         try {
-            writeClipboard(session, temp);
+			writeSchematic(session, temp);
             backupAndReplace(target.toPath(), temp.toPath());
             boolean newLevel = session.isNewLevel();
             finishSession(session, player, true);
@@ -233,7 +221,7 @@ public final class VillageBuildEditorManager {
             } else {
                 sendLocalized(player, Lang.BUILD_EDITOR_SAVED_HELP);
             }
-        } catch (IOException | WorldEditException exception) {
+		} catch (IOException exception) {
             plugin.getLogger().severe("Failed to save editing level " + session.getLevel() + ": " + exception.getMessage());
             sendLocalized(player, Lang.BUILD_EDITOR_SAVE_FAILED);
         }
@@ -480,10 +468,10 @@ public final class VillageBuildEditorManager {
 
     private boolean checkRequirements(Player player) {
         if (!config.getBoolean("enabled", true)) {
-            sendLocalized(player, Lang.BUILD_EDITOR_DISABLED);
+            sendLocalized(player, Lang.ADDON_DISABLED, "addon", "Build Editor");
             return true;
         }
-        if (!Bukkit.getPluginManager().isPluginEnabled("WorldEdit")) {
+		if (!WorldEditHook.isEnabled()) {
             sendLocalized(player, Lang.BUILD_EDITOR_WORLD_EDIT_REQUIRED);
             return true;
         }
@@ -494,53 +482,17 @@ public final class VillageBuildEditorManager {
         return false;
     }
 
-    private Clipboard readClipboard(File file) throws IOException {
-        ClipboardFormat format = ClipboardFormats.findByFile(file);
-        if (format == null) {
-            throw new IOException("Unknown format: " + file.getName());
-        }
-        try (FileInputStream input = new FileInputStream(file);
-             ClipboardReader reader = format.getReader(input)) {
-            return reader.read();
-        }
-    }
-
-    private void pasteClipboard(Clipboard clipboard, Location origin) throws WorldEditException {
-        com.sk89q.worldedit.world.World world = BukkitAdapter.adapt(Objects.requireNonNull(origin.getWorld()));
-        BlockVector3 position = BlockVector3.at(origin.getBlockX(), origin.getBlockY(), origin.getBlockZ());
-        try (EditSession editSession = WorldEdit.getInstance().newEditSession(world)) {
-            Operation operation = new ClipboardHolder(clipboard)
-                    .createPaste(editSession)
-                    .to(position)
-                    .ignoreAirBlocks(false)
-                    .copyEntities(false)
-                    .build();
-            Operations.complete(operation);
-        }
-    }
-
-    private void writeClipboard(BuildEditorSession session, File file) throws IOException, WorldEditException {
-        BuildEditorBounds bounds = session.getBounds();
-        com.sk89q.worldedit.world.World world = BukkitAdapter.adapt(bounds.getWorld());
-        BlockVector3 min = BlockVector3.at(bounds.getMinX(), bounds.getMinY(), bounds.getMinZ());
-        BlockVector3 max = BlockVector3.at(bounds.getMaxX(), bounds.getMaxY(), bounds.getMaxZ());
-        CuboidRegion region = new CuboidRegion(world, min, max);
-        BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
-
-        try (EditSession editSession = WorldEdit.getInstance().newEditSession(world)) {
-            ForwardExtentCopy copy = new ForwardExtentCopy(editSession, region, clipboard, min);
-            copy.setCopyingEntities(false);
-            copy.setCopyingBiomes(false);
-            Operations.complete(copy);
-        }
-        Location origin = session.getOrigin();
-        clipboard.setOrigin(BlockVector3.at(origin.getBlockX(), origin.getBlockY(), origin.getBlockZ()));
-
-        Files.createDirectories(file.toPath().getParent());
-        try (FileOutputStream output = new FileOutputStream(file);
-             ClipboardWriter writer = BuiltInClipboardFormat.SPONGE_SCHEMATIC.getWriter(output)) {
-            writer.write(clipboard);
-        }
+	private void writeSchematic(BuildEditorSession session, File file) throws IOException {
+		BuildEditorBounds bounds = session.getBounds();
+		World world = bounds.getWorld();
+		WorldEditHook.saveSchematic(
+				file,
+				new Location(world, bounds.getMinX(), bounds.getMinY(), bounds.getMinZ()),
+				new Location(world, bounds.getMaxX(), bounds.getMaxY(), bounds.getMaxZ()),
+				session.getOrigin(),
+				false,
+				false
+		);
     }
 
     private void backupAndReplace(Path target, Path temp) throws IOException {
@@ -626,6 +578,9 @@ public final class VillageBuildEditorManager {
                 return false;
             }
         }
+		if (intersectsVillageRegion(bounds)) {
+			return false;
+		}
         double centerX = (bounds.getMinX() + bounds.getMaxX() + 1) / 2.0;
         double centerY = (bounds.getMinY() + bounds.getMaxY() + 1) / 2.0;
         double centerZ = (bounds.getMinZ() + bounds.getMaxZ() + 1) / 2.0;
@@ -648,6 +603,23 @@ public final class VillageBuildEditorManager {
         return true;
     }
 
+	private boolean intersectsVillageRegion(BuildEditorBounds bounds) {
+		if (plugin.getVillageManager() == null) {
+			return false;
+		}
+		for (Village village : plugin.getVillageManager().getVillagesView()) {
+			Region region = village.getRegion().orNull();
+			if (region == null || region.getWorld() == null || !region.getWorld().equals(bounds.getWorld())) {
+				continue;
+			}
+			if (bounds.getMinX() <= region.getUpperX() && bounds.getMaxX() >= region.getLowerX()
+					&& bounds.getMinZ() <= region.getUpperZ() && bounds.getMaxZ() >= region.getLowerZ()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
     private void finishSession(BuildEditorSession session, Player player, boolean teleportBack) {
         sessions.remove(session.getPlayerId());
 
@@ -669,23 +641,23 @@ public final class VillageBuildEditorManager {
     }
 
     void sendLocalized(Player player, Lang message) {
-        plugin.getLocale().getMessage(message.getPath()).sendPrefixedMessage(player);
+        plugin.getMessages().get(message).sendPrefixedMessage(player);
     }
 
     private void sendLocalized(Player player, Lang message, String placeholder, Object value) {
-        plugin.getLocale().getMessage(message.getPath())
+        plugin.getMessages().get(message)
                 .processPlaceholder(placeholder, String.valueOf(value))
                 .sendPrefixedMessage(player);
     }
 
-    private void createStoneBase(BuildEditorBounds bounds, Location origin, Material material) {
+    private void createStoneBase(BuildEditorBounds bounds, Location origin, XMaterial material) {
         int y = bounds.getMinY();
         for (int x = bounds.getMinX(); x <= bounds.getMaxX(); x++) {
             for (int z = bounds.getMinZ(); z <= bounds.getMaxZ(); z++) {
-                bounds.getWorld().getBlockAt(x, y, z).setType(material, false);
+                bounds.getWorld().getBlockAt(x, y, z).setType(material.get(), false);
             }
         }
-        origin.getBlock().setType(Material.NOTE_BLOCK, false);
+        origin.getBlock().setType(XMaterial.NOTE_BLOCK.get(), false);
     }
 
     private void clearArea(BuildEditorBounds bounds) {
@@ -694,7 +666,7 @@ public final class VillageBuildEditorManager {
                 for (int z = bounds.getMinZ(); z <= bounds.getMaxZ(); z++) {
                     Block block = bounds.getWorld().getBlockAt(x, y, z);
                     if (!block.getType().isAir())
-                        block.setType(Material.AIR, false);
+                        block.setType(XMaterial.AIR.get(), false);
                 }
     }
 
@@ -779,15 +751,12 @@ public final class VillageBuildEditorManager {
             this.maxZ = maxZ;
         }
 
-        static RelativeBounds fromClipboard(Clipboard clipboard) {
-            BlockVector3 origin = clipboard.getOrigin();
-            BlockVector3 min = clipboard.getMinimumPoint().subtract(origin);
-            BlockVector3 max = clipboard.getMaximumPoint().subtract(origin);
-            return new RelativeBounds(
-                    min.getBlockX(), min.getBlockY(), min.getBlockZ(),
-                    max.getBlockX(), max.getBlockY(), max.getBlockZ()
-            );
-        }
+		static RelativeBounds fromSchematic(WorldEditHook.Schematic schematic) {
+			return new RelativeBounds(
+					schematic.getMinimumX(), schematic.getMinimumY(), schematic.getMinimumZ(),
+					schematic.getMaximumX(), schematic.getMaximumY(), schematic.getMaximumZ()
+			);
+		}
 
         static RelativeBounds forNewLevel() {
             return new RelativeBounds(-2, -1, -2, 2, 8, 2);

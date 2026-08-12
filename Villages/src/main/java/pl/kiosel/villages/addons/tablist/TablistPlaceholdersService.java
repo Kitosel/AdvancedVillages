@@ -5,7 +5,6 @@ import org.bukkit.entity.Player;
 import pl.kiosel.core.hooks.WorldGuardHook;
 import pl.kiosel.core.nms.Nms;
 import pl.kiosel.core.utils.NumberRange;
-import pl.kiosel.core.utils.TimeUtils;
 import pl.kiosel.core.utils.format.Formater;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.config.TempMessages;
@@ -13,10 +12,11 @@ import pl.kiosel.villages.data.rank.DefaultTops;
 import pl.kiosel.villages.data.rank.RankPlaceholdersService;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.user.UserRank;
-import pl.kiosel.villages.data.user.UserUtils;
 import pl.kiosel.villages.data.village.Region;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.data.village.VillageRank;
+import pl.kiosel.villages.enums.Lang;
+import pl.kiosel.villages.manager.VillageUtilsManager;
 import pl.kiosel.villages.settings.Settings;
 
 import java.time.Duration;
@@ -112,8 +112,6 @@ public final class TablistPlaceholdersService {
 
 			case "has-village":
 				return Boolean.toString(user.hasVillage());
-			case "village-position":
-				return UserUtils.getUserPosition(user);
 			case "position":
 				return Integer.toString(rank.getPosition(DefaultTops.USER_POINTS_TOP));
 			case "points":
@@ -181,7 +179,9 @@ public final class TablistPlaceholdersService {
 			case "region-size":
 				return village.getRegion().map(Region::getSize).map(String::valueOf).orElseGet(TempMessages.noValue);
 			case "pvp":
-				return village.hasPvPEnabled() ? TempMessages.pvpStatusOn : TempMessages.pvpStatusOff;
+				String pvpOn = plugin.getMessages().textOrDefault(Lang.ON, "&aON");
+				String pvpOff = plugin.getMessages().textOrDefault(Lang.OFF, "&cOFF");
+				return village.hasPvPEnabled() ? pvpOn : pvpOff;
 			case "protection":
 				return formatProtection(village.getProtection(), false);
 			case "protection-time":
@@ -189,9 +189,9 @@ public final class TablistPlaceholdersService {
 			case "lives":
 				return Integer.toString(village.getLives());
 			case "lives-symbol":
-				return livesSymbol(village.getLives(), true);
+				return VillageUtilsManager.getLivesSymbol(village.getLives(), true);
 			case "lives-symbol-all":
-				return livesSymbol(village.getLives(), false);
+				return VillageUtilsManager.getLivesSymbol(village.getLives(), false);
 			case "position":
 			case "rank":
 				return this.plugin.getVillageRankManager().isRankedVillage(village)
@@ -251,9 +251,8 @@ public final class TablistPlaceholdersService {
 			case "avg-kdr":
 			case "kda":
 			case "avg-kda":
-				return "0";
 			case "pvp":
-				return TempMessages.pvpStatusOff;
+				return "0";
 			default:
 				return TempMessages.noValue;
 		}
@@ -272,23 +271,13 @@ public final class TablistPlaceholdersService {
 		return names == null ? List.of() : names;
 	}
 
-	private static String formatProtection(Instant protection, boolean remainingTime) {
+	private String formatProtection(Instant protection, boolean remainingTime) {
 		if (protection == null || !protection.isAfter(Instant.now())) {
 			return TempMessages.noValue;
 		}
 		return remainingTime
-				? TimeUtils.formatTime(Duration.between(Instant.now(), protection))
+				? this.plugin.getMessages().formatDuration(Duration.between(Instant.now(), protection))
 				: DATE_FORMAT.withZone(ZoneId.systemDefault()).format(protection);
-	}
-
-	private static String livesSymbol(int lives, boolean limited) {
-		int shown = limited ? Math.min(lives, TempMessages.warLives) : lives;
-		String result = TempMessages.full.getValue().repeat(Math.max(0, shown));
-		if (!limited) {
-			return result;
-		}
-		result += TempMessages.empty.getValue().repeat(Math.max(0, TempMessages.warLives - lives));
-		return lives > TempMessages.warLives ? result + TempMessages.more.getValue() : result;
 	}
 
 	private static String twoDigits(int value) {

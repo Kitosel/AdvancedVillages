@@ -1,18 +1,18 @@
 package pl.kiosel.villages.enums;
 
 import lombok.Getter;
-import org.bukkit.potion.PotionEffectType;
+import pl.kiosel.dependencies.com.cryptomorin.xseries.XPotion;
 
 public enum Effects {
 
-	REGENERATION(PotionEffectType.REGENERATION),
-	SPEED(PotionEffectType.SPEED),
-	JUMP_BOOST(PotionEffectType.JUMP_BOOST),
-	HASTE(PotionEffectType.HASTE);
+	REGENERATION(XPotion.REGENERATION),
+	SPEED(XPotion.SPEED),
+	JUMP_BOOST(XPotion.JUMP_BOOST),
+	HASTE(XPotion.HASTE);
 
-	@Getter private final PotionEffectType potionEffectType;
+	@Getter private final XPotion potion;
 
-	Effects(PotionEffectType potionEffectType) {
-		this.potionEffectType = potionEffectType;
+	Effects(XPotion potion) {
+		this.potion = potion;
 	}
 }

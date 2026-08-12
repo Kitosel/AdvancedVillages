@@ -9,10 +9,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.events.VillageBlockInteractEvent;
 import pl.kiosel.villages.data.user.User;
-import pl.kiosel.villages.enums.GUIS;
 import pl.kiosel.villages.data.village.Village;
+import pl.kiosel.villages.enums.GUIS;
+import pl.kiosel.villages.events.VillageBlockInteractEvent;
 
 public class InteractListener implements Listener {
 
@@ -41,10 +41,10 @@ public class InteractListener implements Listener {
 		if (village.isCentralBlock(clickedBlock.getLocation())) {
 			VillageBlockInteractEvent villageBlockInteractEvent = new VillageBlockInteractEvent(village, player, clickedBlock, event.getAction());
 			plugin.getServer().getPluginManager().callEvent(villageBlockInteractEvent);
+			event.setCancelled(true);
 			if (villageBlockInteractEvent.isCancelled()) return;
 
 			plugin.getVillageGui().openGui(village, player, GUIS.VILLAGE);
-			event.setCancelled(true);
 		}
 	}
 }

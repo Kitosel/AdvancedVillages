@@ -1,6 +1,7 @@
 package pl.kiosel.villages.addons.trials.animation;
 
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -10,12 +11,14 @@ import pl.kiosel.villages.data.village.Village;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 public final class CentralBlockAnimator {
 
     private final AdvancedVillages plugin;
     private final VillageAnimationSettings.Central settings;
+    private final VillageAnimationSettings.Upgraded upgraded;
     private final Predicate<Village> canAnimate;
     private final CentralAnimationPatterns patterns = new CentralAnimationPatterns();
     private final double viewDistanceSquared;
@@ -24,9 +27,10 @@ public final class CentralBlockAnimator {
     private long animationTick;
 
     public CentralBlockAnimator(AdvancedVillages plugin, VillageAnimationSettings.Central settings,
-                                Predicate<Village> canAnimate) {
+                                VillageAnimationSettings.Upgraded upgraded, Predicate<Village> canAnimate) {
         this.plugin = plugin;
         this.settings = settings;
+        this.upgraded = upgraded;
         this.canAnimate = canAnimate;
         this.viewDistanceSquared = settings.getViewDistance() * settings.getViewDistance();
     }
@@ -53,11 +57,13 @@ public final class CentralBlockAnimator {
 
     public void playUpgrade(Village village) {
         LevelAnimationStyle style = styleFor(village);
-        Location center = VillageAnimationLocations.centralBlock(village);
+        Location center = village.getAnimation();
         World world = center.getWorld();
         if (world == null || !style.isEnabled()) {
             return;
         }
+        Sound sound = Objects.requireNonNull(upgraded.getSound().parseSound());
+        center.getWorld().playSound(village.getLocation().get(), sound, upgraded.getVolume(), upgraded.getPitch());
 
         new BukkitRunnable() {
             private int tick;
@@ -75,6 +81,20 @@ public final class CentralBlockAnimator {
                     double pulse = Math.sin(progress * Math.PI);
                     render(center, viewers, style, tick * style.getSpeed() * 1.8,
                             2, 1.0 + pulse * 0.45);
+                }
+
+                double progress = tick / (double) upgraded.getDurationTicks();
+                double radius = upgraded.getRadius() * (0.2 + progress);
+                for (int index = 0; index < 3; index++) {
+                    double angle = progress * Math.PI * 4 + index * Math.PI * 2 / 3;
+                    Location point = center.clone().add(
+                            Math.cos(angle) * radius,
+                            0.15 + progress * 1.6,
+                            Math.sin(angle) * radius
+                    );
+                    assert upgraded.getParticle().get() != null;
+                    center.getWorld().spawnParticle(upgraded.getParticle().get(), point,
+                            upgraded.getCount(), 0, 0, 0, 0);
                 }
 
                 tick += 2;
@@ -95,7 +115,7 @@ public final class CentralBlockAnimator {
                 continue;
             }
 
-            Location center = VillageAnimationLocations.centralBlock(village);
+            Location center = village.getAnimation();
             World world = center.getWorld();
             if (world == null || !world.isChunkLoaded(center.getBlockX() >> 4, center.getBlockZ() >> 4)) {
                 continue;

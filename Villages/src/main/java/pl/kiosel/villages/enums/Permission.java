@@ -12,6 +12,7 @@ public enum Permission {
 	STORAGE,
 	BANK_ADD,
 	BANK_REMOVE,
+	QUEST_TOGGLE,
 	UNSET
 
 }

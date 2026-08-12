@@ -8,7 +8,6 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.enums.Lang;
-import pl.kiosel.villages.settings.Settings;
 
 public class MoveListener implements Listener {
 
@@ -21,8 +20,7 @@ public class MoveListener implements Listener {
 	@EventHandler(ignoreCancelled = true)
 	public void onPlayerMove(PlayerMoveEvent event) {
 		Player player = event.getPlayer();
-		if (!Settings.TELEPORT_CANCEL_ON_MOVE.getBoolean()
-				|| !this.plugin.getTeleportManager().isTeleporting(player)) {
+		if (!this.plugin.getTeleportManager().shouldCancelOnMove(player)) {
 			return;
 		}
 
@@ -34,13 +32,19 @@ public class MoveListener implements Listener {
 			return;
 		}
 
-		if (this.plugin.getTeleportManager().cancelTeleport(player)) {
-			this.plugin.getLocale().getMessage(Lang.TELEPORT_MOVE.getPath()).sendPrefixedMessage(player);
+		int refunded = this.plugin.getTeleportManager().cancelTeleport(player, true);
+		if (refunded >= 0) {
+			this.plugin.getMessages().get(Lang.TELEPORT_MOVE).sendPrefixedMessage(player);
+			if (refunded > 0) {
+				this.plugin.getMessages().get(Lang.MONEY_ADD)
+						.processPlaceholder("money", refunded)
+						.sendPrefixedMessage(player);
+			}
 		}
 	}
 
 	@EventHandler
 	public void onPlayerDeath(PlayerDeathEvent event) {
-		this.plugin.getTeleportManager().cancelTeleport(event.getEntity());
+		this.plugin.getTeleportManager().cancelTeleport(event.getEntity(), true);
 	}
 }

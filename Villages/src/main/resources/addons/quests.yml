@@ -1,0 +1,149 @@
+# Village quests are shared by every member of a village.
+# All names, descriptions and interface messages are stored in the .lang files.
+# The addon can be enabled or disabled with addons.quests in config.yml.
+
+reset:
+  # Resets use real calendar time and also pass while the server is offline.
+  time-zone: "Europe/Warsaw"
+  hour: 0
+  weekly-day: "MONDAY"
+
+# Supported types:
+# KILL_ENTITY, BREAK_BLOCK, PLACE_BLOCK, COLLECT_ITEM, CRAFT_ITEM, FISH_ITEM,
+# SMELT_ITEM, ENCHANT_ITEM, CONSUME_ITEM, BREED_ENTITY, TAME_ENTITY,
+# GAIN_EXPERIENCE, BANK_DEPOSIT and CUSTOM.
+# An empty or omitted targets list accepts every material/entity for that type.
+# CUSTOM quests can be advanced through VillageAPI#getQuestManager().
+# Experience rewards are granted to online members; points are granted to all members.
+# A village must activate each quest in the quest GUI before progress is collected.
+quests:
+  daily:
+    monster-hunt:
+      enabled: true
+      type: KILL_ENTITY
+      targets: [ZOMBIE, SKELETON, CREEPER, SPIDER]
+      required: 30
+      icon: IRON_SWORD
+      rewards:
+        bank: 300
+        experience: 40
+        points: 5
+
+    mining-shift:
+      enabled: true
+      type: BREAK_BLOCK
+      targets: [COAL_ORE, DEEPSLATE_COAL_ORE, IRON_ORE, DEEPSLATE_IRON_ORE, COPPER_ORE, DEEPSLATE_COPPER_ORE]
+      required: 48
+      icon: IRON_PICKAXE
+      rewards:
+        bank: 250
+        experience: 35
+        points: 4
+
+    wood-supplies:
+      enabled: true
+      type: COLLECT_ITEM
+      targets: [OAK_LOG, SPRUCE_LOG, BIRCH_LOG, JUNGLE_LOG, ACACIA_LOG, DARK_OAK_LOG, MANGROVE_LOG, CHERRY_LOG]
+      required: 64
+      icon: OAK_LOG
+      rewards:
+        bank: 200
+        experience: 30
+        points: 3
+
+    construction-shift:
+      enabled: true
+      type: PLACE_BLOCK
+      targets: [COBBLESTONE, STONE_BRICKS, OAK_PLANKS, SPRUCE_PLANKS, BRICKS]
+      required: 64
+      icon: STONE_BRICKS
+      rewards:
+        bank: 220
+        experience: 30
+        points: 3
+
+    workshop-orders:
+      enabled: true
+      type: CRAFT_ITEM
+      targets: [CHEST, BARREL, TORCH, LADDER]
+      required: 32
+      icon: CRAFTING_TABLE
+      rewards:
+        bank: 240
+        experience: 35
+        points: 4
+
+    village-angler:
+      enabled: true
+      type: FISH_ITEM
+      targets: [COD, SALMON, TROPICAL_FISH, PUFFERFISH]
+      required: 12
+      icon: FISHING_ROD
+      rewards:
+        bank: 260
+        experience: 40
+        points: 4
+
+    foundry-shift:
+      enabled: true
+      type: SMELT_ITEM
+      targets: [IRON_INGOT, COPPER_INGOT, GOLD_INGOT]
+      required: 32
+      icon: FURNACE
+      rewards:
+        bank: 280
+        experience: 45
+        points: 5
+
+  weekly:
+    village-treasury:
+      enabled: true
+      type: BANK_DEPOSIT
+      required: 2500
+      icon: SUNFLOWER
+      rewards:
+        bank: 750
+        experience: 150
+        points: 20
+
+    great-hunt:
+      enabled: true
+      type: KILL_ENTITY
+      targets: [ZOMBIE, SKELETON, CREEPER, SPIDER, WITCH, ENDERMAN, BLAZE]
+      required: 250
+      icon: DIAMOND_SWORD
+      rewards:
+        bank: 1500
+        experience: 300
+        points: 35
+
+    animal-care:
+      enabled: true
+      type: BREED_ENTITY
+      targets: [COW, SHEEP, PIG, CHICKEN, RABBIT]
+      required: 30
+      icon: WHEAT
+      rewards:
+        bank: 900
+        experience: 180
+        points: 24
+
+    master-enchanter:
+      enabled: true
+      type: ENCHANT_ITEM
+      required: 15
+      icon: ENCHANTING_TABLE
+      rewards:
+        bank: 1100
+        experience: 220
+        points: 28
+
+    experience-drive:
+      enabled: true
+      type: GAIN_EXPERIENCE
+      required: 1500
+      icon: EXPERIENCE_BOTTLE
+      rewards:
+        bank: 1000
+        experience: 200
+        points: 25

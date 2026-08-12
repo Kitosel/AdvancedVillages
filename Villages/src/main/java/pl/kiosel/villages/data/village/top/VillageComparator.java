@@ -32,7 +32,7 @@ public final class VillageComparator implements TopComparator<VillageRank> {
 
     @Override
     public int compare(VillageRank o1, VillageRank o2) {
-        int result = Float.compare(this.getValue(o1).floatValue(), this.getValue(o2).floatValue());
+		int result = Double.compare(this.getValue(o1).doubleValue(), this.getValue(o2).doubleValue());
         if (result == 0) {
             result = Rank.compareName(o1, o2);
         }

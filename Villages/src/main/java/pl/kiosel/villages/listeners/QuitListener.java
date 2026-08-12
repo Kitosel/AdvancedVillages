@@ -7,17 +7,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.data.user.UserCache;
-import pl.kiosel.villages.data.user.UserManager;
 
 public class QuitListener implements Listener {
 
     private final AdvancedVillages plugin;
-	private final UserManager userManager;
 
     public QuitListener(AdvancedVillages plugin) {
         this.plugin = plugin;
-		this.userManager = plugin.getUserManager();
     }
 
 	@EventHandler(priority = EventPriority.HIGHEST)
@@ -32,26 +28,10 @@ public class QuitListener implements Listener {
 
 	private void handleQuit(Player player) {
 		plugin.getScoreboardManager().removeBoard(player);
+		plugin.getTablistManager().handleQuit(player);
 		plugin.getTeleportManager().cleanupPlayer(player);
-		plugin.getSpawnManager().cancelTeleport(player, true);
 
 		if (plugin.getInviteManager().isPlayerInvited(player))
 			plugin.getInviteManager().denyInvite(player);
-
-		this.userManager.findByUuid(player.getUniqueId()).peek(user -> {
-			UserCache cache = user.getCache();
-//			DamageState damageState = damageManager.getDamageState(user.getUUID());
-//
-//			if (damageState.isInCombat()) {
-//				LogoutsChangeEvent logoutsChangeEvent = new LogoutsChangeEvent(FunnyEvent.EventCause.USER, user, user, 1);
-//
-//				if (SimpleEventHandler.handle(logoutsChangeEvent)) {
-//					user.getRank().updateLogouts(currentValue -> currentValue + logoutsChangeEvent.getLogoutsChange());
-//				}
-//			}
-
-			cache.setPlayerList(null);
-//			damageState.clear();
-		});
 	}
 }

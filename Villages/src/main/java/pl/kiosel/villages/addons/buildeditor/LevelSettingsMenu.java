@@ -3,11 +3,11 @@ package pl.kiosel.villages.addons.buildeditor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import pl.kiosel.core.gui.CustomizableGui;
+import pl.kiosel.core.gui.Gui;
 import pl.kiosel.core.gui.GuiUtils;
 import pl.kiosel.dependencies.com.cryptomorin.xseries.XMaterial;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.config.GuiConfig;
+import pl.kiosel.villages.enums.Lang;
 import pl.kiosel.villages.data.village.level.Level;
 import pl.kiosel.villages.gui.Item;
 
@@ -16,10 +16,9 @@ import java.util.stream.Collectors;
 
 import static pl.kiosel.core.utils.ColorUtils.tl;
 
-final class LevelSettingsMenu extends CustomizableGui {
+final class LevelSettingsMenu extends Gui {
 
 	LevelSettingsMenu(AdvancedVillages plugin, Player player, VillageBuildEditorManager manager, int levelNumber) {
-		super(plugin, "build_editor_level");
 		Level level = plugin.getLevelManager().getLevel(levelNumber);
 		setRows(3);
 		setTitle(tl(manager.getConfig().getString("settings-menu.title", "&8Level &6%level% &8settings")
@@ -39,7 +38,8 @@ final class LevelSettingsMenu extends CustomizableGui {
 				manager, "settings-menu.size", "&bRegion size",
 				Integer.toString(level.getSize())), event -> begin(player, manager, levelNumber, LevelEditorField.SIZE));
 
-		setButton(2, 8, GuiUtils.createButtonItem(XMaterial.SPECTRAL_ARROW, GuiConfig.guis_back), event -> manager.openLevelMenu(player));
+		setButton(2, 8, GuiUtils.createButtonItem(XMaterial.SPECTRAL_ARROW,
+				plugin.getMessages().text(Lang.BACK)), event -> manager.openLevelMenu(player));
 	}
 
 	private void begin(Player player, VillageBuildEditorManager manager, int level, LevelEditorField field) {

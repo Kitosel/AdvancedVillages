@@ -7,6 +7,7 @@ import pl.kiosel.villages.data.user.UserManager;
 import pl.kiosel.villages.data.user.UserRank;
 
 import java.util.NavigableSet;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.BiFunction;
 
@@ -21,8 +22,10 @@ public class UserRecalculation implements BiFunction<String, TopComparator<UserR
     @Override
     public NavigableSet<UserRank> apply(String id, TopComparator<UserRank> topComparator) {
         NavigableSet<UserRank> usersRank = new TreeSet<>(topComparator);
+		Set<User> users = this.userManager.getUsers();
+		users.forEach(user -> user.getRank().setPosition(id, 0));
 
-        PandaStream.of(this.userManager.getUsers())
+		PandaStream.of(users)
                 .filterNot(user -> user.hasPermission("advancedvillages.ranking.exempt"))
                 .map(User::getRank)
                 .forEach(usersRank::add);

@@ -16,15 +16,12 @@ import pl.kiosel.villages.enums.Lang;
 import pl.kiosel.villages.enums.Permission;
 import pl.kiosel.villages.manager.PermissionManager;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CommandVillage extends SimpleCommand {
 
 	private final AdvancedVillages plugin;
-	private final Map<String, AVSubCommand> subCommandMap = new HashMap<>();
+	private volatile Map<String, AVSubCommand> subCommandMap = Collections.emptyMap();
 	private final CommandConfig commandConfig;
 	private final PermissionManager permissionManager;
 
@@ -33,24 +30,26 @@ public class CommandVillage extends SimpleCommand {
 		this.plugin = plugin;
 		this.commandConfig = plugin.getCommandLang();
 		this.permissionManager = plugin.getPermissionManager();
-		registerSubCommands(plugin);
+		this.reloadArguments();
 	}
 
-	private void registerSubCommands(AdvancedVillages plugin) {
-		subCommandMap.put(commandConfig.getCommand(CommandLang.ADMIN).toLowerCase(), new AdminCommand(plugin));
-		subCommandMap.put(commandConfig.getCommand(CommandLang.CHAT).toLowerCase(), new ChatCommand(plugin));
-		subCommandMap.put(commandConfig.getCommand(CommandLang.INVITE).toLowerCase(), new InviteCommand(plugin));
-		subCommandMap.put(commandConfig.getCommand(CommandLang.LEAVE).toLowerCase(), new LeaveCommand(plugin));
-		subCommandMap.put(commandConfig.getCommand(CommandLang.REQUEST).toLowerCase(), new RequestCommand(plugin));
-		subCommandMap.put(commandConfig.getCommand(CommandLang.TELEPORT).toLowerCase(), new TpCommand(plugin));
-		subCommandMap.put(commandConfig.getCommand(CommandLang.EDIT).toLowerCase(), new BuildEditCommand(plugin));
+	public synchronized void reloadArguments() {
+		Map<String, AVSubCommand> refreshed = new LinkedHashMap<>();
+		refreshed.put(commandConfig.getCommand(CommandLang.ADMIN), new AdminCommand(plugin));
+		refreshed.put(commandConfig.getCommand(CommandLang.CHAT), new ChatCommand(plugin));
+		refreshed.put(commandConfig.getCommand(CommandLang.INVITE), new InviteCommand(plugin));
+		refreshed.put(commandConfig.getCommand(CommandLang.LEAVE), new LeaveCommand(plugin));
+		refreshed.put(commandConfig.getCommand(CommandLang.REQUEST), new RequestCommand(plugin));
+		refreshed.put(commandConfig.getCommand(CommandLang.TELEPORT), new TpCommand(plugin));
+		refreshed.put(commandConfig.getCommand(CommandLang.EDIT), new BuildEditCommand(plugin));
+		this.subCommandMap = Collections.unmodifiableMap(refreshed);
 	}
 
 	@Override
 	public boolean onExecute(CommandSender sender, String label, String[] args) {
 		if (!(sender instanceof Player)) {
 			plugin.reloadConfig();
-			plugin.getLocale().getMessage(Lang.COMMAND_RELOAD.getPath()).sendPrefixedMessage(sender);
+			plugin.getMessages().get(Lang.COMMAND_RELOAD).sendPrefixedMessage(sender);
 			return false;
 		}
 		Player player = (Player) sender;
@@ -68,7 +67,14 @@ public class CommandVillage extends SimpleCommand {
 		AVSubCommand sub = subCommandMap.get(input);
 
 		if (sub != null) {
-			if (player.hasPermission(sub.getPermission())  && permissionManager.hasCommandPermission(player, sub.getVillagePermission())) {
+			if (sub.requireVillage()) {
+				Village village = user.getPresentVillage();
+				if (village == null) {
+					sendLocalized(player, Lang.VILLAGE_NO.getPath());
+					return true;
+				}
+			}
+			if (player.hasPermission(sub.getPermission()) && permissionManager.hasCommandPermission(player, sub.getVillagePermission())) {
 				sub.run(player, user, args);
 			} else {
 				sendLocalized(player, Lang.COMMAND_NO_PERMISSION.getPath());
@@ -86,13 +92,13 @@ public class CommandVillage extends SimpleCommand {
 	}
 
 	public void help(Player sender) {
-		sender.sendMessage(tl("&8--------------------------------"));
+		plugin.getMessages().send(sender, Lang.SEPARATOR);
 		for (AVSubCommand sub : subCommandMap.values()) {
 			if (sender.hasPermission(sub.getPermission()) && permissionManager.hasCommandPermission(sender, sub.getVillagePermission())) {
 				sender.sendMessage(sub.getUsage() + " - " + sub.getDescription());
 			}
 		}
-		sender.sendMessage(tl("&8--------------------------------"));
+		plugin.getMessages().send(sender, Lang.SEPARATOR);
 	}
 
 	@Override
@@ -126,6 +132,7 @@ public class CommandVillage extends SimpleCommand {
 				case "tp":
 				case "leave":
 				case "chat":
+				case "quests":
 					if (village != null) arg1.add(name);
 					break;
 				case "invite":

@@ -5,8 +5,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
-import org.jetbrains.annotations.NotNull;
-import panda.std.Option;
 import pl.kiosel.core.MetaCore;
 import pl.kiosel.core.MetaPlugin;
 import pl.kiosel.core.commands.CommandManager;
@@ -14,9 +12,11 @@ import pl.kiosel.core.compatibility.CompatibleMaterial;
 import pl.kiosel.core.configuration.Config;
 import pl.kiosel.core.dependencies.de.tr7zw.nbtapi.NBT;
 import pl.kiosel.core.gui.GuiManager;
+import pl.kiosel.core.hooks.WorldEditHook;
 import pl.kiosel.core.hooks.WorldGuardHook;
 import pl.kiosel.core.hooks.economy.EconomyHook;
 import pl.kiosel.core.input.Licenses;
+import pl.kiosel.core.locale.Locale;
 import pl.kiosel.core.nms.Nms;
 import pl.kiosel.dependencies.com.cryptomorin.xseries.XMaterial;
 import pl.kiosel.villages.addons.antylogout.CombatConfig;
@@ -25,26 +25,28 @@ import pl.kiosel.villages.addons.antylogout.listener.CombatListener;
 import pl.kiosel.villages.addons.antylogout.listener.CombatRegionListener;
 import pl.kiosel.villages.addons.buildeditor.BuildEditorListener;
 import pl.kiosel.villages.addons.buildeditor.VillageBuildEditorManager;
+import pl.kiosel.villages.addons.logs.VillageLogConfiguration;
+import pl.kiosel.villages.addons.logs.VillageLogManager;
 import pl.kiosel.villages.addons.placeholder.PlaceholderManager;
+import pl.kiosel.villages.addons.quests.QuestConfiguration;
+import pl.kiosel.villages.addons.quests.QuestListener;
+import pl.kiosel.villages.addons.quests.VillageQuestManager;
+import pl.kiosel.villages.addons.ranking.RankingConfiguration;
+import pl.kiosel.villages.addons.ranking.RankingListener;
+import pl.kiosel.villages.addons.ranking.RankingManager;
 import pl.kiosel.villages.addons.scoreboard.ScoreboardHandler;
 import pl.kiosel.villages.addons.scoreboard.ScoreboardManager;
-import pl.kiosel.villages.addons.spawn.CommandSpawn;
-import pl.kiosel.villages.addons.spawn.SpawnListener;
-import pl.kiosel.villages.addons.spawn.SpawnManager;
-import pl.kiosel.villages.addons.tablist.PlayerList;
+import pl.kiosel.villages.addons.tablist.TablistConfiguration;
+import pl.kiosel.villages.addons.tablist.TablistManager;
 import pl.kiosel.villages.addons.tablist.TablistPlaceholdersService;
 import pl.kiosel.villages.addons.trials.VillageAnimationManager;
 import pl.kiosel.villages.api.VillageAPI;
 import pl.kiosel.villages.commands.CommandCrafting;
 import pl.kiosel.villages.commands.CommandTest;
-import pl.kiosel.villages.commands.CommandVillage;
-import pl.kiosel.villages.config.CommandConfig;
-import pl.kiosel.villages.config.Configuration;
-import pl.kiosel.villages.config.GuiConfig;
-import pl.kiosel.villages.config.TablistConfiguration;
+import pl.kiosel.villages.commands.ConfiguredCommandRegistry;
+import pl.kiosel.villages.config.*;
 import pl.kiosel.villages.data.rank.DefaultTops;
 import pl.kiosel.villages.data.rank.RankPlaceholdersService;
-import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.user.UserManager;
 import pl.kiosel.villages.data.user.UserRankManager;
 import pl.kiosel.villages.data.village.VillageManager;
@@ -57,7 +59,7 @@ import pl.kiosel.villages.data.village.level.LevelManager;
 import pl.kiosel.villages.gui.VillageGUIManager;
 import pl.kiosel.villages.listeners.*;
 import pl.kiosel.villages.manager.*;
-import pl.kiosel.villages.settings.BlacklistHandler;
+import pl.kiosel.villages.manager.teleport.TeleportManager;
 import pl.kiosel.villages.settings.Settings;
 import pl.kiosel.villages.storage.DataHelper;
 import pl.kiosel.villages.storage.Dataloader;
@@ -74,13 +76,20 @@ import java.util.logging.Level;
 
 public final class AdvancedVillages extends MetaPlugin {
 
-	@Getter private final Config levelsFile = new Config(this, "levels.yml");
-	private final Config buildEditorFile = new Config(this, "addons/build-editor.yml");
-	private final Config villageAnimationFile = new Config(this, "addons/animation.yml");
-	@Getter private final Config commandFile = new Config(this, "command.yml");
-	@Getter private final Config spawnFile = new Config(this, "addons/spawn.yml");
-	@Getter private final Config combatFile = new Config(this, "addons/antilogout.yml");
-	@Getter private final Config scoreboardFile = new Config(this, "addons/scoreboard.yml");
+	@Getter private final VillageConfigManager configurationManager = new VillageConfigManager(this);
+	@Getter private final VillageMessages messages = new VillageMessages(this);
+	@Getter private final Config levelsFile = this.configurationManager.get(VillageConfigFile.LEVELS);
+	@Getter private final Config buildEditorFile = this.configurationManager.get(VillageConfigFile.BUILD_EDITOR);
+	@Getter private final Config animationFile = this.configurationManager.get(VillageConfigFile.ANIMATIONS);
+	@Getter private final Config commandFile = this.configurationManager.get(VillageConfigFile.COMMANDS);
+	@Getter private final Config spawnFile = this.configurationManager.get(VillageConfigFile.SPAWN);
+	@Getter private final Config combatFile = this.configurationManager.get(VillageConfigFile.COMBAT);
+	@Getter private final Config scoreboardFile = this.configurationManager.get(VillageConfigFile.SCOREBOARD);
+	@Getter private final Config guiConfig = this.configurationManager.get(VillageConfigFile.GUIS);
+	@Getter private final Config tablistFile = this.configurationManager.get(VillageConfigFile.TABLIST);
+	@Getter private final Config questFile = this.configurationManager.get(VillageConfigFile.QUESTS);
+	@Getter private final Config logFile = this.configurationManager.get(VillageConfigFile.LOGS);
+	@Getter private final Config rankingFile = this.configurationManager.get(VillageConfigFile.RANKING);
 
 	@Getter	private EconomyHook economy;
 
@@ -95,14 +104,12 @@ public final class AdvancedVillages extends MetaPlugin {
 	@Getter private DataHelper dataHelper;
 	@Getter private LevelManager levelManager;
 	@Getter private CraftingManager craftingManager;
-	@Getter private SpawnManager spawnManager;
 	@Getter private VillageRemoveManager villageRemoveManager;
 	@Getter private VillageAnimationManager villageAnimationManager;
 	@Getter private VillageBuildEditorManager villageBuildEditorManager;
 
-	@Getter private Configuration guiConfig;
 	@Getter private CommandConfig commandLang;
-	private GuiConfig g_config;
+	@Getter private GuiConfig guiSettings;
 
 	@Getter private VillageGUIManager villageGui;
 	@Getter private GuiManager guiManager = new GuiManager(this);
@@ -110,11 +117,11 @@ public final class AdvancedVillages extends MetaPlugin {
 	@Getter private boolean worldedit;
 	@Getter private PlaceholderManager placeholder;
 
-	@Getter private BlacklistHandler blacklistHandler;
 	@Getter private ScoreboardHandler scoreboardHandler;
 
 	@Getter private TablistConfiguration tablistConfig;
 	@Getter private TablistPlaceholdersService tablistPlaceholdersService;
+	@Getter private TablistManager tablistManager;
 	@Getter private RankPlaceholdersService rankPlaceholdersService;
 
 	@Getter private UserManager userManager;
@@ -127,8 +134,15 @@ public final class AdvancedVillages extends MetaPlugin {
 
 	@Getter private CombatManager combatManager;
 	@Getter private CombatConfig combatConfig;
+	@Getter private QuestConfiguration questConfig;
+	@Getter private VillageQuestManager questManager;
+	@Getter private VillageLogConfiguration logConfig;
+	@Getter private VillageLogManager logManager;
+	@Getter private RankingConfiguration rankingConfig;
+	@Getter private RankingManager rankingManager;
 	@Getter private volatile boolean dataReady;
 	private boolean runtimeHandlersRegistered;
+	private ConfiguredCommandRegistry configuredCommandRegistry;
 
 	@Override
 	public void onPluginLoad() {
@@ -155,22 +169,16 @@ public final class AdvancedVillages extends MetaPlugin {
 			return new IllegalStateException("No supported economy plugin found");
 		});
 
-		setLocale(Settings.LANGUAGE_MODE.getString(), false);
+		this.messages.reload(Settings.LANGUAGE_MODE.getString(), true);
 
+		if (!this.configurationManager.loadAll()) {
+			getLogger().warning("One or more configuration files could not be loaded; safe fallbacks will be used");
+		}
 		this.registerConfig();
-		this.loadConfigs();
 		if (!this.loadLevels()) {
 			getLogger().severe("No valid village level configuration is available. Disabling the plugin.");
 			emergencyStop();
 			return;
-		}
-
-		if (!isDev()) {
-			getDebug().debug("Checking license");
-			if (!(new Licenses(Settings.LICENSE.getString(), this).register())) {
-				emergencyStop();
-				return;
-			}
 		}
 		if (!NBT.preloadApi()) {
 			getDebug().debug("NBT-API wasn't initialized properly, disabling the plugin");
@@ -179,7 +187,21 @@ public final class AdvancedVillages extends MetaPlugin {
 		}
 		getDebug().debug("Enabling Plugin");
 
-		this.blacklistHandler = new BlacklistHandler(this);
+		if (!isDev()) {
+			getDebug().debug("Checking license");
+			if (!(new Licenses(Settings.LICENSE.getString(), this).register())) {
+				getLogger().warning("--------------------------------------");
+				getLogger().warning(" ");
+				getLogger().warning("The license check failed.");
+				getLogger().warning("Please check to see if you have");
+				getLogger().warning("entered the license in config.yml.");
+				getLogger().warning(" ");
+				getLogger().warning("--------------------------------------");
+				emergencyStop();
+				return;
+			}
+		}
+
 		this.scoreboardHandler = new ScoreboardHandler(this);
 
 		this.userManager = new UserManager(this);
@@ -193,6 +215,12 @@ public final class AdvancedVillages extends MetaPlugin {
 		this.api = new VillageAPI(this);
 
 		initDatabase(new _1_InitialMigration());
+		this.questConfig = new QuestConfiguration(this);
+		this.questManager = new VillageQuestManager(this, this.questConfig);
+		this.logConfig = new VillageLogConfiguration(this);
+		this.logManager = new VillageLogManager(this, this.logConfig);
+		this.rankingConfig = new RankingConfiguration(this);
+		this.rankingManager = new RankingManager(this, this.rankingConfig);
 
 		if(getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
 			getDebug().debug("Hooked PlaceholderApi");
@@ -208,7 +236,7 @@ public final class AdvancedVillages extends MetaPlugin {
 		this.villageUtilsManager = new VillageUtilsManager(this);
 		this.villageRemoveManager = new VillageRemoveManager(this);
 		this.upgradeManager = new UpgradeManager(this);
-		this.villageAnimationManager = new VillageAnimationManager(this, this.villageAnimationFile);
+		this.villageAnimationManager = new VillageAnimationManager(this, this.animationFile);
 		this.teleportManager = new TeleportManager(this);
 		this.permissionManager = new PermissionManager(this);
 		this.villageGui = new VillageGUIManager(this);
@@ -218,9 +246,15 @@ public final class AdvancedVillages extends MetaPlugin {
 
 		this.tablistConfig = new TablistConfiguration(this);
 		this.registerPlaceholders();
+		this.tablistManager = new TablistManager(
+				this,
+				this.tablistConfig,
+				this.tablistPlaceholdersService,
+				Nms.getImplementations().getPlayerListAccessor()
+		);
 
 		this.villageAnimationManager.reload();
-		if (getServer().getPluginManager().isPluginEnabled("WorldEdit")) {
+		if (WorldEditHook.isEnabled()) {
 			this.villageBuildEditorManager = new VillageBuildEditorManager(this, this.buildEditorFile);
 		}
 		this.craftingManager = new CraftingManager(this);
@@ -228,9 +262,7 @@ public final class AdvancedVillages extends MetaPlugin {
 		this.craftingManager.registerRecipe();
 
 		this.combatConfig = new CombatConfig(this);
-		this.combatManager = new CombatManager();
-
-		this.spawnManager = new SpawnManager(this);
+		this.combatManager = new CombatManager(this, this.combatConfig);
 
 		getDebug().debug("Plugin initialized; waiting for data");
 	}
@@ -240,14 +272,20 @@ public final class AdvancedVillages extends MetaPlugin {
 		getDebug().debug("Disabling Plugin");
 
 		runShutdownStep("canceling pending teleports", () -> {
-			if (this.spawnManager != null) {
-				this.spawnManager.cancelAll(true);
-			}
 			if (this.teleportManager != null) {
 				this.teleportManager.shutdown();
 			}
 		});
 		runShutdownStep("stopping scheduled tasks", () -> {
+			if (this.tablistManager != null) {
+				this.tablistManager.shutdown();
+			}
+			if (this.combatManager != null) {
+				this.combatManager.shutdown();
+			}
+			if (this.rankingManager != null) {
+				this.rankingManager.shutdown();
+			}
 			if (this.villageBuildEditorManager != null) {
 				this.villageBuildEditorManager.shutdown();
 			}
@@ -262,9 +300,6 @@ public final class AdvancedVillages extends MetaPlugin {
 		runShutdownStep("clearing runtime views", () -> {
 			if (this.scoreboardManager != null) {
 				this.scoreboardManager.clearBoards();
-			}
-			if (this.combatManager != null) {
-				this.combatManager.clear();
 			}
 		});
 		runShutdownStep("unregistering recipes", () -> {
@@ -290,6 +325,11 @@ public final class AdvancedVillages extends MetaPlugin {
 		runShutdownStep("unregistering PlaceholderAPI", () -> {
 			if (isPlaceholder()) {
 				this.placeholder.unregister();
+			}
+		});
+		runShutdownStep("unregistering configured commands", () -> {
+			if (this.configuredCommandRegistry != null) {
+				this.configuredCommandRegistry.unregister();
 			}
 		});
 		runShutdownStep("unregistering listeners", () -> HandlerList.unregisterAll(this));
@@ -335,17 +375,21 @@ public final class AdvancedVillages extends MetaPlugin {
 	@Override
 	public void onConfigReload() {
 		getDebug().debug("Reloading Plugin..");
-		this.setLocale(Settings.LANGUAGE_MODE.getString(), true);
-		this.loadConfigs();
+		this.messages.reload(Settings.LANGUAGE_MODE.getString(), true);
+		if (!this.configurationManager.loadAll()) {
+			getLogger().warning("One or more configuration files were invalid and kept their previous values");
+		}
 		this.villageAnimationManager.reload();
-		this.commandLang.setConfig();
-		this.g_config.setConfig();
-		this.blacklistHandler.reload();
+		this.commandLang.reloadArguments();
+		if (this.configuredCommandRegistry != null) {
+			this.configuredCommandRegistry.reload();
+		}
+		this.guiSettings.reload();
 		this.scoreboardManager.reloadScoreboard();
 		this.tablistConfig.reload();
-		this.spawnManager.reload();
+		this.teleportManager.reload();
 		if (!Settings.ADDONS_SPAWN_ENABLE.getBoolean()) {
-			this.spawnManager.cancelAll(true);
+			this.teleportManager.cancelTeleports(TeleportManager.TeleportType.SPAWN, true);
 		}
 		this.loadLevels();
 		this.updateWorldEditState();
@@ -366,23 +410,26 @@ public final class AdvancedVillages extends MetaPlugin {
 
 	@Override
 	public List<Config> getExtraConfig() {
-		return List.of(this.spawnFile, this.levelsFile, this.combatFile, this.commandFile,
-				this.scoreboardFile, this.villageAnimationFile, this.buildEditorFile);
+		return this.configurationManager.getExtraConfigs();
+	}
+
+	@Override
+	public void reloadConfig() {
+		if (this.configurationManager.reloadMainConfig()) {
+			this.onConfigReload();
+		}
 	}
 
 	private void registerRuntimeHandlers() {
-		if (this.runtimeHandlersRegistered) {
+		if (this.runtimeHandlersRegistered)
 			return;
-		}
 
 		CommandManager commandManager = new CommandManager(this);
 		commandManager.addCommand(new CommandCrafting(this, this.guiManager));
 
-		registerCommands("village",
-				new CommandVillage(this),
-				new CommandSpawn(this),
-				isDev() ? new CommandTest(this) : null
-		);
+		this.configuredCommandRegistry = new ConfiguredCommandRegistry(this);
+		this.configuredCommandRegistry.register();
+		registerCommands("test", isDev() ? new CommandTest(this) : null);
 
 		registerListeners(
 				new JoinListener(this),
@@ -395,10 +442,11 @@ public final class AdvancedVillages extends MetaPlugin {
 				new PlayerListeners(this),
 				new VillageListener(this),
 				new BlockItemListener(this),
-				new SpawnListener(this),
+				new QuestListener(this, this.questManager),
+				new RankingListener(this.rankingManager),
 				this.villageBuildEditorManager == null ? null : new BuildEditorListener(this.villageBuildEditorManager),
-				new CombatListener(this, this.combatManager, this.combatConfig),
-				WorldGuardHook.isEnabled() ? new CombatRegionListener(this.combatManager, this.combatConfig) : null
+				new CombatListener(this.combatManager),
+				WorldGuardHook.isEnabled() ? new CombatRegionListener(this.combatManager) : null
 		);
 		this.runtimeHandlersRegistered = true;
 	}
@@ -410,7 +458,7 @@ public final class AdvancedVillages extends MetaPlugin {
 	}
 
 	private void updateWorldEditState() {
-		boolean available = getServer().getPluginManager().isPluginEnabled("WorldEdit")
+		boolean available = WorldEditHook.isEnabled()
 				&& Settings.WORLDEDIT.getBoolean();
 		if (available != this.worldedit) {
 			getLogger().info("WorldEdit village builds " + (available ? "enabled" : "disabled"));
@@ -422,44 +470,6 @@ public final class AdvancedVillages extends MetaPlugin {
 		getDebug().debug("Registering tablist placeholders");
 		this.rankPlaceholdersService = new RankPlaceholdersService(this.tablistConfig, this.userRankManager, this.villageRankManager);
 		this.tablistPlaceholdersService = new TablistPlaceholdersService(this, this.rankPlaceholdersService);
-	}
-
-	private void loadConfigs() {
-		getDebug().debug("Loading combat file");
-		if (!this.combatFile.getFile().exists()) {
-			this.saveResource("addons/antilogout.yml", false);
-		}
-		this.combatFile.load();
-
-		getDebug().debug("Loading scoreboard file");
-		if (!this.scoreboardFile.getFile().exists()) {
-			this.saveResource("addons/scoreboard.yml", false);
-		}
-		this.scoreboardFile.load();
-
-		getDebug().debug("Loading spawn file");
-		if (!this.spawnFile.getFile().exists()) {
-			this.saveResource("addons/spawn.yml", false);
-		}
-		this.spawnFile.load();
-
-		getDebug().debug("Loading village animation file");
-		if (!this.villageAnimationFile.getFile().exists()) {
-			this.saveResource("addons/animation.yml", false);
-		}
-		this.villageAnimationFile.load();
-
-		getDebug().debug("Loading build editor file");
-		if (!this.buildEditorFile.getFile().exists()) {
-			this.saveResource("addons/build-editor.yml", false);
-		}
-		this.buildEditorFile.load();
-
-		getDebug().debug("Loading levels file");
-		if (!this.levelsFile.getFile().exists()) {
-			this.saveResource("levels.yml", false);
-		}
-		this.levelsFile.load();
 	}
 
 	private boolean loadLevels() {
@@ -486,8 +496,7 @@ public final class AdvancedVillages extends MetaPlugin {
 				for (String materialEntry : levels.getStringList("Cost-item")) {
 					String[] parts = materialEntry.split(":", 2);
 					XMaterial material = parts.length == 2
-							? CompatibleMaterial.getMaterial(parts[0].trim()).orElse(null)
-							: null;
+							? CompatibleMaterial.getMaterial(parts[0].trim()).orElse(null) : null;
 					if (material == null) {
 						getLogger().warning("Ignoring invalid level material: " + materialEntry);
 						continue;
@@ -511,12 +520,10 @@ public final class AdvancedVillages extends MetaPlugin {
 		int highestLevel = loadedLevels.getHighestLevel().getLevel();
 		for (int level = 1; level <= highestLevel; level++) {
 			if (!loadedLevels.isLevel(level)) {
-				getLogger().severe("levels.yml is missing level-" + level
-						+ "; keeping the previous level configuration");
+				getLogger().severe("levels.yml is missing level-" + level + "; keeping the previous level configuration");
 				return false;
 			}
 		}
-
 		this.levelManager = loadedLevels;
 		return true;
 	}
@@ -528,53 +535,38 @@ public final class AdvancedVillages extends MetaPlugin {
 
 	private void refreshOnlineAddons() {
 		this.scoreboardManager.synchronizeBoards();
-
-		for (Player player : this.getServer().getOnlinePlayers()) {
-			Option<User> userOption = this.userManager.findByPlayer(player);
-			if (userOption.isEmpty()) {
-				continue;
-			}
-			User user = userOption.get();
-
-			if (!this.tablistConfig.isEnabled()) {
-				user.getCache().setPlayerList(null);
-				continue;
-			}
-			PlayerList playerList = getIndividualPlayerList(user);
-			playerList.send();
-			user.getCache().setPlayerList(playerList);
+		if (this.tablistManager != null) {
+			this.tablistManager.reload();
+		}
+		if (this.combatManager != null) {
+			this.combatManager.reload();
+		}
+		if (this.questManager != null) {
+			this.questManager.reload();
+		}
+		if (this.logManager != null) {
+			this.logManager.reload();
+		}
+		if (this.rankingManager != null) {
+			this.rankingManager.reload();
 		}
 	}
 
     private void registerConfig() {
 		getDebug().debug("Registering configs");
-		guiConfig = new Configuration(this, "guis.yml");
-
-        guiConfig.saveDefaultConfig();
-
 		commandLang = new CommandConfig(this);
-        g_config = new GuiConfig(this);
+		guiSettings = new GuiConfig(this);
 
 		getDebug().debug("Setting configs");
 		commandLang.setConfig();
-        g_config.setConfig();
     }
-
-	public @NotNull PlayerList getIndividualPlayerList(User user) {
-		return new PlayerList(
-				this, user,
-				Nms.getImplementations().getPlayerListAccessor(),
-				getMetaServer(),
-				this.tablistConfig
-		);
-	}
 
 	private void saveSchematics() {
 		getDebug().debug("Saving schematics");
-		File schemFolder = new File(getDataFolder(), "schematics");
-		if (!schemFolder.exists())
-			if (schemFolder.mkdirs())
-				getDebug().debug("Created folder: " + schemFolder.getName());
+		File schemaFolder = new File(getDataFolder(), "schematics");
+		if (!schemaFolder.exists())
+			if (schemaFolder.mkdirs())
+				getDebug().debug("Created folder: " + schemaFolder.getName());
 
 		String[] schematics = new String[]{
 				"Turret1.schem",
@@ -585,7 +577,7 @@ public final class AdvancedVillages extends MetaPlugin {
 		};
 
 		for (String fileName : schematics) {
-			File outFile = new File(schemFolder, fileName);
+			File outFile = new File(schemaFolder, fileName);
 			if (!outFile.exists()) {
 				try (InputStream in = getResource("schematics/" + fileName)) {
 					if (in == null) {
@@ -604,7 +596,7 @@ public final class AdvancedVillages extends MetaPlugin {
 
 	private void saveBundledLocales() {
 		for (String localeName : List.of("pl_PL", "de_DE")) {
-			pl.kiosel.core.locale.Locale.saveDefaultLocale(this, localeName, localeName);
+			Locale.saveDefaultLocale(this, localeName, localeName);
 		}
 	}
 

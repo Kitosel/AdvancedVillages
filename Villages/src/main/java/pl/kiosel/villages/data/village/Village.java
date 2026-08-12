@@ -128,6 +128,10 @@ public class Village extends AbstractMutableEntity {
 		this.markChanged();
 	}
 
+	public Location getAnimation() {
+		return getLocation().get().clone().add(0.5, 1.0, 0.5);
+	}
+
 	public void updateBank(IntFunction<Integer> update) {
 		this.setBank(update.apply(this.bank));
 	}
@@ -394,57 +398,26 @@ public class Village extends AbstractMutableEntity {
 
 	@Nullable
 	public Village getVillageAt(Location loc) {
-		boolean isVillage = false;
-		int x = location.get().getBlockX();
-		int z = location.get().getBlockZ();
-		int blockX = loc.getBlockX();
-		int blockZ = loc.getBlockZ();
-		int size = getLevel().getSize();
-
-		if((blockX >= x && blockX <= x + size) && (blockZ >= z && blockZ <= z + size)) {
-			isVillage = true;
-		} else if((blockX <= x && blockX >= x - size) && (blockZ <= z && blockZ >= z - size)) {
-			isVillage = true;
-		} else if((blockX >= x && blockX <= x + size) && (blockZ <= z && blockZ >= z - size)) {
-			isVillage = true;
-		} else if((blockX <= x && blockX >= x - size) && (blockZ >= z && blockZ <= z + size)) {
-			isVillage = true;
-		}
-		if(isVillage) {
-			return this;
-		}
-		return null;
+		return this.contains(loc, this.getLevel().getSize()) ? this : null;
 	}
 
 	@Nullable
-	public Village getVillageAt(Location loc, int custom_size) {
-		boolean isVillage = false;
-		int x = location.get().getBlockX();
-		int z = location.get().getBlockZ();
-		int blockX = loc.getBlockX();
-		int blockZ = loc.getBlockZ();
-
-		if((blockX >= x && blockX <= x + custom_size) && (blockZ >= z && blockZ <= z + custom_size)) {
-			isVillage = true;
-		} else if((blockX <= x && blockX >= x - custom_size) && (blockZ <= z && blockZ >= z - custom_size)) {
-			isVillage = true;
-		} else if((blockX >= x && blockX <= x + custom_size) && (blockZ <= z && blockZ >= z - custom_size)) {
-			isVillage = true;
-		} else if((blockX <= x && blockX >= x - custom_size) && (blockZ >= z && blockZ <= z + custom_size)) {
-			isVillage = true;
-		}
-		if(isVillage) return this;
-		return null;
+	public Village getVillageAt(Location loc, int customSize) {
+		return this.contains(loc, customSize) ? this : null;
 	}
 
-	public static boolean getValueFromString(String string, String flag) {
-		String[] array = string.split(";");
-		for(String text : array) {
-			String[] text_array = text.split(":");
-			if(text_array[0].equals(flag))
-				return Boolean.parseBoolean(text_array[1]);
+	private boolean contains(Location target, int size) {
+		Location center = this.location.orNull();
+		if (target == null || center == null
+				|| target.getWorld() == null || center.getWorld() == null
+				|| !center.getWorld().equals(target.getWorld())) {
+			return false;
 		}
-		return false;
+
+		long radius = Math.max(0, size);
+		long distanceX = Math.abs((long) target.getBlockX() - center.getBlockX());
+		long distanceZ = Math.abs((long) target.getBlockZ() - center.getBlockZ());
+		return distanceX <= radius && distanceZ <= radius;
 	}
 
 	public static String getDefaultString() {
