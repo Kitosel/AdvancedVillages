@@ -201,7 +201,10 @@ public class CommandVillage extends SimpleCommand {
 					if (sub2Cmd.equalsIgnoreCase(commandConfig.getCommand(CommandLang.ADMIN_GIVE)))
 						return TabUtils.returnWith(args[2], TextUtils.of(
 								commandConfig.getCommand(CommandLang.ADMIN_GIVE_DESTROYER),
-								commandConfig.getCommand(CommandLang.ADMIN_GIVE_VILLAGE)
+								commandConfig.getCommand(CommandLang.ADMIN_GIVE_VILLAGE),
+								commandConfig.getCommand(CommandLang.ADMIN_GIVE_DESTROYER_HEARTH),
+								commandConfig.getCommand(CommandLang.ADMIN_GIVE_VILLAGE_HEARTH),
+								commandConfig.getCommand(CommandLang.ADMIN_GIVE_VILLAGE_HEARTH_PART)
 						));
 					if (sub2Cmd.equalsIgnoreCase(commandConfig.getCommand(CommandLang.ADMIN_MANAGE)))
 						return TabUtils.returnWith(args[2], plugin.getVillageManager().getVillageOwners());

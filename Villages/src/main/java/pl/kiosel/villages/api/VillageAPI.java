@@ -142,9 +142,11 @@ public class VillageAPI {
 	}
 
 	public ItemStack createHearth() {
-		return Item.createNoPlaceNoCraft(Material.BARRIER,
+		ItemStack item = Item.createNoPlaceNoCraft(Material.BARRIER,
 				plugin.getMessages().get(Lang.VILLAGE_HEARTH_BLOCK_NAME).toString(),
 				List.of(plugin.getMessages().get(Lang.VILLAGE_HEARTH_BLOCK_LORE).toString()));
+		NBT.modify(item, (Consumer<ReadWriteItemNBT>) nbt -> nbt.setBoolean("villageHearth", true));
+		return item;
 	}
 
 	public ItemStack createHearthPart() {

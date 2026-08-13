@@ -16,8 +16,10 @@ import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import pl.kiosel.core.utils.Cuboid;
+import pl.kiosel.core.utils.PlayerUtils;
 import pl.kiosel.dependencies.com.cryptomorin.xseries.XMaterial;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.addons.logs.VillageLogType;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.enums.Lang;
@@ -25,6 +27,8 @@ import pl.kiosel.villages.gui.Item;
 import pl.kiosel.villages.manager.VillageUtilsManager;
 import pl.kiosel.villages.settings.Settings;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class InteractBlockListeners implements Listener {
@@ -65,6 +69,32 @@ public class InteractBlockListeners implements Listener {
 
 			if (!cuboid.contains(location)) return;
 
+			User user = plugin.getUserManager().findByUuid(player.getUniqueId()).get();
+			ItemStack hand = player.getInventory().getItemInMainHand();
+
+			if (village.isMember(user)) {
+				event.setCancelled(true);
+				if (Item.hasTag(hand, "villageHearth")) {
+					event.setCancelled(true);
+					if (Settings.VILLAGE_MAX_LIVES.getInt() <= village.getLives()) {
+						plugin.getMessages().get(Lang.VILLAGE_MAX_LIVES).sendPrefixedMessage(player);
+						player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT, 1.0f, 0.0f);
+						return;
+					}
+					plugin.getLogManager().record(village, VillageLogType.VILLAGE_HEARTH_ADD, player);
+					plugin.getDebug().debug("Player " + player.getName() + " added live to a village " + village.getName());
+					village.setLives(village.getLives() + 1);
+
+					List<ItemStack> item = new ArrayList<>();
+					item.add(plugin.getApi().createHearth());
+					PlayerUtils.removeItem(player, item);
+
+					VillageUtilsManager.replaceWith(player, village, Lang.VILLAGE_HEARTH_ADD).sendPrefixedMessage(player);
+					player.playSound(player.getLocation(), Sound.ENTITY_BLAZE_HURT, 0.8f, 2.0f);
+				}
+				return;
+			}
+
 			event.setCancelled(true);
 			player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.4f, 1.0f);
 		}
@@ -98,7 +128,7 @@ public class InteractBlockListeners implements Listener {
 
 		if (!village.isMember(user)) {
 			event.setCancelled(true);
-			if (Item.hasTag(hand, "noBreak")) {
+			if (Item.hasTag(hand, "villageDestroyer")) {
 				event.setCancelled(true);
 				if (Settings.VILLAGE_ATTACK_WHEN_OFFLINE.getBoolean()) {
 					plugin.getMessages().get(Lang.VILLAGE_PROTECTED_OFFLINE).sendPrefixedMessage(player);

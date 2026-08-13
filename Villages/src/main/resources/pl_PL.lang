@@ -52,8 +52,7 @@ command:
     request: '&cWybierz: &f%accept% &club &f%deny%'
     build-editor: '&cUżycie: &f/village edit [%save%|%cancel%]'
   admin:
-    village-block: '&aOtrzymałeś Blok Wioski'
-    destroyer: '&aOtrzymałeś Niszczyciel'
+    give-item: '&aOtrzymałeś %item%'
     upgrade: '&aWioska gracza &f%village_owner% &azostała ulepszona!'
     cant-upgrade: '&cWioska osiągnęła maksymalny poziom!'
     delete: '&cWioska gracza &f%village_owner% &czostała usunięta!'
@@ -109,6 +108,9 @@ village:
   bank-add: '&7Wpłacono do banku wioski: &a%money%'
   bank-remove: '&7Wypłacono z banku wioski: &c%money%'
   bank-no-money: '&cW banku wioski nie ma wystarczająco pieniędzy'
+
+  hearth-add: "&6Dodanałeś jedno życie wiosce! &7Teraz ma ich &e%village_lives%&7/&b%max_lives%"
+  hearth-max-lives: "&cWioska ma już maksymalną ilość żyć!"
 
   # %village_tag% %village_name% %village_owner%
   enter-area-title: '&6Wszedłeś na teren wioski'

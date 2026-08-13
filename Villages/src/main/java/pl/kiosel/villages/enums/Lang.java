@@ -15,8 +15,7 @@ public enum Lang {
 	COMMAND_USAGE_INVITE("command.usage.invite"),
 	COMMAND_USAGE_REQUEST("command.usage.request"),
 	COMMAND_USAGE_BUILD_EDITOR("command.usage.build-editor"),
-	COMMAND_ADMIN_VILLAGE_BLOCK("command.admin.village-block"),
-	COMMAND_ADMIN_DESTROYER("command.admin.destroyer"),
+	COMMAND_ADMIN_GIVE_ITEM("command.admin.give-item"),
 	COMMAND_ADMIN_UPGRADE("command.admin.upgrade"),
 	COMMAND_ADMIN_CANT_UPGRADE("command.admin.cant-upgrade"),
 	COMMAND_ADMIN_DELETE("command.admin.delete"),
@@ -95,6 +94,9 @@ public enum Lang {
 	VILLAGE_DESTROYED_TITLE("village.destroyed.title"),
 	VILLAGE_DESTROYED_SUBTITLE("village.destroyed.subtitle"),
 	VILLAGE_DESTROYED_MESSAGE("village.destroyed.message"),
+
+	VILLAGE_HEARTH_ADD("village.hearth-add"),
+	VILLAGE_MAX_LIVES("village.hearth-max-lives"),
 
 	VILLAGE_IN("village.in-village"),
     VILLAGE_NO("village.no-village"),

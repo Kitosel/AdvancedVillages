@@ -52,8 +52,7 @@ command:
     request: '&cWähle: &f%accept% &coder &f%deny%'
     build-editor: '&cVerwendung: &f/village edit [%save%|%cancel%]'
   admin:
-    village-block: '&aDu hast einen Dorfblock erhalten'
-    destroyer: '&aDu hast einen Zerstörer erhalten'
+    give-item: '&aDu hast einen %item%'
     upgrade: '&aDas Dorf von &f%village_owner% &awurde verbessert!'
     cant-upgrade: '&cDas Dorf hat die höchste Stufe erreicht!'
     delete: '&cDas Dorf von &f%village_owner% &cwurde gelöscht!'
@@ -109,6 +108,9 @@ village:
   bank-add: '&7In die Dorfbank eingezahlt: &a%money%'
   bank-remove: '&7Aus der Dorfbank ausgezahlt: &c%money%'
   bank-no-money: '&cDie Dorfbank hat nicht genug Geld'
+
+  hearth-add: "&6Du hast dem Dorf ein Leben hinzugefügt! &7Jetzt hat es &e%village_lives%&7/&b%max_lives%"
+  hearth-max-lives: "&cDas Dorf hat bereits die maximale Anzahl an Leben erreicht!"
 
   # %village_tag% %village_name% %village_owner%
   enter-area-title: '&6Du hast ein Dorf betreten'

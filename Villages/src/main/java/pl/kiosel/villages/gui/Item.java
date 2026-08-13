@@ -80,6 +80,7 @@ public class Item {
 
 	public static ItemStack createNoPlaceNoCraft(Material material, String name, List<String> lore) {
 		return ItemCreator.of(material).name(name).lore(lore)
+				.amount(1)
 				.nbtBoolean("noPlace", true)
 				.hideAll().hideAttributes()
 				.make();
@@ -87,7 +88,7 @@ public class Item {
 
 	public static ItemStack createDestroyer(Material material, String name, List<String> lore) {
 		return ItemCreator.of(material).name(name).lore(lore)
-				.nbtBoolean("noBreak", true)
+				.nbtBoolean("villageDestroyer", true)
 				.unbreakable().glow().hideAll().hideAttributes()
 				.make();
 	}

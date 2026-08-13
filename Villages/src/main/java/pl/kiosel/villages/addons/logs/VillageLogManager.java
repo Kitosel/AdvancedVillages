@@ -9,21 +9,12 @@ import pl.kiosel.villages.storage.VillageLogStorage;
 
 import java.time.Instant;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 
-/** Records activity without blocking the server thread on database writes. */
 public final class VillageLogManager {
 
 	private final AdvancedVillages plugin;

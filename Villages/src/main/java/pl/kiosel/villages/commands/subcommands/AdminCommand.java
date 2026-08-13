@@ -1,9 +1,11 @@
 package pl.kiosel.villages.commands.subcommands;
 
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import panda.std.Option;
 import pl.kiosel.core.configuration.editor.PluginConfigGui;
 import pl.kiosel.core.math.MathUtils;
+import pl.kiosel.core.utils.PlayerUtils;
 import pl.kiosel.core.utils.TimeUtils;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.addons.logs.VillageLogType;
@@ -18,6 +20,7 @@ import pl.kiosel.villages.manager.VillageUtilsManager;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Objects;
 
 public class AdminCommand extends AVSubCommand {
 
@@ -58,6 +61,10 @@ public class AdminCommand extends AVSubCommand {
 		String giveVillageCmd = commandConfig.getCommand(CommandLang.ADMIN_GIVE_VILLAGE).toLowerCase();
 		String giveDestroyerCmd = commandConfig.getCommand(CommandLang.ADMIN_GIVE_DESTROYER).toLowerCase();
 
+		String giveDestroyerHearthCmd = commandConfig.getCommand(CommandLang.ADMIN_GIVE_DESTROYER_HEARTH).toLowerCase();
+		String giveVillageHearthCmd = commandConfig.getCommand(CommandLang.ADMIN_GIVE_VILLAGE_HEARTH).toLowerCase();
+		String giveVillageHearthPartCmd = commandConfig.getCommand(CommandLang.ADMIN_GIVE_VILLAGE_HEARTH_PART).toLowerCase();
+
 		String upgradeCmd = commandConfig.getCommand(CommandLang.ADMIN_UPGRADE).toLowerCase();
 		String deleteCmd = commandConfig.getCommand(CommandLang.ADMIN_DELETE).toLowerCase();
 		String protectionCmd = commandConfig.getCommand(CommandLang.ADMIN_PROTECTION).toLowerCase();
@@ -90,14 +97,37 @@ public class AdminCommand extends AVSubCommand {
 				String giveType = args[2].toLowerCase();
 
 				if (giveType.equals(giveVillageCmd)) {
-					player.getInventory().addItem(plugin.getApi().createVillageBlock());
-					sendLocalized(player, Lang.COMMAND_ADMIN_VILLAGE_BLOCK);
+					ItemStack itemStack = plugin.getApi().createVillageBlock();
+					PlayerUtils.giveItem(player, itemStack);
+					sendLocalized(player, Lang.COMMAND_ADMIN_GIVE_ITEM, "item", Objects.requireNonNull(itemStack.getItemMeta()).getDisplayName());
+					return;
+				}
+
+				if (giveType.equals(giveDestroyerHearthCmd)) {
+					ItemStack itemStack = plugin.getApi().createDestroyerHearth();
+					PlayerUtils.giveItem(player, itemStack);
+					sendLocalized(player, Lang.COMMAND_ADMIN_GIVE_ITEM, "item", Objects.requireNonNull(itemStack.getItemMeta()).getDisplayName());
 					return;
 				}
 
 				if (giveType.equals(giveDestroyerCmd)) {
-					player.getInventory().addItem(plugin.getApi().createDestroyer());
-					sendLocalized(player, Lang.COMMAND_ADMIN_DESTROYER);
+					ItemStack itemStack = plugin.getApi().createDestroyer();
+					PlayerUtils.giveItem(player, itemStack);
+					sendLocalized(player, Lang.COMMAND_ADMIN_GIVE_ITEM, "item", Objects.requireNonNull(itemStack.getItemMeta()).getDisplayName());
+					return;
+				}
+
+				if (giveType.equals(giveVillageHearthPartCmd)) {
+					ItemStack itemStack = plugin.getApi().createHearthPart();
+					PlayerUtils.giveItem(player, itemStack);
+					sendLocalized(player, Lang.COMMAND_ADMIN_GIVE_ITEM, "item", Objects.requireNonNull(itemStack.getItemMeta()).getDisplayName());
+					return;
+				}
+
+				if (giveType.equals(giveVillageHearthCmd)) {
+					ItemStack itemStack = plugin.getApi().createHearth();
+					PlayerUtils.giveItem(player, itemStack);
+					sendLocalized(player, Lang.COMMAND_ADMIN_GIVE_ITEM, "item", Objects.requireNonNull(itemStack.getItemMeta()).getDisplayName());
 					return;
 				}
 			}

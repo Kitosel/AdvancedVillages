@@ -20,6 +20,9 @@ command-language:
   admin_give: give
   admin_give_villageblock: village
   admin_give_destroyer: destroyer
+  admin_give_destroyer_hearth: destroyer-hearth
+  admin_give_village_hearth: village-hearth
+  admin_give_hearth_part: village-hearth-part
   admin_manage: manage
   admin_settings: settings
 

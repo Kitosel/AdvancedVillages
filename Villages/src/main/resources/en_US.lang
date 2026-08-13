@@ -53,8 +53,7 @@ command:
     request: '&cChoose: &f%accept% &cor &f%deny%'
     build-editor: '&cUsage: &f/village edit [%save%|%cancel%]'
   admin:
-    village-block: '&aYou received a Village Block'
-    destroyer: '&aYou received a Destroyer'
+    give-item: '&aYou received a %item%'
     upgrade: "&a%village_owner%'s village has been upgraded!"
     cant-upgrade: '&cThe village has reached the maximum level!'
     delete: "&c%village_owner%'s village has been deleted!"
@@ -113,6 +112,9 @@ village:
   bank-add: '&7Deposited into the village bank: &a%money%'
   bank-remove: '&7Withdrawn from the village bank: &c%money%'
   bank-no-money: "&cThe village bank doesn't have enough money"
+
+  hearth-add: "&6You've added one life to the village! &7Now it has &e%village_lives%&7/&b%max_lives%"
+  hearth-max-lives: "&cThe village has reached its maximum number of lives!"
 
   # %village_tag% %village_name% %village_owner%
   enter-area-title: '&6You entered a village'

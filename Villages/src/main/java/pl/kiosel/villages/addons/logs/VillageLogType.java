@@ -5,10 +5,10 @@ import org.bukkit.Material;
 
 import java.util.Locale;
 
-/** Categories stored in the persistent village activity history. */
 public enum VillageLogType {
 
 	VILLAGE_CREATED(Material.BEACON),
+	VILLAGE_HEARTH_ADD(Material.REDSTONE),
 	MEMBER_JOIN(Material.LIME_DYE),
 	MEMBER_LEAVE(Material.ORANGE_DYE),
 	MEMBER_KICK(Material.RED_DYE),

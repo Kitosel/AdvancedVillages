@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.inventory.ItemStack;
@@ -27,6 +28,16 @@ public class BlockItemListener implements Listener {
 		if (item == null || item.getType() == Material.AIR) return;
 
 		if (Item.hasTag(item, "noPlace"))
+			event.setCancelled(true);
+	}
+
+
+	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+	public void onBreak(BlockBreakEvent event) {
+		ItemStack item = event.getPlayer().getInventory().getItemInMainHand();
+		if (item == null || item.getType() == Material.AIR) return;
+
+		if (Item.hasTag(item, "villageDestroyer"))
 			event.setCancelled(true);
 	}
 
