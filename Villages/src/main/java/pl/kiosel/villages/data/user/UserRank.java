@@ -4,7 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import pl.kiosel.villages.data.rank.Rank;
 import pl.kiosel.villages.data.user.top.UserComparator;
 
-import java.util.function.IntFunction;
+import java.util.function.IntUnaryOperator;
 
 public class UserRank extends Rank<User> implements Comparable<UserRank> {
 
@@ -33,8 +33,8 @@ public class UserRank extends Rank<User> implements Comparable<UserRank> {
         this.entity.markChanged();
     }
 
-    public void updatePoints(IntFunction<Integer> update) {
-        this.setPoints(update.apply(this.points));
+    public void updatePoints(IntUnaryOperator update) {
+        this.setPoints(update.applyAsInt(this.points));
     }
 
     @Override
@@ -47,8 +47,8 @@ public class UserRank extends Rank<User> implements Comparable<UserRank> {
         this.entity.markChanged();
     }
 
-    public void updateKills(IntFunction<Integer> update) {
-        this.setKills(update.apply(this.kills));
+    public void updateKills(IntUnaryOperator update) {
+        this.setKills(update.applyAsInt(this.kills));
     }
 
     @Override
@@ -61,8 +61,8 @@ public class UserRank extends Rank<User> implements Comparable<UserRank> {
         this.entity.markChanged();
     }
 
-    public void updateDeaths(IntFunction<Integer> update) {
-        this.setDeaths(update.apply(this.deaths));
+    public void updateDeaths(IntUnaryOperator update) {
+        this.setDeaths(update.applyAsInt(this.deaths));
     }
 
     @Override
@@ -75,8 +75,8 @@ public class UserRank extends Rank<User> implements Comparable<UserRank> {
         this.entity.markChanged();
     }
 
-    public void updateAssists(IntFunction<Integer> update) {
-        this.setAssists(update.apply(this.assists));
+    public void updateAssists(IntUnaryOperator update) {
+        this.setAssists(update.applyAsInt(this.assists));
     }
 
     @Override
@@ -89,8 +89,8 @@ public class UserRank extends Rank<User> implements Comparable<UserRank> {
         this.entity.markChanged();
     }
 
-    public void updateLogouts(IntFunction<Integer> update) {
-        this.setLogouts(update.apply(this.logouts));
+    public void updateLogouts(IntUnaryOperator update) {
+        this.setLogouts(update.applyAsInt(this.logouts));
     }
 
     @Override

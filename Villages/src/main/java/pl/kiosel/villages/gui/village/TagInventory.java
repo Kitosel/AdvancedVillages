@@ -2,14 +2,15 @@ package pl.kiosel.villages.gui.village;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import pl.kiosel.core.gui.AnvilGui;
-import pl.kiosel.core.gui.Gui;
+import pl.kiosel.rosacore.gui.AnvilGui;
+import pl.kiosel.rosacore.gui.Gui;
+import pl.kiosel.rosacore.gui.GuiManager;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.addons.logs.VillageLogType;
+import pl.kiosel.villages.config.Lang;
+import pl.kiosel.villages.config.Settings;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.enums.Lang;
 import pl.kiosel.villages.gui.Item;
-import pl.kiosel.villages.settings.Settings;
 
 public final class TagInventory extends AnvilGui {
 
@@ -23,15 +24,18 @@ public final class TagInventory extends AnvilGui {
 		this.village = village;
 		this.viewer = player;
 
-		setTitle(plugin.getMessages().get(Lang.ANVIL_NAME).toString());
-		setInput(Item.create(Material.NAME_TAG, "*NAME*"));
-		setOutputPrompt(plugin.getMessages().get(Lang.ANVIL_NAME).toString());
+		setTitle(plugin.getGuiSettings().text("guis.tag.title", "Name your village"));
+		setInput(Item.create(Material.NAME_TAG,
+				plugin.getGuiSettings().text("guis.tag.input-name", "*NAME*")));
+		setOutputPrompt(plugin.getGuiSettings().text("guis.tag.output-prompt", "Name your village"));
 		setAction(event -> submit());
-		setOnClose(event -> {
-			if (!village.isTag()) {
-				plugin.getMessages().get(Lang.TAG_NO_SET_VILLAGE).sendPrefixedMessage(event.player);
-			}
-		});
+	}
+
+	@Override
+	protected void onClose(GuiManager manager, Player player) {
+		if (!this.village.isTag()) {
+			this.plugin.getVillageMessages().get(Lang.TAG_NO_SET_VILLAGE).sendPrefixed(player);
+		}
 	}
 
 	private void submit() {
@@ -59,8 +63,8 @@ public final class TagInventory extends AnvilGui {
 		village.setTag(tag);
 		plugin.getLogManager().record(village, VillageLogType.SETTING_CHANGED, viewer,
 				"setting", "tag", "value", tag);
-		plugin.getMessages().get(Lang.TAG_NEW_VILLAGE)
-				.processPlaceholder("tag", tag).sendPrefixedMessage(viewer);
+		plugin.getVillageMessages().get(Lang.TAG_NEW_VILLAGE)
+				.with("tag", tag).sendPrefixed(viewer);
 		if (getParent() != null) {
 			plugin.getGuiManager().showGUI(viewer, getParent());
 		} else {
@@ -69,6 +73,6 @@ public final class TagInventory extends AnvilGui {
 	}
 
 	private void message(Lang message) {
-		plugin.getMessages().get(message).sendPrefixedMessage(viewer);
+		plugin.getVillageMessages().get(message).sendPrefixed(viewer);
 	}
 }

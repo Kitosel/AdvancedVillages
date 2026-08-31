@@ -2,17 +2,19 @@ package pl.kiosel.villages.addons.ranking;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import pl.kiosel.rosacore.listener.RosaListener;
+import pl.kiosel.villages.AdvancedVillages;
 
-public final class RankingListener implements Listener {
+public final class RankingListener extends RosaListener {
 
 	private final RankingManager rankingManager;
 
-	public RankingListener(RankingManager rankingManager) {
-		this.rankingManager = rankingManager;
+	public RankingListener(AdvancedVillages plugin) {
+		super(plugin);
+		this.rankingManager = plugin.getRankingManager();
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

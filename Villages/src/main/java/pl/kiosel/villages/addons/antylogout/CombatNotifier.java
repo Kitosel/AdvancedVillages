@@ -2,11 +2,9 @@ package pl.kiosel.villages.addons.antylogout;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import pl.kiosel.core.chat.AdventureUtils;
-import pl.kiosel.core.dependencies.net.kyori.adventure.text.Component;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.config.VillageMessages;
-import pl.kiosel.villages.enums.Lang;
 
 final class CombatNotifier {
 
@@ -52,15 +50,15 @@ final class CombatNotifier {
 	}
 
 	void clearActionBar(Player player) {
-		AdventureUtils.sendActionBar(Component.empty(), player);
+		this.plugin.getMessenger().actionBar(player, "");
 	}
 
 	private void sendActionBar(Player player, Lang key, Object... placeholders) {
 		String content = this.messages().text(key, placeholders);
-		AdventureUtils.sendActionBar(AdventureUtils.formatComponent(content), player);
+		this.plugin.getMessenger().actionBar(player, content);
 	}
 
 	private VillageMessages messages() {
-		return this.plugin.getMessages();
+		return this.plugin.getVillageMessages();
 	}
 }

@@ -1,6 +1,5 @@
 package pl.kiosel.villages.data.user.top;
 
-import panda.std.stream.PandaStream;
 import pl.kiosel.villages.data.rank.TopComparator;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.user.UserManager;
@@ -25,8 +24,8 @@ public class UserRecalculation implements BiFunction<String, TopComparator<UserR
 		Set<User> users = this.userManager.getUsers();
 		users.forEach(user -> user.getRank().setPosition(id, 0));
 
-		PandaStream.of(users)
-                .filterNot(user -> user.hasPermission("advancedvillages.ranking.exempt"))
+		users.stream()
+                .filter(user -> !user.hasPermission("advancedvillages.ranking.exempt"))
                 .map(User::getRank)
                 .forEach(usersRank::add);
 

@@ -1,24 +1,56 @@
-#Configuration
+# Sidebar configuration
 no-village: '&cNone'
-title: '&6&lVillages'
+
+# Requires Paper 1.20.3 or newer. Older servers keep normal score numbers.
+hide-numbers: true
+
+# How often should the scoreboard refresh? 20 tick = 1 second
+refresh-interval-ticks: 40
+
+title: '&6&lADVANCED&f&lVILLAGES'
 score:
-  - '&7----------------'
-  - '&7Nick: &e%player_name%'
-  - '&7Money: &e%player_money%'
-  - '&7Village:'
-  - ' &7Owner: &e%village_owner%'
-  - ' &7Life: &e%village_life%'
-  - ' &7      &e%village_life_as_symbol%'
-  - ' &7Level: &e%village_level%'
-  - ' &7Tag: &e%village_tag%'
-  - '&7--------&7--------'
+  - '&8&m                           '
+  - '&7Player: &f%player_name%'
+  - '&7Balance: &6$%player_money%'
+  - ''
+  - '&6&lVILLAGE'
+  - "%if-village%"
+  - ''
+  - '&8%player_world% &7• &f%player_ping% ms'
+  - '&8&m                           '
 
 #Animated title
 animation:
   enabled: true
   speed: 2
   titles:
-    - '&6&lVillages'
-    - '&b&lVillages'
-    - '&f&lWioski'
-    - '&b&lV&f&li&b&ll&b&ll&f&la&b&lg&f&le&f&ls'
+    - '&6&lADVANCED&f&lVILLAGES'
+    - '&e&lADVANCED&f&lVILLAGES'
+    - '&f&lADVANCED&6&lVILLAGES'
+    - '&f&lADVANCED&e&lVILLAGES'
+
+# Conditions support: !, &&, || and parentheses.
+# Functions: user.inVillage(), user.isOwner(), user.hasPermission('permission'),
+# user.hasVillagePermission('UPGRADE'),
+# player.isOp(), village.hasTag(), village.pvpEnabled(), village.tntEnabled(),
+# village.animationsEnabled(), village.hasHome(), village.hasRegion(),
+# village.hasAllies(), village.hasWars(), village.levelAtLeast(2),
+# village.bankAtLeast(1000), village.livesAtLeast(5).
+
+placeholders:
+  if-village:
+    condition: "user.inVillage()"
+    true: "%village%"
+    false: "%no-village%"
+
+# A handler replaces its %name% with all configured lines.
+handlers:
+  village:
+    - '&7Tag: &f%village_tag%'
+    - '&7Owner: &f%village_owner%'
+    - '&7Level: &e%village_level%'
+    - '&7Bank: &6$%village_bank%'
+    - '&7Lives: %village_life_as_symbol%'
+  no-village:
+    - '&7Status: %village_name%'
+    - '&8Create or join a village'

@@ -1,23 +1,18 @@
 package pl.kiosel.villages.config;
 
 import org.bukkit.Material;
-import pl.kiosel.core.configuration.Config;
-import pl.kiosel.core.utils.NumberUtils;
+import pl.kiosel.rosacore.config.RosaConfig;
+import pl.kiosel.rosacore.utils.ColorUtils;
+import pl.kiosel.rosacore.utils.NumberUtils;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.enums.GUIS;
+import pl.kiosel.villages.gui.GUIS;
 
 import java.util.*;
 
-import static pl.kiosel.core.utils.ColorUtils.tl;
-
-/**
- * Typed, reloadable access to guis.yml. Existing name/lore paths remain valid;
- * layout and item metadata can now be changed without touching Java code.
- */
 public final class GuiConfig {
 
 	private final AdvancedVillages plugin;
-	private final Config file;
+	private final RosaConfig file;
 	private final Set<String> reportedProblems = new HashSet<>();
 	private volatile Map<GUIS, GuiMenuConfig> menus = Collections.emptyMap();
 
@@ -52,7 +47,7 @@ public final class GuiConfig {
 		if (menu != null) {
 			return menu;
 		}
-		return new GuiMenuConfig(type.getId(), tl(type.getDefaultTitle()), type.getDefaultRows(), 4);
+		return new GuiMenuConfig(type.getId(), ColorUtils.color(type.getDefaultTitle()), type.getDefaultRows(), 4);
 	}
 
 	public GuiItemConfig item(GUIS menu, String path, int defaultSlot, Material defaultMaterial,
@@ -83,7 +78,7 @@ public final class GuiConfig {
 
 	public String text(String path, String fallback) {
 		String value = this.file.getString(path);
-		return tl(value == null ? fallback : value);
+		return ColorUtils.color(value == null ? fallback : value);
 	}
 
 	public List<String> list(String path, List<String> fallback) {
@@ -94,7 +89,7 @@ public final class GuiConfig {
 		}
 		List<String> colored = new ArrayList<>(source.size());
 		for (String line : source) {
-			colored.add(tl(line == null ? "" : line));
+			colored.add(ColorUtils.color(line == null ? "" : line));
 		}
 		return Collections.unmodifiableList(colored);
 	}
@@ -119,7 +114,7 @@ public final class GuiConfig {
 
 	private void warnOnce(String key, String message) {
 		if (this.reportedProblems.add(key)) {
-			this.plugin.getLogger().warning(message);
+			this.plugin.getRosaLogger().warning(message);
 		}
 	}
 }

@@ -5,21 +5,24 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import pl.kiosel.core.dependencies.de.tr7zw.nbtapi.NBT;
-import pl.kiosel.core.dependencies.de.tr7zw.nbtapi.iface.ReadWriteItemNBT;
+import pl.kiosel.rosacore.dependencies.nbtapi.NBT;
+import pl.kiosel.rosacore.dependencies.nbtapi.iface.ReadWriteItemNBT;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.addons.buildeditor.VillageBuildEditorManager;
+import pl.kiosel.villages.addons.diplomacy.DiplomacyManager;
 import pl.kiosel.villages.addons.logs.VillageLogManager;
 import pl.kiosel.villages.addons.quests.VillageQuestManager;
 import pl.kiosel.villages.addons.ranking.RankingManager;
 import pl.kiosel.villages.addons.trials.VillageAnimationManager;
+import pl.kiosel.villages.addons.upkeep.VillageUpkeepManager;
+import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.user.UserManager;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.data.village.VillageManager;
-import pl.kiosel.villages.enums.Lang;
 import pl.kiosel.villages.gui.Item;
 import pl.kiosel.villages.manager.UpgradeManager;
+import pl.kiosel.villages.manager.RoleManager;
 import pl.kiosel.villages.manager.VillageRemoveManager;
 import pl.kiosel.villages.manager.teleport.TeleportManager;
 
@@ -49,6 +52,11 @@ public class VillageAPI {
 	@NotNull
 	public UserManager getUserManager() {
 		return plugin.getUserManager();
+	}
+
+	@NotNull
+	public RoleManager getRoleManager() {
+		return plugin.getRoleManager();
 	}
 
 	public boolean isDataReady() {
@@ -93,6 +101,14 @@ public class VillageAPI {
 		return plugin.getRankingManager();
 	}
 
+	public DiplomacyManager getDiplomacyManager() {
+		return plugin.getDiplomacyManager();
+	}
+
+	public VillageUpkeepManager getUpkeepManager() {
+		return plugin.getUpkeepManager();
+	}
+
 	@Nullable
 	public Village getVillage(String playerName) {
 		if (playerName == null) {
@@ -100,7 +116,7 @@ public class VillageAPI {
 		}
 		return plugin.getUserManager().findByName(playerName)
 				.map(User::getPresentVillage)
-				.orNull();
+				.orElse(null);
 	}
 
 	@Nullable
@@ -115,7 +131,7 @@ public class VillageAPI {
 		}
 		return plugin.getUserManager().findByUuid(uuid)
 				.map(User::getPresentVillage)
-				.orNull();
+				.orElse(null);
 	}
 
 	@Nullable
@@ -129,35 +145,35 @@ public class VillageAPI {
 
     public ItemStack createVillageBlock() {
 		ItemStack item = Item.create(Material.NOTE_BLOCK,
-				plugin.getMessages().get(Lang.VILLAGE_BLOCK_NAME).toString(),
-				List.of(plugin.getMessages().get(Lang.VILLAGE_BLOCK_LORE).toString()), true);
+				plugin.getVillageMessages().get(Lang.VILLAGE_BLOCK_NAME).toString(),
+				List.of(plugin.getVillageMessages().get(Lang.VILLAGE_BLOCK_LORE).toString()), true);
 		NBT.modify(item, (Consumer<ReadWriteItemNBT>) nbt -> nbt.setBoolean("villageBlock", true));
 		return item;
     }
 
 	public ItemStack createDestroyer() {
 		return Item.createDestroyer(Material.GOLDEN_PICKAXE,
-				plugin.getMessages().get(Lang.VILLAGE_DESTROYER_NAME).toString(),
-				List.of(plugin.getMessages().get(Lang.VILLAGE_DESTROYER_LORE).toString()));
+				plugin.getVillageMessages().get(Lang.VILLAGE_DESTROYER_NAME).toString(),
+				List.of(plugin.getVillageMessages().get(Lang.VILLAGE_DESTROYER_LORE).toString()));
 	}
 
 	public ItemStack createHearth() {
 		ItemStack item = Item.createNoPlaceNoCraft(Material.BARRIER,
-				plugin.getMessages().get(Lang.VILLAGE_HEARTH_BLOCK_NAME).toString(),
-				List.of(plugin.getMessages().get(Lang.VILLAGE_HEARTH_BLOCK_LORE).toString()));
+				plugin.getVillageMessages().get(Lang.VILLAGE_HEARTH_BLOCK_NAME).toString(),
+				List.of(plugin.getVillageMessages().get(Lang.VILLAGE_HEARTH_BLOCK_LORE).toString()));
 		NBT.modify(item, (Consumer<ReadWriteItemNBT>) nbt -> nbt.setBoolean("villageHearth", true));
 		return item;
 	}
 
 	public ItemStack createHearthPart() {
 		return Item.createNoPlaceNoCraft(Material.REDSTONE_BLOCK,
-				plugin.getMessages().get(Lang.VILLAGE_PART_HEARTH_BLOCK_NAME).toString(),
-				List.of(plugin.getMessages().get(Lang.VILLAGE_PART_HEARTH_BLOCK_LORE).toString()));
+				plugin.getVillageMessages().get(Lang.VILLAGE_PART_HEARTH_BLOCK_NAME).toString(),
+				List.of(plugin.getVillageMessages().get(Lang.VILLAGE_PART_HEARTH_BLOCK_LORE).toString()));
 	}
 
 	public ItemStack createDestroyerHearth() {
 		return Item.createNoPlaceNoCraft(Material.GOLD_BLOCK,
-				plugin.getMessages().get(Lang.VILLAGE_DESTROYER_HEARTH_NAME).toString(),
-				List.of(plugin.getMessages().get(Lang.VILLAGE_DESTROYER_HEARTH_LORE).toString()));
+				plugin.getVillageMessages().get(Lang.VILLAGE_DESTROYER_HEARTH_NAME).toString(),
+				List.of(plugin.getVillageMessages().get(Lang.VILLAGE_DESTROYER_HEARTH_LORE).toString()));
 	}
 }

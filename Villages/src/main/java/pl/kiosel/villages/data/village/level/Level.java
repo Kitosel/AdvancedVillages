@@ -3,7 +3,7 @@ package pl.kiosel.villages.data.village.level;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.inventory.ItemStack;
-import pl.kiosel.dependencies.com.cryptomorin.xseries.XMaterial;
+import pl.kiosel.rosacore.compatibility.ZMaterial;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,9 +21,9 @@ public class Level {
 	@Getter @Setter
 	private int size;
 
-	private final Map<XMaterial, Integer> materials;
+	private final Map<ZMaterial, Integer> materials;
 
-	Level(int level, int costExperience, int costEconomy, int size, Map<XMaterial, Integer> materials) {
+	Level(int level, int costExperience, int costEconomy, int size, Map<ZMaterial, Integer> materials) {
 		this.level = level;
 		this.costExperience = costExperience;
 		this.costEconomy = costEconomy;
@@ -31,15 +31,15 @@ public class Level {
 		this.materials = materials;
 	}
 
-	public Map<XMaterial, Integer> getMaterials() {
+	public Map<ZMaterial, Integer> getMaterials() {
 		return Collections.unmodifiableMap(this.materials);
 	}
 
 	public List<ItemStack> getItemMaterials() {
 		List<ItemStack> itemStacks = new ArrayList<>();
-		for (XMaterial material : materials.keySet()) {
-			if (material.get() == null) continue;
-			ItemStack stack = new ItemStack(material.get(), materials.get(material));
+		for (ZMaterial material : materials.keySet()) {
+			if (material.getMaterial().isEmpty()) continue;
+			ItemStack stack = new ItemStack(material.getMaterial().orElseThrow(), materials.get(material));
 			itemStacks.add(stack);
 		}
 		return itemStacks;

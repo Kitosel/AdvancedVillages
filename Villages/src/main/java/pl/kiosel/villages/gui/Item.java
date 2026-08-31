@@ -4,33 +4,23 @@ import lombok.Getter;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import pl.kiosel.core.dependencies.de.tr7zw.nbtapi.NBT;
-import pl.kiosel.core.dependencies.de.tr7zw.nbtapi.iface.ReadableItemNBT;
-import pl.kiosel.core.utils.ItemCreator;
-import pl.kiosel.dependencies.com.cryptomorin.xseries.XItemFlag;
-import pl.kiosel.dependencies.com.cryptomorin.xseries.XMaterial;
+import pl.kiosel.rosacore.compatibility.ZMaterial;
+import pl.kiosel.rosacore.material.ItemCreator;
+import pl.kiosel.rosacore.material.ItemTag;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.enums.Lang;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Function;
 
 public class Item {
 
 	public static boolean hasTag(ItemStack item, String key) {
-		if (item == null || item.getAmount() <= 0 || item.getType().isAir()) {
-			return false;
-		}
-		return Boolean.TRUE.equals(NBT.get(item, (Function<ReadableItemNBT, Boolean>) nbt -> nbt.getBoolean(key)));
+		return ItemTag.has(item, key);
 	}
 
-    public static ItemStack create(Material material, int amount, String name, List<String> lore, boolean enchant) {
-		ItemCreator itemCreator = ItemCreator.of(material).amount(amount)
-				.name(name).glow(enchant)
-				.hideAttributes().flags(XItemFlag.values());
+    public static ItemStack create(Material material, int amount, String name, List<String> lore, boolean glow) {
+		ItemCreator itemCreator = ItemCreator.of(material).amount(amount).name(name).glow(glow)
+				.hideAttributes().hideAll();
 		if (lore != null) {
 			itemCreator.lore(lore);
 		}
@@ -41,8 +31,8 @@ public class Item {
 		return create(mat, amount, name, null, false);
 	}
 
-	public static ItemStack create(Material mat, String name, List<String> lore, boolean enchant) {
-		return create(mat, 1, name, lore, enchant);
+	public static ItemStack create(Material mat, String name, List<String> lore, boolean glow) {
+		return create(mat, 1, name, lore, glow);
 	}
 
     public static ItemStack create(Material mat, String name, String lore) {
@@ -63,19 +53,7 @@ public class Item {
 
 	public static ItemStack addLoreToItemStack(ItemStack original, List<String> loreToAdd) {
 		if (original == null || loreToAdd == null || loreToAdd.isEmpty()) return original;
-
-		ItemStack item = original.clone();
-		ItemMeta meta = item.getItemMeta();
-		if (meta == null) return item;
-
-		List<String> lore = meta.getLore();
-		if (lore == null) lore = new ArrayList<>();
-
-		lore.addAll(loreToAdd);
-		meta.setLore(lore);
-		item.setItemMeta(meta);
-
-		return item;
+		return ItemCreator.of(original).lore(loreToAdd).make();
 	}
 
 	public static ItemStack createNoPlaceNoCraft(Material material, String name, List<String> lore) {
@@ -103,30 +81,35 @@ public class Item {
 	}
 
     public static ItemStack blank(Blank blank) {
-        return create(blank.getMaterial().get(), blank.getName());
+        AdvancedVillages plugin = AdvancedVillages.getInstance();
+        Material fallbackMaterial = blank.getMaterial().getMaterial().orElse(Material.PAPER);
+        if (plugin == null)
+			return create(fallbackMaterial, blank.getFallbackName());
+
+		String path = "guis.common." + blank.getConfigId();
+		String configuredMaterial = plugin.getGuiConfig().getString(path + ".material", fallbackMaterial.name());
+		Material material = Material.matchMaterial(configuredMaterial);
+		if (material == null || material.isAir()) material = fallbackMaterial;
+		return create(material, plugin.getGuiSettings().text(path + ".name", blank.getFallbackName()));
     }
 
     public enum Blank {
-		WHITE(XMaterial.WHITE_STAINED_GLASS_PANE, Lang.BLANK),
-		GRAY(XMaterial.GRAY_STAINED_GLASS, Lang.BLANK),
-		BLACK(XMaterial.BLACK_STAINED_GLASS, Lang.BLANK),
-		BACK(XMaterial.ARROW, Lang.BACK),
-		NEXT_PAGE(XMaterial.SPECTRAL_ARROW, Lang.NEXT),
-		PREVIUS_PAGE(XMaterial.SPECTRAL_ARROW, Lang.PREVIOUS),
-		EXIT(XMaterial.ARROW, Lang.EXIT);
+		WHITE(ZMaterial.WHITE_STAINED_GLASS_PANE, "blank-white", "&7&kBlank"),
+		GRAY(ZMaterial.GRAY_STAINED_GLASS, "blank-gray", "&7&kBlank"),
+		BLACK(ZMaterial.BLACK_STAINED_GLASS, "blank-black", "&7&kBlank"),
+		BACK(ZMaterial.ARROW, "back", "&9Back"),
+		NEXT_PAGE(ZMaterial.SPECTRAL_ARROW, "next-page", "&9Next"),
+		PREVIUS_PAGE(ZMaterial.SPECTRAL_ARROW, "previous-page", "&cPrevious"),
+		EXIT(ZMaterial.ARROW, "exit", "&cExit");
 
-        @Getter
-        private final XMaterial material;
-		private final Lang name;
+        @Getter private final ZMaterial material;
+		@Getter private final String configId;
+		@Getter private final String fallbackName;
 
-		Blank(XMaterial material, Lang name) {
+		Blank(ZMaterial material, String configId, String fallbackName) {
 			this.material = material;
-			this.name = name;
-		}
-
-		public String getName() {
-			AdvancedVillages plugin = AdvancedVillages.getInstance();
-			return plugin == null ? this.name.name() : plugin.getMessages().text(this.name);
+			this.configId = configId;
+			this.fallbackName = fallbackName;
 		}
     }
 }

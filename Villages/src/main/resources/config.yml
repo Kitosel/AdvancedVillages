@@ -1,0 +1,65 @@
+settings:
+  # Economy provider used by the plugin (for example Vault).
+  economy: Vault
+  # Enables WorldEdit schematics and the building editor integration.
+  use-worldedit: false
+  license: PUT-YOUR-LICENSE-HERE
+  language: en_US
+
+addons:
+  antylogout: true
+  scoreboard: true
+  tablist: true
+  spawn: true
+  quests: true
+  diplomacy: true
+  development: true
+  upkeep: true
+  village-animations: true
+
+teleport:
+  cancel-on-move: true
+  # Values are expressed in seconds.
+  between-cooldown: 60
+  cooldown: 5
+
+chat:
+  enabled: false
+  format: '&7[&c%village_tag%&7] &r%player%&7: &r%message%'
+  format-novillage: '%player%&7: &r%message%'
+
+village:
+  village-minimal-distance: 300
+  spawn-minimal-distance: 1000
+  max-members: 7
+  tag-max-length: 5
+  destroy-protection: 12h
+  default-lives: 3
+  max-lives: 3
+  remove-beacons: true
+  invite-expire: 30
+  upgrade:
+    eco: true
+    xp: false
+    items: true
+  upgrade-without-tag: false
+  blacklist-as-whitelist: false
+  blacklisted-worlds:
+    - world_nether
+    - world_the_end
+    - world1
+    - world2
+  attack-when-offline: false
+  effects:
+    regeneration:
+      cost: 125
+      amplifier: 1
+    speed:
+      cost: 225
+      amplifier: 1
+    jump-boost:
+      cost: 350
+      amplifier: 1
+    haste:
+      cost: 500
+      amplifier: 2

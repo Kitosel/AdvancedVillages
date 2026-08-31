@@ -3,33 +3,29 @@ package pl.kiosel.villages.data.user;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.MetadataValue;
-import panda.std.Option;
-import pl.kiosel.core.MetaServer;
-import pl.kiosel.core.nms.NmsUtils;
-import pl.kiosel.core.utils.LocationUtils;
-import pl.kiosel.core.utils.Position;
-import pl.kiosel.core.utils.TextUtils;
+import org.bukkit.Bukkit;
+import pl.kiosel.rosacore.location.LocationUtils;
+import pl.kiosel.rosacore.location.Position;
+import pl.kiosel.rosacore.utils.TextUtils;
 
 import java.lang.ref.WeakReference;
+import java.util.Optional;
 import java.util.UUID;
 
 public class BukkitUserProfile implements UserProfile {
 
     private final UUID uuid;
-    private final MetaServer metaServer;
-
     private WeakReference<OfflinePlayer> offlinePlayerRef;
     private WeakReference<Player> playerRef;
 
-    public BukkitUserProfile(UUID uuid, MetaServer metaServer) {
+    public BukkitUserProfile(UUID uuid) {
         this.uuid = uuid;
-        this.metaServer = metaServer;
 
-        this.offlinePlayerRef = new WeakReference<>(metaServer.getOfflinePlayer(uuid));
-        this.playerRef = new WeakReference<>(metaServer.getPlayer(uuid).orNull());
+		this.offlinePlayerRef = new WeakReference<>(Bukkit.getOfflinePlayer(uuid));
+		this.playerRef = new WeakReference<>(Bukkit.getPlayer(uuid));
     }
 
-    private Option<Player> getPlayer() {
+    private Optional<Player> getPlayer() {
         Player player = this.playerRef.get();
 
         if (player == null) {
@@ -37,18 +33,18 @@ public class BukkitUserProfile implements UserProfile {
             player = this.playerRef.get();
         }
 
-        return Option.of(player);
+        return Optional.ofNullable(player);
     }
 
     private void refreshOfflinePlayerRef() {
         if (this.offlinePlayerRef.get() == null) {
-            this.offlinePlayerRef = new WeakReference<>(this.metaServer.getOfflinePlayer(this.uuid));
+			this.offlinePlayerRef = new WeakReference<>(Bukkit.getOfflinePlayer(this.uuid));
         }
     }
 
     @Override
     public boolean isOnline() {
-        return this.getPlayer().is(Player::isOnline);
+        return this.getPlayer().map(Player::isOnline).orElse(false);
     }
 
     @Override
@@ -56,7 +52,7 @@ public class BukkitUserProfile implements UserProfile {
         return this.getPlayer()
                 .map(player -> player.getMetadata("vanished"))
                 .map(metadata -> metadata.stream().anyMatch(MetadataValue::asBoolean))
-                .orElseGet(false);
+                .orElse(false);
     }
 
     @Override
@@ -74,7 +70,7 @@ public class BukkitUserProfile implements UserProfile {
 
     @Override
     public int getPing() {
-        return this.getPlayer().map(NmsUtils::getPing).orElseGet(0);
+		return this.getPlayer().map(Player::getPing).orElse(0);
     }
 
     @Override
@@ -83,27 +79,28 @@ public class BukkitUserProfile implements UserProfile {
             return;
         }
 
-        this.getPlayer().peek(player -> player.sendMessage(message));
+        this.getPlayer().ifPresent(player -> player.sendMessage(message));
     }
 
     @Override
     public void kick(String reason) {
-        this.getPlayer().peek(player -> player.kickPlayer(reason));
+        this.getPlayer().ifPresent(player -> player.kickPlayer(reason));
     }
 
     @Override
     public void teleport(Position position) {
-        this.getPlayer().peek(player -> player.teleport(LocationUtils.adapt(position)));
+        this.getPlayer().ifPresent(player -> player.teleport(LocationUtils.adapt(position)));
     }
 
     @Override
     public void refresh() {
-        this.metaServer.getPlayer(this.uuid).peek(player -> {
+		Player player = Bukkit.getPlayer(this.uuid);
+        if (player != null) {
             this.playerRef = new WeakReference<>(player);
             this.offlinePlayerRef = new WeakReference<>(player);
-        }).onEmpty(() -> {
+        } else {
             this.playerRef = new WeakReference<>(null);
-        });
+        }
     }
 
     @Override
@@ -111,7 +108,7 @@ public class BukkitUserProfile implements UserProfile {
         return this.getPlayer()
                 .map(Player::getLocation)
                 .map(LocationUtils::adapt)
-                .orElseGet(Position.ZERO);
+                .orElse(Position.ZERO);
     }
 
 }

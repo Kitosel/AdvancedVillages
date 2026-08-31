@@ -2,22 +2,23 @@ package pl.kiosel.villages.gui.village;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import pl.kiosel.core.gui.Gui;
-import pl.kiosel.core.gui.methods.Clickable;
-import pl.kiosel.dependencies.com.cryptomorin.xseries.XSound;
+import pl.kiosel.rosacore.compatibility.ZSound;
+import pl.kiosel.rosacore.gui.Gui;
+import pl.kiosel.rosacore.gui.GuiClickEvent;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.addons.logs.VillageLogType;
 import pl.kiosel.villages.config.GuiItemConfig;
+import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.data.user.User;
+import pl.kiosel.villages.data.village.Permission;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.enums.GUIS;
-import pl.kiosel.villages.enums.Lang;
-import pl.kiosel.villages.enums.Permission;
+import pl.kiosel.villages.gui.GUIS;
 import pl.kiosel.villages.gui.VillageGUIManager;
 import pl.kiosel.villages.gui.VillageMenu;
 import pl.kiosel.villages.manager.teleport.TeleportManager;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public final class SettingsInventory extends VillageMenu {
 
@@ -36,7 +37,7 @@ public final class SettingsInventory extends VillageMenu {
 
 		GuiItemConfig tag = item("tag", 21, Material.MOJANG_BANNER_PATTERN,
 				"&c&lTag", List.of("&e&lTag: &c%village_tag%", "%istagset%"));
-		button(tag, replaceWith(tag.getLore()), false, event -> openTag(event.gui));
+		button(tag, replaceWith(tag.getLore()), false, event -> openTag(event.getGui()));
 
 		GuiItemConfig tnt = item("tnt", 23, Material.TNT,
 				"&c&lTNT", List.of("&7TNT: %village_tnt%"));
@@ -45,6 +46,12 @@ public final class SettingsInventory extends VillageMenu {
 		GuiItemConfig pvp = item("pvp", 25, Material.NETHERITE_SWORD,
 				"&f&lPVP", List.of("&7Pvp: %village_pvp%"));
 		button(pvp, replaceWith(pvp.getLore()), village.isPvp(), event -> togglePvp());
+
+		GuiItemConfig logs = item("logs", 27, Material.BOOK,
+				"&6Activity logs", List.of("&7View important village actions"));
+		if (logs.isEnabled() && plugin.getLogManager().canView(player, village)) {
+			setButton(logs.getSlot(), logs.createItem(), event -> openFromMain(GUIS.LOGS));
+		}
 
 		GuiItemConfig delete = item("delete", 31, Material.ORANGE_BED,
 				"&c&l&nDelete village", List.of("&7Click to delete"));
@@ -56,7 +63,7 @@ public final class SettingsInventory extends VillageMenu {
 				slot, material, name, lore);
 	}
 
-	private void button(GuiItemConfig item, List<String> lore, boolean stateGlow, Clickable action) {
+	private void button(GuiItemConfig item, List<String> lore, boolean stateGlow, Consumer<GuiClickEvent> action) {
 		if (item.isEnabled()) {
 			setButton(item.getSlot(), item.createItem(item.getName(), lore, item.isGlow() || stateGlow), action);
 		}
@@ -84,7 +91,7 @@ public final class SettingsInventory extends VillageMenu {
 			teleportManager.sendHoverSet(viewer);
 		} else {
 			teleportManager.removeTeleportTask(viewer);
-			getMessages().get(Lang.TELEPORT_SET_CANCEL).sendPrefixedMessage(viewer);
+			getVillageMessages().get(Lang.TELEPORT_SET_CANCEL).sendPrefixed(viewer);
 		}
 	}
 
@@ -92,8 +99,8 @@ public final class SettingsInventory extends VillageMenu {
 		if (!canChangeSettings()) return;
 		if (village.isTag()) {
 			exit();
-			getMessages().get(Lang.TAG_VILLAGE)
-					.processPlaceholder("tag", village.getTag()).sendPrefixedMessage(viewer);
+			getVillageMessages().get(Lang.TAG_VILLAGE)
+					.with("tag", village.getTag()).sendPrefixed(viewer);
 			return;
 		}
 		plugin.getGuiManager().showGUI(viewer, new TagInventory(plugin, village, viewer, current));
@@ -118,12 +125,12 @@ public final class SettingsInventory extends VillageMenu {
 	}
 
 	private void openRemove() {
-		User user = plugin.getUserManager().findByUuid(viewer.getUniqueId()).orNull();
+		User user = plugin.getUserManager().findByUuid(viewer.getUniqueId()).orElse(null);
 		if (user != null && village.isOwner(user)) {
 			reopen(GUIS.REMOVE);
 			return;
 		}
-		getMessages().get(Lang.VILLAGE_NO_PERMISSION).sendPrefixedMessage(viewer);
-		playSound(XSound.BLOCK_NOTE_BLOCK_COW_BELL, 2.0f, 0.0f);
+		getVillageMessages().get(Lang.VILLAGE_NO_PERMISSION).sendPrefixed(viewer);
+		playSound(ZSound.BLOCK_NOTE_BLOCK_COW_BELL, 2.0f, 0.0f);
 	}
 }

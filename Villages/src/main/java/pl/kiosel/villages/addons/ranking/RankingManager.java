@@ -12,7 +12,7 @@ import pl.kiosel.villages.data.rank.RankSystem;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.user.UserRank;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.enums.Lang;
+import pl.kiosel.villages.config.Lang;
 
 import java.util.*;
 
@@ -159,7 +159,7 @@ public final class RankingManager {
 				continue;
 			}
 
-			User assistant = this.plugin.getUserManager().findByUuid(assistantId).orNull();
+			User assistant = this.plugin.getUserManager().findByUuid(assistantId).orElse(null);
 			if (assistant == null
 					|| (!this.settings.isCountSameVillageKills() && areVillageMembers(assistant, victim))) {
 				continue;
@@ -169,7 +169,7 @@ public final class RankingManager {
 			int gained = addPoints(assistant.getRank(), this.settings.getAssistPoints(), this.settings.getMinimumPoints());
 			Player assistantPlayer = Bukkit.getPlayer(assistantId);
 			if (assistantPlayer != null && assistantPlayer.isOnline()) {
-				this.plugin.getMessages().sendPrefixed(
+				this.plugin.getVillageMessages().sendPrefixed(
 						assistantPlayer,
 						Lang.RANKING_ASSIST,
 						"victim", victim.getName(),
@@ -180,13 +180,13 @@ public final class RankingManager {
 	}
 
 	private void notifyFight(Player killer, Player victim, int gained, int lost) {
-		this.plugin.getMessages().sendPrefixed(
+		this.plugin.getVillageMessages().sendPrefixed(
 				killer,
 				Lang.RANKING_KILL,
 				"victim", victim.getName(),
 				"points", gained
 		);
-		this.plugin.getMessages().sendPrefixed(
+		this.plugin.getVillageMessages().sendPrefixed(
 				victim,
 				Lang.RANKING_DEATH,
 				"killer", killer.getName(),

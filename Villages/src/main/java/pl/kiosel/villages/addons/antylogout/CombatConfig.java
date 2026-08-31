@@ -1,17 +1,16 @@
 package pl.kiosel.villages.addons.antylogout;
 
-import pl.kiosel.core.configuration.Config;
+import pl.kiosel.rosacore.config.RosaConfig;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.settings.Settings;
+import pl.kiosel.villages.config.Settings;
 
 import java.util.LinkedHashSet;
 
-/** Loads a validated, immutable anti-logout configuration snapshot. */
 public final class CombatConfig {
 
 	private static final String DEFAULT_BYPASS_PERMISSION = "advancedvillages.antylogout.bypass";
 
-	private final Config file;
+	private final RosaConfig file;
 	private volatile CombatSettings settings;
 
 	public CombatConfig(AdvancedVillages plugin) {

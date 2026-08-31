@@ -1,16 +1,13 @@
 package pl.kiosel.villages.data.user;
 
-import org.apache.commons.lang3.Validate;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import panda.std.Option;
-import panda.std.stream.PandaStream;
 import pl.kiosel.villages.AdvancedVillages;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 public class UserManager {
 
@@ -22,17 +19,21 @@ public class UserManager {
 		this.plugin = plugin;
 	}
 
-	public Option<Player> getPlayer(User user) {
-		return this.plugin.getMetaServer().getPlayer(user.getUUID());
+	public Optional<Player> getPlayer(User user) {
+		if (user == null) return Optional.empty();
+		return Optional.ofNullable(Bukkit.getPlayer(user.getUUID()));
 	}
 
 	public User getOrCreate(Player player) {
-		Validate.notNull(player, "player can't be null!");
+		Objects.requireNonNull(player, "player can't be null!");
 
 		User user = this.findByUuid(player.getUniqueId())
-				.peek(foundUser -> foundUser.getProfile().refresh())
+				.map(foundUser -> {
+					foundUser.getProfile().refresh();
+					return foundUser;
+				})
 				.orElseGet(() -> {
-					UserProfile profile = new BukkitUserProfile(player.getUniqueId(), this.plugin.getMetaServer());
+					UserProfile profile = new BukkitUserProfile(player.getUniqueId());
 					return this.create(player.getUniqueId(), player.getName(), profile);
 				});
 
@@ -70,9 +71,12 @@ public class UserManager {
      * @return set of users
      */
     public Set<User> findByNames(Collection<String> names) {
-        return PandaStream.of(names)
-                .flatMap(this::findByName)
-                .collect(Collectors.toSet());
+		if (names == null || names.isEmpty()) return Collections.emptySet();
+		Set<User> users = new HashSet<>();
+		for (String name : names) {
+			this.findByName(name, true).ifPresent(users::add);
+		}
+		return users;
     }
 
     /**
@@ -81,8 +85,8 @@ public class UserManager {
      * @param uuid the universally unique identifier of user
      * @return the user
      */
-    public Option<User> findByUuid(UUID uuid) {
-        return Option.of(this.usersByUuid.get(uuid));
+    public Optional<User> findByUuid(UUID uuid) {
+        return Optional.ofNullable(uuid == null ? null : this.usersByUuid.get(uuid));
     }
 
     /**
@@ -91,7 +95,7 @@ public class UserManager {
      * @param nickname the name of user
      * @return the user
      */
-    public Option<User> findByName(String nickname) {
+    public Optional<User> findByName(String nickname) {
         return this.findByName(nickname, false);
     }
 
@@ -102,17 +106,13 @@ public class UserManager {
      * @param ignoreCase ignore the case of the nickname
      * @return the user
      */
-    public Option<User> findByName(String nickname, boolean ignoreCase) {
-        User foundUser = this.usersByName.get(nickname);
-
-        if (foundUser == null && ignoreCase) {
-            foundUser = PandaStream.of(this.usersByName.entrySet())
-                    .find(entry -> entry.getKey().equalsIgnoreCase(nickname))
-                    .map(Map.Entry::getValue)
-                    .orNull();
-        }
-
-        return Option.of(foundUser);
+    public Optional<User> findByName(String nickname, boolean ignoreCase) {
+		if (nickname == null || nickname.isBlank()) return Optional.empty();
+		User foundUser = this.usersByName.get(normalizeName(nickname));
+		if (foundUser == null || (!ignoreCase && !foundUser.getName().equals(nickname))) {
+			return Optional.empty();
+		}
+        return Optional.of(foundUser);
     }
 
     /**
@@ -120,9 +120,9 @@ public class UserManager {
      *
      * @return the user
      */
-    public Option<User> findByPlayer(@NotNull Player player) {
+    public Optional<User> findByPlayer(@NotNull Player player) {
         if (player.getUniqueId().version() == 2) {
-            return Option.of(new User(player.getUniqueId(), player.getName(), new NPCUserProfile(), this.startingPoints()));
+            return Optional.of(new User(player.getUniqueId(), player.getName(), new NPCUserProfile(), this.startingPoints()));
         }
 
         return this.findByUuid(player.getUniqueId());
@@ -133,7 +133,8 @@ public class UserManager {
      *
      * @return the user
      */
-    public Option<User> findByPlayer(OfflinePlayer offlinePlayer) {
+    public Optional<User> findByPlayer(OfflinePlayer offlinePlayer) {
+		if (offlinePlayer == null) return Optional.empty();
         return this.findByUuid(offlinePlayer.getUniqueId());
     }
 
@@ -154,11 +155,10 @@ public class UserManager {
      * @return the user
      */
     public User create(UUID uuid, String name, UserProfile userProfile) {
-        Validate.notNull(uuid, "uuid can't be null!");
-        Validate.notNull(name, "name can't be null!");
-        Validate.notBlank(name, "name can't be blank!");
-        Validate.notNull(userProfile, "userProfile can't be null!");
-        Validate.isTrue(UserValidator.validateUsername(name) == UserValidator.NameResult.VALID, "name is not valid!");
+		Objects.requireNonNull(uuid, "uuid can't be null!");
+		Objects.requireNonNull(name, "name can't be null!");
+		Objects.requireNonNull(userProfile, "userProfile can't be null!");
+		requireValidName(name, "name");
 
         User user = new User(uuid, name, userProfile, this.startingPoints());
         this.addUser(user);
@@ -172,10 +172,18 @@ public class UserManager {
      * @param user user to add
      */
     public void addUser(User user) {
-        Validate.notNull(user, "user can't be null!");
+		Objects.requireNonNull(user, "user can't be null!");
 
-        this.usersByUuid.put(user.getUUID(), user);
-        this.usersByName.put(user.getName(), user);
+		User existing = this.usersByUuid.putIfAbsent(user.getUUID(), user);
+		if (existing != null && existing != user) {
+			throw new IllegalArgumentException("A user with UUID " + user.getUUID() + " is already loaded");
+		}
+		String nameKey = normalizeName(user.getName());
+		User nameOwner = this.usersByName.putIfAbsent(nameKey, user);
+		if (nameOwner != null && nameOwner != user) {
+			if (existing == null) this.usersByUuid.remove(user.getUUID(), user);
+			throw new IllegalArgumentException("A user with name " + user.getName() + " is already loaded");
+		}
     }
 
     /**
@@ -184,10 +192,10 @@ public class UserManager {
      * @param user user to remove
      */
     public void removeUser(User user) {
-        Validate.notNull(user, "user can't be null!");
+		Objects.requireNonNull(user, "user can't be null!");
 
         this.usersByUuid.remove(user.getUUID());
-        this.usersByName.remove(user.getName());
+        this.usersByName.remove(normalizeName(user.getName()), user);
     }
 
     /**
@@ -197,12 +205,19 @@ public class UserManager {
      * @param newUsername the new nickname for user
      */
     public void updateUsername(User user, String newUsername) {
-        Validate.notNull(user, "user can't be null!");
+		Objects.requireNonNull(user, "user can't be null!");
+		requireValidName(newUsername, "newUsername");
 
-        this.usersByName.remove(user.getName());
-        this.usersByName.put(newUsername, user);
-
-        user.setName(newUsername);
+		String oldKey = normalizeName(user.getName());
+		String newKey = normalizeName(newUsername);
+		if (!oldKey.equals(newKey)) {
+			User nameOwner = this.usersByName.putIfAbsent(newKey, user);
+			if (nameOwner != null && nameOwner != user) {
+				throw new IllegalArgumentException("A user with name " + newUsername + " is already loaded");
+			}
+			this.usersByName.remove(oldKey, user);
+		}
+		user.setName(newUsername);
     }
 
     /**
@@ -230,6 +245,19 @@ public class UserManager {
 		return this.plugin.getRankingManager() == null
 				? 1000
 				: this.plugin.getRankingManager().getStartingPoints();
+	}
+
+	private static String normalizeName(String name) {
+		return name.toLowerCase(Locale.ROOT);
+	}
+
+	private static void requireValidName(String name, String field) {
+		if (name == null || name.isBlank()) {
+			throw new IllegalArgumentException(field + " can't be blank!");
+		}
+		if (UserValidator.validateUsername(name) != UserValidator.NameResult.VALID) {
+			throw new IllegalArgumentException(field + " is not valid!");
+		}
 	}
 
 }

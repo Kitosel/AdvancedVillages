@@ -1,0 +1,66 @@
+# Permanent village specializations. The normal plugin reload applies changes to this file.
+enabled: true
+
+# Every node is purchased once with money from the village bank.
+# Supported bonuses:
+# max-members, quest-bank-percent, war-score-percent,
+# attack-protection-percent, teleport-delay-reduction-percent,
+# effect-cost-discount-percent.
+# Names, descriptions, materials and slots are configured in guis.yml.
+nodes:
+  economy-1:
+    cost: 5000
+    required-village-level: 1
+    requires: []
+    bonuses:
+      quest-bank-percent: 10
+  economy-2:
+    cost: 15000
+    required-village-level: 2
+    requires: [economy-1]
+    bonuses:
+      effect-cost-discount-percent: 10
+  economy-3:
+    cost: 35000
+    required-village-level: 4
+    requires: [economy-2]
+    bonuses:
+      quest-bank-percent: 25
+
+  community-1:
+    cost: 7500
+    required-village-level: 1
+    requires: []
+    bonuses:
+      max-members: 1
+  community-2:
+    cost: 17500
+    required-village-level: 3
+    requires: [community-1]
+    bonuses:
+      teleport-delay-reduction-percent: 25
+  community-3:
+    cost: 40000
+    required-village-level: 5
+    requires: [community-2]
+    bonuses:
+      max-members: 2
+
+  defense-1:
+    cost: 10000
+    required-village-level: 2
+    requires: []
+    bonuses:
+      attack-protection-percent: 20
+  defense-2:
+    cost: 22500
+    required-village-level: 3
+    requires: [defense-1]
+    bonuses:
+      war-score-percent: 15
+  defense-3:
+    cost: 50000
+    required-village-level: 5
+    requires: [defense-2]
+    bonuses:
+      attack-protection-percent: 30

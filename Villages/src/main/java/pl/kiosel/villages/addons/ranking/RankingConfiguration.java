@@ -1,14 +1,14 @@
 package pl.kiosel.villages.addons.ranking;
 
-import pl.kiosel.core.configuration.Config;
-import pl.kiosel.core.utils.NumberUtils;
+import pl.kiosel.rosacore.config.RosaConfig;
+import pl.kiosel.rosacore.utils.NumberUtils;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.data.rank.RankSystem;
 
 public final class RankingConfiguration {
 
 	private final AdvancedVillages plugin;
-	private final Config file;
+	private final RosaConfig file;
 	private volatile RankingSettings settings;
 
 	public RankingConfiguration(AdvancedVillages plugin) {
@@ -21,7 +21,7 @@ public final class RankingConfiguration {
 		String rawAlgorithm = this.file.getString("points.algorithm", "ELO");
 		RankSystem.Type algorithm = RankSystem.Type.parse(rawAlgorithm);
 		if (!algorithm.name().equalsIgnoreCase(rawAlgorithm)) {
-			this.plugin.getLogger().warning("Unknown ranking algorithm '" + rawAlgorithm + "'; using ELO");
+			this.plugin.getRosaLogger().warning("Unknown ranking algorithm '" + rawAlgorithm + "'; using ELO");
 		}
 
 		int minimum = Math.max(0, this.file.getInt("points.minimum", 0));

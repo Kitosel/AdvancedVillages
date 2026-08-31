@@ -4,7 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import pl.kiosel.villages.data.village.turets.Turret;
-import pl.kiosel.villages.settings.Settings;
+import pl.kiosel.villages.config.Settings;
 
 public class TurretReset extends Turret {
 

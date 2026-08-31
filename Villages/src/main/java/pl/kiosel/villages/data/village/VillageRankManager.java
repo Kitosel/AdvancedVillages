@@ -1,14 +1,14 @@
 package pl.kiosel.villages.data.village;
 
-import panda.std.Option;
 import pl.kiosel.villages.data.village.top.VillageTop;
 import pl.kiosel.villages.data.rank.RankManager;
 
 import java.util.Map;
+import java.util.Optional;
 
 public class VillageRankManager extends RankManager<VillageTop, VillageRank> {
 
-    public Option<Village> getVillage(String topId, int place) {
+    public Optional<Village> getVillage(String topId, int place) {
         return this.getTop(topId).flatMap(top -> top.getVillage(place));
     }
 

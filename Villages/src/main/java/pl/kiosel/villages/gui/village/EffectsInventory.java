@@ -3,17 +3,17 @@ package pl.kiosel.villages.gui.village;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import pl.kiosel.core.gui.Gui;
+import pl.kiosel.rosacore.gui.Gui;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.addons.logs.VillageLogType;
 import pl.kiosel.villages.config.GuiItemConfig;
+import pl.kiosel.villages.config.Lang;
+import pl.kiosel.villages.config.Settings;
+import pl.kiosel.villages.data.village.Permission;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.enums.GUIS;
-import pl.kiosel.villages.enums.Lang;
-import pl.kiosel.villages.enums.Permission;
+import pl.kiosel.villages.gui.GUIS;
 import pl.kiosel.villages.gui.VillageGUIManager;
 import pl.kiosel.villages.gui.VillageMenu;
-import pl.kiosel.villages.settings.Settings;
 
 import java.util.List;
 import java.util.function.BooleanSupplier;
@@ -48,13 +48,14 @@ public final class EffectsInventory extends VillageMenu {
 	                       BooleanSupplier purchased, BooleanSupplier active, Runnable toggleAction,
 	                       Runnable purchaseAction, double price, int amplifier,
 	                       String fallbackName, String setting) {
+		double adjustedPrice = plugin.getDevelopmentManager().applyEffectCost(village, price);
 		List<String> fallbackEffectLore = List.of(
 				"&7Gives %effect% &7effect",
 				"&7Amplifier: &6%amplifier%"
 		);
 		GuiItemConfig effect = plugin.getGuiSettings().item(GUIS.EFFECTS,
 				"guis.village.effects." + id, toggleSlot, material, fallbackName, fallbackEffectLore);
-		List<String> effectLore = replaceEffects(effect.getLore(), Double.toString(price),
+		List<String> effectLore = replaceEffects(effect.getLore(), Double.toString(adjustedPrice),
 				Integer.toString(amplifier), effect.getName());
 		if (effect.isEnabled()) {
 			setButton(effect.getSlot(), effect.createItem(effect.getName(), effectLore,
@@ -70,12 +71,12 @@ public final class EffectsInventory extends VillageMenu {
 		GuiItemConfig purchase = plugin.getGuiSettings().item(GUIS.EFFECTS,
 				"guis.village.effects.purchase-" + id, purchaseSlot, Material.PAPER,
 				paperName, paperLore);
-		List<String> purchaseLore = replaceEffects(purchase.getLore(), Double.toString(price),
+		List<String> purchaseLore = replaceEffects(purchase.getLore(), Double.toString(adjustedPrice),
 				Integer.toString(amplifier), effect.getName());
 		if (purchase.isEnabled()) {
 			setButton(purchase.getSlot(), purchase.createItem(purchase.getName(), purchaseLore,
 					purchase.isGlow() || purchased.getAsBoolean()), event -> buy(
-					purchased, purchaseAction, price, setting));
+					purchased, purchaseAction, adjustedPrice, setting));
 		}
 	}
 
@@ -83,8 +84,7 @@ public final class EffectsInventory extends VillageMenu {
 	                    String effectName, String setting) {
 		if (!hasPermission(Permission.EFFECTS_TOGGLE)) return;
 		if (!purchased.getAsBoolean()) {
-			getMessages().get(Lang.EFFECT_NOT_BUY)
-					.processPlaceholder("effect", effectName).sendPrefixedMessage(viewer);
+			getVillageMessages().get(Lang.EFFECT_NOT_BUY).with("effect", effectName).sendPrefixed(viewer);
 			return;
 		}
 		action.run();
@@ -97,20 +97,20 @@ public final class EffectsInventory extends VillageMenu {
 	private void buy(BooleanSupplier purchased, Runnable action, double price, String setting) {
 		if (!hasPermission(Permission.EFFECTS_BUY)) return;
 		if (purchased.getAsBoolean()) {
-			viewer.playSound(viewer.getLocation(), Sound.BLOCK_NOTE_BLOCK_GUITAR, 10, 0);
+			playSound(Sound.BLOCK_NOTE_BLOCK_GUITAR, 10, 0);
 			return;
 		}
 		if (!plugin.getEconomy().hasBalance(viewer, price)) {
 			double missing = price - plugin.getEconomy().getBalance(viewer);
-			getMessages().get(Lang.NO_MONEY)
-					.processPlaceholder("money", missing).sendPrefixedMessage(viewer);
+			getVillageMessages().get(Lang.NO_MONEY)
+					.with("money", missing).sendPrefixed(viewer);
 			return;
 		}
 		plugin.getEconomy().withdrawBalance(viewer, price);
 		action.run();
 		plugin.getLogManager().record(village, VillageLogType.SETTING_CHANGED, viewer,
 				"setting", setting, "value", "purchased");
-		viewer.playSound(viewer.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 10, 2);
+		playSound(Sound.BLOCK_NOTE_BLOCK_PLING, 10, 2);
 		reopen(GUIS.EFFECTS);
 	}
 }

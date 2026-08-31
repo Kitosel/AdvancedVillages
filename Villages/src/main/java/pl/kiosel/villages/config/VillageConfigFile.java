@@ -4,7 +4,10 @@ import lombok.Getter;
 
 public enum VillageConfigFile {
 
+	CONFIG("config.yml"),
+	DATABASE("database.yml"),
 	LEVELS("levels.yml"),
+	ROLES("roles.yml"),
 	GUIS("guis.yml"),
 	COMMANDS("command.yml"),
 	BUILD_EDITOR("addons/build-editor.yml"),
@@ -15,6 +18,9 @@ public enum VillageConfigFile {
 	QUESTS("addons/quests.yml"),
 	LOGS("addons/logs.yml"),
 	RANKING("addons/ranking.yml"),
+	DIPLOMACY("addons/diplomacy.yml"),
+	DEVELOPMENT("addons/development.yml"),
+	UPKEEP("addons/upkeep.yml"),
 	TABLIST("addons/tablist.yml");
 
 	@Getter private final String path;

@@ -1,9 +1,7 @@
 package pl.kiosel.villages.config;
 
 import lombok.Getter;
-import pl.kiosel.core.utils.TextUtils;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.enums.CommandLang;
 
 import java.util.*;
 
@@ -38,18 +36,18 @@ public class CommandConfig {
 
 	public void setConfig() {
 		plugin.getDebug().debug("Setting command.yml");
-		this.reloadArguments();
+		this.reload();
 
 		commandName = getString("command.name", "village");
-		commandAliases = getList("command.aliases", TextUtils.of("wioski", "vil"));
+		commandAliases = getList("command.aliases", List.of("villages", "vil", "v"));
 		commandPermission = getString("command.permission", "villages.command");
 
 		spawnCommandName = getString("spawn.name", "spawn");
-		spawnCommandAliases = getList("spawn.aliases", TextUtils.of("tpspawn"));
+		spawnCommandAliases = getList("spawn.aliases", List.of("tpspawn"));
 		spawnCommandPermission = getString("spawn.permission", "villages.spawn");
 	}
 
-	public void reloadArguments() {
+	public void reload() {
 		Map<String, String> refreshed = new HashMap<>();
 
 		var section = plugin.getCommandFile().getConfigurationSection("command-language");

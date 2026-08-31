@@ -2,18 +2,17 @@ package pl.kiosel.villages.commands;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import pl.kiosel.core.commands.SimpleCommand;
-import pl.kiosel.core.utils.TabUtils;
+import pl.kiosel.rosacore.command.RosaCommand;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.enums.CommandLang;
-import pl.kiosel.villages.enums.Lang;
+import pl.kiosel.villages.config.CommandLang;
+import pl.kiosel.villages.config.Lang;
+import pl.kiosel.villages.config.Settings;
 import pl.kiosel.villages.manager.teleport.TeleportManager;
-import pl.kiosel.villages.settings.Settings;
 
 import java.util.Collections;
 import java.util.List;
 
-public class CommandSpawn extends SimpleCommand {
+public class CommandSpawn extends RosaCommand {
 
 	private final AdvancedVillages plugin;
 	private final TeleportManager teleportManager;
@@ -28,11 +27,11 @@ public class CommandSpawn extends SimpleCommand {
 	@Override
 	public boolean onExecute(CommandSender sender, String label, String[] args) {
 		if (!(sender instanceof Player)) {
-			this.plugin.getMessages().get(Lang.COMMAND_CONSOLE).sendPrefixedMessage(sender);
+			this.plugin.getVillageMessages().get(Lang.COMMAND_CONSOLE).sendPrefixed(sender);
 			return true;
 		}
 		if (!Settings.ADDONS_SPAWN_ENABLE.getBoolean()) {
-			this.plugin.getMessages().get(Lang.COMMAND_ENABLED).sendPrefixedMessage(sender);
+			this.plugin.getVillageMessages().get(Lang.COMMAND_ENABLED).sendPrefixed(sender);
 			return true;
 		}
 
@@ -44,11 +43,11 @@ public class CommandSpawn extends SimpleCommand {
 		String setArgument = this.plugin.getCommandLang().getCommand(CommandLang.SET);
 		if (args.length == 1 && args[0].equalsIgnoreCase(setArgument)) {
 			if (!player.hasPermission(this.plugin.getCommandLang().getSpawnCommandSetPermission())) {
-				this.plugin.getMessages().get(Lang.COMMAND_NO_PERMISSION).sendPrefixedMessage(sender);
+				this.plugin.getVillageMessages().get(Lang.COMMAND_NO_PERMISSION).sendPrefixed(sender);
 				return true;
 			}
 			this.teleportManager.setSpawn(player.getLocation());
-			this.plugin.getMessages().get(Lang.SPAWN_SET).sendPrefixedMessage(sender);
+			this.plugin.getVillageMessages().get(Lang.SPAWN_SET).sendPrefixed(sender);
 			return true;
 		}
 
@@ -56,11 +55,11 @@ public class CommandSpawn extends SimpleCommand {
 	}
 
 	@Override
-	public List<String> tabComplete(CommandSender sender, String[] args) {
+	public List<String> onTabComplete(CommandSender sender, String[] args) {
 		if (!Settings.ADDONS_SPAWN_ENABLE.getBoolean() || args.length != 1
 				|| !sender.hasPermission(this.plugin.getCommandLang().getSpawnCommandSetPermission())) {
-			return TabUtils.returnEmpty();
+			return EMPTY;
 		}
-		return TabUtils.returnWith(args[0], Collections.singletonList(this.plugin.getCommandLang().getCommand(CommandLang.SET)));
+		return complete(args[0], Collections.singletonList(this.plugin.getCommandLang().getCommand(CommandLang.SET)));
 	}
 }

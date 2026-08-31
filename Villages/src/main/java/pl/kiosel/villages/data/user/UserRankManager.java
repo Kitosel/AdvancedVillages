@@ -1,14 +1,14 @@
 package pl.kiosel.villages.data.user;
 
-import panda.std.Option;
 import pl.kiosel.villages.data.rank.RankManager;
 import pl.kiosel.villages.data.user.top.UserTop;
 
 import java.util.Map;
+import java.util.Optional;
 
 public class UserRankManager extends RankManager<UserTop, UserRank> {
 
-    public Option<User> getUser(String topId, int place) {
+    public Optional<User> getUser(String topId, int place) {
         return this.getTop(topId).flatMap(top -> top.getUser(place));
     }
 

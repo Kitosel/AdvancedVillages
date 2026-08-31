@@ -3,22 +3,19 @@ package pl.kiosel.villages.commands;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import panda.std.Option;
-import pl.kiosel.core.chat.AdventureUtils;
-import pl.kiosel.core.commands.SimpleCommand;
-import pl.kiosel.core.dependencies.net.kyori.adventure.title.Title;
-import pl.kiosel.core.hooks.WorldEditHook;
-import pl.kiosel.core.utils.TabUtils;
+import pl.kiosel.rosacore.command.RosaCommand;
+import pl.kiosel.rosacore.utils.ColorUtils;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.data.user.User;
+import pl.kiosel.villages.data.village.Permission;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.enums.Permission;
 import pl.kiosel.villages.manager.VillageNameGenerator;
 
 import java.io.File;
 import java.util.List;
+import java.util.Optional;
 
-public class CommandTest extends SimpleCommand {
+public class CommandTest extends RosaCommand {
 
 	private final AdvancedVillages plugin;
 	private final VillageNameGenerator generator;
@@ -30,13 +27,14 @@ public class CommandTest extends SimpleCommand {
 	}
 
 	@Override
+	public boolean isPlayerOnly() {
+		return true;
+	}
+
+	@Override
 	public boolean onExecute(CommandSender sender, String label, String[] args) {
-		if (!(sender instanceof Player)) {
-			sender.sendMessage(tl("You can't"));
-			return false;
-		}
 		Player player = (Player) sender;
-		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).get();
+		User user = plugin.getUserManager().getOrCreate(player);
 
 		if (args.length == 1) {
 			switch (args[0]) {
@@ -46,11 +44,10 @@ public class CommandTest extends SimpleCommand {
 					}
 					break;
 				case "adv_title":
-					Title title = AdventureUtils.createTitle(AdventureUtils.formatComponent("test1"), AdventureUtils.formatComponent("test2"));
-					AdventureUtils.sendTitle(title, player);
+					plugin.getMessenger().title(player, "test1", "test2");
 					break;
 				case "adv_actionbar":
-					AdventureUtils.sendActionBar(AdventureUtils.formatComponent("test1"), player);
+					plugin.getMessenger().actionBar(player, "test1");
 					break;
 				case "test1":
 //					player.sendMessage("teststeststest");
@@ -64,14 +61,20 @@ public class CommandTest extends SimpleCommand {
 					break;
 				case "worldedit_test":
 					File file = new File(plugin.getDataFolder(), "schematics/Turret" + "1" + ".schem");
-					Bukkit.getScheduler().runTask(plugin, () -> WorldEditHook.pasteSchematic(file, player.getLocation()));
+					Bukkit.getScheduler().runTask(plugin, () -> {
+						try {
+							plugin.getHookManager().getWorldEdit().pasteSchematic(file, player.getLocation());
+						} catch (java.io.IOException exception) {
+							plugin.getRosaLogger().warning("WorldEdit test failed: " + exception.getMessage());
+						}
+					});
 					break;
 				case "addpermission":
 					if (user == null) {
 						player.sendMessage("member is null");
 						break;
 					}
-					plugin.getPermissionManager().addPermission(user, Permission.EFFECTS_TOGGLE);
+					plugin.getRoleManager().addPermission(user, Permission.EFFECTS_TOGGLE);
 					player.sendMessage("added perm");
 					break;
 				case "getPermissions":
@@ -79,7 +82,7 @@ public class CommandTest extends SimpleCommand {
 						player.sendMessage("member is null");
 						break;
 					}
-					player.sendMessage(plugin.getPermissionManager().toString(user.getPermissions()));
+					player.sendMessage(String.valueOf(plugin.getRoleManager().serialize(user)));
 					break;
 				case "villagemembers":
 					player.sendMessage("provide a village");
@@ -92,23 +95,23 @@ public class CommandTest extends SimpleCommand {
 		if (args.length == 2) {
 			switch (args[1]) {
 				case "random_name":
-					player.sendMessage(tl("&7Random: &c" + generator.getRandomName()));
+					player.sendMessage(ColorUtils.color("&7Random: &c" + generator.getRandomName()));
 					break;
 				case "villages_owner":
-					player.sendMessage(tl("&7Villages:"));
+					player.sendMessage(ColorUtils.color("&7Villages:"));
 					for (String s : plugin.getVillageManager().getVillageOwners()) {
 						player.sendMessage(s);
 					}
 					break;
 				case "villages_names":
-					player.sendMessage(tl("&7Villages:"));
+					player.sendMessage(ColorUtils.color("&7Villages:"));
 					for (String s : plugin.getVillageManager().getVillageNamesAsList()) {
 						player.sendMessage(s);
 					}
 					break;
 				case "villagemembers":
-					Option<Village> village = plugin.getVillageManager().findByName(args[1]);
-					if (village == null) {
+					Optional<Village> village = plugin.getVillageManager().findByName(args[1]);
+					if (village.isEmpty()) {
 						player.sendMessage("village is null");
 						return false;
 					}
@@ -127,16 +130,16 @@ public class CommandTest extends SimpleCommand {
 					player.sendMessage("member is null");
 					return false;
 				}
-				player.sendMessage(plugin.getPermissionManager().toString(member2.getPermissions()));
+				player.sendMessage(plugin.getRoleManager().toString(member2.getPermissions()));
 			}
 			if (args[0].equalsIgnoreCase("local")) {
-				plugin.getMessages().get(args[1]).sendPrefixedMessage(player);
+				plugin.getVillageMessages().get(args[1]).sendPrefixed(player);
 			}
 		}
 		if (args.length == 3) {
 			if (args[1].equals("region")) {
-				Option<Village> village2 = plugin.getVillageManager().findByName(args[2]);
-				if (village2 == null) {
+				Optional<Village> village2 = plugin.getVillageManager().findByName(args[2]);
+				if (village2.isEmpty()) {
 					player.sendMessage("village is null");
 					return false;
 				}
@@ -150,9 +153,9 @@ public class CommandTest extends SimpleCommand {
 	}
 
 	@Override
-	public List<String> tabComplete(CommandSender sender, String[] args) {
+	public List<String> onTabComplete(CommandSender sender, String[] args) {
 		if (args.length == 1) {
-			return TabUtils.returnWith(args[0], List.of(
+			return complete(args[0], List.of(
 					"villages", "adv_title", "adv_actionbar", "test1", "worldedit_test",
 					"addpermission", "villagemembers", "getPermissions", "memory_test",
 					"local"
@@ -160,18 +163,18 @@ public class CommandTest extends SimpleCommand {
 		}
 		if (args.length == 2) {
 			if (args[0].equalsIgnoreCase("villages"))
-				return TabUtils.returnWith(args[1], List.of("random_name", "villages_owner", "villages_names", "region"));
+				return complete(args[1], List.of("random_name", "villages_owner", "villages_names", "region"));
 			if (args[0].equalsIgnoreCase("getPermissions"))
-				return TabUtils.onlinePlayers();
+				return onlinePlayers();
 			if (args[0].equalsIgnoreCase("villagemembers"))
-				return TabUtils.returnWith(args[1], plugin.getVillageManager().getVillageNamesAsList());
+				return complete(args[1], plugin.getVillageManager().getVillageNamesAsList());
 		}
 		if (args.length == 3) {
 			if (args[1].equalsIgnoreCase("villages_owner"))
-				return TabUtils.returnWith(args[2], plugin.getVillageManager().getVillageOwners());
+				return complete(args[2], plugin.getVillageManager().getVillageOwners());
 			if (args[1].equalsIgnoreCase("villages_names") || args[1].equalsIgnoreCase("region"))
-				return TabUtils.returnWith(args[2], plugin.getVillageManager().getVillageNamesAsList());
+				return complete(args[2], plugin.getVillageManager().getVillageNamesAsList());
 		}
-		return TabUtils.returnEmpty();
+		return EMPTY;
 	}
 }

@@ -1,13 +1,11 @@
 package pl.kiosel.villages.data.user;
 
-import pl.kiosel.core.configuration.Regex;
-import pl.kiosel.core.configuration.RegexPattern;
-
 import java.util.regex.Pattern;
 
 public final class UserValidator {
 
     private static final Pattern UUID_PATTERN = Pattern.compile("^[{]?[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}[}]?$");
+	private static final Pattern USERNAME_PATTERN = Pattern.compile("^[A-Za-z0-9_]+$");
 
     private UserValidator() {
     }
@@ -19,16 +17,14 @@ public final class UserValidator {
      * @return if username is valid
      */
     public static NameResult validateUsername(String name) {
-        if (name.length() < 3) {
+		if (name == null || name.length() < 3) {
             return NameResult.TOO_SHORT;
         }
 
         if (name.length() > 16) {
             return NameResult.TOO_LONG;
         }
-		RegexPattern regexPattern = new RegexPattern(Regex.LETTERS_DIGITS_UNDERSCORE);
-
-        if (!regexPattern.matches(name)) {
+		if (!USERNAME_PATTERN.matcher(name).matches()) {
             return NameResult.INVALID;
         }
 

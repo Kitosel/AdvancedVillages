@@ -1,6 +1,6 @@
 package pl.kiosel.villages.addons.trials;
 
-import pl.kiosel.core.configuration.Config;
+import pl.kiosel.rosacore.config.RosaConfig;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.addons.trials.animation.CentralBlockAnimator;
 import pl.kiosel.villages.addons.trials.animation.CreationAnimator;
@@ -11,7 +11,7 @@ import pl.kiosel.villages.data.village.Village;
 public final class VillageAnimationManager {
 
     private final AdvancedVillages plugin;
-    private final Config config;
+    private final RosaConfig config;
 
     private VillageAnimationSettings settings;
     private CentralBlockAnimator centralAnimator;
@@ -19,7 +19,7 @@ public final class VillageAnimationManager {
     private RemovalAnimator removalAnimator;
     private boolean started;
 
-    public VillageAnimationManager(AdvancedVillages plugin, Config config) {
+    public VillageAnimationManager(AdvancedVillages plugin, RosaConfig config) {
         this.plugin = plugin;
         this.config = config;
         loadComponents();
@@ -27,7 +27,7 @@ public final class VillageAnimationManager {
 
     public void reload() {
         boolean restart = started;
-        stop();
+        shutdown();
         loadComponents();
         if (restart || plugin.getDataloader() != null) {
             start();
@@ -43,15 +43,11 @@ public final class VillageAnimationManager {
         centralAnimator.start();
     }
 
-    public void stop() {
+    public void shutdown() {
         started = false;
         if (centralAnimator != null) {
             centralAnimator.stop();
         }
-    }
-
-    public void shutdown() {
-        stop();
     }
 
     public boolean isEnabled() {

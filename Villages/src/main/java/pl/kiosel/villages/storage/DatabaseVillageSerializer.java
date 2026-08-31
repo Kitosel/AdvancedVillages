@@ -1,23 +1,17 @@
 package pl.kiosel.villages.storage;
 
-import panda.std.Option;
-import pl.kiosel.core.CoreLogger;
-import pl.kiosel.core.data.element.SQLBasicUtils;
-import pl.kiosel.core.data.element.SQLNamedStatement;
-import pl.kiosel.core.data.element.SQLTable;
-import pl.kiosel.core.database.DataManager;
-import pl.kiosel.core.utils.LocationUtils;
-import pl.kiosel.core.utils.TextUtils;
-import pl.kiosel.core.utils.TimeUtils;
+import pl.kiosel.rosacore.location.LocationUtils;
+import pl.kiosel.rosacore.utils.TextUtils;
+import pl.kiosel.rosacore.utils.TimeUtils;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.user.UserManager;
 import pl.kiosel.villages.data.village.Village;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -27,9 +21,9 @@ public final class DatabaseVillageSerializer {
     private DatabaseVillageSerializer() {
     }
 
-    public static Option<Village> deserialize(ResultSet resultSet) {
+    public static Optional<Village> deserialize(ResultSet resultSet) {
         if (resultSet == null) {
-            return Option.none();
+            return Optional.empty();
         }
 
         String id = null;
@@ -54,22 +48,21 @@ public final class DatabaseVillageSerializer {
             String tag = resultSet.getString("tag");
 
             AdvancedVillages plugin = AdvancedVillages.getInstance();
-            CoreLogger logger = CoreLogger.getInstance();
             UserManager userManager = plugin.getUserManager();
 
             if (name == null) {
-                logger.severe("Cannot deserialize village, caused by: name is null");
-                return Option.none();
+				plugin.getRosaLogger().severe("Cannot deserialize village, caused by: name is null");
+                return Optional.empty();
             }
 
             if (tag == null) {
-                logger.severe("Cannot deserialize village: " + name + ", caused by: tag is null");
-                return Option.none();
+				plugin.getRosaLogger().severe("Cannot deserialize village: " + name + ", caused by: tag is null");
+                return Optional.empty();
             }
 
             if (os == null) {
-                logger.severe("Cannot deserialize village: " + name + ", caused by: owner is null");
-                return Option.none();
+				plugin.getRosaLogger().severe("Cannot deserialize village: " + name + ", caused by: owner is null");
+                return Optional.empty();
             }
 
             UUID uuid = UUID.randomUUID();
@@ -77,10 +70,10 @@ public final class DatabaseVillageSerializer {
                 uuid = UUID.fromString(id);
             }
 
-            Option<User> ownerOption = userManager.findByName(os);
+            Optional<User> ownerOption = userManager.findByName(os);
             if (ownerOption.isEmpty()) {
-                logger.severe("Cannot deserialize village! Caused by: owner (user instance) doesn't exist");
-                return Option.none();
+				plugin.getRosaLogger().severe("Cannot deserialize village! Caused by: owner (user instance) doesn't exist");
+                return Optional.empty();
             }
 
             Set<User> members = new HashSet<>();
@@ -89,8 +82,8 @@ public final class DatabaseVillageSerializer {
             }
 
             if (protection == null) {
-                logger.severe("Cannot deserialize village: " + name + ", caused by: protection is null");
-                return Option.none();
+				plugin.getRosaLogger().severe("Cannot deserialize village: " + name + ", caused by: protection is null");
+                return Optional.empty();
             }
 
             if (lives == 0) {
@@ -117,11 +110,11 @@ public final class DatabaseVillageSerializer {
 
             return DeserializationUtils.deserializeVillage(plugin.getVillageManager(), values);
         } catch (Exception exception) {
-			AdvancedVillages.getInstance().getLogger().log(Level.WARNING,
+			AdvancedVillages.getInstance().getRosaLogger().log(Level.WARNING,
 					"Could not deserialize village (id: " + id + ", name: " + name + ")", exception);
         }
 
-        return Option.none();
+        return Optional.empty();
     }
 
     public static void serialize(Village village) {
@@ -131,22 +124,18 @@ public final class DatabaseVillageSerializer {
 		village.markUnchanged(changeVersion);
     }
 
-    public static void delete(Village village, DataManager connection, SQLTable villageTable) throws SQLException {
-        SQLNamedStatement statement = SQLBasicUtils.getDelete(connection, villageTable);
-
-        statement.set("uuid", village.getUUID().toString());
-        statement.executeUpdate();
+	public static void delete(Village village) {
+		AdvancedVillages plugin = AdvancedVillages.getInstance();
+		plugin.getDataManager().executeUpdate(
+				"DELETE FROM " + plugin.getDataloader().getVillagesTable() + " WHERE uuid = ?",
+				village.getUUID().toString());
     }
 
     public static void updatePoints(Village village) {
 		AdvancedVillages plugin = AdvancedVillages.getInstance();
-		DataManager connection = plugin.getDataManager();
-		SQLTable villageTable = plugin.getDataloader().getVillagesTable();
-        SQLNamedStatement statement = SQLBasicUtils.getUpdate(connection, villageTable, villageTable.getSQLElement("points").orNull());
-
-        statement.set("points", village.getRank().getAveragePoints());
-        statement.set("uuid", village.getUUID().toString());
-        statement.executeUpdate();
+		plugin.getDataManager().executeUpdate(
+				"UPDATE " + plugin.getDataloader().getVillagesTable() + " SET points = ? WHERE uuid = ?",
+				village.getRank().getAveragePoints(), village.getUUID().toString());
     }
 
 }

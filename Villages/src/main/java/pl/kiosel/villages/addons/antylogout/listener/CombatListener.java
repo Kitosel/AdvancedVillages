@@ -1,21 +1,23 @@
 package pl.kiosel.villages.addons.antylogout.listener;
 
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import pl.kiosel.rosacore.listener.RosaListener;
+import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.addons.antylogout.CombatManager;
 
-public final class CombatListener implements Listener {
+public final class CombatListener extends RosaListener {
 
 	private final CombatManager combatManager;
 
-	public CombatListener(CombatManager combatManager) {
-		this.combatManager = combatManager;
+	public CombatListener(AdvancedVillages plugin) {
+		super(plugin);
+		this.combatManager = plugin.getCombatManager();
 	}
 
 	@EventHandler(ignoreCancelled = true)

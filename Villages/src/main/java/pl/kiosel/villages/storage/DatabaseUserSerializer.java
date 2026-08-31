@@ -1,24 +1,19 @@
 package pl.kiosel.villages.storage;
 
-import panda.std.Option;
-import pl.kiosel.core.CoreLogger;
-import pl.kiosel.core.data.element.SQLBasicUtils;
-import pl.kiosel.core.data.element.SQLNamedStatement;
-import pl.kiosel.core.data.element.SQLTable;
-import pl.kiosel.core.database.DataManager;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.data.user.User;
 
 import java.sql.ResultSet;
+import java.util.Optional;
 
 public final class DatabaseUserSerializer {
 
     private DatabaseUserSerializer() {
     }
 
-    public static Option<User> deserialize(ResultSet resultSet) {
+    public static Optional<User> deserialize(ResultSet resultSet) {
         if (resultSet == null) {
-            return Option.none();
+            return Optional.empty();
         }
 
         try {
@@ -43,10 +38,10 @@ public final class DatabaseUserSerializer {
 
             return DeserializationUtils.deserializeUser(AdvancedVillages.getInstance().getUserManager(), values);
         } catch (Exception exception) {
-            CoreLogger.getInstance().warning("Could not deserialize user" + exception);
+			AdvancedVillages.getInstance().getRosaLogger().warning("Could not deserialize user: " + exception.getMessage());
         }
 
-        return Option.none();
+        return Optional.empty();
     }
 
     public static void serialize(User user) {
@@ -58,13 +53,9 @@ public final class DatabaseUserSerializer {
 
     public static void updatePoints(User user) {
 		AdvancedVillages plugin = AdvancedVillages.getInstance();
-		DataManager connection = plugin.getDataManager();
-		SQLTable userstable = plugin.getDataloader().getUsersTable();
-        SQLNamedStatement statement = SQLBasicUtils.getUpdate(connection, userstable, userstable.getSQLElement("points").orNull());
-
-        statement.set("points", user.getRank().getPoints());
-        statement.set("uuid", user.getUUID().toString());
-        statement.executeUpdate();
+		plugin.getDataManager().executeUpdate(
+				"UPDATE " + plugin.getDataloader().getUsersTable() + " SET points = ? WHERE uuid = ?",
+				user.getRank().getPoints(), user.getUUID().toString());
     }
 
 }

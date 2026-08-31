@@ -1,7 +1,6 @@
 package pl.kiosel.villages.addons.quests;
 
 import lombok.Getter;
-import org.bukkit.Material;
 
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -20,12 +19,10 @@ public final class QuestDefinition {
 	@Getter
 	private final int requiredAmount;
 	@Getter
-	private final Material icon;
-	@Getter
 	private final QuestReward reward;
 
 	public QuestDefinition(String id, QuestPeriod period, QuestType type, Set<String> targets,
-	                       int requiredAmount, Material icon, QuestReward reward) {
+	                       int requiredAmount, QuestReward reward) {
 		this.id = id;
 		this.period = period;
 		this.type = type;
@@ -37,7 +34,6 @@ public final class QuestDefinition {
 		}
 		this.targets = Collections.unmodifiableSet(normalizedTargets);
 		this.requiredAmount = Math.max(1, requiredAmount);
-		this.icon = icon;
 		this.reward = reward;
 	}
 
@@ -49,9 +45,5 @@ public final class QuestDefinition {
 			return true;
 		}
 		return target != null && this.targets.contains(target.toUpperCase(Locale.ROOT));
-	}
-
-	public String getTranslationPath() {
-		return "quests.tasks." + this.id;
 	}
 }

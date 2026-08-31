@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/** Immutable appearance and position of a configured GUI item. */
 @Getter
 public final class GuiItemConfig {
 

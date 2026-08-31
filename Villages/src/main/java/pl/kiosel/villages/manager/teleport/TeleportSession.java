@@ -2,8 +2,8 @@ package pl.kiosel.villages.manager.teleport;
 
 import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitTask;
+import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.enums.Lang;
 
 final class TeleportSession {
 

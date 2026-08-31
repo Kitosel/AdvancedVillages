@@ -1,6 +1,6 @@
 package pl.kiosel.villages.addons.buildeditor;
 
-import pl.kiosel.dependencies.com.cryptomorin.xseries.XMaterial;
+import pl.kiosel.rosacore.compatibility.ZMaterial;
 import pl.kiosel.villages.data.village.level.Level;
 
 import java.util.LinkedHashMap;
@@ -8,7 +8,7 @@ import java.util.Map;
 
 final class LevelDraft {
 
-	private final Map<XMaterial, Integer> materials = new LinkedHashMap<>();
+	private final Map<ZMaterial, Integer> materials = new LinkedHashMap<>();
 	private int experience;
 	private int economy;
 	private int size = 1;
@@ -22,7 +22,7 @@ final class LevelDraft {
 		return draft;
 	}
 
-	Map<XMaterial, Integer> getMaterials() {
+	Map<ZMaterial, Integer> getMaterials() {
 		return materials;
 	}
 

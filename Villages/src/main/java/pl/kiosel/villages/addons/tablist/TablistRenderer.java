@@ -1,18 +1,17 @@
 package pl.kiosel.villages.addons.tablist;
 
 import org.bukkit.entity.Player;
-import pl.kiosel.core.nms.playerlist.PlayerListConstants;
-import pl.kiosel.core.utils.ColorUtils;
+import pl.kiosel.rosacore.nms.api.tablist.TabList;
+import pl.kiosel.rosacore.utils.ColorUtils;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.data.user.User;
 
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
-/** Builds one complete tablist view and resolves placeholders only once. */
 final class TablistRenderer {
 
-	private static final int CELL_LIMIT = PlayerListConstants.DEFAULT_CELL_COUNT;
+	private static final int CELL_LIMIT = TabList.DEFAULT_CELL_COUNT;
 	private static final String PART_SEPARATOR = "\u0000";
 	private static final Pattern PART_SEPARATOR_PATTERN = Pattern.compile(PART_SEPARATOR, Pattern.LITERAL);
 

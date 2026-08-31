@@ -1,13 +1,15 @@
 package pl.kiosel.villages.addons.logs;
 
-import pl.kiosel.core.configuration.Config;
-import pl.kiosel.core.utils.NumberUtils;
-import pl.kiosel.core.utils.TimeUtils;
+import pl.kiosel.rosacore.config.RosaConfig;
+import pl.kiosel.rosacore.utils.NumberUtils;
+import pl.kiosel.rosacore.utils.TimeUtils;
 import pl.kiosel.villages.AdvancedVillages;
+
+import static pl.kiosel.rosacore.utils.ColorUtils.tl;
 
 public final class VillageLogConfiguration {
 
-	private final Config file;
+	private final RosaConfig file;
 	private volatile VillageLogSettings settings;
 
 	public VillageLogConfiguration(AdvancedVillages plugin) {
@@ -27,5 +29,15 @@ public final class VillageLogConfiguration {
 
 	public VillageLogSettings snapshot() {
 		return this.settings;
+	}
+
+	public String text(String path, String fallback, Object... placeholders) {
+		String configured = this.file.getString(path, fallback);
+		String result = tl(configured == null ? fallback : configured);
+		for (int index = 0; index + 1 < placeholders.length; index += 2) {
+			result = result.replace("%" + placeholders[index] + "%",
+					String.valueOf(placeholders[index + 1]));
+		}
+		return result;
 	}
 }

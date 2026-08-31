@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>pl.kiosel</groupId>
-    <artifactId>Villages-parent</artifactId>
+    <artifactId>villages-parent</artifactId>
     <version>1.0</version>
     <packaging>pom</packaging>
 
@@ -51,6 +51,10 @@
         <repository>
             <id>mvn-wesjd-net</id>
             <url>https://mvn.wesjd.net/</url>
+        </repository>
+        <repository>
+            <id>songoda-third-party</id>
+            <url>https://repo.songoda.com/repository/third-party/</url>
         </repository>
     </repositories>
 

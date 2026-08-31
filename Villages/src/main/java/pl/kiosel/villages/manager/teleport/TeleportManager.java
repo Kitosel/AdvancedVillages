@@ -1,31 +1,29 @@
 package pl.kiosel.villages.manager.teleport;
 
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
-import pl.kiosel.core.chat.AdventureUtils;
-import pl.kiosel.core.configuration.Config;
-import pl.kiosel.core.dependencies.net.kyori.adventure.title.Title;
-import pl.kiosel.core.locale.Message;
-import pl.kiosel.core.utils.NumberUtils;
+import pl.kiosel.rosacore.config.RosaConfig;
+import pl.kiosel.rosacore.utils.NumberUtils;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.config.Lang;
+import pl.kiosel.villages.config.Settings;
+import pl.kiosel.villages.config.VillageMessage;
+import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.enums.Lang;
 import pl.kiosel.villages.manager.VillageUtilsManager;
-import pl.kiosel.villages.settings.Settings;
 
-import java.time.Duration;
 import java.util.*;
 import java.util.logging.Level;
 
-import static pl.kiosel.core.utils.ColorUtils.tl;
+import static pl.kiosel.rosacore.utils.ColorUtils.tl;
 
 public final class TeleportManager {
 
@@ -33,7 +31,7 @@ public final class TeleportManager {
 	private static final long MAX_COOLDOWN_SECONDS = Long.MAX_VALUE / 1000L;
 
 	private final AdvancedVillages plugin;
-	private final Config spawnFile;
+	private final RosaConfig spawnFile;
 	private final Map<UUID, TeleportSession> sessions = new HashMap<>();
 	private final Map<TeleportType, Map<UUID, Long>> cooldowns = new EnumMap<>(TeleportType.class);
 	private final Set<UUID> settingVillageHome = new HashSet<>();
@@ -79,9 +77,9 @@ public final class TeleportManager {
 
 	public void sendHoverSet(Player player) {
 		if (!this.isTeleportTask(player)) return;
-		TextComponent message = new TextComponent(this.plugin.getMessages().get(Lang.TELEPORT_SET).toText());
+		TextComponent message = new TextComponent(this.plugin.getVillageMessages().get(Lang.TELEPORT_SET).toText());
 		message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-				new ComponentBuilder(this.plugin.getMessages().get(Lang.TELEPORT_SET_HOVER).toText()).create()));
+				new ComponentBuilder(this.plugin.getVillageMessages().get(Lang.TELEPORT_SET_HOVER).toText()).create()));
 		message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
 				"/village teleporting6 village7 set9"));
 		player.sendMessage(tl("&8——————————————————————————"));
@@ -128,15 +126,16 @@ public final class TeleportManager {
 		}
 
 		Village village = this.plugin.getUserManager().findByUuid(playerId)
-				.map(user -> user.getPresentVillage())
-				.orNull();
-		Location destination = village == null ? null : village.getHome().orNull();
+				.map(User::getPresentVillage)
+				.orElse(null);
+		Location destination = village == null ? null : village.getHome().orElse(null);
 		if (village == null || destination == null) {
-			this.plugin.getMessages().get(Lang.VILLAGE_NO).sendPrefixedMessage(player);
+			this.plugin.getVillageMessages().get(Lang.VILLAGE_NO).sendPrefixed(player);
 			return false;
 		}
 
 		long delay = NumberUtils.clampSeconds(Settings.TELEPORT_COOLDOWN.getLong(), 0L, MAX_TELEPORT_DELAY_SECONDS);
+		delay = this.plugin.getDevelopmentManager().applyTeleportDelay(village, delay);
 		long cooldown = NumberUtils.clampSeconds(Settings.TELEPORT_BETWEEN_COOLDOWN.getLong(), 0L, MAX_COOLDOWN_SECONDS);
 		TeleportSession session = new TeleportSession(
 				TeleportType.VILLAGE,
@@ -157,7 +156,7 @@ public final class TeleportManager {
 	public boolean teleportPlayerToSpawn(Player player) {
 		Optional<Location> spawn = this.getSpawn();
 		if (spawn.isEmpty()) {
-			this.plugin.getMessages().get(Lang.SPAWN_NOT_SET).sendPrefixedMessage(player);
+			this.plugin.getVillageMessages().get(Lang.SPAWN_NOT_SET).sendPrefixed(player);
 			return false;
 		}
 
@@ -169,22 +168,22 @@ public final class TeleportManager {
 		if (this.spawnCost > 0 && (!this.plugin.getEconomy().hasBalance(player, this.spawnCost)
 				|| !this.plugin.getEconomy().withdrawBalance(player, this.spawnCost))) {
 			double missing = Math.max(0.0D, this.spawnCost - this.plugin.getEconomy().getBalance(player));
-			this.plugin.getMessages().get(Lang.NO_MONEY)
-					.processPlaceholder("money", missing)
-					.sendPrefixedMessage(player);
+			this.plugin.getVillageMessages().get(Lang.NO_MONEY)
+					.with("money", missing)
+					.sendPrefixed(player);
 			return false;
 		}
 
 		if (this.spawnCost > 0) {
-			this.plugin.getMessages().get(Lang.MONEY_REMOVE)
-					.processPlaceholder("money", this.spawnCost)
-					.sendPrefixedMessage(player);
+			this.plugin.getVillageMessages().get(Lang.MONEY_REMOVE)
+					.with("money", this.spawnCost)
+					.sendPrefixed(player);
 		}
 		if (this.spawnMessage) {
-			this.plugin.getMessages().get(Lang.SPAWN_TELEPORT)
-					.processPlaceholder("seconds", this.spawnDelay)
-					.processPlaceholder("time", this.spawnDelay)
-					.sendPrefixedMessage(player);
+			this.plugin.getVillageMessages().get(Lang.SPAWN_TELEPORT)
+					.with("seconds", this.spawnDelay)
+					.with("time", this.spawnDelay)
+					.sendPrefixed(player);
 		}
 
 		TeleportSession session = new TeleportSession(
@@ -340,7 +339,7 @@ public final class TeleportManager {
 		} catch (RuntimeException exception) {
 			this.sessions.remove(playerId, session);
 			this.cooldowns.get(session.getType()).remove(playerId);
-			this.plugin.getLogger().log(Level.WARNING,
+			this.plugin.getRosaLogger().log(Level.WARNING,
 					"Could not schedule " + session.getType().name().toLowerCase() + " teleport for " + player.getName(),
 					exception);
 			return false;
@@ -362,15 +361,15 @@ public final class TeleportManager {
 				this.sendRefund(player, refunded);
 			}
 			if (player.isOnline() && session.getType() == TeleportType.VILLAGE) {
-				this.plugin.getMessages().get(Lang.VILLAGE_NO).sendPrefixedMessage(player);
+				this.plugin.getVillageMessages().get(Lang.VILLAGE_NO).sendPrefixed(player);
 			}
 			return;
 		}
 
 		if (session.getType() == TeleportType.VILLAGE && session.getVillage() != null) {
-			this.plugin.getMessages().get(Lang.TELEPORTED)
-					.processPlaceholder("village", session.getVillage().getName())
-					.sendPrefixedMessage(player);
+			this.plugin.getVillageMessages().get(Lang.TELEPORTED)
+					.with("village", session.getVillage().getName())
+					.sendPrefixed(player);
 		}
 	}
 
@@ -380,30 +379,25 @@ public final class TeleportManager {
 		}
 
 		Village currentVillage = this.plugin.getUserManager().findByPlayer(player)
-				.map(user -> user.getPresentVillage())
-				.orNull();
+				.map(User::getPresentVillage)
+				.orElse(null);
 		if (currentVillage == null || !currentVillage.equals(session.getVillage())) {
 			return null;
 		}
-		Location currentHome = currentVillage.getHome().orNull();
+		Location currentHome = currentVillage.getHome().orElse(null);
 		return currentHome == null ? null : currentHome.clone();
 	}
 
 	private void sendAnimation(Player player, TeleportSession session, long secondsLeft) {
 		String title = this.formatAnimationLine(session.getTitle(), session.getVillage(), secondsLeft);
 		String subtitle = this.formatAnimationLine(session.getSubtitle(), session.getVillage(), secondsLeft);
-		Title component = AdventureUtils.createTitle(
-				AdventureUtils.formatComponent(title),
-				AdventureUtils.formatComponent(subtitle),
-				Title.Times.times(Duration.ofMillis(100), Duration.ofSeconds(1), Duration.ofMillis(100))
-		);
-		AdventureUtils.sendTitle(component, player);
+		this.plugin.getMessenger().title(player, title, subtitle, 2, 20, 2);
 	}
 
 	private String formatAnimationLine(Lang key, Village village, long secondsLeft) {
-		Message message = this.plugin.getMessages().get(key)
-				.processPlaceholder("time", secondsLeft)
-				.processPlaceholder("seconds", secondsLeft);
+		VillageMessage message = this.plugin.getVillageMessages().get(key)
+				.with("time", secondsLeft)
+				.with("seconds", secondsLeft);
 		String text = message.toText();
 		return village == null ? text : VillageUtilsManager.replaceWith(village, text);
 	}
@@ -413,10 +407,10 @@ public final class TeleportManager {
 		if (remaining <= 0L) {
 			return true;
 		}
-		this.plugin.getMessages().get(Lang.TELEPORT_COOLDOWN)
-				.processPlaceholder("time", remaining)
-				.processPlaceholder("seconds", remaining)
-				.sendPrefixedMessage(player);
+		this.plugin.getVillageMessages().get(Lang.TELEPORT_COOLDOWN)
+				.with("time", remaining)
+				.with("seconds", remaining)
+				.sendPrefixed(player);
 		return false;
 	}
 
@@ -440,9 +434,9 @@ public final class TeleportManager {
 	}
 
 	private void sendRefund(Player player, int amount) {
-		this.plugin.getMessages().get(Lang.MONEY_ADD)
-				.processPlaceholder("money", amount)
-				.sendPrefixedMessage(player);
+		this.plugin.getVillageMessages().get(Lang.MONEY_ADD)
+				.with("money", amount)
+				.sendPrefixed(player);
 	}
 
 	private void removeOfflineSession(UUID playerId, TeleportSession session) {

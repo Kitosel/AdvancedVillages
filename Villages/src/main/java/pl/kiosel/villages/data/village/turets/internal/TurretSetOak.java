@@ -5,96 +5,30 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.data.village.turets.Turret;
+import pl.kiosel.villages.data.village.turets.TurretStructure;
 
 public class TurretSetOak extends Turret {
 
+	private static final TurretStructure FENCES = TurretStructure.builder()
+			.cardinals(Material.SPRUCE_FENCE, 3, 2)
+			.mirrorXZ(Material.SPRUCE_FENCE, 2, 4, 1)
+			.mirrorXZ(Material.SPRUCE_FENCE, 1, 4, 2)
+			.build();
+
+	private static final TurretStructure BODY = TurretStructure.builder()
+			.layer(Material.SPRUCE_PLANKS, -1, 1)
+			.outline(Material.SPRUCE_LOG, -1, 2)
+			.corners(Material.SPRUCE_PLANKS, -1, 2)
+			.fourPillars(Material.SPRUCE_LOG, 2, 0, 4)
+			.mirrorXZ(Material.SPRUCE_WOOD, 2, 3, 1)
+			.mirrorXZ(Material.SPRUCE_WOOD, 1, 3, 2)
+			.corners(Material.SPRUCE_SLAB, 5, 2)
+			.build();
+
 	@Override
 	public void setTurret(World world, int x, int y, int z) {
-		set(world, x, y, z, Material.NOTE_BLOCK);
-		setOakTurretFence(world, x, y, z);
-
-		Bukkit.getScheduler().runTaskLater(AdvancedVillages.getInstance(),() -> {
-			set(world, x + 2, y - 1, z + 2, Material.SPRUCE_PLANKS);
-			set(world, x + 2, y - 1, z - 2, Material.SPRUCE_PLANKS);
-			set(world, x - 2, y - 1, z + 2, Material.SPRUCE_PLANKS);
-			set(world, x - 2, y - 1, z - 2, Material.SPRUCE_PLANKS);
-			set(world, x - 2, y - 1, z, Material.SPRUCE_LOG);
-			set(world, x + 2, y - 1, z, Material.SPRUCE_LOG);
-			set(world, x, y - 1, z - 2, Material.SPRUCE_LOG);
-			set(world, x, y - 1, z + 2, Material.SPRUCE_LOG);
-			set(world, x - 2, y - 1, z - 1, Material.SPRUCE_LOG);
-			set(world, x + 2, y - 1, z + 1, Material.SPRUCE_LOG);
-			set(world,  x - 1, y - 1, z - 2, Material.SPRUCE_LOG);
-			set(world, x + 1, y - 1, z + 2, Material.SPRUCE_LOG);
-			set(world, x - 2, y - 1, z + 1, Material.SPRUCE_LOG);
-			set(world, x + 2, y - 1, z - 1, Material.SPRUCE_LOG);
-			set(world, x + 1, y - 1, z - 2, Material.SPRUCE_LOG);
-			set(world, x - 1, y - 1, z + 2, Material.SPRUCE_LOG);
-			set(world, x + 2, y + 5, z + 2, Material.SPRUCE_SLAB);
-			set(world, x + 2, y + 5, z - 2, Material.SPRUCE_SLAB);
-			set(world, x - 2, y + 5, z + 2, Material.SPRUCE_SLAB);
-			set(world, x - 2, y + 5, z - 2, Material.SPRUCE_SLAB);
-
-			setOakTuretFlor(world, x, y, z);
-			setOakTuretSlup(world, x, y, z);
-		}, 5L);
-	}
-	
-	private void setOakTurretFence(World world, int x, int y, int z) {
-		set(world, x + 2, y + 3, z, Material.SPRUCE_FENCE);
-		set(world, x - 2, y + 3, z, Material.SPRUCE_FENCE);
-		set(world, x, y + 3, z + 2, Material.SPRUCE_FENCE);
-		set(world, x, y + 3, z - 2, Material.SPRUCE_FENCE);
-		set(world, x + 2, y + 4, z + 1, Material.SPRUCE_FENCE);
-		set(world, x - 2, y + 4, z - 1, Material.SPRUCE_FENCE);
-		set(world, x + 1, y + 4, z + 2, Material.SPRUCE_FENCE);
-		set(world, x - 1, y + 4, z - 2, Material.SPRUCE_FENCE);
-		set(world, x - 1, y + 4, z + 2, Material.SPRUCE_FENCE);
-		set(world, x + 1, y + 4, z - 2, Material.SPRUCE_FENCE);
-		set(world, x + 2, y + 4, z - 1, Material.SPRUCE_FENCE);
-		set(world, x - 2, y + 4, z + 1, Material.SPRUCE_FENCE);
-	}
-	
-	public void setOakTuretFlor(World world, int x, int y, int z) {
-		set(world, x + 1, y - 1 , z + 1, Material.SPRUCE_PLANKS);
-		set(world, x + 1, y - 1 , z - 1, Material.SPRUCE_PLANKS);
-		set(world, x - 1, y - 1 , z - 1, Material.SPRUCE_PLANKS);
-		set(world, x - 1, y - 1 , z + 1, Material.SPRUCE_PLANKS);
-		set(world, x + 1, y - 1 , z, Material.SPRUCE_PLANKS);
-		set(world, x - 1, y - 1 , z, Material.SPRUCE_PLANKS);
-		set(world, x, y - 1 , z + 1, Material.SPRUCE_PLANKS);
-		set(world, x, y - 1 , z - 1, Material.SPRUCE_PLANKS);
-		set(world, x, y - 1, z, Material.SPRUCE_PLANKS);
-	}
-	
-	public void setOakTuretSlup(World world, int x, int y, int z) {
-		set(world, x + 2, y, z + 2, Material.SPRUCE_LOG);
-		set(world, x + 2, y, z - 2, Material.SPRUCE_LOG);
-		set(world, x - 2, y, z + 2, Material.SPRUCE_LOG);
-		set(world, x - 2, y, z - 2, Material.SPRUCE_LOG);
-		set(world, x + 2, y + 1, z + 2, Material.SPRUCE_LOG);
-		set(world, x + 2, y + 1, z - 2, Material.SPRUCE_LOG);
-		set(world, x - 2, y + 1, z + 2, Material.SPRUCE_LOG);
-		set(world, x - 2, y + 1, z - 2, Material.SPRUCE_LOG);
-		set(world, x + 2, y + 2, z + 2, Material.SPRUCE_LOG);
-		set(world, x + 2, y + 2, z - 2, Material.SPRUCE_LOG);
-		set(world, x - 2, y + 2, z + 2, Material.SPRUCE_LOG);
-		set(world, x - 2, y + 2, z - 2, Material.SPRUCE_LOG);
-		set(world, x + 2, y + 3, z + 2, Material.SPRUCE_LOG);
-		set(world, x + 2, y + 3, z - 2, Material.SPRUCE_LOG);
-		set(world, x - 2, y + 3, z + 2, Material.SPRUCE_LOG);
-		set(world, x - 2, y + 3, z - 2, Material.SPRUCE_LOG);
-		set(world, x + 2, y + 4, z + 2, Material.SPRUCE_LOG);
-		set(world, x + 2, y + 4, z - 2, Material.SPRUCE_LOG);
-		set(world, x - 2, y + 4, z + 2, Material.SPRUCE_LOG);
-		set(world, x - 2, y + 4, z - 2, Material.SPRUCE_LOG);
-		set(world, x + 2, y + 3, z + 1, Material.SPRUCE_WOOD);
-		set(world, x + 2, y + 3, z - 1, Material.SPRUCE_WOOD);
-		set(world, x - 2, y + 3, z + 1, Material.SPRUCE_WOOD);
-		set(world, x - 2, y + 3, z - 1, Material.SPRUCE_WOOD);
-		set(world, x + 1, y + 3, z + 2, Material.SPRUCE_WOOD);
-		set(world, x + 1, y + 3, z - 2, Material.SPRUCE_WOOD);
-		set(world, x - 1, y + 3, z + 2, Material.SPRUCE_WOOD);
-		set(world, x - 1, y + 3, z - 2, Material.SPRUCE_WOOD);
+		paste(FENCES, world, x, y, z);
+		Bukkit.getScheduler().runTaskLater(AdvancedVillages.getInstance(),
+				() -> paste(BODY, world, x, y, z), 5L);
 	}
 }

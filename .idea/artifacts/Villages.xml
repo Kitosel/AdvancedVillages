@@ -2,7 +2,7 @@
   <artifact type="jar" name="Villages">
     <output-path>$PROJECT_DIR$/build</output-path>
     <root id="archive" name="Villages.jar">
-      <element id="module-output" name="Wioski" />
+      <element id="module-output" name="Villages" />
     </root>
   </artifact>
 </component>

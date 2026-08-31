@@ -2,22 +2,19 @@ package pl.kiosel.villages.commands.subcommands;
 
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import pl.kiosel.core.chat.AdventureUtils;
-import pl.kiosel.core.locale.Message;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.commands.AVSubCommand;
+import pl.kiosel.villages.config.CommandLang;
+import pl.kiosel.villages.config.Lang;
+import pl.kiosel.villages.config.VillageMessage;
 import pl.kiosel.villages.data.user.User;
+import pl.kiosel.villages.data.village.Permission;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.enums.CommandLang;
-import pl.kiosel.villages.enums.Lang;
-import pl.kiosel.villages.enums.Permission;
 import pl.kiosel.villages.manager.VillageUtilsManager;
-import pl.kiosel.villages.settings.Settings;
+
+import java.util.List;
 
 public class RequestCommand extends AVSubCommand {
-
-    @Override
-    public String getName() { return "request"; }
 
     @Override
     public String getDescription() { return "confirm/cancel"; }
@@ -37,7 +34,7 @@ public class RequestCommand extends AVSubCommand {
 	private final AdvancedVillages plugin;
 
 	public RequestCommand(AdvancedVillages plugin) {
-		super(plugin);
+		super(plugin, CommandLang.REQUEST);
 		this.plugin = plugin;
 	}
 
@@ -59,26 +56,27 @@ public class RequestCommand extends AVSubCommand {
 		}
 		String arg1 = args[1].toLowerCase();
 
-		if (arg1.equals(plugin.getCommandLang().getCommand(CommandLang.REQUEST_ACCEPT))) {
+		if (arg1.equals(getCommand(CommandLang.REQUEST_ACCEPT))) {
 				Village villageInvited = plugin.getInviteManager().getVillageInvited(player);
 				if (villageInvited == null) {
 					sendLocalized(player, Lang.NO_INVITE);
 					return;
 				}
-				if (villageInvited.getMembers().size() >= Settings.VILLAGE_MAX_MEMBERS.getInt()) {
+			if (villageInvited.getMembers().size()
+					>= plugin.getDevelopmentManager().getMaxMembers(villageInvited)) {
 					sendLocalized(player, Lang.MAX_MEMBERS);
 					return;
 				}
 				player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
-				VillageUtilsManager.replaceWith(player, villageInvited, Lang.INVITE_CONFIRMED).sendPrefixedMessage(player);
+				VillageUtilsManager.replaceWith(player, villageInvited, Lang.INVITE_CONFIRMED).sendPrefixed(player);
 				plugin.getInviteManager().acceptInvite(player);
 				return;
 			}
 
-		if (arg1.equals(plugin.getCommandLang().getCommand(CommandLang.REQUEST_DENY))) {
+		if (arg1.equals(getCommand(CommandLang.REQUEST_DENY))) {
 			Village villageInvited = plugin.getInviteManager().getVillageInvited(player);
-			Message message = VillageUtilsManager.replaceWith(player, villageInvited, Lang.INVITE_DECLINE);
-			villageInvited.broadcast(AdventureUtils.toLegacy(message.getPrefixedMessage()));
+			VillageMessage message = VillageUtilsManager.replaceWith(player, villageInvited, Lang.INVITE_DECLINE);
+			villageInvited.broadcast(message.getPrefixedMessage());
 
 			sendLocalized(player, Lang.INVITE_CANCELED);
 			plugin.getInviteManager().denyInvite(player);
@@ -88,10 +86,26 @@ public class RequestCommand extends AVSubCommand {
 		sendUsage(player);
     }
 
+	@Override
+	public boolean isTabCompleteAvailable(Player player, User user) {
+		return super.isTabCompleteAvailable(player, user)
+				&& user.getPresentVillage() == null
+				&& plugin.getInviteManager().isPlayerInvited(player);
+	}
+
+	@Override
+	public List<String> tabComplete(Player player, User user, String[] args) {
+		if (args.length != 2) return List.of();
+		return List.of(
+				getCommand(CommandLang.REQUEST_ACCEPT),
+				getCommand(CommandLang.REQUEST_DENY)
+		);
+	}
+
 	private void sendUsage(Player player) {
 		getMessage(Lang.COMMAND_USAGE_REQUEST.getPath())
-				.processPlaceholder("accept", plugin.getCommandLang().getCommand(CommandLang.REQUEST_ACCEPT))
-				.processPlaceholder("deny", plugin.getCommandLang().getCommand(CommandLang.REQUEST_DENY))
-				.sendPrefixedMessage(player);
+				.with("accept", getCommand(CommandLang.REQUEST_ACCEPT))
+				.with("deny", getCommand(CommandLang.REQUEST_DENY))
+				.sendPrefixed(player);
 	}
 }

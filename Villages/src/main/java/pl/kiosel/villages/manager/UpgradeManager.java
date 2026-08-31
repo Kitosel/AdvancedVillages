@@ -3,19 +3,19 @@ package pl.kiosel.villages.manager;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import pl.kiosel.core.utils.PlayerUtils;
-import pl.kiosel.dependencies.com.cryptomorin.xseries.XMaterial;
+import pl.kiosel.rosacore.compatibility.ZMaterial;
+import pl.kiosel.rosacore.utils.PlayerUtils;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.config.Lang;
+import pl.kiosel.villages.config.Settings;
 import pl.kiosel.villages.config.VillageMessages;
+import pl.kiosel.villages.data.village.Upgrade;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.data.village.level.Level;
 import pl.kiosel.villages.data.village.turets.Turret;
 import pl.kiosel.villages.data.village.turets.internal.*;
 import pl.kiosel.villages.data.village.turets.worldedit.TurretSetWE;
 import pl.kiosel.villages.data.village.turets.worldedit.WorldEditTurret;
-import pl.kiosel.villages.enums.Lang;
-import pl.kiosel.villages.enums.Upgrade;
-import pl.kiosel.villages.settings.Settings;
 
 import java.io.File;
 import java.util.HashMap;
@@ -54,7 +54,7 @@ public class UpgradeManager {
 		int costEco = level.getCostEconomy();
 		int costXp = level.getCostExperience();
 		List<ItemStack> costMaterial = level.getItemMaterials();
-		VillageMessages messages = plugin.getMessages();
+		VillageMessages messages = plugin.getVillageMessages();
 
 		boolean ecoEnabled = Settings.VILLAGE_UPGRADE_ECO.getBoolean();
 		boolean xpEnabled = Settings.VILLAGE_UPGRADE_XP.getBoolean();
@@ -77,8 +77,8 @@ public class UpgradeManager {
 
 			if (!hasItems) {
 				messages.sendPrefixed(player, Lang.NO_ITEMS);
-				Map<XMaterial, Integer> missing = PlayerUtils.getMissingItems(player, costMaterial);
-				for (Map.Entry<XMaterial, Integer> entry : missing.entrySet()) {
+				Map<ZMaterial, Integer> missing = PlayerUtils.getMissingItems(player, costMaterial);
+				for (Map.Entry<ZMaterial, Integer> entry : missing.entrySet()) {
 					messages.send(player, Lang.MISSING_ITEM,
 							"item", entry.getKey().name(),
 							"amount", entry.getValue());
@@ -120,7 +120,7 @@ public class UpgradeManager {
     public void upgrade(Village village, Upgrade upgrade) {
         Location location = village.getLocation().get();
 		if (!canPasteLevel(upgrade.getLevel())) {
-			plugin.getLogger().warning("Cannot paste village level " + upgrade.getLevel() + ": compatible turret build is missing.");
+			plugin.getRosaLogger().warning("Cannot paste village level " + upgrade.getLevel() + ": compatible turret build is missing.");
 			return;
 		}
         reset(village);
@@ -131,6 +131,7 @@ public class UpgradeManager {
 					turretMap.get(Upgrade.WORLDEDIT).setTurret(location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ()),
 			2);
 		} else {
+			turretMap.get(Upgrade.WORLDEDIT).setTurret(location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
 			turretMap.get(upgrade).setTurret(location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
 		}
     }

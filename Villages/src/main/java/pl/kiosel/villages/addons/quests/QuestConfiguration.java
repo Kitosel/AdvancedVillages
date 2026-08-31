@@ -3,10 +3,10 @@ package pl.kiosel.villages.addons.quests;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
-import pl.kiosel.core.configuration.Config;
-import pl.kiosel.core.utils.TimeUtils;
+import pl.kiosel.rosacore.config.RosaConfig;
+import pl.kiosel.rosacore.utils.TimeUtils;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.settings.Settings;
+import pl.kiosel.villages.config.Settings;
 
 import java.time.DayOfWeek;
 import java.util.*;
@@ -17,7 +17,7 @@ public final class QuestConfiguration {
 	private static final Pattern ID_PATTERN = Pattern.compile("[a-z0-9_-]{1,48}");
 
 	private final AdvancedVillages plugin;
-	private final Config file;
+	private final RosaConfig file;
 	private volatile QuestSettings settings;
 
 	public QuestConfiguration(AdvancedVillages plugin) {
@@ -68,19 +68,12 @@ public final class QuestConfiguration {
 			}
 			Set<String> targets = this.readTargets(type, quest.getStringList("targets"), id);
 
-			Material icon = Material.matchMaterial(quest.getString("icon", "PAPER"));
-			if (icon == null || icon.isAir()) {
-				this.warn("Quest '" + id + "' has an invalid icon; using PAPER");
-				icon = Material.PAPER;
-			}
-
 			definitions.add(new QuestDefinition(
 					id,
 					period,
 					type,
 					targets,
 					Math.max(1, quest.getInt("required", 1)),
-					icon,
 					new QuestReward(
 							quest.getInt("rewards.bank", 0),
 							quest.getInt("rewards.experience", 0),
@@ -144,7 +137,7 @@ public final class QuestConfiguration {
 	}
 
 	private void warn(String message) {
-		this.plugin.getLogger().warning(message);
+		this.plugin.getRosaLogger().warning(message);
 	}
 
 	private static boolean isEntityQuest(QuestType type) {

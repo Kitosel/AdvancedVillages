@@ -1,10 +1,9 @@
 package pl.kiosel.villages.gui;
 
 import org.bukkit.entity.Player;
-import pl.kiosel.core.gui.Gui;
+import pl.kiosel.rosacore.gui.Gui;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.enums.GUIS;
 import pl.kiosel.villages.gui.village.*;
 
 public class VillageGUIManager {
@@ -30,7 +29,7 @@ public class VillageGUIManager {
 				gui = new BankInventory(plugin, this, village, player, main);
 				break;
 			case REMOVE:
-				gui = new RemoveInventory(plugin, this, village, player, main);
+				gui = new RemoveInventory(plugin, village, player, main);
 				break;
 			case UPGRADE:
 				gui = new UpgradeInventory(plugin, this, village, player, main);
@@ -43,6 +42,12 @@ public class VillageGUIManager {
 				break;
 			case LOGS:
 				gui = new VillageLogInventory(plugin, this, village, player, main);
+				break;
+			case DIPLOMACY:
+				gui = new DiplomacyInventory(plugin, this, village, player, main);
+				break;
+			case DEVELOPMENT:
+				gui = new DevelopmentInventory(plugin, this, village, player, main);
 				break;
 			case RESIDENT:
 				gui = new ResidentInventory(plugin, this, village, player, main);
@@ -57,6 +62,6 @@ public class VillageGUIManager {
 			default:
 				gui = main;
 		}
-		plugin.getGuiManager().showGUI(player, gui);
+		plugin.getGuiManager().openGUI(player, gui);
 	}
 }

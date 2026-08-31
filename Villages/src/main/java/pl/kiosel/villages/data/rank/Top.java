@@ -1,12 +1,12 @@
 package pl.kiosel.villages.data.rank;
 
 import lombok.Getter;
-import panda.std.Option;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.NavigableSet;
+import java.util.Optional;
 import java.util.function.BiFunction;
 
 public class Top<T> {
@@ -22,10 +22,16 @@ public class Top<T> {
 		this.values = Collections.emptyList();
     }
 
-	public Option<T> get(int place) {
+	public Optional<T> get(int place) {
 		List<T> snapshot = this.values;
-		return Option.when(place > 0 && place <= snapshot.size(), () -> snapshot.get(place - 1));
+		return place > 0 && place <= snapshot.size()
+				? Optional.ofNullable(snapshot.get(place - 1))
+				: Optional.empty();
     }
+
+	public List<T> values() {
+		return this.values;
+	}
 
     public int count() {
         return this.values.size();

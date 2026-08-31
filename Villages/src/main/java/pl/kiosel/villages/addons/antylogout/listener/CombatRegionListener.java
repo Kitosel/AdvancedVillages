@@ -3,19 +3,22 @@ package pl.kiosel.villages.addons.antylogout.listener;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.util.Vector;
-import pl.kiosel.core.hooks.WorldGuardHook;
+import pl.kiosel.rosacore.listener.RosaListener;
+import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.addons.antylogout.CombatManager;
 import pl.kiosel.villages.addons.antylogout.CombatSettings;
 
-public final class CombatRegionListener implements Listener {
+public final class CombatRegionListener extends RosaListener {
 
+	private final AdvancedVillages plugin;
 	private final CombatManager combatManager;
 
-	public CombatRegionListener(CombatManager combatManager) {
-		this.combatManager = combatManager;
+	public CombatRegionListener(AdvancedVillages plugin) {
+		super(plugin);
+		this.plugin = plugin;
+		this.combatManager = plugin.getCombatManager();
 	}
 
 	@EventHandler(ignoreCancelled = true)
@@ -33,11 +36,11 @@ public final class CombatRegionListener implements Listener {
 			return;
 		}
 
-		for (String regionName : WorldGuardHook.getRegionNames(destination)) {
+		for (String regionName : plugin.getHookManager().getWorldGuard().getRegionNames(destination)) {
 			if (!settings.isRegionBlocked(regionName)) {
 				continue;
 			}
-			Location center = WorldGuardHook.getRegionCenter(destination, regionName);
+			Location center = plugin.getHookManager().getWorldGuard().getRegionCenter(destination, regionName);
 			this.knockBack(player, event.getFrom(), destination, center,
 					settings.getBlockedRegionKnockback());
 			this.combatManager.notifyBlockedRegion(player, regionName);

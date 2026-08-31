@@ -5,18 +5,20 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.*;
-import pl.kiosel.villages.enums.Lang;
+import pl.kiosel.rosacore.listener.RosaListener;
+import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.config.Lang;
 
-public final class BuildEditorListener implements Listener {
+public final class BuildEditorListener extends RosaListener {
 
     private final VillageBuildEditorManager manager;
 
-    public BuildEditorListener(VillageBuildEditorManager manager) {
-        this.manager = manager;
+    public BuildEditorListener(AdvancedVillages plugin) {
+	    super(plugin);
+		this.manager = plugin.getVillageBuildEditorManager();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)

@@ -4,15 +4,8 @@ general:
   addon-disabled: '&cDodatek %addon% jest aktualnie wyłączony.'
   nametag:
     prefix: '&8[&6&lWioski&r&8]'
-    next: '&9Dalej'
-    back: '&9Wstecz'
-    exit: '&cWyjdź'
-    blank: '&7&kPuste'
-    previous: '&cPoprzednia'
     'on': '&aON'
     'off': '&cOFF'
-    'yes': '&aTak'
-    'no': '&cNie'
   time:
     second: { one: 'sekunda', few: 'sekundy', many: 'sekund' }
     minute: { one: 'minuta', few: 'minuty', many: 'minut' }
@@ -58,6 +51,30 @@ command:
     delete: '&cWioska gracza &f%village_owner% &czostała usunięta!'
     protection-add: '&7Dodano ochronę wiosce gracza &a%village_owner%&7 na &6%time%'
     protection-remove: '&7Usunięto ochronę wioski gracza &a%village_owner%'
+    village-not-found: '&cNie znajdujesz się na terenie wioski'
+    debug:
+      info: |-
+        &7&m--------------------------------
+        &6Diagnostyka wioski
+        &7Nazwa: &6%name%
+        &7UUID: &6%uuid%
+        &7Tag: &6%tag%
+        &7Właściciel: &6%owner%
+        &7Poziom / rozmiar regionu: &6%level% &7/ &6%size%
+        &7Centrum: &c%location%
+        &7Dom: &c%home%
+        &7Życia / bank: %lives% &7/ &6%bank%
+        &7Członkowie: &6%members% &7(online: &a%online_members%&7)
+        &7Ochrona do: &6%protection%
+        &7Sojusznicy / aktywne wojny: &6%allies% &7/ &6%wars%
+        &7Zaległe opłaty: &6%missed_payments%
+        &7Ustawienia: &7PvP %pvp%&7, TNT %tnt%&7, animacje %animations%
+        &7Zapis: %persistence% &7(wersja &6%version%&7)
+        &7&m--------------------------------
+      not-set: '&cnie ustawiono'
+      none: '&7brak'
+      dirty: '&coczekuje na zapis'
+      saved: '&azapisano'
     bank-add: '&7Dodano &a%money% &7do banku wioski gracza &a%village_owner%'
     bank-remove: '&7Pobrano &c%money% &7z banku wioski gracza &a%village_owner%'
     lives-add: '&7Dodano &a%lives% &7żyć wiosce gracza &a%village_owner%'
@@ -65,7 +82,8 @@ command:
     already-dying: '&cTa wioska nie ma już żadnych żyć'
     upgrade-failed: '&cNie udało się ulepszyć wioski. Sprawdź konsolę serwera'
     usage:
-      root: '&c/%command% %admin% <%reload%|%give%|%manage%|%settings%>'
+      root: '&c/%command% %admin% <%reload%|%give%|%manage%|%debug%>'
+      debug: '&c/%command% %admin% %debug% [właściciel]'
       give: '&c/%command% %admin% %give% <%village_block%|%destroyer%>'
       manage: '&c/%command% %admin% %manage% <właściciel> <%upgrade%|%lives%|%protection%|%remove%>'
       action: '&c/%command% %admin% %manage% <właściciel> %action% <%add%|%remove%>'
@@ -84,6 +102,11 @@ village:
   protected: '&cTa wioska jest obecnie chroniona'
   protected-offline-members: '&cWioska nie może być zaatakowana kiedy każdy z jej członków jest nieobecny.'
   remove-member: '&7Usunąłeś &6%player% &7z wioski'
+  role-changed: '&7Zmieniono rolę gracza &6%player% &7na %role%&7.'
+
+  upkeep-paid: '&7Z banku pobrano &6%cost%$ &7na utrzymanie wioski.'
+  upkeep-missed: '&cWioska nie opłaciła utrzymania w wysokości %cost%$. Brakuje: %missing%$. Zaległości: %missed%.'
+  upkeep-penalty: '&cWioska straciła %lives% życie przez nieopłacone utrzymanie.'
 
   attacked:
     title: '&8&k[&r &4UWAGA &8&k]'
@@ -126,7 +149,6 @@ tag:
   has-spaces: 'Tag nie może zawierać spacji'
   too-long: 'Tag jest zbyt długi'
   invalid-chars: 'Tag zawiera niedozwolone znaki'
-  anvil-name-your-village: 'Nazwij swoją wioskę'
   new-village-tag: '&7Nowy tag twojej wioski to &a%tag%'
   your-village-tag: '&7Tag twojej wioski to &a%tag%'
   closed-name-village-tag: '&cZamknąłeś menu, więc tag nie został ustawiony'
@@ -237,125 +259,71 @@ quests:
   command-description: 'Otwiera zadania wioskowe'
   completed: '&aTwoja wioska ukończyła zadanie &f%quest%&a! Nagrody: &6%bank%$&a, &e%experience% EXP &ai &b%points% punktów&a.'
   activated: '&aZadanie &f%quest% &azostało włączone dla twojej wioski.'
-  gui:
-    menu-name: '&eZadania wioskowe'
-    menu-lore: '&7Wykonujcie wspólnie zadania dzienne i tygodniowe.'
-    daily: '&eZadanie dzienne'
-    weekly: '&6Zadanie tygodniowe'
-    progress: '&7Postęp: &e%progress%&7/&e%required%'
-    completed: '&aUkończono! &7(%progress%/%required%)'
-    active: '&aAktywne - postęp jest naliczany'
-    inactive: '&cNieaktywne - postęp nie jest naliczany'
-    activate: '&eKliknij, aby włączyć to zadanie dla wioski.'
-    reset: '&7Reset za: &f%time%'
-    rewards: '&6Nagrody:'
-    reward-bank: '&7 • Bank wioski: &6%amount%$'
-    reward-experience: '&7 • Każdy członek online: &e%amount% EXP'
-    reward-points: '&7 • Każdy członek: &b%amount% punktów'
-    none: '&cNie skonfigurowano żadnych zadań.'
-  tasks:
-    monster-hunt:
-      name: '&cPolowanie na potwory'
-      description: '&7Wspólnie pokonujcie wrogie stworzenia.'
-    mining-shift:
-      name: '&bGórnicza zmiana'
-      description: '&7Wydobywajcie podstawowe rudy dla wioski.'
-    wood-supplies:
-      name: '&6Zapasy drewna'
-      description: '&7Zbierajcie drewno potrzebne do rozbudowy wioski.'
-    village-treasury:
-      name: '&eSkarbiec wioski'
-      description: '&7Wpłacajcie pieniądze do banku wioski.'
-    great-hunt:
-      name: '&4Wielkie polowanie'
-      description: '&7Pokonujcie wrogie stworzenia przez cały tydzień.'
-    construction-shift:
-      name: '&6Zmiana budowlana'
-      description: '&7Stawiajcie bloki potrzebne do rozbudowy wioski.'
-    workshop-orders:
-      name: '&eZamówienia warsztatu'
-      description: '&7Twórzcie przydatne przedmioty dla mieszkańców.'
-    village-angler:
-      name: '&bWioskowy wędkarz'
-      description: '&7Łówcie ryby do wioskowych zapasów.'
-    foundry-shift:
-      name: '&7Zmiana w hucie'
-      description: '&7Przetapiajcie podstawowe metale w piecach.'
-    animal-care:
-      name: '&aOpieka nad zwierzętami'
-      description: '&7Rozmnażajcie zwierzęta hodowlane przez cały tydzień.'
-    master-enchanter:
-      name: '&5Mistrz zaklinania'
-      description: '&7Zaklinajcie wyposażenie dla wioski.'
-    experience-drive:
-      name: '&dZbiórka doświadczenia'
-      description: '&7Wspólnie zdobywajcie doświadczenie dla wioski.'
-
-# Dodatek historii aktywności wioski
-logs:
-  system: 'System wioski'
-  gui:
-    menu-name: '&6Historia aktywności'
-    menu-lore: '&7Zobacz ważne zmiany i działania w wiosce.'
-    none: '&7Nie zapisano jeszcze żadnych aktywności.'
-    actor: '&7Wykonał: &f%actor%'
-    date: '&7Data: &f%date%'
-    grouped: '&8Połączone działania: &7%count%'
-  types:
-    village-created: '&aUtworzenie wioski'
-    member-join: '&aDołączenie członka'
-    member-leave: '&eOdejście członka'
-    member-kick: '&cUsunięcie członka'
-    member-permission: '&bUprawnienie członka'
-    bank-deposit: '&aWpłata do banku'
-    bank-withdraw: '&cWypłata z banku'
-    quest-completed: '&eUkończenie zadania'
-    setting-changed: '&dZmiana ustawienia'
-    village-upgrade: '&bUlepszenie wioski'
-    village-attack: '&cAtak na wioskę'
-  entries:
-    village-created: '&7Wioska została utworzona.'
-    member-join: '&f%member% &7dołączył do wioski.'
-    member-leave: '&f%member% &7opuścił wioskę.'
-    member-kick: '&f%member% &7został usunięty z wioski.'
-    member-permission: '&7Uprawnienie &f%permission% &7dla &f%member%&7: %value%&7.'
-    bank-deposit: '&7Wpłacono &a%amount%$ &7do banku wioski.'
-    bank-withdraw: '&7Wypłacono &c%amount%$ &7z banku wioski.'
-    quest-completed: '&7Wioska ukończyła zadanie %quest%&7.'
-    setting-changed: '&7Zmieniono &f%setting% &7na %value%&7.'
-    village-upgrade: '&7Wioska osiągnęła poziom &b%level%&7.'
-    village-attack: '&7Wioska została zaatakowana. Pozostałe życia: &c%lives%&7.'
-  settings:
-    pvp: 'PVP'
-    tnt: 'obrażenia od TNT'
-    animations: 'animacje wioski'
-    teleport: 'lokalizację teleportu'
-    tag: 'tag wioski'
-    effect-regeneration: 'efekt regeneracji'
-    effect-speed: 'efekt szybkości'
-    effect-jump: 'efekt skoku'
-    effect-haste: 'efekt pośpiechu'
-    protection: 'ochronę'
-    lives: 'życia wioski'
-  permissions:
-    owner: 'właściciel'
-    settings: 'ustawienia'
-    invite: 'zapraszanie'
-    store: 'sklep'
-    effects-buy: 'kupowanie efektów'
-    effects-toggle: 'włączanie efektów'
-    upgrade: 'ulepszanie'
-    storage: 'magazyn'
-    bank-add: 'wpłaty do banku'
-    bank-remove: 'wypłaty z banku'
-    quest-toggle: 'aktywowanie zadań'
-  values:
-    updated: '&azaktualizowano'
-    purchased: '&akupiono'
-    removed: '&cusunięto'
 
 # Ranking PvP
 ranking:
   kill: '&aPokonałeś gracza &f%victim%&a i zdobyłeś &e%points% &apunktów rankingu.'
   death: '&cZostałeś pokonany przez &f%killer%&c i straciłeś &e%points% &cpunktów rankingu.'
   assist: '&bPomogłeś pokonać gracza &f%victim%&b i zdobyłeś &e%points% &bpunktów rankingu.'
+
+# Dyplomacja wiosek
+diplomacy:
+  unavailable: '&cTa operacja dyplomatyczna jest obecnie niedostępna.'
+  same-village: '&cNie możesz wybrać własnej wioski.'
+  alliance:
+    command-description: 'Zarządza sojuszami wioski'
+    usage: '&c%usage%'
+    request-sent: '&7Twoja wioska wysłała prośbę o sojusz do &a%village%&7. Wygaśnie za &f%time%&7.'
+    request-received: '&a%village% &7wysłała twojej wiosce prośbę o sojusz. Wygaśnie za &f%time%&7.'
+    request-denied: '&c%village% odrzuciła twoją prośbę o sojusz.'
+    request-denied-self: '&7Odrzuciłeś prośbę o sojusz od &c%village%&7.'
+    request-exists: '&cMiędzy tymi wioskami istnieje już prośba o sojusz.'
+    no-request: '&cNie ma aktywnej prośby o sojusz od tej wioski.'
+    created: '&aTwoja wioska zawarła sojusz z &f%village%&a.'
+    ended: '&eSojusz z wioską &f%village% &ezostał zakończony.'
+    already: '&cTe wioski są już sojusznikami.'
+    not-allied: '&cTwoja wioska nie ma sojuszu z tą wioską.'
+    limit: '&cJedna z wiosek osiągnęła limit sojuszy.'
+    war-conflict: '&cNie można zawrzeć sojuszu podczas wojny ani jej cooldownu.'
+    friendly-fire: '&cNie możesz atakować członków sojuszniczej wioski.'
+    cannot-attack: '&cNie możesz atakować centralnego bloku sojuszniczej wioski.'
+    list:
+      header: '&6Sojusze &7(%count%/%max%):'
+      empty: '&7Twoja wioska nie ma żadnych sojuszy.'
+      entry: '&8 • &f%village%'
+      pending-header: '&eOczekujące prośby o sojusz:'
+  war:
+    command-description: 'Zarządza wojnami wioski'
+    usage: '&c%usage%'
+    declared-attacker: '&cTwoja wioska wypowiedziała wojnę &f%village%&c. Przygotowanie: &f%time%&c.'
+    declared-defender: '&4%village% wypowiedziała wojnę twojej wiosce! &cPrzygotowanie: &f%time%&c.'
+    started: '&4Wojna z wioską &f%village% &4właśnie się rozpoczęła!'
+    finished: '&6Wojna z &f%enemy% &6zakończyła się. Zwycięzca: &f%winner%&6. Wynik: &e%our_score%&7:&e%enemy_score%&6.'
+    draw: 'remis'
+    attacker-no-village: '&cMusisz należeć do wioski, aby atakować w systemie wojen.'
+    preparing: '&cTa wojna jest jeszcze w fazie przygotowania. Rozpocznie się za &f%time%&c.'
+    required: '&cTwoja wioska musi prowadzić aktywną wojnę z tą wioską, aby ją zaatakować.'
+    allied: '&cNie możesz wypowiedzieć wojny sojuszniczej wiosce.'
+    exists: '&cWojna między tymi wioskami już trwa.'
+    cooldown: '&cTe wioski nadal obejmuje cooldown po poprzedniej wojnie.'
+    limit: '&cJedna z wiosek osiągnęła limit aktywnych wojen.'
+    not-enough-members: '&cJedna z wiosek nie ma wystarczającej liczby członków do wojny.'
+    not-enough-online: '&cJedna z wiosek nie ma wystarczającej liczby członków online.'
+    not-enough-bank: '&cTwoja wioska potrzebuje &6%cost%$&c, aby wypowiedzieć tę wojnę.'
+    none: '&cNie ma aktywnej wojny z tą wioską.'
+    list:
+      header: '&6Wojny wioski &7(%count%):'
+      empty: '&7Twoja wioska nie ma trwających wojen ani cooldownów.'
+      entry: '&8 • &f%village% &7- %state% &7- &f%time% &7- wynik &e%our_score%&7:&e%enemy_score%'
+    state:
+      preparing: '&ePrzygotowanie'
+      active: '&cAktywna'
+      finished: '&7Cooldown'
+
+# Drzewko rozwoju wioski
+development:
+  unlocked-broadcast: '&f%player% &aodblokował rozwój wioski: %node%&a.'
+  already-unlocked: '&cTen rozwój został już odblokowany.'
+  level-required: '&cWioska musi osiągnąć poziom &f%level%&c, aby odblokować ten rozwój.'
+  prerequisite-required: '&cNajpierw odblokuj poprzedni rozwój w tej gałęzi.'
+  not-enough-bank: '&cBank wioski potrzebuje &6%cost%$&c. Obecny stan: &6%bank%$&c.'

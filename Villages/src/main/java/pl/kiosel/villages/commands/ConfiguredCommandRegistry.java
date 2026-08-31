@@ -4,7 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
 import org.bukkit.entity.Player;
-import pl.kiosel.core.utils.ReflectionUtils;
+import pl.kiosel.rosacore.utils.ReflectionUtils;
 import pl.kiosel.villages.AdvancedVillages;
 
 import java.util.Map;
@@ -51,7 +51,7 @@ public final class ConfiguredCommandRegistry {
 			plugin.getDebug().debug("Registered command " + spawnCommand.getName());
 			Bukkit.getOnlinePlayers().forEach(Player::updateCommands);
 		} catch (RuntimeException exception) {
-			this.plugin.getLogger().log(Level.SEVERE, "Could not register configured commands", exception);
+			this.plugin.getRosaLogger().log(Level.SEVERE, "Could not register configured commands", exception);
 			plugin.getDebug().debug("!--------------------------------------!");
 			plugin.getDebug().debug("Could not register configured commands");
 			plugin.getDebug().debug("!--------------------------------------!");
@@ -67,7 +67,7 @@ public final class ConfiguredCommandRegistry {
 			this.villageCommand = null;
 			this.spawnCommand = null;
 		} catch (ReflectiveOperationException | RuntimeException exception) {
-			this.plugin.getLogger().log(Level.WARNING, "Could not unregister configured commands", exception);
+			this.plugin.getRosaLogger().log(Level.WARNING, "Could not unregister configured commands", exception);
 		}
 	}
 }

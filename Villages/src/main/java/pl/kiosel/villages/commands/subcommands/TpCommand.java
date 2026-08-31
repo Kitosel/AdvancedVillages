@@ -3,15 +3,13 @@ package pl.kiosel.villages.commands.subcommands;
 import org.bukkit.entity.Player;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.commands.AVSubCommand;
+import pl.kiosel.villages.config.CommandLang;
+import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.data.user.User;
-import pl.kiosel.villages.enums.Lang;
-import pl.kiosel.villages.enums.Permission;
+import pl.kiosel.villages.data.village.Permission;
 import pl.kiosel.villages.manager.teleport.TeleportManager;
 
 public class TpCommand extends AVSubCommand {
-
-    @Override
-    public String getName() { return "tp"; }
 
     @Override
     public String getDescription() { return "Teleport to village"; }
@@ -31,7 +29,7 @@ public class TpCommand extends AVSubCommand {
 	private final AdvancedVillages plugin;
 
 	public TpCommand(AdvancedVillages plugin) {
-		super(plugin);
+		super(plugin, CommandLang.TELEPORT);
 		this.plugin = plugin;
 	}
 

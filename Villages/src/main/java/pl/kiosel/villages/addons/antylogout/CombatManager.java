@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
 
-/** Owns the complete lifecycle and state of the anti-logout addon. */
 public final class CombatManager {
 
 	private static final long UPDATE_INTERVAL_TICKS = 20L;
@@ -45,7 +44,7 @@ public final class CombatManager {
 		this.settings = this.configuration.snapshot();
 		if (!this.settings.isEnabled()) {
 			this.clear();
-			this.plugin.getLogger().info("Anti-logout reloaded: disabled");
+			this.plugin.getRosaLogger().info("Anti-logout reloaded: disabled");
 			return;
 		}
 
@@ -56,7 +55,7 @@ public final class CombatManager {
 				UPDATE_INTERVAL_TICKS,
 				UPDATE_INTERVAL_TICKS
 		);
-		this.plugin.getLogger().info("Anti-logout reloaded: enabled, duration "
+		this.plugin.getRosaLogger().info("Anti-logout reloaded: enabled, duration "
 				+ this.settings.getDurationSeconds() + "s, active sessions " + this.sessions.size());
 	}
 
@@ -100,7 +99,7 @@ public final class CombatManager {
 		}
 
 		this.plugin.getUserManager().findByPlayer(player)
-				.peek(user -> user.getRank().updateLogouts(logouts -> logouts + 1));
+				.ifPresent(user -> user.getRank().updateLogouts(logouts -> logouts + 1));
 		if (this.settings.isQuitBroadcastEnabled()) {
 			this.notifySafely(player, "quit broadcast", () -> this.notifier.broadcastCombatQuit(player));
 		}
@@ -269,7 +268,7 @@ public final class CombatManager {
 		try {
 			notification.run();
 		} catch (RuntimeException exception) {
-			this.plugin.getLogger().log(Level.WARNING,
+			this.plugin.getRosaLogger().log(Level.WARNING,
 					"Could not send anti-logout " + operation + " to " + player.getName(), exception);
 		}
 	}

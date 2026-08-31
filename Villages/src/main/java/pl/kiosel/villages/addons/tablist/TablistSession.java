@@ -1,27 +1,27 @@
 package pl.kiosel.villages.addons.tablist;
 
 import org.bukkit.entity.Player;
-import pl.kiosel.core.nms.playerlist.SkinTexture;
+import pl.kiosel.rosacore.nms.api.tablist.TabList;
+import pl.kiosel.rosacore.nms.api.tablist.TabListSkin;
 import pl.kiosel.villages.data.user.User;
 
-import java.util.Collections;
 import java.util.List;
 
 final class TablistSession {
 
 	private final User user;
-	private final pl.kiosel.core.nms.playerlist.PlayerList transport;
+	private final TabList transport;
 	private final TablistRenderer renderer;
 	private final TablistSnapshot snapshot;
 	private final String[] baseCells;
-	private final SkinTexture[] textures;
+	private final TabListSkin[] textures;
 	private final List<TablistFrame> frames;
 
 	private int frameIndex;
 	private long frameTicks;
 	private TablistView lastView;
 
-	TablistSession(User user, pl.kiosel.core.nms.playerlist.PlayerList transport,
+	TablistSession(User user, TabList transport,
 	               TablistRenderer renderer, TablistSnapshot snapshot) {
 		this.user = user;
 		this.transport = transport;
@@ -42,7 +42,7 @@ final class TablistSession {
 	}
 
 	void clear(Player player) {
-		this.transport.clear(player);
+		this.transport.clear();
 		this.lastView = null;
 	}
 
@@ -67,15 +67,14 @@ final class TablistSession {
 			return;
 		}
 
-		this.transport.send(
-				player,
-				view.getCells(),
-				view.getHeader(),
-				view.getFooter(),
-				this.textures,
-				this.snapshot.getCellPing(),
-				Collections.emptySet()
-		);
+		this.transport.setHeaderFooter(view.getHeader(), view.getFooter());
+		String[] cells = view.getCells();
+		for (int slot = 0; slot < this.transport.getCellCount(); slot++) {
+			String text = slot < cells.length ? cells[slot] : "";
+			TabListSkin skin = slot < this.textures.length ? this.textures[slot] : null;
+			this.transport.setCell(slot, text, this.snapshot.getCellPing(), skin);
+		}
+		this.transport.send();
 		this.lastView = view;
 	}
 }

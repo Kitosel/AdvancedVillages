@@ -2,9 +2,9 @@ package pl.kiosel.villages.config;
 
 import com.google.common.collect.ImmutableMap;
 import org.jetbrains.annotations.Nullable;
-import pl.kiosel.core.utils.format.Formater;
-import pl.kiosel.core.utils.format.RangeFormatting;
-import pl.kiosel.core.utils.format.RawString;
+import pl.kiosel.rosacore.utils.format.Formater;
+import pl.kiosel.rosacore.utils.format.RangeFormatting;
+import pl.kiosel.rosacore.utils.format.RawString;
 import pl.kiosel.villages.data.village.Village;
 
 import java.util.Arrays;
@@ -106,7 +106,7 @@ public class TempMessages {
 			}
 
 			return Formater.of("%TAG%", targetGuild.getTag())
-					.format(this.chooseTag(guild, targetGuild));
+					.replace(this.chooseTag(guild, targetGuild));
 		}
 
 	}

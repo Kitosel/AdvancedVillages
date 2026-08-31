@@ -3,37 +3,34 @@ package pl.kiosel.villages.addons.buildeditor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import pl.kiosel.core.gui.Gui;
-import pl.kiosel.core.gui.GuiUtils;
-import pl.kiosel.dependencies.com.cryptomorin.xseries.XMaterial;
+import pl.kiosel.rosacore.gui.Gui;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.enums.Lang;
-import pl.kiosel.villages.enums.Upgrade;
+import pl.kiosel.villages.data.village.Upgrade;
 import pl.kiosel.villages.gui.Item;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static pl.kiosel.core.utils.ColorUtils.tl;
+import static pl.kiosel.rosacore.utils.ColorUtils.tl;
 
 public final class EditorMenu extends Gui {
 
 	public EditorMenu(AdvancedVillages plugin, Player player, VillageBuildEditorManager manager) {
 		setRows(4);
 		setTitle(tl(manager.getConfig().getString("menu.title", "&8Village building editor")));
-		setDefaultItem(GuiUtils.getBorderItem(XMaterial.BLACK_STAINED_GLASS_PANE));
+		setDefaultItem(Item.create(Material.BLACK_STAINED_GLASS_PANE, " "));
 
 		for (Integer level : plugin.getLevelManager().getLevels().keySet()) {
 			if (level < 1 || level > VillageBuildEditorManager.MAX_LEVEL) {
 				continue;
 			}
-			int row = level <= 5 ? 1 : 2;
-			int column = level <= 5 ? level + 1 : (level - 5) + 1;
+			int row = level <= 5 ? 2 : 3;
+			int column = level <= 5 ? level + 2 : (level - 5) + 2;
 			boolean schematicExists = manager.getSchematicFile(level).isFile();
 			setButton(row, column, createLevelItem(Upgrade.getMaterialByLevel(level), level, schematicExists, manager), event -> {
 				player.closeInventory();
-				if (event.clickType.isRightClick()) {
+				if (event.getClickType().isRightClick()) {
 					manager.startSession(player, level);
 				} else {
 					manager.openLevelSettings(player, level);
@@ -44,14 +41,15 @@ public final class EditorMenu extends Gui {
 		int nextLevel = manager.getNextAvailableLevel();
 		if (nextLevel <= VillageBuildEditorManager.MAX_LEVEL) {
 			boolean pendingSetup = manager.getSchematicFile(nextLevel).isFile();
-			setButton(3, 4, createNewLevelItem(nextLevel, pendingSetup, manager), event -> {
+			setButton(4, 5, createNewLevelItem(nextLevel, pendingSetup, manager), event -> {
 				player.closeInventory();
 				manager.startNewLevel(player, nextLevel);
 			});
 		}
 
-		setButton(3, 8, GuiUtils.createButtonItem(XMaterial.SPECTRAL_ARROW,
-				plugin.getMessages().text(Lang.EXIT)), event -> player.closeInventory());
+		setButton(4, 9, Item.create(Material.SPECTRAL_ARROW,
+				plugin.getGuiSettings().text("guis.common.exit.name", "&cExit")),
+				event -> player.closeInventory());
 	}
 
 	private ItemStack createLevelItem(Material material, int level, boolean exists, VillageBuildEditorManager manager) {

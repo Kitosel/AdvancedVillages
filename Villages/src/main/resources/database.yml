@@ -1,0 +1,10 @@
+Connection Settings:
+  # Supported: MARIADB, MYSQL, H2
+  Type: H2
+  Hostname: localhost
+  Port: 3306
+  Username: username
+  Password: password
+  Database: database
+  Pool Size: 5
+  Use SSL: false

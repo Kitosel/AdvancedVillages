@@ -2,7 +2,6 @@ package pl.kiosel.villages.config;
 
 import lombok.Getter;
 
-/** Immutable layout of one inventory loaded from guis.yml. */
 @Getter
 public final class GuiMenuConfig {
 

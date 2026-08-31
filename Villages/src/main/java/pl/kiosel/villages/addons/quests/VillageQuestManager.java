@@ -3,13 +3,13 @@ package pl.kiosel.villages.addons.quests;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import pl.kiosel.dependencies.com.cryptomorin.xseries.XSound;
+import pl.kiosel.rosacore.compatibility.ZSound;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.addons.logs.VillageLogType;
+import pl.kiosel.villages.api.events.VillageQuestCompleteEvent;
+import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.enums.Lang;
-import pl.kiosel.villages.events.VillageQuestCompleteEvent;
 import pl.kiosel.villages.storage.QuestStorage;
 
 import java.time.Duration;
@@ -64,7 +64,7 @@ public final class VillageQuestManager {
 			try {
 				this.storage.save(state);
 			} catch (RuntimeException exception) {
-				this.plugin.getLogger().log(Level.SEVERE,
+				this.plugin.getRosaLogger().log(Level.SEVERE,
 						"Could not save quests for village " + state.getVillageId(), exception);
 			}
 		}
@@ -119,7 +119,7 @@ public final class VillageQuestManager {
 		if (player == null || village == null) {
 			return false;
 		}
-		User user = this.plugin.getUserManager().findByPlayer(player).orNull();
+		User user = this.plugin.getUserManager().findByPlayer(player).orElse(null);
 		Village currentVillage = user == null ? null : user.getPresentVillage();
 		if (currentVillage == null || !currentVillage.getUUID().equals(village.getUUID())) {
 			return false;
@@ -136,7 +136,7 @@ public final class VillageQuestManager {
 					() -> this.record(player, type, target, amount));
 			return;
 		}
-		this.plugin.getUserManager().findByPlayer(player).peek(user -> {
+		this.plugin.getUserManager().findByPlayer(player).ifPresent(user -> {
 			Village village = user.getPresentVillage();
 			if (village != null) {
 				this.record(village, type, target, amount);
@@ -243,8 +243,10 @@ public final class VillageQuestManager {
 
 	private void grantReward(Village village, QuestDefinition definition) {
 		QuestReward reward = definition.getReward();
-		if (reward.getBank() > 0) {
-			long updatedBank = (long) village.getBank() + reward.getBank();
+		int bankReward = this.plugin.getDevelopmentManager()
+				.applyQuestBankReward(village, reward.getBank());
+		if (bankReward > 0) {
+			long updatedBank = (long) village.getBank() + bankReward;
 			village.setBank((int) Math.min(Integer.MAX_VALUE, updatedBank));
 		}
 
@@ -265,15 +267,15 @@ public final class VillageQuestManager {
 					this.questExperienceRecipients.remove(player.getUniqueId());
 				}
 			}
-			this.plugin.getMessages().sendPrefixed(
+			this.plugin.getVillageMessages().sendPrefixed(
 					player,
 					Lang.QUESTS_COMPLETED,
 					"quest", this.questName(definition),
-					"bank", reward.getBank(),
+					"bank", bankReward,
 					"experience", reward.getExperience(),
 					"points", reward.getPoints()
 			);
-			player.playSound(player, XSound.ENTITY_PLAYER_LEVELUP.friendlyName(), 0.5f, 1f);
+			ZSound.ENTITY_PLAYER_LEVELUP.play(player, 0.5f, 1f);
 		}
 		this.plugin.getLogManager().recordSystem(village, VillageLogType.QUEST_COMPLETED,
 				"quest", definition.getId());
@@ -281,7 +283,7 @@ public final class VillageQuestManager {
 	}
 
 	private String questName(QuestDefinition definition) {
-		String path = definition.getTranslationPath() + ".name";
-		return this.plugin.getMessages().textOrDefault(path, definition.getId());
+		return this.plugin.getGuiSettings().text(
+				"guis.quests.tasks." + definition.getId() + ".name", definition.getId());
 	}
 }

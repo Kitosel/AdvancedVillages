@@ -2,19 +2,17 @@ package pl.kiosel.villages.manager;
 
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-import pl.kiosel.core.chat.AdventureUtils;
-import pl.kiosel.core.dependencies.net.kyori.adventure.text.Component;
-import pl.kiosel.core.dependencies.net.kyori.adventure.text.event.ClickEvent;
-import pl.kiosel.core.dependencies.net.kyori.adventure.text.event.HoverEvent;
+import pl.kiosel.rosacore.dependencies.adventure.adventure.text.Component;
+import pl.kiosel.rosacore.dependencies.adventure.adventure.text.event.ClickEvent;
+import pl.kiosel.rosacore.dependencies.adventure.adventure.text.event.HoverEvent;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.addons.logs.VillageLogType;
+import pl.kiosel.villages.config.CommandLang;
+import pl.kiosel.villages.config.Lang;
+import pl.kiosel.villages.config.Settings;
 import pl.kiosel.villages.config.VillageMessages;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.enums.CommandLang;
-import pl.kiosel.villages.enums.Lang;
-import pl.kiosel.villages.enums.Permission;
-import pl.kiosel.villages.settings.Settings;
 
 import java.util.*;
 
@@ -29,7 +27,7 @@ public class InviteManager {
 	}
 
 	public void invitePlayer(Village village, Player invite) {
-		VillageMessages messages = plugin.getMessages();
+		VillageMessages messages = plugin.getVillageMessages();
 		UUID playerId = invite.getUniqueId();
 		invitedPlayers.put(playerId, village);
 
@@ -49,8 +47,8 @@ public class InviteManager {
 				.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, request + " " + deny));
 
 		messages.send(invite, Lang.SEPARATOR);
-		AdventureUtils.sendMessage(confirm_message, invite);
-		AdventureUtils.sendMessage(cancel_message, invite);
+		plugin.getMessenger().sendComponent(invite, confirm_message);
+		plugin.getMessenger().sendComponent(invite, cancel_message);
 		messages.send(invite, Lang.SEPARATOR);
 
 		new BukkitRunnable() {
@@ -62,15 +60,14 @@ public class InviteManager {
 	}
 
 	public void acceptInvite(Player player) {
-		VillageMessages messages = plugin.getMessages();
+		VillageMessages messages = plugin.getVillageMessages();
 		Village village = invitedPlayers.get(player.getUniqueId());
 		if (village == null) {
 			messages.sendPrefixed(player, Lang.NO_INVITE);
 			return;
 		}
 
-		Set<Permission> defaultPerms = plugin.getPermissionManager().getDefaultPermission();
-		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).orNull();
+		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).orElse(null);
 		if (user == null) {
 			messages.sendPrefixed(player, Lang.PLAYER_NOT_FOUND);
 			invitedPlayers.remove(player.getUniqueId());
@@ -78,9 +75,8 @@ public class InviteManager {
 		}
 		village.broadcast(messages.text(Lang.TARGET_JOIN_MEMBER, "player", player.getName()));
 
-		user.setVillage(village);
-		user.setPermissions(defaultPerms);
 		village.addMember(user);
+		plugin.getRoleManager().assignDefaultRole(user);
 		plugin.getLogManager().record(village, VillageLogType.MEMBER_JOIN, player,
 				"member", player.getName());
 

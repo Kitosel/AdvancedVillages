@@ -3,7 +3,6 @@ package pl.kiosel.villages.addons.tablist;
 import java.util.Arrays;
 import java.util.Objects;
 
-/** Rendered tablist content ready to be sent through MetaCore NMS. */
 final class TablistView {
 
 	private final String[] cells;

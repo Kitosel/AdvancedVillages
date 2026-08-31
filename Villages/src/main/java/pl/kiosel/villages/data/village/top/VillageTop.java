@@ -1,12 +1,12 @@
 package pl.kiosel.villages.data.village.top;
 
-import panda.std.Option;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.data.village.VillageRank;
 import pl.kiosel.villages.data.rank.Top;
 import pl.kiosel.villages.data.rank.TopComparator;
 
 import java.util.NavigableSet;
+import java.util.Optional;
 import java.util.function.BiFunction;
 
 public class VillageTop extends Top<VillageRank> {
@@ -15,7 +15,7 @@ public class VillageTop extends Top<VillageRank> {
         super(comparator, recalculateFunction);
     }
 
-    public Option<Village> getVillage(int place) {
+    public Optional<Village> getVillage(int place) {
         return this.get(place).map(VillageRank::getVillage);
     }
 

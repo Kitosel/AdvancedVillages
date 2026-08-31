@@ -2,11 +2,11 @@ package pl.kiosel.villages.addons.tablist;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import pl.kiosel.core.hooks.WorldGuardHook;
-import pl.kiosel.core.nms.Nms;
-import pl.kiosel.core.utils.NumberRange;
-import pl.kiosel.core.utils.format.Formater;
+import pl.kiosel.rosacore.utils.NumberRange;
+import pl.kiosel.rosacore.utils.format.Formater;
+import pl.kiosel.rosacore.utils.format.RangeFormatting;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.config.TempMessages;
 import pl.kiosel.villages.data.rank.DefaultTops;
 import pl.kiosel.villages.data.rank.RankPlaceholdersService;
@@ -15,9 +15,8 @@ import pl.kiosel.villages.data.user.UserRank;
 import pl.kiosel.villages.data.village.Region;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.data.village.VillageRank;
-import pl.kiosel.villages.enums.Lang;
 import pl.kiosel.villages.manager.VillageUtilsManager;
-import pl.kiosel.villages.settings.Settings;
+import pl.kiosel.villages.config.Settings;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -30,10 +29,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-/**
- * Resolves all built-in tablist placeholders in one pass. Unknown placeholders
- * are intentionally preserved so PlaceholderAPI can handle them afterwards.
- */
 public final class TablistPlaceholdersService {
 
 	private static final Pattern PLACEHOLDER = Pattern.compile("%([A-Za-z][A-Za-z0-9_-]*)%");
@@ -57,7 +52,7 @@ public final class TablistPlaceholdersService {
 		StringBuffer result = new StringBuffer(rankedText.length());
 		Map<String, String> cache = new HashMap<>();
 		OffsetDateTime now = OffsetDateTime.now();
-		Village village = user.getVillage().orNull();
+		Village village = user.getVillage().orElse(null);
 
 		while (matcher.find()) {
 			String key = matcher.group(1).toLowerCase(Locale.ROOT);
@@ -73,7 +68,7 @@ public final class TablistPlaceholdersService {
 		Locale language = languageLocale();
 		switch (key) {
 			case "tps":
-				return Objects.toString(Nms.getImplementations().getServer().getTpsInLastMinute());
+				return Objects.toString(this.plugin.getNMS().getNmsServer().getTpsInLastMinute());
 			case "players":
 				return Integer.toString(Bukkit.getOnlinePlayers().size());
 			case "villages":
@@ -106,12 +101,16 @@ public final class TablistPlaceholdersService {
 				List<String> regions = worldGuardRegions(player);
 				return regions.isEmpty() ? TempMessages.noValue : String.join(", ", regions);
 			case "vault-money":
-				return this.plugin.getHookManager().economy().isPresent()
+				return this.plugin.getHookManager().getEconomy().getActiveHook().isPresent()
 						? String.format(Locale.US, "%.2f", this.plugin.getEconomy().getBalance(player))
 						: "";
 
 			case "has-village":
 				return Boolean.toString(user.hasVillage());
+			case "role":
+				return user.hasVillage()
+						? this.plugin.getRoleManager().getRole(user).getName()
+						: TempMessages.noValue;
 			case "position":
 				return Integer.toString(rank.getPosition(DefaultTops.USER_POINTS_TOP));
 			case "points":
@@ -176,11 +175,27 @@ public final class TablistPlaceholdersService {
 				return Integer.toString(village.getOnlineMembers().size());
 			case "members-all":
 				return Integer.toString(village.getMembers().size());
+			case "allies":
+				return Integer.toString(this.plugin.getDiplomacyManager().getAllies(village).size());
+			case "allies-tag":
+				return this.plugin.getDiplomacyManager().getAlliesTags(village);
+			case "wars":
+				return Integer.toString(this.plugin.getDiplomacyManager().countCurrentWars(village));
 			case "region-size":
-				return village.getRegion().map(Region::getSize).map(String::valueOf).orElseGet(TempMessages.noValue);
+				return village.getRegion().map(Region::getSize).map(String::valueOf).orElse(TempMessages.noValue);
+			case "upkeep-cost":
+				return this.plugin.getUpkeepManager().isEnabled()
+						? Integer.toString(this.plugin.getUpkeepManager().calculateCost(village)) : "0";
+			case "upkeep-time":
+				return this.plugin.getUpkeepManager().isEnabled()
+						? this.plugin.getVillageMessages().formatDuration(this.plugin.getUpkeepManager().getRemaining(village))
+						: TempMessages.noValue;
+			case "upkeep-missed":
+				return this.plugin.getUpkeepManager().isEnabled()
+						? Integer.toString(this.plugin.getUpkeepManager().getMissedPayments(village)) : "0";
 			case "pvp":
-				String pvpOn = plugin.getMessages().textOrDefault(Lang.ON, "&aON");
-				String pvpOff = plugin.getMessages().textOrDefault(Lang.OFF, "&cOFF");
+				String pvpOn = plugin.getVillageMessages().textOrDefault(Lang.ON, "&aON");
+				String pvpOff = plugin.getVillageMessages().textOrDefault(Lang.OFF, "&cOFF");
 				return village.hasPvPEnabled() ? pvpOn : pvpOff;
 			case "protection":
 				return formatProtection(village.getProtection(), false);
@@ -236,6 +251,8 @@ public final class TablistPlaceholdersService {
 		switch (key) {
 			case "members-online":
 			case "members-all":
+			case "allies":
+			case "wars":
 			case "lives":
 			case "points":
 			case "avg-points":
@@ -252,22 +269,24 @@ public final class TablistPlaceholdersService {
 			case "kda":
 			case "avg-kda":
 			case "pvp":
+			case "upkeep-cost":
+			case "upkeep-missed":
 				return "0";
 			default:
 				return TempMessages.noValue;
 		}
 	}
 
-	private static String formatRange(Number value, List<pl.kiosel.core.utils.format.RangeFormatting> ranges, String placeholder) {
+	private static String formatRange(Number value, List<RangeFormatting> ranges, String placeholder) {
 		String format = NumberRange.inRangeToString(value, ranges);
 		return Formater.format(format, "%" + placeholder + "%", value);
 	}
 
-	private static List<String> worldGuardRegions(Player player) {
-		if (!WorldGuardHook.isEnabled()) {
+	private List<String> worldGuardRegions(Player player) {
+		if (!this.plugin.getHookManager().getWorldGuard().isEnabled()) {
 			return List.of();
 		}
-		List<String> names = WorldGuardHook.getRegionNames(player.getLocation());
+		List<String> names = this.plugin.getHookManager().getWorldGuard().getRegionNames(player.getLocation());
 		return names == null ? List.of() : names;
 	}
 
@@ -276,7 +295,7 @@ public final class TablistPlaceholdersService {
 			return TempMessages.noValue;
 		}
 		return remainingTime
-				? this.plugin.getMessages().formatDuration(Duration.between(Instant.now(), protection))
+				? this.plugin.getVillageMessages().formatDuration(Duration.between(Instant.now(), protection))
 				: DATE_FORMAT.withZone(ZoneId.systemDefault()).format(protection);
 	}
 

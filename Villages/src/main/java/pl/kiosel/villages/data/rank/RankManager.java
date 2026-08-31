@@ -1,7 +1,5 @@
 package pl.kiosel.villages.data.rank;
 
-import panda.std.Option;
-
 import java.util.*;
 
 public abstract class RankManager<T extends Top<R>, R extends Rank<?>> {
@@ -20,11 +18,14 @@ public abstract class RankManager<T extends Top<R>, R extends Rank<?>> {
 		return Collections.unmodifiableSet(new LinkedHashSet<>(this.topMap.values()));
     }
 
-    public Option<T> getTop(String id) {
-        return Option.of(this.topMap.get(id.toLowerCase(Locale.ROOT)));
+    public Optional<T> getTop(String id) {
+		if (id == null || id.isBlank()) return Optional.empty();
+        return Optional.ofNullable(this.topMap.get(id.toLowerCase(Locale.ROOT)));
     }
 
     public void addTop(String id, T top) {
+		Objects.requireNonNull(id, "id");
+		Objects.requireNonNull(top, "top");
         this.topMap.put(id.toLowerCase(Locale.ROOT), top);
     }
 

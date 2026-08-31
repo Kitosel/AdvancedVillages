@@ -1,44 +1,33 @@
 package pl.kiosel.villages.addons.tablist;
 
 import lombok.Getter;
-import pl.kiosel.core.nms.playerlist.PlayerListConstants;
-import pl.kiosel.core.nms.playerlist.SkinTexture;
-import pl.kiosel.core.utils.NumberRange;
+import pl.kiosel.rosacore.nms.api.tablist.TabList;
+import pl.kiosel.rosacore.nms.api.tablist.TabListSkin;
+import pl.kiosel.rosacore.utils.NumberRange;
 
 import java.util.*;
 
-/**
- * Complete immutable tablist configuration used by active player sessions.
- */
 public final class TablistSnapshot {
 
-	private static final int CELL_LIMIT = PlayerListConstants.DEFAULT_CELL_COUNT;
+	private static final int CELL_LIMIT = TabList.DEFAULT_CELL_COUNT;
 
-	@Getter
-	private final boolean enabled;
-	@Getter
-	private final boolean animated;
-	@Getter
-	private final String header;
-	@Getter
-	private final String footer;
-	@Getter
-	private final int cellPing;
-	@Getter
-	private final int updateInterval;
+	@Getter private final boolean enabled;
+	@Getter private final String header;
+	@Getter private final String footer;
+	@Getter private final int cellPing;
+	@Getter private final int updateInterval;
 	private final boolean relationshipColors;
 	private final Map<Integer, String> cells;
-	@Getter
-	private final List<TablistFrame> frames;
-	private final SkinTexture[] textures;
-	@Getter
-	private final int cellCount;
+	@Getter private final List<TablistFrame> frames;
+	@Getter private final boolean animated;
+	private final TabListSkin[] textures;
+	@Getter private final int cellCount;
 
 	public TablistSnapshot(boolean enabled, boolean animated, String header, String footer,
 	                       int cellPing, boolean fillCells, int updateInterval,
 	                       boolean relationshipColors, Map<Integer, String> cells,
 	                       List<TablistFrame> frames,
-	                       Map<NumberRange, SkinTexture> configuredTextures) {
+	                       Map<NumberRange, TabListSkin> configuredTextures) {
 		this.enabled = enabled;
 		this.header = header;
 		this.footer = footer;
@@ -63,12 +52,12 @@ public final class TablistSnapshot {
 		return result;
 	}
 
-	public SkinTexture[] copyTextures() {
+	public TabListSkin[] copyTextures() {
 		return Arrays.copyOf(this.textures, this.textures.length);
 	}
 
-	private static SkinTexture[] createTextures(Map<NumberRange, SkinTexture> configuredTextures) {
-		SkinTexture[] result = new SkinTexture[CELL_LIMIT];
+	private static TabListSkin[] createTextures(Map<NumberRange, TabListSkin> configuredTextures) {
+		TabListSkin[] result = new TabListSkin[CELL_LIMIT];
 		configuredTextures.forEach((range, texture) -> {
 			int minimum = Math.max(1, range.getMinRange().intValue());
 			int maximum = Math.min(CELL_LIMIT, range.getMaxRange().intValue());
@@ -79,11 +68,9 @@ public final class TablistSnapshot {
 		return result;
 	}
 
-	private static int determineCellCount(Map<Integer, String> cells,
-	                                      List<TablistFrame> frames, boolean fillCells) {
-		if (fillCells) {
+	private static int determineCellCount(Map<Integer, String> cells, List<TablistFrame> frames, boolean fillCells) {
+		if (fillCells)
 			return CELL_LIMIT;
-		}
 
 		int maximum = cells.keySet().stream().mapToInt(Integer::intValue).max().orElse(0);
 		for (TablistFrame frame : frames) {

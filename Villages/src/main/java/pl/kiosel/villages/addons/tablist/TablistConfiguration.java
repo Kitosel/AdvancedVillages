@@ -1,14 +1,14 @@
 package pl.kiosel.villages.addons.tablist;
 
 import org.bukkit.configuration.ConfigurationSection;
-import pl.kiosel.core.configuration.Config;
-import pl.kiosel.core.nms.playerlist.PlayerListConstants;
-import pl.kiosel.core.nms.playerlist.SkinTexture;
-import pl.kiosel.core.utils.NumberRange;
-import pl.kiosel.core.utils.NumberUtils;
-import pl.kiosel.core.utils.TextUtils;
+import pl.kiosel.rosacore.config.RosaConfig;
+import pl.kiosel.rosacore.nms.api.tablist.TabList;
+import pl.kiosel.rosacore.nms.api.tablist.TabListSkin;
+import pl.kiosel.rosacore.utils.NumberRange;
+import pl.kiosel.rosacore.utils.NumberUtils;
+import pl.kiosel.rosacore.utils.TextUtils;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.settings.Settings;
+import pl.kiosel.villages.config.Settings;
 
 import java.util.*;
 
@@ -18,7 +18,7 @@ public final class TablistConfiguration {
 	private static final int MAX_UPDATE_INTERVAL = 20 * 60;
 
 	private final AdvancedVillages plugin;
-	private final Config file;
+	private final RosaConfig file;
 	private volatile TablistSnapshot snapshot;
 
 	public TablistConfiguration(AdvancedVillages plugin) {
@@ -35,7 +35,7 @@ public final class TablistConfiguration {
 		);
 		Map<Integer, String> cells = readCells(this.file, "cells");
 		List<TablistFrame> frames = readFrames(this.file, "animation.pages");
-		Map<NumberRange, SkinTexture> textures = readTextures(this.file, "heads.textures");
+		Map<NumberRange, TabListSkin> textures = readTextures(this.file, "heads.textures");
 
 		this.snapshot = new TablistSnapshot(
 				Settings.ADDONS_TABLIST_ENABLE.getBoolean(),
@@ -68,34 +68,38 @@ public final class TablistConfiguration {
 		return this.snapshot.shouldUseRelationshipColors();
 	}
 
+	private Map<Integer, String> readCells(RosaConfig config, String path) {
+		return readCellsSection(config.getConfigurationSection(path), path);
+	}
+
 	private Map<Integer, String> readCells(ConfigurationSection config, String path) {
-		ConfigurationSection section = config.getConfigurationSection(path);
-		if (section == null) {
+		return readCellsSection(config == null ? null : config.getConfigurationSection(path), path);
+	}
+
+	private Map<Integer, String> readCellsSection(ConfigurationSection section, String path) {
+		if (section == null)
 			return Collections.emptyMap();
-		}
 
 		Map<Integer, String> cells = new LinkedHashMap<>();
 		for (String key : section.getKeys(false)) {
 			Integer index = parseCellIndex(key, path);
-			if (index == null) {
+			if (index == null)
 				continue;
-			}
 			cells.put(index, section.getString(key, ""));
 		}
 		return cells;
 	}
 
-	private List<TablistFrame> readFrames(ConfigurationSection config, String path) {
+	private List<TablistFrame> readFrames(RosaConfig config, String path) {
 		ConfigurationSection section = config.getConfigurationSection(path);
-		if (section == null) {
+		if (section == null)
 			return Collections.emptyList();
-		}
 
 		List<TablistFrame> frames = new ArrayList<>();
 		for (String key : section.getKeys(false)) {
 			ConfigurationSection page = section.getConfigurationSection(key);
 			if (page == null) {
-				this.plugin.getLogger().warning("Ignoring invalid tablist page: " + key);
+				this.plugin.getRosaLogger().warning("Ignoring invalid tablist page: " + key);
 				continue;
 			}
 
@@ -111,13 +115,12 @@ public final class TablistConfiguration {
 		return frames;
 	}
 
-	private Map<NumberRange, SkinTexture> readTextures(ConfigurationSection config, String path) {
+	private Map<NumberRange, TabListSkin> readTextures(RosaConfig config, String path) {
 		ConfigurationSection section = config.getConfigurationSection(path);
-		if (section == null) {
+		if (section == null)
 			return Collections.emptyMap();
-		}
 
-		Map<NumberRange, SkinTexture> textures = new LinkedHashMap<>();
+		Map<NumberRange, TabListSkin> textures = new LinkedHashMap<>();
 		for (String key : section.getKeys(false)) {
 			ConfigurationSection texture = section.getConfigurationSection(key);
 			if (texture == null) {
@@ -127,13 +130,13 @@ public final class TablistConfiguration {
 			String value = texture.getString("value", "").trim();
 			String signature = texture.getString("signature", "").trim();
 			if (value.isEmpty() || signature.isEmpty()) {
-				this.plugin.getLogger().warning("Ignoring incomplete tablist head texture for cells " + key);
+				this.plugin.getRosaLogger().warning("Ignoring incomplete tablist head texture for cells " + key);
 				continue;
 			}
 
 			NumberRange range = parseTextureRange(key);
 			if (range != null) {
-				textures.put(range, new SkinTexture(value, signature));
+				textures.put(range, TabListSkin.of(value, signature));
 			}
 		}
 		return textures;
@@ -148,9 +151,8 @@ public final class TablistConfiguration {
 		try {
 			int minimum = Integer.parseInt(boundaries[0]);
 			int maximum = boundaries.length == 1 ? minimum : Integer.parseInt(boundaries[1]);
-			if (minimum < 1 || maximum > PlayerListConstants.DEFAULT_CELL_COUNT || minimum > maximum) {
+			if (minimum < 1 || maximum > TabList.DEFAULT_CELL_COUNT || minimum > maximum)
 				return invalidTextureRange(value);
-			}
 			return new NumberRange(minimum, maximum);
 		} catch (NumberFormatException exception) {
 			return invalidTextureRange(value);
@@ -158,21 +160,20 @@ public final class TablistConfiguration {
 	}
 
 	private NumberRange invalidTextureRange(String value) {
-		this.plugin.getLogger().warning("Ignoring invalid tablist head range '" + value + "'; valid cells are 1-"
-				+ PlayerListConstants.DEFAULT_CELL_COUNT);
+		this.plugin.getRosaLogger().warning("Ignoring invalid tablist head range '" + value + "'; valid cells are 1-"
+				+ TabList.DEFAULT_CELL_COUNT);
 		return null;
 	}
 
 	private Integer parseCellIndex(String value, String path) {
 		try {
 			int index = Integer.parseInt(value);
-			if (index < 1 || index > PlayerListConstants.DEFAULT_CELL_COUNT) {
+			if (index < 1 || index > TabList.DEFAULT_CELL_COUNT)
 				throw new NumberFormatException();
-			}
 			return index;
 		} catch (NumberFormatException exception) {
-			this.plugin.getLogger().warning("Ignoring invalid tablist cell '" + value + "' in " + path
-					+ "; valid cells are 1-" + PlayerListConstants.DEFAULT_CELL_COUNT);
+			this.plugin.getRosaLogger().warning("Ignoring invalid tablist cell '" + value + "' in " + path
+					+ "; valid cells are 1-" + TabList.DEFAULT_CELL_COUNT);
 			return null;
 		}
 	}

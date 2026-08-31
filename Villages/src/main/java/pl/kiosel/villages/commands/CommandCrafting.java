@@ -2,48 +2,36 @@ package pl.kiosel.villages.commands;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import pl.kiosel.core.commands.AbstractCommand;
-import pl.kiosel.core.gui.GuiManager;
+import pl.kiosel.rosacore.command.RosaCommand;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.gui.crafting.GUICrafting;
 
 import java.util.List;
 
-public class CommandCrafting extends AbstractCommand {
+public class CommandCrafting extends RosaCommand {
 
 	private final AdvancedVillages plugin;
-	private final GuiManager guiManager;
 
-	public CommandCrafting(AdvancedVillages plugin, GuiManager guiManager) {
-		super(CommandType.PLAYER_ONLY, "crafting");
+	public CommandCrafting(AdvancedVillages plugin) {
+		super(plugin, "crafting", List.of("villagecrafting"), "advancedvillages.command.crafting");
 		this.plugin = plugin;
-		this.guiManager = guiManager;
+		setDescription("Open Crafting gui");
 	}
 
 	@Override
-	protected ReturnType runCommand(CommandSender sender, String... args) {
+	public boolean isPlayerOnly() {
+		return true;
+	}
+
+	@Override
+	public boolean onExecute(CommandSender sender, String s, String[] strings) {
 		Player player = (Player) sender;
-		guiManager.showGUI(player, new GUICrafting(plugin, player));
-		return ReturnType.SUCCESS;
+		plugin.getGuiManager().showGUI(player, new GUICrafting(plugin, player));
+		return true;
 	}
 
 	@Override
-	protected List<String> onTab(CommandSender sender, String... args) {
-		return List.of();
-	}
-
-	@Override
-	public String getPermissionNode() {
-		return "advancedvillages.command.crafting";
-	}
-
-	@Override
-	public String getSyntax() {
-		return "crafting";
-	}
-
-	@Override
-	public String getDescription() {
-		return "Open Crafting gui";
+	public List<String> onTabComplete(CommandSender commandSender, String[] strings) {
+		return EMPTY;
 	}
 }

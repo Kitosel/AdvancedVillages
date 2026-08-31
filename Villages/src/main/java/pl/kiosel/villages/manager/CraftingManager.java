@@ -2,8 +2,8 @@ package pl.kiosel.villages.manager;
 
 import lombok.Getter;
 import org.bukkit.inventory.Recipe;
-import pl.kiosel.core.lootables.RecipeBuilder;
-import pl.kiosel.dependencies.com.cryptomorin.xseries.XMaterial;
+import pl.kiosel.rosacore.compatibility.ZMaterial;
+import pl.kiosel.rosacore.material.RecipeBuilder;
 import pl.kiosel.villages.AdvancedVillages;
 
 public class CraftingManager {
@@ -28,27 +28,27 @@ public class CraftingManager {
 				.shape( "%^%",
 						"^&^",
 						"#%#")
-				.setIngredient('^', XMaterial.DIAMOND_BLOCK)
-				.setIngredient('%', XMaterial.GOLD_BLOCK)
-				.setIngredient('#', XMaterial.AMETHYST_BLOCK)
-				.setIngredient('&', XMaterial.HONEY_BLOCK)
+				.setIngredient('^', ZMaterial.DIAMOND_BLOCK)
+				.setIngredient('%', ZMaterial.GOLD_BLOCK)
+				.setIngredient('#', ZMaterial.AMETHYST_BLOCK)
+				.setIngredient('&', ZMaterial.HONEY_BLOCK)
 				.setResult(plugin.getApi().createVillageBlock());
 		destroyer = new RecipeBuilder(plugin, "destroyer")
 				.shape( "%^%",
 						" & ",
 						" & ")
 				.setIngredient('^', plugin.getApi().createDestroyerHearth())
-				.setIngredient('%', XMaterial.GOLD_INGOT)
-				.setIngredient('&', XMaterial.STICK)
+				.setIngredient('%', ZMaterial.GOLD_INGOT)
+				.setIngredient('&', ZMaterial.STICK)
 				.setResult(plugin.getApi().createDestroyer());
 		hearth = new RecipeBuilder(plugin, "hearth")
 				.shape( "^&^",
 						"#%#",
 						"^&^")
 				.setIngredient('^', plugin.getApi().createHearthPart())
-				.setIngredient('%', XMaterial.TOTEM_OF_UNDYING)
-				.setIngredient('&', XMaterial.DIAMOND_BLOCK)
-				.setIngredient('#', XMaterial.NETHERITE_INGOT)
+				.setIngredient('%', ZMaterial.TOTEM_OF_UNDYING)
+				.setIngredient('&', ZMaterial.DIAMOND_BLOCK)
+				.setIngredient('#', ZMaterial.NETHERITE_INGOT)
 				.setResult(plugin.getApi().createHearth());
 	}
 

@@ -1,0 +1,19 @@
+package pl.kiosel.villages.addons.diplomacy;
+
+public enum DiplomacyResult {
+	SUCCESS,
+	DISABLED,
+	SAME_VILLAGE,
+	ALREADY_ALLIED,
+	NOT_ALLIED,
+	REQUEST_EXISTS,
+	NO_REQUEST,
+	ALLIANCE_LIMIT,
+	WAR_EXISTS,
+	WAR_COOLDOWN,
+	WAR_LIMIT,
+	NOT_ENOUGH_MEMBERS,
+	NOT_ENOUGH_ONLINE,
+	NOT_ENOUGH_BANK,
+	NO_WAR
+}

@@ -4,7 +4,6 @@ import lombok.Getter;
 
 import java.util.Locale;
 
-/** Small, deterministic calculator used by the live ranking manager. */
 public final class RankSystem {
 
 	private final Type type;

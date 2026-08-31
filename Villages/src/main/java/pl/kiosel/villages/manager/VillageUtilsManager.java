@@ -4,17 +4,17 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import pl.kiosel.core.dependencies.net.kyori.adventure.title.Title;
-import pl.kiosel.core.locale.Message;
-import pl.kiosel.core.utils.TimeUtils;
-import pl.kiosel.core.utils.format.RawString;
+import pl.kiosel.rosacore.dependencies.adventure.adventure.title.Title;
+import pl.kiosel.rosacore.utils.TimeUtils;
+import pl.kiosel.rosacore.utils.format.RawString;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.addons.logs.VillageLogType;
+import pl.kiosel.villages.config.Lang;
+import pl.kiosel.villages.config.Settings;
+import pl.kiosel.villages.config.VillageMessage;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.data.village.VillageManager;
-import pl.kiosel.villages.enums.Lang;
-import pl.kiosel.villages.settings.Settings;
 import pl.kiosel.villages.storage.DatabaseUserSerializer;
 import pl.kiosel.villages.storage.DatabaseVillageSerializer;
 
@@ -43,6 +43,8 @@ public class VillageUtilsManager {
 			"village_pvp",
 			"village_tnt",
 			"village_animations",
+			"village_allies",
+			"village_wars",
 			"istagset"
 	};
 
@@ -72,47 +74,48 @@ public class VillageUtilsManager {
 	public void attackOnVillage(Village village, int hearth, Player attacker) {
 		plugin.getLogManager().record(village, VillageLogType.VILLAGE_ATTACK, attacker,
 				"lives", Math.max(0, village.getLives() - hearth));
-		Message title;
-		Message subtitle;
-		Message message;
+		VillageMessage title;
+		VillageMessage subtitle;
+		VillageMessage message;
 		Title.Times times = Title.Times.times(Duration.ofMillis(20), Duration.ofSeconds(4), Duration.ofMillis(20));
 		if (village.getLives() > 1) {
-			Duration duration = TimeUtils.getDuration(Settings.VILLAGE_DESTROY_UNIT.getString(), Settings.VILLAGE_DESTROY_DURATION.getInt());
+			Duration duration = TimeUtils.duration(Settings.VILLAGE_DESTROY_PROTECTION.getString(), Duration.ofHours(12), true);
+			duration = plugin.getDevelopmentManager().applyAttackProtection(village, duration);
 			if (duration == null) {
 				duration = Duration.ofHours(12);
-				plugin.getLogger().severe("Duration of village protect is wrong in config.yml using default 12 hours");
+				plugin.getRosaLogger().severe("Duration of village protect is wrong in config.yml using default 12 hours");
 			}
 			village.updateLives(lives -> lives - hearth);
 			village.setProtection(Instant.now().plus(duration));
 
-			String formattedDuration = plugin.getMessages().formatDuration(duration);
+			String formattedDuration = plugin.getVillageMessages().formatDuration(duration);
 			for (User user : village.getOnlineMembers()) {
-				message = replaceWithM(village, plugin.getMessages().text(Lang.VILLAGE_ATTACKED_MESSAGE))
-						.processPlaceholder("attacker", attacker.getName())
-						.processPlaceholder("time", formattedDuration);
-				title = replaceWithM(village, plugin.getMessages().text(Lang.VILLAGE_ATTACKED_TITLE))
-						.processPlaceholder("attacker", attacker.getName())
-						.processPlaceholder("time", formattedDuration);
-				subtitle = replaceWithM(village, plugin.getMessages().text(Lang.VILLAGE_ATTACKED_SUBTITLE))
-						.processPlaceholder("attacker", attacker.getName())
-						.processPlaceholder("time", formattedDuration);
+				message = replaceWithM(village, plugin.getVillageMessages().text(Lang.VILLAGE_ATTACKED_MESSAGE))
+						.with("attacker", attacker.getName())
+						.with("time", formattedDuration);
+				title = replaceWithM(village, plugin.getVillageMessages().text(Lang.VILLAGE_ATTACKED_TITLE))
+						.with("attacker", attacker.getName())
+						.with("time", formattedDuration);
+				subtitle = replaceWithM(village, plugin.getVillageMessages().text(Lang.VILLAGE_ATTACKED_SUBTITLE))
+						.with("attacker", attacker.getName())
+						.with("time", formattedDuration);
 
 				user.sendMessage(message.toText());
-				plugin.getMessages().sendTitle(Bukkit.getPlayer(user.getUUID()),
+				plugin.getVillageMessages().sendTitle(Bukkit.getPlayer(user.getUUID()),
 						title.toText(), subtitle.toText(), times);
 			}
 			plugin.getVillageRemoveManager().destroyVillage(village, true);
 		} else {
 			for (User user : village.getOnlineMembers()) {
-				message = replaceWithM(village, plugin.getMessages().text(Lang.VILLAGE_DESTROYED_MESSAGE))
-						.processPlaceholder("attacker", attacker.getName());
-				title = replaceWithM(village, plugin.getMessages().text(Lang.VILLAGE_DESTROYED_TITLE))
-						.processPlaceholder("attacker", attacker.getName());
-				subtitle = replaceWithM(village, plugin.getMessages().text(Lang.VILLAGE_DESTROYED_SUBTITLE))
-						.processPlaceholder("attacker", attacker.getName());
+				message = replaceWithM(village, plugin.getVillageMessages().text(Lang.VILLAGE_DESTROYED_MESSAGE))
+						.with("attacker", attacker.getName());
+				title = replaceWithM(village, plugin.getVillageMessages().text(Lang.VILLAGE_DESTROYED_TITLE))
+						.with("attacker", attacker.getName());
+				subtitle = replaceWithM(village, plugin.getVillageMessages().text(Lang.VILLAGE_DESTROYED_SUBTITLE))
+						.with("attacker", attacker.getName());
 
 				user.sendMessage(message.toText());
-				plugin.getMessages().sendTitle(Bukkit.getPlayer(user.getUUID()),
+				plugin.getVillageMessages().sendTitle(Bukkit.getPlayer(user.getUUID()),
 						title.toText(), subtitle.toText(), times);
 			}
 			plugin.getVillageRemoveManager().removeVillage(village, true);
@@ -141,7 +144,7 @@ public class VillageUtilsManager {
 	public boolean isVillageNearby(Location location, int radius) {
 		double radiusSquared = (double) radius * radius;
 		for (Village village : manager.getVillagesView()) {
-			Location vLoc = village.getLocation().orNull();
+			Location vLoc = village.getLocation().orElse(null);
 			if (vLoc == null || vLoc.getWorld() == null) continue;
 			if (!vLoc.getWorld().equals(location.getWorld())) continue;
 
@@ -183,12 +186,12 @@ public class VillageUtilsManager {
 		return list;
 	}
 
-	public static Message replaceWithM(Village village, String string) {
+	public static VillageMessage replaceWithM(Village village, String string) {
 		return replaceWithM(village, string, "");
 	}
 
-	public static Message replaceWithM(Village village, String string, String noVillage) {
-		Message message = instance.getMessages().get(string);
+	public static VillageMessage replaceWithM(Village village, String string, String noVillage) {
+		VillageMessage message = instance.getVillageMessages().raw(string);
 		applyGeneralPlaceholders(message);
 		applyVillagePlaceholders(message, village, noVillage);
 		return message;
@@ -198,66 +201,68 @@ public class VillageUtilsManager {
 		return replaceWithM(village, string).toText();
 	}
 
-	public static Message replacePlayer(Player player, String message) {
-		return applyPlayerPlaceholders(instance.getMessages().get(message), player);
+	public static VillageMessage replacePlayer(Player player, String message) {
+		return applyPlayerPlaceholders(instance.getVillageMessages().raw(message), player);
 	}
 
-	private static void applyGeneralPlaceholders(Message message) {
-		message.processPlaceholder("max_lives", Settings.VILLAGE_MAX_LIVES.getInt())
-				.processPlaceholder("default_lives", Settings.VILLAGE_DEFAULT_LIVES.getInt())
-				.processPlaceholder("separator", instance.getMessages().get(Lang.SEPARATOR).toText());
+	private static void applyGeneralPlaceholders(VillageMessage message) {
+		message.with("max_lives", Settings.VILLAGE_MAX_LIVES.getInt())
+				.with("default_lives", Settings.VILLAGE_DEFAULT_LIVES.getInt())
+				.with("separator", instance.getVillageMessages().get(Lang.SEPARATOR).toText());
 	}
 
-	private static void applyVillagePlaceholders(Message message, @Nullable Village village, String noVillage) {
+	private static void applyVillagePlaceholders(VillageMessage message, @Nullable Village village, String noVillage) {
 		if (village == null) {
 			for (String placeholder : VILLAGE_PLACEHOLDERS) {
-				message.processPlaceholder(placeholder, noVillage);
+				message.with(placeholder, noVillage);
 			}
 			return;
 		}
 
-		String noTag = instance.getMessages().textOrDefault(Lang.TAG_NO, "&cNONE");
-		String on = instance.getMessages().textOrDefault(Lang.ON, "&aON");
-		String off = instance.getMessages().textOrDefault(Lang.OFF, "&cOFF");
+		String noTag = instance.getVillageMessages().textOrDefault(Lang.TAG_NO, "&cNONE");
+		String on = instance.getVillageMessages().textOrDefault(Lang.ON, "&aON");
+		String off = instance.getVillageMessages().textOrDefault(Lang.OFF, "&cOFF");
 		int lives = village.getLives();
 
-		message.processPlaceholder("village_level", village.getLevel().getLevel())
-				.processPlaceholder("village_next_level", village.getLevel().getLevel() + 1)
-				.processPlaceholder("village_cost", village.getLevel().getCostEconomy())
-				.processPlaceholder("village_teleport", village.tpToString())
-				.processPlaceholder("village_name", village.getName())
-				.processPlaceholder("village_owner", village.getOwner().getName())
-				.processPlaceholder("village_bank", village.getBank())
-				.processPlaceholder("village_life", lives)
-				.processPlaceholder("village_lives", lives)
-				.processPlaceholder("village_life_as_symbol", getLivesSymbol(village.getLives(), true))
-				.processPlaceholder("village_size", village.getLevel().getSize())
-				.processPlaceholder("village_tag", village.isTag() ? village.getTag() : noTag)
-				.processPlaceholder("village_pvp", village.isPvp() ? on : off)
-				.processPlaceholder("village_tnt", village.isTnt() ? on : off)
-				.processPlaceholder("village_animations", village.isAnimationsEnabled() ? on : off)
-				.processPlaceholder("istagset", village.isTag()
+		message.with("village_level", village.getLevel().getLevel())
+				.with("village_next_level", village.getLevel().getLevel() + 1)
+				.with("village_cost", village.getLevel().getCostEconomy())
+				.with("village_teleport", village.tpToString())
+				.with("village_name", village.getName())
+				.with("village_owner", village.getOwner().getName())
+				.with("village_bank", village.getBank())
+				.with("village_life", lives)
+				.with("village_lives", lives)
+				.with("village_life_as_symbol", getLivesSymbol(village.getLives(), true))
+				.with("village_size", village.getLevel().getSize())
+				.with("village_tag", village.isTag() ? village.getTag() : noTag)
+				.with("village_pvp", village.isPvp() ? on : off)
+				.with("village_tnt", village.isTnt() ? on : off)
+				.with("village_animations", village.isAnimationsEnabled() ? on : off)
+				.with("village_allies", instance.getDiplomacyManager().getAllies(village).size())
+				.with("village_wars", instance.getDiplomacyManager().countCurrentWars(village))
+				.with("istagset", village.isTag()
 						? instance.getGuiSettings().text("guis.village.settings.tag.tag_set", "&7Set")
 						: instance.getGuiSettings().text("guis.village.settings.tag.tag_not_set", "&7Click to set"));
 	}
 
-	private static Message applyPlayerPlaceholders(Message message, Player player) {
+	private static VillageMessage applyPlayerPlaceholders(VillageMessage message, Player player) {
 		String lastOnline = TimeUtils.getStringDate(player.getLastPlayed());
-		String nowOnline = instance.getMessages().get(Lang.PLAYER_ONLINE).toString();
-		return message.processPlaceholder("player", player.getName())
-				.processPlaceholder("player_name", player.getName())
-				.processPlaceholder("player_uuid", player.getUniqueId().toString())
-				.processPlaceholder("player_last_online", player.isOnline() ? nowOnline : lastOnline)
-				.processPlaceholder("player_money", instance.getEconomy().getBalance(player))
-				.processPlaceholder("player_ping", player.getPing())
-				.processPlaceholder("player_world", player.getWorld().getName());
+		String nowOnline = instance.getVillageMessages().get(Lang.PLAYER_ONLINE).toString();
+		return message.with("player", player.getName())
+				.with("player_name", player.getName())
+				.with("player_uuid", player.getUniqueId().toString())
+				.with("player_last_online", player.isOnline() ? nowOnline : lastOnline)
+				.with("player_money", instance.getEconomy().getBalance(player))
+				.with("player_ping", player.getPing())
+				.with("player_world", player.getWorld().getName());
 	}
 
-	public static Message replaceWith(Player player, Village village, Lang lang) {
-		return replaceWith(player, village, instance.getMessages().get(lang).toText());
+	public static VillageMessage replaceWith(Player player, Village village, Lang lang) {
+		return replaceWith(player, village, instance.getVillageMessages().get(lang).toText());
 	}
 
-	public static Message replaceWith(Player player, Village village, String message) {
+	public static VillageMessage replaceWith(Player player, Village village, String message) {
 		String noVillage = replacePlayer(player, instance.getScoreboardHandler().scoreboardNoVillage()).toText();
 		return applyPlayerPlaceholders(replaceWithM(village, message, noVillage), player);
 	}

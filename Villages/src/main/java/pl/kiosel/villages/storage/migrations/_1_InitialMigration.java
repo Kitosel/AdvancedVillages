@@ -1,10 +1,10 @@
 package pl.kiosel.villages.storage.migrations;
 
-import pl.kiosel.core.database.DataMigration;
+import pl.kiosel.rosacore.database.DatabaseMigration;
 
 import java.sql.*;
 
-public class _1_InitialMigration extends DataMigration {
+public class _1_InitialMigration extends DatabaseMigration {
 
     public _1_InitialMigration() {
         super(1);
@@ -33,11 +33,9 @@ public class _1_InitialMigration extends DataMigration {
 					"`protection` BIGINT NOT NULL, " +
 					"`tag` VARCHAR(64) NOT NULL, " +
 					"PRIMARY KEY (`uuid`));");
-        }
 
-		// Create users table.
-        try (Statement statement = connection.createStatement()) {
-            statement.execute("CREATE TABLE IF NOT EXISTS " + tablePrefix + "users (" +
+			// Create users table.
+			statement.execute("CREATE TABLE IF NOT EXISTS " + tablePrefix + "users (" +
 					"`uuid` VARCHAR(36) NOT NULL, " +
 					"`name` VARCHAR(255) NOT NULL, " +
 					"`points` INT NULL, " +
@@ -47,10 +45,8 @@ public class _1_InitialMigration extends DataMigration {
 					"`logouts` INT NULL, " +
 					"`permission` TEXT NULL, " +
 					"PRIMARY KEY (`uuid`));");
-        }
 
-		//Create quest table
-		try (Statement statement = connection.createStatement()) {
+			//Create quest table
 			statement.execute("CREATE TABLE IF NOT EXISTS " + tablePrefix + "village_quests (" +
 					"`village_uuid` VARCHAR(100) NOT NULL, " +
 					"`daily_period` VARCHAR(16) NOT NULL, " +
@@ -62,12 +58,10 @@ public class _1_InitialMigration extends DataMigration {
 					"`daily_active` TEXT NULL, " +
 					"`weekly_active` TEXT NULL, " +
 					"PRIMARY KEY (`village_uuid`));");
-		}
 
-		//Create logs table
-		String table = tablePrefix + "village_logs";
-		try (Statement statement = connection.createStatement()) {
-			statement.execute("CREATE TABLE IF NOT EXISTS " + table + " (" +
+			//Create logs table
+			String logTable = tablePrefix + "village_logs";
+			statement.execute("CREATE TABLE IF NOT EXISTS " + logTable + " (" +
 					"`id` VARCHAR(36) NOT NULL, " +
 					"`village_uuid` VARCHAR(100) NOT NULL, " +
 					"`type` VARCHAR(48) NOT NULL, " +
@@ -77,10 +71,23 @@ public class _1_InitialMigration extends DataMigration {
 					"`details` TEXT NOT NULL, " +
 					"PRIMARY KEY (`id`));");
 
-			if (!hasVillageTimeIndex(connection, table)) {
-				statement.execute("CREATE INDEX village_logs_village_time_idx ON " + table + " (`village_uuid`, `created_at`);");
+			if (!hasVillageTimeIndex(connection, logTable)) {
+				statement.execute("CREATE INDEX village_logs_village_time_idx ON " + logTable + " (`village_uuid`, `created_at`);");
 			}
-		}
+
+			// Create village development table.
+			statement.execute("CREATE TABLE IF NOT EXISTS " + tablePrefix + "village_development (" +
+					"`village_uuid` VARCHAR(100) NOT NULL, " +
+					"`unlocked_nodes` TEXT NOT NULL, " +
+					"PRIMARY KEY (`village_uuid`));");
+
+			// Create village upkeep table.
+			statement.execute("CREATE TABLE IF NOT EXISTS " + tablePrefix + "village_upkeep (" +
+					"`village_uuid` VARCHAR(100) NOT NULL, " +
+					"`next_payment` BIGINT NOT NULL, " +
+					"`missed_payments` INT NOT NULL, " +
+					"PRIMARY KEY (`village_uuid`));");
+        }
     }
 
 	private boolean hasVillageTimeIndex(Connection connection, String table) throws SQLException {

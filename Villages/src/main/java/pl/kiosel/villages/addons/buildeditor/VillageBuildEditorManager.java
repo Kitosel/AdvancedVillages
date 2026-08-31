@@ -4,16 +4,16 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
-import pl.kiosel.core.compatibility.CompatibleMaterial;
-import pl.kiosel.core.configuration.Config;
-import pl.kiosel.core.hooks.WorldEditHook;
-import pl.kiosel.dependencies.com.cryptomorin.xseries.XMaterial;
+import pl.kiosel.rosacore.compatibility.ZMaterial;
+import pl.kiosel.rosacore.config.RosaConfig;
+import pl.kiosel.rosacore.hook.worldedit.WorldEditHook;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.config.Lang;
+import pl.kiosel.villages.config.Settings;
 import pl.kiosel.villages.data.village.Region;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.data.village.level.Level;
-import pl.kiosel.villages.enums.Lang;
-import pl.kiosel.villages.settings.Settings;
+import pl.kiosel.villages.data.village.level.LevelManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,16 +29,16 @@ import java.util.stream.Collectors;
 
 public final class VillageBuildEditorManager {
 
-    public static final int MAX_LEVEL = pl.kiosel.villages.data.village.level.LevelManager.MAX_LEVEL;
+    public static final int MAX_LEVEL = LevelManager.MAX_LEVEL;
     private static final DateTimeFormatter BACKUP_DATE = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss-SSS");
 
     private final AdvancedVillages plugin;
-    private final Config config;
+    private final RosaConfig config;
     private final Map<UUID, BuildEditorSession> sessions = new HashMap<>();
     private final Map<UUID, LevelSetupConversation> conversations = new ConcurrentHashMap<>();
     private BukkitTask boundaryTask;
 
-    public VillageBuildEditorManager(AdvancedVillages plugin, Config config) {
+    public VillageBuildEditorManager(AdvancedVillages plugin, RosaConfig config) {
         this.plugin = plugin;
         this.config = config;
         restartBoundaryTask();
@@ -101,7 +101,7 @@ public final class VillageBuildEditorManager {
         }
 
         try {
-			WorldEditHook.Schematic schematic = WorldEditHook.loadSchematic(schematicFile);
+			WorldEditHook.Schematic schematic = plugin.getHookManager().getWorldEdit().loadSchematic(schematicFile);
 			RelativeBounds relative = RelativeBounds.fromSchematic(schematic);
             long maxVolume = Math.max(1L, config.getLong("search.max-volume", 50_000L));
             if (relative.volume() > maxVolume) {
@@ -119,7 +119,7 @@ public final class VillageBuildEditorManager {
             int margin = Math.max(0, config.getInt("search.empty-margin", 8));
             BuildEditorBounds cleanupBounds = bounds.expand(margin);
             try {
-				WorldEditHook.pasteSchematic(schematic, origin, false, false);
+				plugin.getHookManager().getWorldEdit().pasteSchematic(schematic, origin, false, false);
 				origin.getBlock().setType(Material.NOTE_BLOCK, false);
 			} catch (IOException exception) {
 				clearArea(cleanupBounds);
@@ -128,7 +128,7 @@ public final class VillageBuildEditorManager {
 
             beginSession(player, level, origin, bounds, cleanupBounds, false);
 		} catch (IOException exception) {
-            plugin.getLogger().severe("Failed to start editing level " + level + ": " + exception.getMessage());
+            plugin.getRosaLogger().severe("Failed to start editing level " + level + ": " + exception.getMessage());
             sendLocalized(player, Lang.BUILD_EDITOR_LOAD_FAILED);
         }
     }
@@ -169,9 +169,9 @@ public final class VillageBuildEditorManager {
         BuildEditorBounds bounds = relative.at(origin);
         int margin = Math.max(0, config.getInt("search.empty-margin", 8));
         BuildEditorBounds cleanupBounds = bounds.expand(margin);
-        XMaterial baseMaterial = XMaterial.matchXMaterial(Material.valueOf(config.getString("new-level.base-material", "STONE")));
-        if (!Objects.requireNonNull(baseMaterial.get()).isBlock()) {
-            baseMaterial = XMaterial.STONE;
+        ZMaterial baseMaterial = ZMaterial.match(config.getString("new-level.base-material", "STONE")).orElse(ZMaterial.STONE);
+        if (!Objects.requireNonNull(baseMaterial.getMaterial().orElse(Material.STONE)).isBlock()) {
+            baseMaterial = ZMaterial.STONE;
         }
         createStoneBase(bounds, origin.add(0, 3, 0), baseMaterial);
         beginSession(player, level, origin, bounds, cleanupBounds, true);
@@ -222,7 +222,7 @@ public final class VillageBuildEditorManager {
                 sendLocalized(player, Lang.BUILD_EDITOR_SAVED_HELP);
             }
 		} catch (IOException exception) {
-            plugin.getLogger().severe("Failed to save editing level " + session.getLevel() + ": " + exception.getMessage());
+            plugin.getRosaLogger().severe("Failed to save editing level " + session.getLevel() + ": " + exception.getMessage());
             sendLocalized(player, Lang.BUILD_EDITOR_SAVE_FAILED);
         }
     }
@@ -367,7 +367,7 @@ public final class VillageBuildEditorManager {
     }
 
     private boolean applyMaterials(LevelDraft draft, String input) {
-        Map<XMaterial, Integer> parsed = new LinkedHashMap<>();
+        Map<ZMaterial, Integer> parsed = new LinkedHashMap<>();
         if (!input.equalsIgnoreCase("none")
                 && !input.equalsIgnoreCase("brak")
                 && !input.equalsIgnoreCase("keine")
@@ -377,14 +377,14 @@ public final class VillageBuildEditorManager {
                 if (parts.length != 2) {
                     return false;
                 }
-                XMaterial material = CompatibleMaterial.getMaterial(parts[0].trim()).orElse(null);
+                ZMaterial material = ZMaterial.match(parts[0].trim()).orElse(null);
                 int amount;
                 try {
                     amount = Integer.parseInt(parts[1].trim());
                 } catch (NumberFormatException ignored) {
                     return false;
                 }
-                if (material == null || material.get() == null || !material.get().isItem() || amount < 1) {
+                if (material == null || material.getMaterial().isPresent() || !material.getMaterial().orElseThrow().isItem() || amount < 1) {
                     return false;
                 }
                 parsed.merge(material, amount, Integer::sum);
@@ -396,7 +396,7 @@ public final class VillageBuildEditorManager {
     }
 
     private boolean saveLevel(int level, LevelDraft draft) {
-        Config levels = plugin.getLevelsFile();
+        RosaConfig levels = plugin.getLevelsFile();
         String path = "Level-" + level;
         List<String> materials = draft.getMaterials().entrySet().stream()
                 .map(entry -> entry.getKey().name() + ":" + entry.getValue())
@@ -406,11 +406,11 @@ public final class VillageBuildEditorManager {
         levels.set(path + ".Cost-eco", draft.getEconomy());
         levels.set(path + ".Size", draft.getSize());
         backupLevelsFile(levels.getFile().toPath());
-        if (!levels.save()) {
-            plugin.getLogger().severe("Could not save level " + level + " to levels.yml");
+		if (!levels.save().isSuccess()) {
+            plugin.getRosaLogger().severe("Could not save level " + level + " to levels.yml");
             return false;
         }
-        plugin.reloadLevels();
+        plugin.getLevelManager().reloadLevels();
         return plugin.getLevelManager().isLevel(level);
     }
 
@@ -424,7 +424,7 @@ public final class VillageBuildEditorManager {
             Path backup = backupDirectory.resolve("levels-" + BACKUP_DATE.format(LocalDateTime.now()) + ".yml");
             Files.copy(source, backup, StandardCopyOption.COPY_ATTRIBUTES);
         } catch (IOException exception) {
-            plugin.getLogger().warning("Could not create levels.yml backup: " + exception.getMessage());
+            plugin.getRosaLogger().warning("Could not create levels.yml backup: " + exception.getMessage());
         }
     }
 
@@ -458,7 +458,7 @@ public final class VillageBuildEditorManager {
         conversations.clear();
     }
 
-    Config getConfig() {
+    RosaConfig getConfig() {
         return config;
     }
 
@@ -471,7 +471,7 @@ public final class VillageBuildEditorManager {
             sendLocalized(player, Lang.ADDON_DISABLED, "addon", "Build Editor");
             return true;
         }
-		if (!WorldEditHook.isEnabled()) {
+		if (!plugin.getHookManager().getWorldEdit().isEnabled()) {
             sendLocalized(player, Lang.BUILD_EDITOR_WORLD_EDIT_REQUIRED);
             return true;
         }
@@ -485,7 +485,7 @@ public final class VillageBuildEditorManager {
 	private void writeSchematic(BuildEditorSession session, File file) throws IOException {
 		BuildEditorBounds bounds = session.getBounds();
 		World world = bounds.getWorld();
-		WorldEditHook.saveSchematic(
+		plugin.getHookManager().getWorldEdit().saveSchematic(
 				file,
 				new Location(world, bounds.getMinX(), bounds.getMinY(), bounds.getMinZ()),
 				new Location(world, bounds.getMaxX(), bounds.getMaxY(), bounds.getMaxZ()),
@@ -608,7 +608,7 @@ public final class VillageBuildEditorManager {
 			return false;
 		}
 		for (Village village : plugin.getVillageManager().getVillagesView()) {
-			Region region = village.getRegion().orNull();
+			Region region = village.getRegion().orElse(null);
 			if (region == null || region.getWorld() == null || !region.getWorld().equals(bounds.getWorld())) {
 				continue;
 			}
@@ -636,28 +636,28 @@ public final class VillageBuildEditorManager {
         try {
             clearArea(session.getCleanupBounds());
         } catch (RuntimeException exception) {
-            plugin.getLogger().log(java.util.logging.Level.SEVERE, "Failed to clear build editor area for " + session.getPlayerId(), exception);
+            plugin.getRosaLogger().log(java.util.logging.Level.SEVERE, "Failed to clear build editor area for " + session.getPlayerId(), exception);
         }
     }
 
     void sendLocalized(Player player, Lang message) {
-        plugin.getMessages().get(message).sendPrefixedMessage(player);
+        plugin.getVillageMessages().get(message).sendPrefixed(player);
     }
 
     private void sendLocalized(Player player, Lang message, String placeholder, Object value) {
-        plugin.getMessages().get(message)
-                .processPlaceholder(placeholder, String.valueOf(value))
-                .sendPrefixedMessage(player);
+        plugin.getVillageMessages().get(message)
+                .with(placeholder, String.valueOf(value))
+                .sendPrefixed(player);
     }
 
-    private void createStoneBase(BuildEditorBounds bounds, Location origin, XMaterial material) {
+    private void createStoneBase(BuildEditorBounds bounds, Location origin, ZMaterial material) {
         int y = bounds.getMinY();
         for (int x = bounds.getMinX(); x <= bounds.getMaxX(); x++) {
             for (int z = bounds.getMinZ(); z <= bounds.getMaxZ(); z++) {
-                bounds.getWorld().getBlockAt(x, y, z).setType(material.get(), false);
+                bounds.getWorld().getBlockAt(x, y, z).setType(material.getMaterial().orElse(Material.STONE), false);
             }
         }
-        origin.getBlock().setType(XMaterial.NOTE_BLOCK.get(), false);
+        origin.getBlock().setType(ZMaterial.NOTE_BLOCK.getMaterial().orElse(Material.NOTE_BLOCK), false);
     }
 
     private void clearArea(BuildEditorBounds bounds) {
@@ -666,7 +666,7 @@ public final class VillageBuildEditorManager {
                 for (int z = bounds.getMinZ(); z <= bounds.getMaxZ(); z++) {
                     Block block = bounds.getWorld().getBlockAt(x, y, z);
                     if (!block.getType().isAir())
-                        block.setType(XMaterial.AIR.get(), false);
+                        block.setType(ZMaterial.AIR.getMaterial().orElse(Material.AIR), false);
                 }
     }
 

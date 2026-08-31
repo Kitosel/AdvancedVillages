@@ -1,38 +1,30 @@
 package pl.kiosel.villages.gui;
 
 import lombok.Getter;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
-import pl.kiosel.core.gui.Gui;
-import pl.kiosel.core.gui.GuiManager;
-import pl.kiosel.core.gui.SimplePagedGui;
-import pl.kiosel.core.gui.events.GuiClickEvent;
-import pl.kiosel.core.gui.methods.Clickable;
-import pl.kiosel.core.utils.TimeUtils;
-import pl.kiosel.dependencies.com.cryptomorin.xseries.XSound;
+import pl.kiosel.rosacore.compatibility.ZSound;
+import pl.kiosel.rosacore.gui.Gui;
+import pl.kiosel.rosacore.gui.PagedGui;
+import pl.kiosel.rosacore.utils.TimeUtils;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.config.GuiItemConfig;
 import pl.kiosel.villages.config.GuiMenuConfig;
+import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.config.VillageMessages;
+import pl.kiosel.villages.data.village.Permission;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.enums.GUIS;
-import pl.kiosel.villages.enums.Lang;
-import pl.kiosel.villages.enums.Permission;
 import pl.kiosel.villages.manager.UpgradeManager;
 import pl.kiosel.villages.manager.VillageUtilsManager;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Locale;
 
-import static pl.kiosel.core.utils.ColorUtils.tl;
-
-public abstract class VillageMenu extends SimplePagedGui {
+public abstract class VillageMenu extends PagedGui {
 
 	protected final AdvancedVillages plugin;
 	protected final VillageGUIManager menus;
@@ -42,26 +34,26 @@ public abstract class VillageMenu extends SimplePagedGui {
 	@Getter protected final VillageMessages messages;
 	private final boolean paged;
 
-	protected VillageMenu(AdvancedVillages plugin, VillageGUIManager menus, Village village,
-	                      Player viewer, GUIS type, Gui parent) {
+	protected VillageMenu(AdvancedVillages plugin, VillageGUIManager menus, Village village, Player viewer, GUIS type, Gui parent) {
 		this(plugin, menus, village, viewer, type, parent, false);
 	}
 
 	protected VillageMenu(AdvancedVillages plugin, VillageGUIManager menus, Village village,
-	                      Player viewer, GUIS type, Gui parent, boolean paged) {
+						  Player viewer, GUIS type, Gui parent, boolean paged) {
 		super(parent);
 		this.plugin = plugin;
 		this.menus = menus;
 		this.village = village;
 		this.viewer = viewer;
 		this.paged = paged;
-		this.messages = plugin.getMessages();
+		this.messages = plugin.getVillageMessages();
 		this.menuConfig = plugin.getGuiSettings().menu(type);
 
-		setTitle(tl(this.menuConfig.getTitle()));
+		setTitle(this.menuConfig.getTitle());
 		setRows(this.menuConfig.getRows());
 		setDefaultItem(null);
 		setUseHeader(paged);
+		setUseFooter(paged);
 
 		ItemStack headerItem = Item.blank(Item.Blank.WHITE);
 		if (paged) {
@@ -74,44 +66,8 @@ public abstract class VillageMenu extends SimplePagedGui {
 			}
 			setItem(Math.max(0, this.menuConfig.getSize() - 1), null);
 		}
-		setNextPage(Item.blank(Item.Blank.NEXT_PAGE));
-		setPrevPage(Item.blank(Item.Blank.PREVIUS_PAGE));
-	}
-
-	@Override
-	public void update() {
-		if (paged) {
-			super.update();
-			return;
-		}
-		if (inventory == null)
-			return;
-
-		for (int slot = 0; slot < inventory.getSize(); slot++) {
-			inventory.setItem(slot, cellItems.get(slot));
-		}
-	}
-
-	@Override
-	protected boolean onClick(@NotNull GuiManager manager, @NotNull Player player, @NotNull Inventory inventory, @NotNull InventoryClickEvent event) {
-		if (paged) {
-			super.onClick(manager, player, inventory, event);
-			return false;
-		}
-
-		Map<ClickType, Clickable> actions = conditionalButtons.get(event.getSlot());
-		if (actions == null) {
-			return false;
-		}
-		Clickable action = actions.get(event.getClick());
-		if (action == null)
-			action = actions.get(null);
-
-		if (action == null)
-			return false;
-
-		action.onClick(new GuiClickEvent(manager, this, player, event, event.getSlot(), true));
-		return false;
+		setNextPageItem(Item.blank(Item.Blank.NEXT_PAGE));
+		setPreviousPageItem(Item.blank(Item.Blank.PREVIUS_PAGE));
 	}
 
 	protected void addBackButton(int slot) {
@@ -119,35 +75,44 @@ public abstract class VillageMenu extends SimplePagedGui {
 		if (destination != null) {
 			setButton(slot, Item.blank(Item.Blank.BACK),
 					event -> {
-						playSound(XSound.UI_TOAST_IN, 1.0f, 2.0f);
-						event.manager.showGUI(event.player, destination);
+						playSound(ZSound.UI_TOAST_IN, 1.0f, 2.0f);
+						event.getManager().openGUI(event.getPlayer(), destination);
 					});
 		}
+	}
+
+	protected VillageMessages getVillageMessages() {
+		return this.messages;
 	}
 
 	protected void addBackButton() {
 		this.addBackButton(this.menuConfig.getBackSlot());
 	}
 
-	protected GuiItemConfig configuredItem(GUIS menu, String path, int defaultSlot,
-	                                       org.bukkit.Material material, String name,
-	                                       List<String> lore) {
+	protected GuiItemConfig item(GUIS menu, String path, int defaultSlot, Material material, String name, List<String> lore) {
 		return this.plugin.getGuiSettings().item(menu, path, defaultSlot, material, name, lore);
 	}
 
 	protected void openFromMain(GUIS type) {
-		playSound(XSound.BLOCK_NOTE_BLOCK_BIT, 1.0f, 2.0f);
+		playSound(ZSound.BLOCK_NOTE_BLOCK_BIT, 1.0f, 2.0f);
 		reopen(type);
 	}
 
 	protected void playToggleSound() {
-		playSound(XSound.UI_BUTTON_CLICK, 1.0f, 2.0f);
+		playSound(ZSound.UI_BUTTON_CLICK, 1.0f, 2.0f);
 	}
 
-	protected void playSound(XSound sound, float volume, float pitch) {
-		if (sound.get() == null)
+	protected void playSound(ZSound sound, float volume, float pitch) {
+		if (sound.getSound().isEmpty())
 			return;
-		viewer.playSound(viewer.getLocation(), sound.get(), volume, pitch);
+		markCustomSoundPlayed();
+		viewer.playSound(viewer.getLocation(), sound.getSound().orElseThrow(), volume, pitch);
+	}
+
+	protected void playSound(Sound sound, float volume, float pitch) {
+		if (sound == null) return;
+		markCustomSoundPlayed();
+		viewer.playSound(viewer.getLocation(), sound, volume, pitch);
 	}
 
 	protected void reopen(GUIS type) {
@@ -155,10 +120,10 @@ public abstract class VillageMenu extends SimplePagedGui {
 	}
 
 	protected boolean hasPermission(Permission permission) {
-		if (plugin.getPermissionManager().hasPermission(viewer.getUniqueId(), permission))
+		if (plugin.getRoleManager().hasPermission(viewer.getUniqueId(), permission))
 			return true;
 
-		plugin.getMessages().get(Lang.VILLAGE_NO_PERMISSION).sendPrefixedMessage(viewer);
+		plugin.getVillageMessages().get(Lang.VILLAGE_NO_PERMISSION).sendPrefixed(viewer);
 		return false;
 	}
 
@@ -169,7 +134,7 @@ public abstract class VillageMenu extends SimplePagedGui {
 	protected List<String> replaceWithLevelInfo(List<String> strings, int level) {
 		List<String> list = new ArrayList<>();
 		for (String line : strings) {
-			list.add(line
+			list.add(line.toLowerCase(Locale.ROOT)
 					.replace("%village_cost%", Integer.toString(UpgradeManager.getCostForLevel(level + 1)))
 					.replace("%village_level%", Integer.toString(level))
 					.replace("%village_next_level%", Integer.toString(level + 1))
@@ -182,7 +147,7 @@ public abstract class VillageMenu extends SimplePagedGui {
 	protected List<String> replaceEffects(List<String> strings, String price, String amplifier, String effect) {
 		List<String> list = new ArrayList<>();
 		for (String line : strings) {
-			list.add(line
+			list.add(line.toLowerCase(Locale.ROOT)
 					.replace("%price%", price)
 					.replace("%amplifier%", amplifier)
 					.replace("%effect%", effect));
@@ -193,15 +158,13 @@ public abstract class VillageMenu extends SimplePagedGui {
 	protected List<String> replacePlayer(List<String> strings, OfflinePlayer player) {
 		String playerName = player.getName() == null ? player.getUniqueId().toString() : player.getName();
 		String lastOnline = TimeUtils.getStringDate(player.getLastPlayed());
-		String nowOnline = plugin.getMessages().get(Lang.PLAYER_ONLINE).toString();
+		String nowOnline = plugin.getGuiSettings().text("guis.common.player-online", "&aThe player is online");
+
 		List<String> list = new ArrayList<>();
 		for (String line : strings) {
-			list.add(line
-					.replace("%PLAYER%", playerName)
+			list.add(line.toLowerCase(Locale.ROOT)
 					.replace("%player%", playerName)
-					.replace("%PLAYER_LAST_ONLINE%", player.isOnline() ? nowOnline : lastOnline)
 					.replace("%player_last_online%", player.isOnline() ? nowOnline : lastOnline)
-					.replace("%PLAYER_UUID%", player.getUniqueId().toString())
 					.replace("%player_uuid%", player.getUniqueId().toString()));
 		}
 		return list;

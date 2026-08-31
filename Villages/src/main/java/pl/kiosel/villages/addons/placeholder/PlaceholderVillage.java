@@ -5,8 +5,8 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.manager.VillageUtilsManager;
 
 public class PlaceholderVillage extends PlaceholderExpansion {
 
@@ -23,7 +23,7 @@ public class PlaceholderVillage extends PlaceholderExpansion {
     public @NotNull String getAuthor() { return "Kiosel"; }
 
     @Override
-    public @NotNull String getVersion() { return "1.1"; }
+    public @NotNull String getVersion() { return "1.2"; }
 
     @Override
     public boolean canRegister() { return true; }
@@ -34,12 +34,18 @@ public class PlaceholderVillage extends PlaceholderExpansion {
             return "";
         }
 
-        Village village = plugin.getUserManager().findByUuid(player.getUniqueId()).get().getPresentVillage();
+		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).orElse(null);
+		if (user == null) {
+			return "";
+		}
+        Village village = user.getPresentVillage();
         if (village == null) {
             return "";
         }
 
-        switch (params) {
+		switch (params) {
+			case "role":
+				return plugin.getRoleManager().getRole(user).getName();
 			case "owner":
 				return village.getOwner().getName();
             case "size":
@@ -54,6 +60,16 @@ public class PlaceholderVillage extends PlaceholderExpansion {
 				return village.getTag();
 			case "bank":
 				return village.getBank() + "";
+			case "allies":
+				return Integer.toString(plugin.getDiplomacyManager().getAllies(village).size());
+			case "wars":
+				return Integer.toString(plugin.getDiplomacyManager().countCurrentWars(village));
+			case "upkeep_cost":
+				return Integer.toString(plugin.getUpkeepManager().calculateCost(village));
+			case "upkeep_time":
+				return plugin.getVillageMessages().formatDuration(plugin.getUpkeepManager().getRemaining(village));
+			case "upkeep_missed":
+				return Integer.toString(plugin.getUpkeepManager().getMissedPayments(village));
             default:
                 return "";
         }

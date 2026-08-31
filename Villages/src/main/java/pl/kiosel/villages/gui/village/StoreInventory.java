@@ -3,14 +3,14 @@ package pl.kiosel.villages.gui.village;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import pl.kiosel.core.gui.Gui;
-import pl.kiosel.dependencies.com.cryptomorin.xseries.XSound;
+import pl.kiosel.rosacore.compatibility.ZSound;
+import pl.kiosel.rosacore.gui.Gui;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.config.GuiItemConfig;
+import pl.kiosel.villages.config.Lang;
+import pl.kiosel.villages.data.village.Permission;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.enums.GUIS;
-import pl.kiosel.villages.enums.Lang;
-import pl.kiosel.villages.enums.Permission;
+import pl.kiosel.villages.gui.GUIS;
 import pl.kiosel.villages.gui.VillageGUIManager;
 import pl.kiosel.villages.gui.VillageMenu;
 
@@ -28,8 +28,7 @@ public final class StoreInventory extends VillageMenu {
 	}
 
 	private void addProduct(String id, int slot, int fallbackPrice, ItemStack purchasedItem) {
-		int price = plugin.getGuiSettings().integer(
-				"guis.village.store." + id + ".price", fallbackPrice, 0, Integer.MAX_VALUE);
+		int price = plugin.getGuiSettings().integer("guis.village.store." + id + ".price", fallbackPrice, 0, Integer.MAX_VALUE);
 		ItemMeta meta = purchasedItem.getItemMeta();
 		String name = meta != null && meta.hasDisplayName() ? meta.getDisplayName() : purchasedItem.getType().name();
 		GuiItemConfig display = plugin.getGuiSettings().item(GUIS.STORE,
@@ -48,19 +47,19 @@ public final class StoreInventory extends VillageMenu {
 		}
 		if (!plugin.getEconomy().hasBalance(viewer, price)) {
 			double missing = price - plugin.getEconomy().getBalance(viewer);
-			getMessages().get(Lang.NO_MONEY)
-					.processPlaceholder("money", missing).sendPrefixedMessage(viewer);
+			getVillageMessages().get(Lang.NO_MONEY)
+					.with("money", missing).sendPrefixed(viewer);
 			return;
 		}
 		if (viewer.getInventory().firstEmpty() == -1) {
-			playSound(XSound.ENTITY_ENDERMAN_TELEPORT, 2.0f, 0.0f);
-			getMessages().get(Lang.FULL_EQ).sendPrefixedMessage(viewer);
+			playSound(ZSound.ENTITY_ENDERMAN_TELEPORT, 2.0f, 0.0f);
+			getVillageMessages().get(Lang.FULL_EQ).sendPrefixed(viewer);
 			return;
 		}
 		plugin.getEconomy().withdrawBalance(viewer, price);
-		playSound(XSound.BLOCK_NOTE_BLOCK_PLING, 2.0f, 2.0f);
-		getMessages().get(Lang.MONEY_REMOVE)
-				.processPlaceholder("money", price).sendPrefixedMessage(viewer);
+		playSound(ZSound.BLOCK_NOTE_BLOCK_PLING, 2.0f, 2.0f);
+		getVillageMessages().get(Lang.MONEY_REMOVE)
+				.with("money", price).sendPrefixed(viewer);
 		viewer.getInventory().addItem(item);
 		exit();
 	}

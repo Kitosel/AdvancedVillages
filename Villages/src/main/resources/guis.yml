@@ -8,6 +8,8 @@ gui-settings: "Village - &cSettings"
 gui-effects: "Village - &dEffects"
 gui-storage: "Village - &2Storage"
 gui-logs: "Village - &6Activity logs"
+gui-diplomacy: "Village - &bDiplomacy"
+gui-development: "Village - &dDevelopment"
 gui-quests: "Village - &eQuests"
 gui-member-settings: "Village - &7Member Settings"
 gui-remove-member: "&cRemove member"
@@ -26,10 +28,35 @@ layout:
   effects: { rows: 4, back-slot: 4 }
   quests: { rows: 4, back-slot: 4 }
   logs: { rows: 4, back-slot: 4 }
+  diplomacy: { rows: 4, back-slot: 4 }
+  development: { rows: 4, back-slot: 4 }
   delete-member: { rows: 3, back-slot: 4 }
   member-settings: { rows: 3, back-slot: 8 }
 
 guis:
+  #
+  # SHARED GUI ELEMENTS
+  #
+  common:
+    blank-white: { material: WHITE_STAINED_GLASS_PANE, name: "&7&kBlank" }
+    blank-gray: { material: GRAY_STAINED_GLASS_PANE, name: "&7&kBlank" }
+    blank-black: { material: BLACK_STAINED_GLASS_PANE, name: "&7&kBlank" }
+    back: { material: ARROW, name: "&9Back" }
+    next-page: { material: SPECTRAL_ARROW, name: "&9Next" }
+    previous-page: { material: SPECTRAL_ARROW, name: "&cPrevious" }
+    exit: { material: ARROW, name: "&cExit" }
+    player-online: "&aThe player is online"
+
+  crafting:
+    title: "Crafting"
+    recipe-title: "Crafting recipe"
+    result-arrow: "&e→"
+
+  tag:
+    title: "Name your village"
+    input-name: "*NAME*"
+    output-prompt: "Name your village"
+
   village:
     #
     # SETTINGS
@@ -48,7 +75,6 @@ guis:
           - "&8—————————————"
           - " "
           - "%village_teleport%"
-          - " "
           - "&7Click to set"
           - "&8—————————————"
       tag:
@@ -59,11 +85,10 @@ guis:
           - "&8—————————————"
           - " "
           - "&e&lTag: &c%village_tag%"
-          - " "
           - "%istagset%"
           - "&8—————————————"
         # %istagset% >>>
-        tag_set: "&7Set"
+        tag_set: " "
         tag_not_set: "&7Click to set"
         # %istagset% ^^^
       pvp:
@@ -88,7 +113,7 @@ guis:
           - "&8—————————————"
       animations:
         slot: 13
-        material: AMETHYST_SHARD
+        material: REDSTONE_DUST
         name: "&d&lAnimations"
         lore:
           - "&8—————————————"
@@ -96,16 +121,35 @@ guis:
           - "&7Animations: %village_animations%"
           - " "
           - "&8—————————————"
+      logs:
+        slot: 27
+        material: BOOK
+        name: "&6Activity logs"
+        lore:
+          - "&7View important changes and actions"
+          - "&7in the village."
       delete:
         slot: 31
-        material: ORANGE_BED
-        name: "&c&l&nDelete village"
+        material: RED_BED
+        name: "&4&l&nDelete village"
         lore:
           - "&8—————————————"
           - " "
           - "&7Click to delete"
           - " "
           - "&8—————————————"
+    diplomacy:
+      slot: 29
+      material: IRON_SWORD
+      name: "&bDiplomacy"
+      lore:
+        - "&7Alliances and wars"
+    development:
+      slot: 33
+      material: AMETHYST_SHARD
+      name: "&dDevelopment tree"
+      lore:
+        - "&7Choose permanent village bonuses"
     #
     # STORE
     #
@@ -140,7 +184,7 @@ guis:
         enabled: true
         name: "&6%PLAYER% &cOWNER"
         lore:
-          - "&7Role: &cOwner"
+          - "&7Role: %role%"
           - " "
           - "&7Last online: %PLAYER_LAST_ONLINE%"
           - " "
@@ -148,7 +192,7 @@ guis:
         enabled: true
         name: "%PLAYER%"
         lore:
-          - "&7Role: &cMember"
+          - "&7Role: %role%"
           - " "
           - "&7Last online: %PLAYER_LAST_ONLINE%"
           - " "
@@ -251,6 +295,14 @@ guis:
         slot: 13
         material: PAPER
         name: "&6Bank&7: %village_balance%"
+      upkeep:
+        slot: 18
+        material: CLOCK
+        name: "&6Village upkeep"
+        lore:
+          - "&7Next cost: &6%cost%$"
+          - "&7Payment in: &f%time%"
+          - "&7Missed payments: &c%missed%"
       add:
         name: "&aAdd to bank"
       remove:
@@ -270,27 +322,275 @@ guis:
     quests:
       slot: 13
       material: WRITABLE_BOOK
-    logs:
-      slot: 27
-      material: BOOK
+      name: "&eVillage quests"
+      lore:
+        - "&7Complete shared daily and weekly quests."
     exit:
       slot: 35
       material: ARROW
+      name: "&cExit"
+
+  #
+  # ACTIVITY LOGS
+  # Event descriptions and value names are configured in addons/logs.yml.
+  #
+  logs:
+    start-slot: 9
+    date-format: "dd.MM.yyyy HH:mm"
+    no-permission:
+      slot: 13
+      material: BARRIER
+      name: "&cYou do not have permission to view village logs."
+    empty:
+      slot: 13
+      material: PAPER
+      name: "&7There are no recorded activities yet."
+    entry:
+      system: "Village system"
+      actor: "&7Performed by: &f%actor%"
+      date: "&7Date: &f%date%"
+      grouped: "&8Merged actions: &7%count%"
+    types:
+      village-created: { material: BEACON, name: "&aVillage created" }
+      village-hearth-add: { material: REDSTONE, name: "&cVillage life restored" }
+      member-join: { material: LIME_DYE, name: "&aMember joined" }
+      member-leave: { material: ORANGE_DYE, name: "&eMember left" }
+      member-kick: { material: RED_DYE, name: "&cMember removed" }
+      member-permission: { material: NAME_TAG, name: "&bMember permission" }
+      member-role: { material: NAME_TAG, name: "&eMember role" }
+      bank-deposit: { material: GOLD_INGOT, name: "&aBank deposit" }
+      bank-withdraw: { material: GOLD_NUGGET, name: "&cBank withdrawal" }
+      quest-completed: { material: WRITABLE_BOOK, name: "&eQuest completed" }
+      setting-changed: { material: COMPARATOR, name: "&dSetting changed" }
+      village-upgrade: { material: DIAMOND, name: "&bVillage upgraded" }
+      village-attack: { material: IRON_SWORD, name: "&cVillage attacked" }
+      alliance-created: { material: EMERALD, name: "&aAlliance formed" }
+      alliance-ended: { material: FIRE_CHARGE, name: "&eAlliance ended" }
+      war-declared: { material: WRITABLE_BOOK, name: "&cWar declared" }
+      war-started: { material: IRON_SWORD, name: "&4War started" }
+      war-ended: { material: SHIELD, name: "&6War ended" }
+      development-unlocked: { material: AMETHYST_SHARD, name: "&dDevelopment unlocked" }
+      upkeep-paid: { material: GOLD_INGOT, name: "&aUpkeep paid" }
+      upkeep-missed: { material: REDSTONE, name: "&cUpkeep missed" }
+      upkeep-penalty: { material: WITHER_SKELETON_SKULL, name: "&4Upkeep penalty" }
+
+  #
+  # VILLAGE QUESTS
+  # Quest mechanics, targets and rewards are configured in addons/quests.yml.
+  #
+  quests:
+    start-slot: 9
+    empty:
+      slot: 13
+      material: BARRIER
+      name: "&cNo quests are currently configured."
+    period:
+      daily: "&eDaily quest"
+      weekly: "&6Weekly quest"
+    status:
+      progress: "&7Progress: &e%progress%&7/&e%required%"
+      completed: "&aCompleted! &7(%progress%/%required%)"
+      active: "&aActive - progress is being collected"
+      inactive: "&cInactive - progress is not being collected"
+      activate: "&eClick to activate this quest for the village."
+    reset: "&7Resets in: &f%time%"
+    rewards:
+      title: "&6Rewards:"
+      bank: "&7 • Village bank: &6%amount%$"
+      experience: "&7 • Every online member: &e%amount% XP"
+      points: "&7 • Every member: &b%amount% points"
+    progress-bar:
+      length: 20
+      prefix: "&8["
+      completed: "&a|"
+      remaining: "&7|"
+      suffix: "&8]"
+    tasks:
+      monster-hunt:
+        material: IRON_SWORD
+        name: "&cMonster hunt"
+        lore:
+          - "&7Defeat hostile creatures together with your village."
+      mining-shift:
+        material: IRON_PICKAXE
+        name: "&bMining shift"
+        lore:
+          - "&7Mine basic ores for the village."
+      wood-supplies:
+        material: OAK_LOG
+        name: "&6Wood supplies"
+        lore:
+          - "&7Collect logs needed to expand the village."
+      construction-shift:
+        material: STONE_BRICKS
+        name: "&6Construction shift"
+        lore:
+          - "&7Place building blocks for the village."
+      workshop-orders:
+        material: CRAFTING_TABLE
+        name: "&eWorkshop orders"
+        lore:
+          - "&7Craft useful supplies for village members."
+      village-angler:
+        material: FISHING_ROD
+        name: "&bVillage angler"
+        lore:
+          - "&7Catch fish for the village pantry."
+      foundry-shift:
+        material: FURNACE
+        name: "&7Foundry shift"
+        lore:
+          - "&7Smelt basic metals in furnaces."
+      village-treasury:
+        material: SUNFLOWER
+        name: "&eVillage treasury"
+        lore:
+          - "&7Deposit money into the village bank."
+      great-hunt:
+        material: DIAMOND_SWORD
+        name: "&4Great hunt"
+        lore:
+          - "&7Defeat hostile creatures throughout the week."
+      animal-care:
+        material: WHEAT
+        name: "&aAnimal care"
+        lore:
+          - "&7Breed farm animals throughout the week."
+      master-enchanter:
+        material: ENCHANTING_TABLE
+        name: "&5Master enchanter"
+        lore:
+          - "&7Enchant equipment for the village."
+      experience-drive:
+        material: EXPERIENCE_BOTTLE
+        name: "&dExperience drive"
+        lore:
+          - "&7Collect experience together as a village."
+
+  #
+  # DEVELOPMENT TREE
+  # The mechanics and bonus values are configured in addons/development.yml.
+  #
+  development:
+    empty:
+      slot: 22
+      material: BARRIER
+      name: "&7No development nodes are configured."
+    status:
+      unlocked: "&aUnlocked"
+      available: "&eClick to unlock"
+      locked: "&cLocked"
+    cost: "&7Cost: &6%cost%$"
+    level: "&7Required village level: &f%level%"
+    requires: "&7Requires: &f%nodes%"
+    bonuses:
+      title: "&dBonuses:"
+      max-members: "&8 • &a+%value% &7member slots"
+      quest-bank-percent: "&8 • &a+%value%% &7bank rewards from quests"
+      war-score-percent: "&8 • &a+%value%% &7war score earned"
+      attack-protection-percent: "&8 • &a+%value%% &7protection after an attack"
+      teleport-delay-reduction-percent: "&8 • &a-%value%% &7village teleport delay"
+      effect-cost-discount-percent: "&8 • &a-%value%% &7effect purchase prices"
+    nodes:
+      economy-1:
+        slot: 11
+        material: GOLD_INGOT
+        name: "&6Trade routes I"
+        lore:
+          - "&7Increase income from shared village quests."
+      economy-2:
+        slot: 20
+        material: EMERALD
+        name: "&6Trade routes II"
+        lore:
+          - "&7Negotiate lower prices for village effects."
+      economy-3:
+        slot: 29
+        material: EMERALD_BLOCK
+        name: "&6Trade routes III"
+        lore:
+          - "&7Greatly increase income from village quests."
+      community-1:
+        slot: 13
+        material: PLAYER_HEAD
+        name: "&bGrowing community I"
+        lore:
+          - "&7Prepare the village for one additional member."
+      community-2:
+        slot: 22
+        material: ENDER_PEARL
+        name: "&bGrowing community II"
+        lore:
+          - "&7Shorten teleport preparation for all members."
+      community-3:
+        slot: 31
+        material: TOTEM_OF_UNDYING
+        name: "&bGrowing community III"
+        lore:
+          - "&7Open the village to two more members."
+      defense-1:
+        slot: 15
+        material: SHIELD
+        name: "&cFortifications I"
+        lore:
+          - "&7Extend village protection after losing a life."
+      defense-2:
+        slot: 24
+        material: IRON_SWORD
+        name: "&cFortifications II"
+        lore:
+          - "&7Earn more score for village actions during wars."
+      defense-3:
+        slot: 33
+        material: NETHERITE_CHESTPLATE
+        name: "&cFortifications III"
+        lore:
+          - "&7Greatly extend protection after an attack."
+
+  diplomacy:
+    start-slot: 9
+    states:
+      preparing: "&ePreparation"
+      active: "&cActive"
+      finished: "&7Cooldown"
+    ally:
+      material: EMERALD
+      name: "&aAlliance: &f%village%"
+      lore:
+        - "&7This village is your ally."
+    request-incoming:
+      material: PAPER
+      name: "&eAlliance request from %village%"
+      lore:
+        - "&7Expires in: &f%time%"
+    request-outgoing:
+      material: MAP
+      name: "&6Alliance request to %village%"
+      lore:
+        - "&7Expires in: &f%time%"
+    war:
+      material: IRON_SWORD
+      name: "&cWar: &f%village%"
+      lore:
+        - "&7Status: %state%"
+        - "&7Remaining: &f%time%"
+        - "&7Score: &e%our_score%&7:&e%enemy_score%"
+    empty: { slot: 13, material: BARRIER, name: "&7No diplomatic relations" }
 
   remove:
-    confirm: { slot: 12, material: LIME_CONCRETE }
+    confirm: { slot: 12, material: LIME_CONCRETE, name: "&aYes" }
     info: { slot: 13, material: PAPER }
-    cancel: { slot: 14, material: RED_CONCRETE }
+    cancel: { slot: 14, material: RED_CONCRETE, name: "&cNo" }
 
   delete-member:
-    confirm: { slot: 12, material: LIME_CONCRETE }
+    confirm: { slot: 12, material: LIME_CONCRETE, name: "&aYes" }
     member:
       slot: 13
       material: PLAYER_HEAD
       name: "%player%"
       lore:
         - "&7Remove: &6%player%"
-    cancel: { slot: 14, material: RED_CONCRETE }
+    cancel: { slot: 14, material: RED_CONCRETE, name: "&cNo" }
 
   member-settings:
     header:
@@ -300,17 +600,37 @@ guis:
       lore:
         - "&7Settings of: &6%player%"
     not-found: { slot: 13, material: BARRIER, name: "&cPlayer not found" }
-    permissions:
-      settings: { slot: 9, material: NOTE_BLOCK, name: "SETTINGS" }
-      invite: { slot: 10, material: TOTEM_OF_UNDYING, name: "INVITE" }
-      store: { slot: 11, material: ENDER_EYE, name: "STORE" }
-      effects-buy: { slot: 12, material: POTION, name: "EFFECTS BUY" }
-      effects-toggle: { slot: 13, material: SPLASH_POTION, name: "EFFECTS TOGGLE" }
-      upgrade: { slot: 14, material: DIAMOND, name: "UPGRADE" }
-      bank-add: { slot: 15, material: GREEN_CONCRETE_POWDER, name: "BANK ADD" }
-      bank-remove: { slot: 16, material: RED_CONCRETE_POWDER, name: "BANK REMOVE" }
-      quest: { slot: 17, material: BOOK, name: "QUEST" }
+    role:
+      slot: 13
+      material: NAME_TAG
+      name: "&eRole: %role%"
+      lore:
+        - "&7Left click: next role"
+        - "&7Right click: previous role"
+        - " "
+        - "&7Permissions:"
+        - "%permissions%"
+      permission-line: "&8 • &f%permission%"
+      no-permissions: "&8 • &7No permissions"
+    permission-names:
+      settings: "settings"
+      invite: "inviting members"
+      store: "village store"
+      effects-buy: "buying effects"
+      effects-toggle: "toggling effects"
+      upgrade: "upgrading"
+      storage: "storage"
+      bank-add: "bank deposits"
+      bank-remove: "bank withdrawals"
+      quest-toggle: "quest activation"
+      alliance-manage: "alliances"
+      war-manage: "wars"
+      development-buy: "development purchases"
     remove:
-      slot: 22
+      slot: 26
       material: BARRIER
-      name: "Remove from village"
+      name: "&4Remove from village"
+      lore:
+        - " "
+        - "&cRemove member from village"
+        - " "

@@ -2,18 +2,18 @@ package pl.kiosel.villages.commands.subcommands;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import pl.kiosel.rosacore.utils.TabUtils;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.commands.AVSubCommand;
+import pl.kiosel.villages.config.CommandLang;
+import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.data.user.User;
+import pl.kiosel.villages.data.village.Permission;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.enums.Lang;
-import pl.kiosel.villages.enums.Permission;
-import pl.kiosel.villages.settings.Settings;
+
+import java.util.List;
 
 public class InviteCommand extends AVSubCommand {
-
-    @Override
-    public String getName() { return "invite"; }
 
     @Override
     public String getDescription() { return "Invite a player to your village"; }
@@ -33,14 +33,14 @@ public class InviteCommand extends AVSubCommand {
 	private final AdvancedVillages plugin;
 
 	public InviteCommand(AdvancedVillages plugin) {
-		super(plugin);
+		super(plugin, CommandLang.INVITE);
 		this.plugin = plugin;
 	}
 
 	@Override
 	public void run(Player player, User user, String[] args) {
 		Village village = user.getPresentVillage();
-		if (village.getMembers().size() >= Settings.VILLAGE_MAX_MEMBERS.getInt()) {
+		if (village.getMembers().size() >= plugin.getDevelopmentManager().getMaxMembers(village)) {
 			sendLocalized(player, Lang.MAX_MEMBERS);
 			return;
 		}
@@ -52,7 +52,7 @@ public class InviteCommand extends AVSubCommand {
 				return;
 			}
 
-			User inviteUser = plugin.getUserManager().findByPlayer(invite).orNull();
+			User inviteUser = plugin.getUserManager().findByPlayer(invite).orElse(null);
 			if (inviteUser == null) {
 				sendLocalized(player, Lang.PLAYER_NOT_FOUND);
 				return;
@@ -73,4 +73,9 @@ public class InviteCommand extends AVSubCommand {
 		}
 		sendLocalized(player, Lang.COMMAND_USAGE_INVITE);
     }
+
+	@Override
+	public List<String> tabComplete(Player player, User user, String[] args) {
+		return args.length == 2 ? TabUtils.onlinePlayers() : List.of();
+	}
 }

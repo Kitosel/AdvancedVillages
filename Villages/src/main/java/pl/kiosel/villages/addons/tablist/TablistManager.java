@@ -3,7 +3,8 @@ package pl.kiosel.villages.addons.tablist;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
-import pl.kiosel.core.nms.playerlist.PlayerListAccessor;
+import pl.kiosel.rosacore.nms.api.tablist.TabList;
+import pl.kiosel.rosacore.nms.api.tablist.TabListService;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.data.user.User;
 
@@ -17,7 +18,7 @@ public final class TablistManager {
 
 	private final AdvancedVillages plugin;
 	private final TablistConfiguration configuration;
-	private final PlayerListAccessor playerListAccessor;
+	private final TabListService tabLists;
 	private final TablistRenderer renderer;
 	private final Map<UUID, TablistSession> sessions = new HashMap<>();
 
@@ -26,10 +27,10 @@ public final class TablistManager {
 
 	public TablistManager(AdvancedVillages plugin, TablistConfiguration configuration,
 	                     TablistPlaceholdersService placeholders,
-	                     PlayerListAccessor playerListAccessor) {
+	                     TabListService tabLists) {
 		this.plugin = plugin;
 		this.configuration = configuration;
-		this.playerListAccessor = playerListAccessor;
+		this.tabLists = tabLists;
 		this.renderer = new TablistRenderer(plugin, placeholders);
 		this.snapshot = configuration.snapshot();
 	}
@@ -43,7 +44,7 @@ public final class TablistManager {
 		}
 
 		for (Player player : Bukkit.getOnlinePlayers()) {
-			this.plugin.getUserManager().findByPlayer(player).peek(user -> this.open(player, user));
+			this.plugin.getUserManager().findByPlayer(player).ifPresent(user -> this.open(player, user));
 		}
 		long interval = this.snapshot.getUpdateInterval();
 		this.updateTask = Bukkit.getScheduler().runTaskTimer(
@@ -61,6 +62,7 @@ public final class TablistManager {
 
 	public void handleQuit(Player player) {
 		this.sessions.remove(player.getUniqueId());
+		this.tabLists.clear(player);
 	}
 
 	public void shutdown() {
@@ -82,7 +84,7 @@ public final class TablistManager {
 				entry.getValue().tick(player);
 			} catch (RuntimeException exception) {
 				iterator.remove();
-				this.plugin.getLogger().log(Level.WARNING,
+				this.plugin.getRosaLogger().log(Level.WARNING,
 						"Disabling tablist for " + player.getName() + " after an update error", exception);
 				tryClear(entry.getValue(), player);
 			}
@@ -92,9 +94,11 @@ public final class TablistManager {
 	private void open(Player player, User user) {
 		TablistSession session = null;
 		try {
+			this.tabLists.clear(player);
+			TabList transport = this.tabLists.create(player);
 			session = new TablistSession(
 					user,
-					this.playerListAccessor.createPlayerList(this.snapshot.getCellCount()),
+					transport,
 					this.renderer,
 					this.snapshot
 			);
@@ -104,7 +108,7 @@ public final class TablistManager {
 			if (session != null) {
 				this.tryClear(session, player);
 			}
-			this.plugin.getLogger().log(Level.WARNING,
+			this.plugin.getRosaLogger().log(Level.WARNING,
 					"Could not create tablist for " + player.getName(), exception);
 		}
 	}
@@ -135,9 +139,9 @@ public final class TablistManager {
 
 	private void tryClear(TablistSession session, Player player) {
 		try {
-			session.clear(player);
+			this.tabLists.clear(player);
 		} catch (RuntimeException exception) {
-			this.plugin.getLogger().log(Level.FINE,
+			this.plugin.getRosaLogger().log(Level.FINE,
 					"Could not clear tablist for " + player.getName(), exception);
 		}
 	}

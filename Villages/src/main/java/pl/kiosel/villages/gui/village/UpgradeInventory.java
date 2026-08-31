@@ -3,22 +3,22 @@ package pl.kiosel.villages.gui.village;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import pl.kiosel.core.gui.Gui;
-import pl.kiosel.dependencies.com.cryptomorin.xseries.XSound;
+import pl.kiosel.rosacore.compatibility.ZSound;
+import pl.kiosel.rosacore.gui.Gui;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.addons.logs.VillageLogType;
+import pl.kiosel.villages.api.events.VillageUpgradeEvent;
 import pl.kiosel.villages.config.GuiItemConfig;
+import pl.kiosel.villages.config.Lang;
+import pl.kiosel.villages.config.Settings;
+import pl.kiosel.villages.data.village.Permission;
+import pl.kiosel.villages.data.village.Upgrade;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.data.village.level.Level;
-import pl.kiosel.villages.enums.GUIS;
-import pl.kiosel.villages.enums.Lang;
-import pl.kiosel.villages.enums.Permission;
-import pl.kiosel.villages.enums.Upgrade;
-import pl.kiosel.villages.events.VillageUpgradeEvent;
+import pl.kiosel.villages.gui.GUIS;
 import pl.kiosel.villages.gui.VillageGUIManager;
 import pl.kiosel.villages.gui.VillageMenu;
 import pl.kiosel.villages.manager.VillageUtilsManager;
-import pl.kiosel.villages.settings.Settings;
 
 import java.util.List;
 
@@ -86,15 +86,15 @@ public final class UpgradeInventory extends VillageMenu {
 			return;
 		}
 		if (!plugin.getUpgradeManager().canPasteLevel(nextLevel.getLevel())) {
-			getMessages().get(Lang.BUILD_EDITOR_SCHEMATIC_MISSING)
-					.processPlaceholder("schematic", "Turret" + nextLevel.getLevel() + ".schem")
-					.sendPrefixedMessage(viewer);
+			getVillageMessages().get(Lang.BUILD_EDITOR_SCHEMATIC_MISSING)
+					.with("schematic", "Turret" + nextLevel.getLevel() + ".schem")
+					.sendPrefixed(viewer);
 			exit();
 			return;
 		}
 		if (!village.isTag() && !Settings.VILLAGE_UPGRADE_NO_TAG.getBoolean()) {
-			getMessages().get(Lang.VILLAGE_MUST_HAVE_TAG)
-					.sendPrefixedMessage(viewer);
+			getVillageMessages().get(Lang.VILLAGE_MUST_HAVE_TAG)
+					.sendPrefixed(viewer);
 			return;
 		}
 
@@ -111,13 +111,13 @@ public final class UpgradeInventory extends VillageMenu {
 			return;
 		}
 
-		getMessages().get(Lang.VILLAGE_UPGRADE).sendPrefixedMessage(viewer);
+		getVillageMessages().get(Lang.VILLAGE_UPGRADE).sendPrefixed(viewer);
 		if (!plugin.getUpgradeManager().upgradeVillage(village)) {
 			return;
 		}
 		plugin.getLogManager().record(village, VillageLogType.VILLAGE_UPGRADE, viewer,
 				"level", nextLevel.getLevel());
-		playSound(XSound.ENTITY_PLAYER_LEVELUP, 0.2f, 1.0f);
+		playSound(ZSound.ENTITY_PLAYER_LEVELUP, 0.2f, 1.0f);
 		exit();
 	}
 

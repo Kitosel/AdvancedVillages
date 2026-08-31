@@ -3,16 +3,17 @@ package pl.kiosel.villages.listeners;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import pl.kiosel.rosacore.listener.RosaListener;
 import pl.kiosel.villages.AdvancedVillages;
 
-public class QuitListener implements Listener {
+public class QuitListener extends RosaListener {
 
     private final AdvancedVillages plugin;
 
     public QuitListener(AdvancedVillages plugin) {
+		super(plugin);
         this.plugin = plugin;
     }
 

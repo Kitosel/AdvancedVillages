@@ -8,36 +8,37 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import pl.kiosel.core.utils.Cuboid;
-import pl.kiosel.core.utils.PlayerUtils;
-import pl.kiosel.dependencies.com.cryptomorin.xseries.XMaterial;
+import pl.kiosel.rosacore.listener.RosaListener;
+import pl.kiosel.rosacore.location.Cuboid;
+import pl.kiosel.rosacore.utils.PlayerUtils;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.addons.diplomacy.DiplomacyAttackResult;
 import pl.kiosel.villages.addons.logs.VillageLogType;
+import pl.kiosel.villages.config.Lang;
+import pl.kiosel.villages.config.Settings;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.enums.Lang;
 import pl.kiosel.villages.gui.Item;
 import pl.kiosel.villages.manager.VillageUtilsManager;
-import pl.kiosel.villages.settings.Settings;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class InteractBlockListeners implements Listener {
+public class InteractBlockListeners extends RosaListener {
 
 	private final AdvancedVillages plugin;
 	private final VillageUtilsManager villageManager;
 	private final int maxX, maxY, maxZ, minX, minY, minZ;
 
 	public InteractBlockListeners(AdvancedVillages plugin) {
+		super(plugin);
 		this.plugin = plugin;
 		this.villageManager = plugin.getVillageUtilsManager();
 		maxX = 2;
@@ -63,8 +64,9 @@ public class InteractBlockListeners implements Listener {
 		Player player = event.getPlayer();
 		Village village = villageManager.getVillageAt(location);
 		if (village != null) {
-			Location max = village.getLocation().get().clone().add(maxX, maxY, maxZ);
-			Location min = village.getLocation().get().clone().add(minX, minY, minZ);
+			Location vloc = village.getLocation().orElseThrow();
+			Location max = vloc.clone().add(maxX, maxY, maxZ);
+			Location min = vloc.clone().add(minX, minY, minZ);
 			Cuboid cuboid = new Cuboid(min, max);
 
 			if (!cuboid.contains(location)) return;
@@ -77,7 +79,7 @@ public class InteractBlockListeners implements Listener {
 				if (Item.hasTag(hand, "villageHearth")) {
 					event.setCancelled(true);
 					if (Settings.VILLAGE_MAX_LIVES.getInt() <= village.getLives()) {
-						plugin.getMessages().get(Lang.VILLAGE_MAX_LIVES).sendPrefixedMessage(player);
+						plugin.getVillageMessages().get(Lang.VILLAGE_MAX_LIVES).sendPrefixed(player);
 						player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT, 1.0f, 0.0f);
 						return;
 					}
@@ -89,7 +91,7 @@ public class InteractBlockListeners implements Listener {
 					item.add(plugin.getApi().createHearth());
 					PlayerUtils.removeItem(player, item);
 
-					VillageUtilsManager.replaceWith(player, village, Lang.VILLAGE_HEARTH_ADD).sendPrefixedMessage(player);
+					VillageUtilsManager.replaceWith(player, village, Lang.VILLAGE_HEARTH_ADD).sendPrefixed(player);
 					player.playSound(player.getLocation(), Sound.ENTITY_BLAZE_HURT, 0.8f, 2.0f);
 				}
 				return;
@@ -111,8 +113,9 @@ public class InteractBlockListeners implements Listener {
 		Village village = villageManager.getVillageAt(location);
 		if (village == null) return;
 
-		Location max = village.getLocation().get().clone().add(maxX, maxY, maxZ);
-		Location min = village.getLocation().get().clone().add(minX, minY, minZ);
+		Location vloc = village.getLocation().orElseThrow();
+		Location max = vloc.clone().add(maxX, maxY, maxZ);
+		Location min = vloc.clone().add(minX, minY, minZ);
 		Cuboid cuboid = new Cuboid(min, max);
 
 		if (!cuboid.contains(location)) return;
@@ -120,7 +123,7 @@ public class InteractBlockListeners implements Listener {
 		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).get();
 		ItemStack hand = player.getInventory().getItemInMainHand();
 
-		if (block.getType() != XMaterial.NOTE_BLOCK.get()) {
+		if (!isSameType(block.getType(), Material.NOTE_BLOCK)) {
 			event.setCancelled(true);
 			player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
 			return;
@@ -130,15 +133,40 @@ public class InteractBlockListeners implements Listener {
 			event.setCancelled(true);
 			if (Item.hasTag(hand, "villageDestroyer")) {
 				event.setCancelled(true);
-				if (Settings.VILLAGE_ATTACK_WHEN_OFFLINE.getBoolean()) {
-					plugin.getMessages().get(Lang.VILLAGE_PROTECTED_OFFLINE).sendPrefixedMessage(player);
+				if (!user.getVillage().isPresent()) {
+					return;
+				}
+				Village attackerVillage = user.getPresentVillage();
+				DiplomacyAttackResult diplomacyResult = plugin.getDiplomacyManager()
+						.canAttack(attackerVillage, village);
+				if (diplomacyResult != DiplomacyAttackResult.ALLOWED) {
+					if (diplomacyResult == DiplomacyAttackResult.ALLIED) {
+						plugin.getVillageMessages().sendPrefixed(player, Lang.DIPLOMACY_ALLIANCE_CANNOT_ATTACK);
+					} else if (diplomacyResult == DiplomacyAttackResult.ATTACKER_HAS_NO_VILLAGE) {
+						plugin.getVillageMessages().sendPrefixed(player, Lang.DIPLOMACY_WAR_ATTACKER_NO_VILLAGE);
+					} else if (diplomacyResult == DiplomacyAttackResult.WAR_PREPARING) {
+						plugin.getVillageMessages().sendPrefixed(player, Lang.DIPLOMACY_WAR_PREPARING,
+								"time", plugin.getVillageMessages().formatDuration(
+										plugin.getDiplomacyManager().getPreparationRemaining(attackerVillage, village)));
+					} else {
+						plugin.getVillageMessages().sendPrefixed(player, Lang.DIPLOMACY_WAR_REQUIRED);
+					}
+					player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT, 1.0f, 0.0f);
+					return;
+				}
+				if (!Settings.VILLAGE_ATTACK_WHEN_OFFLINE.getBoolean()
+						&& village.getOnlineMembers().isEmpty()) {
+					plugin.getVillageMessages().get(Lang.VILLAGE_PROTECTED_OFFLINE).sendPrefixed(player);
 					player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT, 1.0f, 0.0f);
 					return;
 				}
 				if (!village.canBeAttacked()) {
-					plugin.getMessages().get(Lang.VILLAGE_PROTECTED).sendPrefixedMessage(player);
+					plugin.getVillageMessages().get(Lang.VILLAGE_PROTECTED).sendPrefixed(player);
 					player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT, 1.0f, 0.0f);
 					return;
+				}
+				if (attackerVillage != null) {
+					plugin.getDiplomacyManager().recordVillageLifeLost(attackerVillage, village);
 				}
 				Objects.requireNonNull(location.getWorld()).dropItem(location.add(0.5, 1, 0.5), plugin.getApi().createHearthPart(), item -> {
 					item.setGlowing(true);
@@ -172,9 +200,8 @@ public class InteractBlockListeners implements Listener {
 		if (village == null) return;
 
 		Material type = event.getClickedBlock().getType();
-		Location max = village.getLocation().get().clone().add(maxX, maxY, maxZ);
-		Location min = village.getLocation().get().clone().add(minX, minY, minZ);
-		Cuboid cuboid = new Cuboid(min, max);
+		Location vloc = village.getLocation().orElseThrow().clone();
+		Cuboid cuboid = new Cuboid(vloc.add(minX, minY, minZ), vloc.add(maxX, maxY, maxZ));
 
 		if (!cuboid.contains(location)) return;
 
@@ -191,9 +218,10 @@ public class InteractBlockListeners implements Listener {
 		Village village = villageManager.getVillageAt(loc);
 		if (village == null) return;
 
+		Location location = village.getLocation().orElseThrow();
 		Cuboid cuboid = new Cuboid(
-				village.getLocation().get().clone().add(minX, minY, minZ),
-				village.getLocation().get().clone().add(maxX, maxY, maxZ)
+				location.clone().add(minX, minY, minZ),
+				location.clone().add(maxX, maxY, maxZ)
 		);
 
 		if (cuboid.contains(loc)) {
@@ -209,9 +237,10 @@ public class InteractBlockListeners implements Listener {
 		Village village = villageManager.getVillageAt(loc);
 		if (village == null) return;
 
+		Location location = village.getLocation().orElseThrow();
 		Cuboid cuboid = new Cuboid(
-				village.getLocation().get().clone().add(minX, minY, minZ),
-				village.getLocation().get().clone().add(maxX, maxY, maxZ)
+				location.clone().add(minX, minY, minZ),
+				location.clone().add(maxX, maxY, maxZ)
 		);
 
 		if (cuboid.contains(loc)) {
@@ -230,7 +259,7 @@ public class InteractBlockListeners implements Listener {
 			if(!village.isTnt()) {
 				if (entity instanceof Player) {
 					Player player = (Player) entity;
-					User user = plugin.getUserManager().findByUuid(player.getUniqueId()).get();
+					User user = plugin.getUserManager().findByUuid(player.getUniqueId()).orElseThrow();
 					if (!village.isMember(user)) return;
 					event.setCancelled(true);
 					player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_AMBIENT, 0.5f, 1.0f);
@@ -247,9 +276,10 @@ public class InteractBlockListeners implements Listener {
 		Village village = villageManager.getVillageAt(explosionLocation);
 		if (village == null) return;
 
+		Location location = village.getLocation().orElseThrow();
 		Cuboid cuboid = new Cuboid(
-				village.getLocation().get().clone().add(minX, minY, minZ),
-				village.getLocation().get().clone().add(maxX, maxY, maxZ)
+				location.clone().add(minX, minY, minZ),
+				location.clone().add(maxX, maxY, maxZ)
 		);
 		event.blockList().removeIf(block -> cuboid.contains(block.getLocation()));
 		if (cuboid.contains(explosionLocation)) {
@@ -265,9 +295,10 @@ public class InteractBlockListeners implements Listener {
 		for (Block movedBlock : event.getBlocks()) {
 			Village village = villageManager.getVillageAt(movedBlock.getLocation());
 			if (village != null) {
+				Location location = village.getLocation().orElseThrow();
 				Cuboid cuboid = new Cuboid(
-						village.getLocation().get().clone().add(minX, minY, minZ),
-						village.getLocation().get().clone().add(maxX, maxY, maxZ)
+						location.clone().add(minX, minY, minZ),
+						location.clone().add(maxX, maxY, maxZ)
 				);
 
 				if (cuboid.contains(movedBlock.getLocation())) {
@@ -291,9 +322,10 @@ public class InteractBlockListeners implements Listener {
 		for (Block movedBlock : event.getBlocks()) {
 			Village village = villageManager.getVillageAt(movedBlock.getLocation());
 			if (village != null) {
+				Location location = village.getLocation().orElseThrow();
 				Cuboid cuboid = new Cuboid(
-						village.getLocation().get().clone().add(minX, minY, minZ),
-						village.getLocation().get().clone().add(maxX, maxY, maxZ)
+						location.clone().add(minX, minY, minZ),
+						location.clone().add(maxX, maxY, maxZ)
 				);
 
 				if (cuboid.contains(movedBlock.getLocation()) || cuboid.contains(pistonLocation)) {
@@ -311,9 +343,10 @@ public class InteractBlockListeners implements Listener {
 
 		Village village = villageManager.getVillageAt(event.getBlock().getLocation());
 		if (village != null) {
+			Location location = village.getLocation().orElseThrow();
 			Cuboid cuboid = new Cuboid(
-					village.getLocation().get().clone().add(minX, minY, minZ),
-					village.getLocation().get().clone().add(maxX, maxY, maxZ)
+					location.clone().add(minX, minY, minZ),
+					location.clone().add(maxX, maxY, maxZ)
 			);
 
 			if (cuboid.contains(event.getBlock().getLocation()) || cuboid.contains(pistonLocation)) {
@@ -329,9 +362,10 @@ public class InteractBlockListeners implements Listener {
 
 		Village village = villageManager.getVillageAt(event.getBlock().getLocation());
 		if (village != null) {
+			Location location = village.getLocation().orElseThrow();
 			Cuboid cuboid = new Cuboid(
-					village.getLocation().get().clone().add(minX, minY, minZ),
-					village.getLocation().get().clone().add(maxX, maxY, maxZ)
+					location.clone().add(minX, minY, minZ),
+					location.clone().add(maxX, maxY, maxZ)
 			);
 
 			if (cuboid.contains(event.getBlock().getLocation()) || cuboid.contains(pistonLocation)) {

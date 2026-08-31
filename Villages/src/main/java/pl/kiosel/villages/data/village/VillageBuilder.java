@@ -104,7 +104,7 @@ public class VillageBuilder {
 	}
 
 	public VillageBuilder noTag() {
-		this.village.setTag("none");
+		this.setTag("none");
 		return this;
 	}
 

@@ -7,7 +7,6 @@ import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.storage.DatabaseVillageSerializer;
 
-import java.sql.SQLException;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -45,11 +44,7 @@ public class VillageRemoveManager {
 			}
 			plugin.getUpgradeManager().remove(village);
 			plugin.getVillageManager().deleteVillage(village);
-			try {
-				DatabaseVillageSerializer.delete(village, plugin.getDataManager(), plugin.getDataloader().getVillagesTable());
-			} catch (SQLException e) {
-				throw new RuntimeException(e);
-			}
+			DatabaseVillageSerializer.delete(village);
 		}, delay);
 	}
 

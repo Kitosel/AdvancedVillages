@@ -1,7 +1,8 @@
 package pl.kiosel.villages.data.rank;
 
-import pl.kiosel.villages.data.Entity;
+import lombok.Getter;
 import pl.kiosel.villages.data.MutableEntity;
+import pl.kiosel.villages.data.VEntity;
 
 import java.util.Locale;
 import java.util.Map;
@@ -10,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class Rank<T extends MutableEntity> {
 
+    @Getter
     protected final T entity;
     protected final Map<String, Integer> position = new ConcurrentHashMap<>();
 
@@ -17,16 +19,16 @@ public abstract class Rank<T extends MutableEntity> {
         this.entity = entity;
     }
 
-    public MutableEntity getEntity() {
-        return this.entity;
-    }
-
-    public Entity.UnitType getType() {
+	public VEntity.UnitType getType() {
         return this.entity.getType();
     }
 
     public String getIdentityName() {
         return this.entity.getName();
+    }
+
+    public String getIdentityKey() {
+        return this.entity.getIdentityKey();
     }
 
     /**
@@ -79,12 +81,12 @@ public abstract class Rank<T extends MutableEntity> {
             return false;
         }
 
-        return this.getIdentityName().equals(rank.getIdentityName());
+        return this.getIdentityKey().equals(rank.getIdentityKey());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.getType(), this.getIdentityName());
+        return Objects.hash(this.getType(), this.getIdentityKey());
     }
 
     @Override
@@ -93,15 +95,22 @@ public abstract class Rank<T extends MutableEntity> {
     }
 
     public static int compareName(Rank<?> o1, Rank<?> o2) {
-        if (o1.getIdentityName() == null) {
+        String firstName = o1.getIdentityName();
+        String secondName = o2.getIdentityName();
+        if (Objects.equals(firstName, secondName)) {
+            return o1.getIdentityKey().compareTo(o2.getIdentityKey());
+        }
+
+        if (firstName == null) {
             return -1;
         }
 
-        if (o2.getIdentityName() == null) {
+        if (secondName == null) {
             return 1;
         }
 
-        return o1.getIdentityName().compareTo(o2.getIdentityName());
+        int result = firstName.compareTo(secondName);
+        return result != 0 ? result : o1.getIdentityKey().compareTo(o2.getIdentityKey());
     }
 
 }

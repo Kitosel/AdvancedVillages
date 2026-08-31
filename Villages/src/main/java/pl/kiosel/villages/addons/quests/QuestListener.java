@@ -8,7 +8,6 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -19,12 +18,13 @@ import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.FurnaceExtractEvent;
-import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
+import pl.kiosel.rosacore.listener.RosaListener;
 import pl.kiosel.villages.AdvancedVillages;
 
 import java.util.HashSet;
@@ -32,7 +32,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-public final class QuestListener implements Listener {
+public final class QuestListener extends RosaListener {
 
 	private final VillageQuestManager questManager;
 	private final AdvancedVillages plugin;
@@ -40,9 +40,10 @@ public final class QuestListener implements Listener {
 	private final QuestPlacedBlockTracker placedBlocks;
 	private final Set<BlockPosition> ignoredBlockDrops = new HashSet<>();
 
-	public QuestListener(AdvancedVillages plugin, VillageQuestManager questManager) {
+	public QuestListener(AdvancedVillages plugin) {
+		super(plugin);
 		this.plugin = plugin;
-		this.questManager = questManager;
+		this.questManager = plugin.getQuestManager();
 		this.playerDropKey = new NamespacedKey(plugin, "quest-player-drop");
 		this.placedBlocks = new QuestPlacedBlockTracker(plugin);
 	}

@@ -2,14 +2,13 @@ package pl.kiosel.villages.data.rank;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import panda.std.Option;
-import pl.kiosel.core.chat.AdventureUtils;
-import pl.kiosel.core.dependencies.net.kyori.adventure.text.Component;
-import pl.kiosel.core.dependencies.net.kyori.adventure.text.TextReplacementConfig;
-import pl.kiosel.core.utils.NumberRange;
-import pl.kiosel.core.utils.format.RangeFormatting;
-import pl.kiosel.core.utils.format.RawString;
-import pl.kiosel.core.utils.format.Replaceable;
+import pl.kiosel.rosacore.dependencies.adventure.adventure.text.Component;
+import pl.kiosel.rosacore.dependencies.adventure.adventure.text.TextReplacementConfig;
+import pl.kiosel.rosacore.utils.NumberRange;
+import pl.kiosel.rosacore.utils.format.RangeFormatting;
+import pl.kiosel.rosacore.utils.format.RawString;
+import pl.kiosel.rosacore.utils.format.Replaceable;
+import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.addons.tablist.TablistConfiguration;
 import pl.kiosel.villages.config.TempMessages;
 import pl.kiosel.villages.data.user.User;
@@ -21,11 +20,11 @@ import pl.kiosel.villages.data.village.top.VillageTop;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/** Replaces every ranking placeholder in a single pass. */
 public final class RankPlaceholdersService {
 
 	private static final Pattern TOP = Pattern.compile(
@@ -61,7 +60,6 @@ public final class RankPlaceholdersService {
 				matcher -> resolvePosition(matcher, targetUser));
 	}
 
-	/** Kept for API compatibility with the previous placeholder service. */
 	public String format(@Nullable Object entity, String text, @Nullable User targetUser) {
 		return this.format(text, targetUser);
 	}
@@ -84,11 +82,11 @@ public final class RankPlaceholdersService {
 		}
 
 		if (type.equals("PTOP")) {
-			Option<UserTop> top = this.userRankManager.getTop(comparator);
+			Optional<UserTop> top = this.userRankManager.getTop(comparator);
 			if (top.isEmpty()) {
 				return TempMessages.noValue;
 			}
-			Option<User> user = top.get().getUser(index);
+			Optional<User> user = top.get().getUser(index);
 			if (user.isEmpty()) {
 				return TempMessages.noValue;
 			}
@@ -100,11 +98,11 @@ public final class RankPlaceholdersService {
 			return formatUser(user.get(), suffix);
 		}
 
-		Option<VillageTop> top = this.villageRankManager.getTop(comparator);
+		Optional<VillageTop> top = this.villageRankManager.getTop(comparator);
 		if (top.isEmpty()) {
 			return TempMessages.noValue;
 		}
-		Option<Village> village = top.get().getVillage(index);
+		Optional<Village> village = top.get().getVillage(index);
 		if (village.isEmpty()) {
 			return TempMessages.noValue;
 		}
@@ -153,7 +151,7 @@ public final class RankPlaceholdersService {
 	private String formatVillage(@Nullable User targetUser, Village village, String suffix) {
 		String tag = village.getTag();
 		if (this.tablistConfig.shouldUseRelationshipColors()) {
-			Village viewerVillage = targetUser == null ? null : targetUser.getVillage().orNull();
+			Village viewerVillage = targetUser == null ? null : targetUser.getVillage().orElse(null);
 			tag = TempMessages.relationalTag.chooseAndPrepareTag(viewerVillage, village);
 		}
 		return tag + suffix;
@@ -190,7 +188,7 @@ public final class RankPlaceholdersService {
 			public @NotNull Component replace(@Nullable Locale locale, @NotNull Component text) {
 				TextReplacementConfig replacement = TextReplacementConfig.builder()
 						.match(RANK_PLACEHOLDER)
-						.replacement((result, input) -> AdventureUtils.formatComponent(
+						.replacement((result, input) -> AdvancedVillages.getInstance().getMessenger().component(
 								RankPlaceholdersService.this.format(result.group(), targetUser)))
 						.build();
 				return text.replaceText(replacement);

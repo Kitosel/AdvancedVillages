@@ -3,14 +3,14 @@ package pl.kiosel.villages.gui.village;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import pl.kiosel.core.gui.Gui;
+import pl.kiosel.rosacore.gui.Gui;
+import pl.kiosel.rosacore.utils.NumberUtils;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.addons.logs.VillageLogEntry;
 import pl.kiosel.villages.addons.logs.VillageLogType;
+import pl.kiosel.villages.config.GuiItemConfig;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.enums.GUIS;
-import pl.kiosel.villages.enums.Lang;
-import pl.kiosel.villages.gui.Item;
+import pl.kiosel.villages.gui.GUIS;
 import pl.kiosel.villages.gui.VillageGUIManager;
 import pl.kiosel.villages.gui.VillageMenu;
 
@@ -19,34 +19,45 @@ import java.util.*;
 
 public final class VillageLogInventory extends VillageMenu {
 
-	private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+	private final DateTimeFormatter dateFormat;
 
 	public VillageLogInventory(AdvancedVillages plugin, VillageGUIManager menus, Village village,
 	                           Player player, Gui parent) {
 		super(plugin, menus, village, player, GUIS.LOGS, parent, true);
+		this.dateFormat = this.readDateFormat();
 		addBackButton();
 
 		if (!plugin.getLogManager().canView(player, village)) {
-			setItem(13, Item.create(Material.BARRIER, messages.text(Lang.VILLAGE_NO_PERMISSION)));
+			GuiItemConfig denied = configured("no-permission", 13, Material.BARRIER,
+					"&cYou do not have permission to view village logs.", List.of());
+			if (denied.isEnabled()) setItem(denied.getSlot(), denied.createItem());
 			return;
 		}
 
 		List<VillageLogEntry> entries = plugin.getLogManager().getEntries(village);
 		if (entries.isEmpty()) {
-			setItem(13, Item.create(Material.PAPER, messages.text(Lang.LOGS_GUI_NONE)));
+			GuiItemConfig empty = configured("empty", 13, Material.PAPER,
+					"&7There are no recorded activities yet.", List.of());
+			if (empty.isEnabled()) setItem(empty.getSlot(), empty.createItem());
 			return;
 		}
 
-		int slot = 9;
+		int slot = plugin.getGuiSettings().integer("guis.logs.start-slot", 9, 9,
+				Math.max(9, menuConfig.getSize() - 1));
 		for (VillageLogEntry entry : entries) {
-			setItem(slot++, this.createEntryItem(entry));
+			ItemStack item = this.createEntryItem(entry);
+			if (item != null) setItem(slot++, item);
 		}
 	}
 
 	private ItemStack createEntryItem(VillageLogEntry entry) {
 		String key = entry.getType().getConfigKey();
+		GuiItemConfig item = configured("types." + key, 9, Material.PAPER,
+				entry.getType().name(), List.of());
+		if (!item.isEnabled()) return null;
+
 		String actor = entry.getActorName().isBlank()
-				? messages.text(Lang.LOGS_SYSTEM)
+				? guiText("entry.system", "Village system")
 				: entry.getActorName();
 		Map<String, String> details = new LinkedHashMap<>(entry.getDetails());
 		details.put("actor", actor);
@@ -57,42 +68,51 @@ public final class VillageLogInventory extends VillageMenu {
 			placeholders.add(name);
 			placeholders.add(value);
 		});
-		String description = messages.textOrDefault(
-				"logs.entries." + key,
+		String description = plugin.getLogConfig().text(
+				"entries." + key,
 				entry.getType().name(),
 				placeholders.toArray()
 		);
 
 		List<String> lore = new ArrayList<>(Arrays.asList(description.split("\n")));
-		long groupedCount = parseLong(details.get("count"));
+		long groupedCount = NumberUtils.parseLongOrZero(details.get("count"));
 		if (groupedCount > 1L) {
-			lore.add(messages.text(Lang.LOGS_GUI_GROUPED, "count", groupedCount));
+			lore.add(guiText("entry.grouped", "&8Merged actions: &7%count%",
+					"count", groupedCount));
 		}
 		lore.add("");
-		lore.add(messages.text(Lang.LOGS_GUI_ACTOR, "actor", actor));
-		lore.add(messages.text(Lang.LOGS_GUI_DATE, "date", DATE_FORMAT.format(
+		lore.add(guiText("entry.actor", "&7Performed by: &f%actor%", "actor", actor));
+		lore.add(guiText("entry.date", "&7Date: &f%date%", "date", this.dateFormat.format(
 				entry.getCreatedAt().atZone(plugin.getLogManager().getZoneId()))));
 
-		String name = messages.textOrDefault(
-				"logs.types." + key,
-				entry.getType().name()
-		);
-		return Item.create(entry.getType().getIcon(), name, lore);
+		return item.createItem(item.getName(), lore);
 	}
 
 	private void localizeDetails(VillageLogType type, Map<String, String> details) {
 		if (type == VillageLogType.QUEST_COMPLETED) {
 			String questId = details.getOrDefault("quest", "");
-			details.put("quest", messages.textOrDefault("quests.tasks." + questId + ".name", questId));
+			details.put("quest", plugin.getGuiSettings().text(
+					"guis.quests.tasks." + questId + ".name", questId));
 		}
 		if (type == VillageLogType.SETTING_CHANGED) {
 			String setting = details.getOrDefault("setting", "");
-			details.put("setting", messages.textOrDefault("logs.settings." + setting, setting));
+			details.put("setting", plugin.getLogConfig().text("settings." + setting, setting));
 		}
 		if (type == VillageLogType.MEMBER_PERMISSION) {
 			String permission = details.getOrDefault("permission", "");
-			details.put("permission", messages.textOrDefault(
-					"logs.permissions." + permission.toLowerCase().replace('_', '-'), permission));
+			details.put("permission", plugin.getLogConfig().text(
+					"permissions." + permission.toLowerCase().replace('_', '-'), permission));
+		}
+		if (type == VillageLogType.MEMBER_ROLE) {
+			String role = details.getOrDefault("role", "");
+			details.put("role", plugin.getRoleManager().getRole(role)
+					.map(pl.kiosel.villages.data.village.role.VillageRole::getName)
+					.orElse(role));
+		}
+		if (type == VillageLogType.DEVELOPMENT_UNLOCKED) {
+			String node = details.getOrDefault("node", "");
+			details.put("node", plugin.getGuiSettings().text(
+					"guis.development.nodes." + node + ".name", node));
 		}
 
 		String rawValue = details.get("value");
@@ -100,19 +120,32 @@ public final class VillageLogInventory extends VillageMenu {
 			return;
 		}
 		if ("true".equalsIgnoreCase(rawValue)) {
-			details.put("value", messages.text(Lang.ON));
+			details.put("value", plugin.getLogConfig().text("values.on", "&aON"));
 		} else if ("false".equalsIgnoreCase(rawValue)) {
-			details.put("value", messages.text(Lang.OFF));
+			details.put("value", plugin.getLogConfig().text("values.off", "&cOFF"));
 		} else {
-			details.put("value", messages.textOrDefault("logs.values." + rawValue, rawValue));
+			details.put("value", plugin.getLogConfig().text("values." + rawValue, rawValue));
 		}
 	}
 
-	private static long parseLong(String value) {
+	private GuiItemConfig configured(String id, int slot, Material material, String name, List<String> lore) {
+		return item(GUIS.LOGS, "guis.logs." + id, slot, material, name, lore);
+	}
+
+	private String guiText(String path, String fallback, Object... placeholders) {
+		String result = plugin.getGuiSettings().text("guis.logs." + path, fallback);
+		for (int index = 0; index + 1 < placeholders.length; index += 2) {
+			result = result.replace("%" + placeholders[index] + "%", String.valueOf(placeholders[index + 1]));
+		}
+		return result;
+	}
+
+	private DateTimeFormatter readDateFormat() {
+		String pattern = plugin.getGuiConfig().getString("guis.logs.date-format", "dd.MM.yyyy HH:mm");
 		try {
-			return value == null ? 0L : Long.parseLong(value);
-		} catch (NumberFormatException ignored) {
-			return 0L;
+			return DateTimeFormatter.ofPattern(pattern);
+		} catch (IllegalArgumentException ignored) {
+			return DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
 		}
 	}
 }

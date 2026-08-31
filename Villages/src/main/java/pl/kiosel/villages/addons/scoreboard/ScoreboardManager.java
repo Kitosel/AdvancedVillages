@@ -1,51 +1,54 @@
 package pl.kiosel.villages.addons.scoreboard;
 
-import fr.mrmicky.fastboard.FastBoard;
-import lombok.Getter;
-import lombok.Setter;
 import org.bukkit.entity.Player;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.data.user.User;
-import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.manager.VillageUtilsManager;
-import pl.kiosel.villages.settings.Settings;
+import pl.kiosel.villages.config.Settings;
 
 import java.util.*;
-
-import static pl.kiosel.core.utils.ColorUtils.tl;
+import java.util.logging.Level;
 
 public class ScoreboardManager {
 
 	private final AdvancedVillages plugin;
-	@Getter private final Map<UUID, FastBoard> boards = new HashMap<>();
-	@Getter private final List<String> titleFrames = new ArrayList<>();
-	@Setter @Getter private int animationIndex = 0;
+	private final Map<UUID, VillageScoreboard> boards = new LinkedHashMap<>();
+	private ScoreboardSnapshot snapshot;
 
 	public ScoreboardManager(AdvancedVillages plugin) {
 		this.plugin = plugin;
+		this.snapshot = plugin.getScoreboardHandler().snapshot();
 	}
 
-	public void reloadScoreboard() {
-		this.titleFrames.clear();
-		this.animationIndex = 0;
-		setupTitleAnimation();
+	public void reload() {
+		if (!Settings.ADDONS_SCOREBOARD_ENABLE.getBoolean()) return;
+		this.snapshot = this.plugin.getScoreboardHandler().snapshot();
+
+		for (VillageScoreboard board : new ArrayList<>(this.boards.values())) {
+			if (board.isClosed()) continue;
+			board.reload(this.snapshot);
+		}
 	}
 
 	public void createBoard(Player player) {
-		if (!Settings.ADDONS_SCOREBOARD_ENABLE.getBoolean() || boards.containsKey(player.getUniqueId())) {
-			return;
+		if (player == null || !player.isOnline() || !Settings.ADDONS_SCOREBOARD_ENABLE.getBoolean()) return;
+
+		VillageScoreboard current = this.boards.get(player.getUniqueId());
+		if (current != null && !current.isClosed()) return;
+		if (current != null) this.boards.remove(player.getUniqueId());
+
+		VillageScoreboard board = new VillageScoreboard(this.plugin, player, this.snapshot);
+		try {
+			board.show();
+			this.boards.put(player.getUniqueId(), board);
+		} catch (RuntimeException exception) {
+			board.close();
+			this.plugin.getRosaLogger().log(Level.WARNING, "Could not show the scoreboard to " + player.getName(), exception);
 		}
-		FastBoard board = new FastBoard(player);
-		boards.put(player.getUniqueId(), board);
-		if (!this.titleFrames.isEmpty()) {
-			board.updateTitle(this.titleFrames.get(0));
-		}
-		updateBoard(board);
 	}
 
 	public void removeBoard(Player player) {
-		FastBoard board = boards.remove(player.getUniqueId());
-		if (board != null) board.delete();
+		if (player == null) return;
+		VillageScoreboard board = this.boards.remove(player.getUniqueId());
+		if (board != null) board.close();
 	}
 
 	public void synchronizeBoards() {
@@ -58,55 +61,17 @@ public class ScoreboardManager {
 		for (Player player : this.plugin.getServer().getOnlinePlayers()) {
 			onlinePlayers.add(player.getUniqueId());
 			createBoard(player);
-			FastBoard board = this.boards.get(player.getUniqueId());
-			if (board != null) {
-				if (!this.titleFrames.isEmpty())
-					board.updateTitle(this.titleFrames.get(0));
-				updateBoard(board);
-			}
 		}
 
 		for (UUID playerId : new HashSet<>(this.boards.keySet())) {
-			if (!onlinePlayers.contains(playerId)) {
-				FastBoard board = this.boards.remove(playerId);
-				if (board != null)
-					board.delete();
-			}
+			if (onlinePlayers.contains(playerId)) continue;
+			VillageScoreboard board = this.boards.remove(playerId);
+			if (board != null) board.close();
 		}
 	}
 
 	public void clearBoards() {
-		for (FastBoard board : this.boards.values())
-			board.delete();
+		for (VillageScoreboard board : new ArrayList<>(this.boards.values())) board.close();
 		this.boards.clear();
-	}
-
-	private void setupTitleAnimation() {
-		if (plugin.getScoreboardHandler().scoreboardAnimationEnabled())
-			for (String string : plugin.getScoreboardHandler().getTitles())
-				this.titleFrames.add(tl(string));
-
-		if (this.titleFrames.isEmpty())
-			titleFrames.add(tl(plugin.getScoreboardHandler().scoreboardTitle()));
-		for (String s : titleFrames)
-			plugin.getDebug().debug("titleFrames: " + s);
-	}
-
-	public void updateBoard(FastBoard board) {
-		Player player = board.getPlayer();
-		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).orNull();
-		if (user == null)
-			return;
-		Village village = user.getPresentVillage();
-
-		List<String> lines = new ArrayList<>();
-
-		for (String line : plugin.getScoreboardHandler().getScore()) {
-			line = VillageUtilsManager.replaceWith(player, village, line).toText();
-			if (plugin.isPlaceholder())
-				line = plugin.getPlaceholder().replacePlaceholder(player, line);
-			lines.add(line);
-		}
-		board.updateLines(lines);
 	}
 }

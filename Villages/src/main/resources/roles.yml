@@ -1,0 +1,46 @@
+# Roles shared by all villages. The owner role is reserved and always has every permission.
+# Changing this file and using the plugin reload updates permissions immediately.
+default-role: member
+
+roles:
+  member:
+    name: '&7Member'
+    priority: 10
+    permissions:
+      - BANK_ADD
+      - BANK_REMOVE
+      - STORE
+      - UPGRADE
+      - EFFECTS_BUY
+      - QUEST_TOGGLE
+
+  trusted:
+    name: '&aTrusted'
+    priority: 20
+    permissions:
+      - BANK_ADD
+      - BANK_REMOVE
+      - STORE
+      - STORAGE
+      - UPGRADE
+      - EFFECTS_BUY
+      - EFFECTS_TOGGLE
+      - QUEST_TOGGLE
+
+  officer:
+    name: '&6Officer'
+    priority: 30
+    permissions:
+      - SETTINGS
+      - INVITE
+      - STORE
+      - STORAGE
+      - EFFECTS_BUY
+      - EFFECTS_TOGGLE
+      - UPGRADE
+      - BANK_ADD
+      - BANK_REMOVE
+      - QUEST_TOGGLE
+      - ALLIANCE_MANAGE
+      - WAR_MANAGE
+      - DEVELOPMENT_BUY

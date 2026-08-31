@@ -1,8 +1,8 @@
 package pl.kiosel.villages.storage;
 
-import pl.kiosel.dependencies.org.jooq.Field;
-import pl.kiosel.dependencies.org.jooq.Table;
-import pl.kiosel.dependencies.org.jooq.impl.DSL;
+import pl.kiosel.rosacore.database.DatabaseSession;
+import pl.kiosel.rosacore.database.DatabaseTable;
+import pl.kiosel.rosacore.database.DatabaseValues;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.addons.logs.VillageLogEntry;
 import pl.kiosel.villages.addons.logs.VillageLogType;
@@ -15,100 +15,87 @@ import java.util.logging.Level;
 
 public final class VillageLogStorage {
 
+	private static final DatabaseTable TABLE = DatabaseTable.named("village_logs");
+
 	private final AdvancedVillages plugin;
-	private final String tableName;
 
 	public VillageLogStorage(AdvancedVillages plugin) {
 		this.plugin = plugin;
-		this.tableName = plugin.getDataManager().getTablePrefix() + "village_logs";
 	}
 
 	public void load(long cutoff, int limit, Consumer<VillageLogEntry> consumer) {
-		Table<?> table = DSL.table(this.tableName);
-		Field<Long> createdAt = DSL.field("created_at", Long.class);
-		this.plugin.getDataManager().getDatabaseConnector().connectDSL(dsl ->
-				dsl.select().from(table)
-						.where(createdAt.ge(cutoff))
-						.orderBy(createdAt.desc())
-						.limit(Math.max(1, limit))
-						.fetch()
-						.forEach(record -> {
-							try {
-								String actorId = record.get("actor_uuid", String.class);
-								consumer.accept(new VillageLogEntry(
-										UUID.fromString(record.get("id", String.class)),
-										UUID.fromString(record.get("village_uuid", String.class)),
-										VillageLogType.valueOf(record.get("type", String.class)),
-										actorId == null || actorId.isBlank() ? null : UUID.fromString(actorId),
-										record.get("actor_name", String.class),
-										Instant.ofEpochMilli(record.get("created_at", Long.class)),
-										decodeDetails(record.get("details", String.class))
-								));
-							} catch (RuntimeException exception) {
-								this.plugin.getLogger().log(Level.WARNING,
-										"Ignoring invalid village activity log entry", exception);
-							}
-						})
-		);
+		int safeLimit = Math.max(1, limit);
+		this.plugin.getDataManager().withSession(session -> session.queryEach(
+				"SELECT * FROM " + session.tableName(TABLE)
+						+ " WHERE created_at >= ? ORDER BY created_at DESC LIMIT " + safeLimit,
+				row -> {
+					try {
+						String actorId = row.getString("actor_uuid");
+						consumer.accept(new VillageLogEntry(
+								UUID.fromString(row.getString("id")),
+								UUID.fromString(row.getString("village_uuid")),
+								VillageLogType.valueOf(row.getString("type")),
+								actorId == null || actorId.isBlank() ? null : UUID.fromString(actorId),
+								row.getString("actor_name"),
+								Instant.ofEpochMilli(row.getLong("created_at")),
+								decodeDetails(row.getString("details"))
+						));
+					} catch (RuntimeException exception) {
+						this.plugin.getRosaLogger().log(Level.WARNING,
+								"Ignoring invalid village activity log entry", exception);
+					}
+				}, cutoff));
 	}
 
 	public void save(Collection<VillageLogEntry> entries, int maxPerVillage, int retentionDays) {
-		if (entries.isEmpty()) {
-			return;
-		}
-		this.plugin.getDataManager().getDatabaseConnector().connectDSL(dsl -> {
-			Table<?> table = DSL.table(this.tableName);
-			Field<String> id = DSL.field("id", String.class);
-			Field<String> villageId = DSL.field("village_uuid", String.class);
-			Field<Long> createdAt = DSL.field("created_at", Long.class);
+		if (entries.isEmpty()) return;
+		this.plugin.getDataManager().withTransaction(session -> {
 			Set<String> touchedVillages = new LinkedHashSet<>();
-
 			for (VillageLogEntry entry : entries) {
-				String entryId = entry.getId().toString();
-				String entryVillageId = entry.getVillageId().toString();
-				touchedVillages.add(entryVillageId);
-				dsl.deleteFrom(table).where(id.eq(entryId)).execute();
-				dsl.insertInto(table)
-						.set(id, entryId)
-						.set(villageId, entryVillageId)
-						.set(DSL.field("type", String.class), entry.getType().name())
-						.set(DSL.field("actor_uuid", String.class),
-								entry.getActorId() == null ? null : entry.getActorId().toString())
-						.set(DSL.field("actor_name", String.class), entry.getActorName())
-						.set(createdAt, entry.getCreatedAt().toEpochMilli())
-						.set(DSL.field("details", String.class), encodeDetails(entry.getDetails()))
-						.execute();
+				touchedVillages.add(entry.getVillageId().toString());
+				session.upsert(TABLE, DatabaseValues.create()
+						.set("id", entry.getId())
+						.set("village_uuid", entry.getVillageId())
+						.set("type", entry.getType())
+						.set("actor_uuid", entry.getActorId())
+						.set("actor_name", entry.getActorName())
+						.set("created_at", entry.getCreatedAt())
+						.set("details", encodeDetails(entry.getDetails())), "id");
 			}
 
 			long cutoff = Instant.now().minusSeconds(Math.max(1, retentionDays) * 86_400L).toEpochMilli();
-			dsl.deleteFrom(table).where(createdAt.lt(cutoff)).execute();
-			for (String touchedVillage : touchedVillages) {
-				List<String> keptIds = dsl.select(id).from(table)
-						.where(villageId.eq(touchedVillage))
-						.orderBy(createdAt.desc(), id.desc())
-						.limit(Math.max(1, maxPerVillage))
-						.fetch(id);
-				if (!keptIds.isEmpty()) {
-					dsl.deleteFrom(table)
-							.where(villageId.eq(touchedVillage).and(id.notIn(keptIds)))
-							.execute();
-				}
+			session.executeUpdate("DELETE FROM " + session.tableName(TABLE) + " WHERE created_at < ?", cutoff);
+			int safeLimit = Math.max(1, maxPerVillage);
+			for (String villageId : touchedVillages) {
+				List<String> keptIds = session.query(
+						"SELECT id FROM " + session.tableName(TABLE)
+								+ " WHERE village_uuid = ? ORDER BY created_at DESC, id DESC LIMIT " + safeLimit,
+						row -> row.getString("id"), villageId);
+				deleteExcept(session, villageId, keptIds);
 			}
 		});
 	}
 
 	public void delete(UUID villageId) {
-		this.plugin.getDataManager().getDatabaseConnector().connectDSL(dsl ->
-				dsl.deleteFrom(DSL.table(this.tableName))
-						.where(DSL.field("village_uuid").eq(villageId.toString()))
-						.execute()
-		);
+		this.plugin.getDataManager().getDatabase().delete(TABLE, "village_uuid", villageId);
+	}
+
+	private static void deleteExcept(DatabaseSession session, String villageId, List<String> keptIds) {
+		String sql = "DELETE FROM " + session.tableName(TABLE) + " WHERE village_uuid = ?";
+		if (keptIds.isEmpty()) {
+			session.executeUpdate(sql, villageId);
+			return;
+		}
+
+		String placeholders = String.join(", ", Collections.nCopies(keptIds.size(), "?"));
+		Object[] parameters = new Object[keptIds.size() + 1];
+		parameters[0] = villageId;
+		for (int index = 0; index < keptIds.size(); index++) parameters[index + 1] = keptIds.get(index);
+		session.executeUpdate(sql + " AND id NOT IN (" + placeholders + ")", parameters);
 	}
 
 	private static String encodeDetails(Map<String, String> details) {
-		if (details.isEmpty()) {
-			return "";
-		}
+		if (details.isEmpty()) return "";
 		Base64.Encoder encoder = Base64.getUrlEncoder().withoutPadding();
 		List<String> encoded = new ArrayList<>();
 		for (Map.Entry<String, String> entry : details.entrySet()) {
@@ -118,16 +105,12 @@ public final class VillageLogStorage {
 	}
 
 	private static Map<String, String> decodeDetails(String serialized) {
-		if (serialized == null || serialized.isBlank()) {
-			return Collections.emptyMap();
-		}
+		if (serialized == null || serialized.isBlank()) return Collections.emptyMap();
 		Base64.Decoder decoder = Base64.getUrlDecoder();
 		Map<String, String> details = new LinkedHashMap<>();
 		for (String pair : serialized.split(";")) {
 			String[] parts = pair.split(":", 2);
-			if (parts.length == 2) {
-				details.put(decode(decoder, parts[0]), decode(decoder, parts[1]));
-			}
+			if (parts.length == 2) details.put(decode(decoder, parts[0]), decode(decoder, parts[1]));
 		}
 		return details;
 	}

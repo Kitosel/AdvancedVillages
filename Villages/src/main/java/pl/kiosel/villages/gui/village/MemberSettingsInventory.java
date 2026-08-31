@@ -4,19 +4,23 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import pl.kiosel.core.gui.Gui;
+import org.bukkit.event.inventory.ClickType;
+import pl.kiosel.rosacore.gui.Gui;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.addons.logs.VillageLogType;
 import pl.kiosel.villages.config.GuiItemConfig;
+import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.enums.GUIS;
-import pl.kiosel.villages.enums.Permission;
+import pl.kiosel.villages.data.village.role.VillageRole;
+import pl.kiosel.villages.gui.GUIS;
 import pl.kiosel.villages.gui.Item;
 import pl.kiosel.villages.gui.VillageGUIManager;
 import pl.kiosel.villages.gui.VillageMenu;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 public final class MemberSettingsInventory extends VillageMenu {
@@ -39,7 +43,7 @@ public final class MemberSettingsInventory extends VillageMenu {
 		}
 		addBackButton();
 
-		User member = plugin.getUserManager().findByUuid(memberId).orNull();
+		User member = plugin.getUserManager().findByUuid(memberId).orElse(null);
 		if (member == null) {
 			GuiItemConfig notFound = item("not-found", 13, Material.BARRIER,
 					"&cPlayer not found", List.of());
@@ -47,19 +51,21 @@ public final class MemberSettingsInventory extends VillageMenu {
 			return;
 		}
 
-		addPermissionButton("settings", 9, Material.NOTE_BLOCK, "SETTINGS", member, Permission.SETTINGS);
-		addPermissionButton("invite", 10, Material.TOTEM_OF_UNDYING, "INVITE", member, Permission.INVITE);
-		addPermissionButton("store", 11, Material.ENDER_EYE, "STORE", member, Permission.STORE);
-		addPermissionButton("effects-buy", 12, Material.POTION, "EFFECTS BUY", member, Permission.EFFECTS_BUY);
-		addPermissionButton("effects-toggle", 13, Material.SPLASH_POTION, "EFFECTS TOGGLE", member, Permission.EFFECTS_TOGGLE);
-		addPermissionButton("upgrade", 14, Material.DIAMOND, "UPGRADE", member, Permission.UPGRADE);
-		addPermissionButton("bank-add", 15, Material.GREEN_CONCRETE_POWDER, "BANK ADD", member, Permission.BANK_ADD);
-		addPermissionButton("bank-remove", 16, Material.RED_CONCRETE_POWDER, "BANK REMOVE", member, Permission.BANK_REMOVE);
-		addPermissionButton("quest", 17, Material.BOOK, "QUEST", member, Permission.QUEST_TOGGLE);
-		GuiItemConfig remove = item("remove", 22, Material.BARRIER, "Remove from village", List.of(""));
+		VillageRole role = plugin.getRoleManager().getRole(member);
+		GuiItemConfig roleButton = item("role", 13, Material.NAME_TAG, "&eRole: %role%", List.of(
+				"&7Left click: next role", "&7Right click: previous role", " ", "%permissions%"));
+		if (roleButton.isEnabled()) {
+			List<String> lore = renderRoleLore(roleButton.getLore(), role);
+			String name = roleButton.getName().replace("%role%", role.getName());
+			setButton(roleButton.getSlot(), roleButton.createItem(name, lore, roleButton.isGlow()),
+					ClickType.LEFT, event -> changeRole(member, 1));
+			setButton(roleButton.getSlot(), roleButton.createItem(name, lore, roleButton.isGlow()),
+					ClickType.RIGHT, event -> changeRole(member, -1));
+		}
+		GuiItemConfig remove = item("remove", 22, Material.BARRIER, "Remove from village", List.of(" "));
 		if (remove.isEnabled()) {
-			setButton(remove.getSlot(), remove.createItem(), event -> event.manager.showGUI(event.player,
-					new MemberRemoveInventory(plugin, menus, village, viewer, this, memberId)));
+			setButton(remove.getSlot(), remove.createItem(), event -> event.getManager().showGUI(event.getPlayer(),
+					new MemberRemoveInventory(plugin, village, viewer, this, memberId)));
 		}
 	}
 
@@ -72,29 +78,44 @@ public final class MemberSettingsInventory extends VillageMenu {
 		return lore.stream().map(line -> line.replace("%player%", memberName)).toList();
 	}
 
-	private void addPermissionButton(String id, int slot, Material material, String name,
-	                                 User member, Permission permission) {
-		GuiItemConfig button = item("permissions." + id, slot, material, name, List.of(""));
-		if (!button.isEnabled()) return;
-		boolean hasPermission = plugin.getPermissionManager().hasPermission(member, permission);
-		setButton(button.getSlot(), button.createItem(button.getName(), button.getLore(),
-				button.isGlow() || hasPermission), event -> toggle(member, permission));
+	private List<String> renderRoleLore(List<String> template, VillageRole role) {
+		List<String> rendered = new ArrayList<>();
+		String permissionLine = plugin.getGuiSettings().text(
+				"guis.member-settings.role.permission-line", "&8 • &f%permission%");
+		String noPermissions = plugin.getGuiSettings().text(
+				"guis.member-settings.role.no-permissions", "&8 • &7No permissions");
+		for (String line : template) {
+			if (!line.contains("%permissions%")) {
+				rendered.add(line.replace("%role%", role.getName()));
+				continue;
+			}
+			if (role.getPermissions().isEmpty()) {
+				rendered.add(line.replace("%permissions%", noPermissions));
+				continue;
+			}
+			role.getPermissions().stream().sorted().forEach(permission -> {
+				String id = permission.name().toLowerCase(Locale.ROOT).replace('_', '-');
+				String fallback = permission.name().toLowerCase(Locale.ROOT).replace('_', ' ');
+				String display = plugin.getGuiSettings().text(
+						"guis.member-settings.permission-names." + id, fallback);
+				rendered.add(line.replace("%permissions%", permissionLine.replace("%permission%", display)));
+			});
+		}
+		return rendered;
 	}
 
-	private void toggle(User member, Permission permission) {
-		if (!hasPermission(Permission.OWNER)) return;
-		boolean enabled;
-		if (plugin.getPermissionManager().hasPermission(member, permission)) {
-			plugin.getPermissionManager().removePermission(member, permission);
-			enabled = false;
-		} else {
-			plugin.getPermissionManager().addPermission(member, permission);
-			enabled = true;
-		}
-		plugin.getLogManager().record(village, VillageLogType.MEMBER_PERMISSION, viewer,
+	private void changeRole(User member, int direction) {
+		if (!hasPermission(pl.kiosel.villages.data.village.Permission.OWNER)) return;
+		VillageRole role = plugin.getRoleManager().nextRole(member, direction);
+		if (!plugin.getRoleManager().changeRole(village, viewer, member, role)) return;
+		plugin.getLogManager().record(village, VillageLogType.MEMBER_ROLE, viewer,
 				"member", member.getName(),
-				"permission", permission.name(),
-				"value", enabled);
+				"role", role.getId());
+		plugin.getVillageMessages().get(Lang.VILLAGE_ROLE_CHANGED)
+				.with("player", member.getName())
+				.with("role", role.getName())
+				.sendPrefixed(viewer);
+		playToggleSound();
 		plugin.getGuiManager().showGUI(viewer,
 				new MemberSettingsInventory(plugin, menus, village, viewer, getParent(), memberId));
 	}

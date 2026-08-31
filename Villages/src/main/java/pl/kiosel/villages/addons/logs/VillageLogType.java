@@ -1,30 +1,31 @@
 package pl.kiosel.villages.addons.logs;
 
-import lombok.Getter;
-import org.bukkit.Material;
-
 import java.util.Locale;
 
 public enum VillageLogType {
 
-	VILLAGE_CREATED(Material.BEACON),
-	VILLAGE_HEARTH_ADD(Material.REDSTONE),
-	MEMBER_JOIN(Material.LIME_DYE),
-	MEMBER_LEAVE(Material.ORANGE_DYE),
-	MEMBER_KICK(Material.RED_DYE),
-	MEMBER_PERMISSION(Material.NAME_TAG),
-	BANK_DEPOSIT(Material.GOLD_INGOT),
-	BANK_WITHDRAW(Material.GOLD_NUGGET),
-	QUEST_COMPLETED(Material.WRITABLE_BOOK),
-	SETTING_CHANGED(Material.COMPARATOR),
-	VILLAGE_UPGRADE(Material.DIAMOND),
-	VILLAGE_ATTACK(Material.IRON_SWORD);
-
-	@Getter private final Material icon;
-
-	VillageLogType(Material icon) {
-		this.icon = icon;
-	}
+	VILLAGE_CREATED,
+	VILLAGE_HEARTH_ADD,
+	MEMBER_JOIN,
+	MEMBER_LEAVE,
+	MEMBER_KICK,
+	MEMBER_PERMISSION,
+	MEMBER_ROLE,
+	BANK_DEPOSIT,
+	BANK_WITHDRAW,
+	QUEST_COMPLETED,
+	SETTING_CHANGED,
+	VILLAGE_UPGRADE,
+	VILLAGE_ATTACK,
+	ALLIANCE_CREATED,
+	ALLIANCE_ENDED,
+	WAR_DECLARED,
+	WAR_STARTED,
+	WAR_ENDED,
+	DEVELOPMENT_UNLOCKED,
+	UPKEEP_PAID,
+	UPKEEP_MISSED,
+	UPKEEP_PENALTY;
 
 	public String getConfigKey() {
 		return this.name().toLowerCase(Locale.ROOT).replace('_', '-');

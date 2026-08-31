@@ -1,15 +1,15 @@
 package pl.kiosel.villages.addons.trials.animation;
 
 import lombok.Getter;
-import pl.kiosel.dependencies.com.cryptomorin.xseries.particles.XParticle;
+import pl.kiosel.rosacore.compatibility.ZParticle;
 
 @Getter
 public final class LevelAnimationStyle {
 
     private final boolean enabled;
     private final String pattern;
-    private final XParticle particle;
-    private final XParticle secondaryParticle;
+    private final ZParticle particle;
+    private final ZParticle secondaryParticle;
     private final int count;
     private final double radius;
     private final double height;
@@ -17,7 +17,7 @@ public final class LevelAnimationStyle {
     private final double verticalOffset;
     private final double speed;
 
-    LevelAnimationStyle(boolean enabled, String pattern, XParticle particle, XParticle secondaryParticle,
+    LevelAnimationStyle(boolean enabled, String pattern, ZParticle particle, ZParticle secondaryParticle,
                         int count, double radius, double height, double verticalSpan,
                         double verticalOffset, double speed) {
         this.enabled = enabled;

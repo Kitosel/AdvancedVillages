@@ -5,15 +5,8 @@ general:
   addon-disabled: '&cAddon %addon% is currently disabled.'
   nametag:
     prefix: '&8[&6&lVillages&r&8]'
-    next: '&9Next'
-    back: '&9Back'
-    exit: '&cExit'
-    blank: '&7&kBlank'
-    previous: '&cPrevious'
     'on': '&aON'
     'off': '&cOFF'
-    'yes': '&aYes'
-    'no': '&cNo'
   time:
     second: { one: 'second', few: 'seconds', many: 'seconds' }
     minute: { one: 'minute', few: 'minutes', many: 'minutes' }
@@ -59,6 +52,30 @@ command:
     delete: "&c%village_owner%'s village has been deleted!"
     protection-add: '&7Added protection to &a%village_owner%&7 for &6%time%'
     protection-remove: "&7Removed protection from &a%village_owner%'s &7village"
+    village-not-found: '&cYou are not in the village'
+    debug:
+      info: |-
+        &7&m--------------------------------
+        &6Village diagnostics
+        &7Name: &6%name%
+        &7UUID: &6%uuid%
+        &7Tag: &6%tag%
+        &7Owner: &6%owner%
+        &7Level / region size: &6%level% &7/ &6%size%
+        &7Center: &c%location%
+        &7Home: &c%home%
+        &7Lives / bank: %lives% &7/ &6%bank%
+        &7Members: &6%members% &7(online: &a%online_members%&7)
+        &7Protection until: &6%protection%
+        &7Allies / active wars: &6%allies% &7/ &6%wars%
+        &7Missed upkeep payments: &6%missed_payments%
+        &7Settings: &7PvP %pvp%&7, TNT %tnt%&7, animations %animations%
+        &7Persistence: %persistence% &7(version &6%version%&7)
+        &7&m--------------------------------
+      not-set: '&cnot set'
+      none: '&7none'
+      dirty: '&cwaiting to be saved'
+      saved: '&asaved'
     bank-add: "&7Added &a%money% &7to &a%village_owner%'s &7village bank"
     bank-remove: "&7Removed &c%money% &7from &a%village_owner%'s &7village bank"
     lives-add: "&7Added &a%lives% &7lives to &a%village_owner%'s &7village"
@@ -66,7 +83,8 @@ command:
     already-dying: '&cThis village has no lives remaining'
     upgrade-failed: '&cThe village could not be upgraded. Check the server console'
     usage:
-      root: '&c/%command% %admin% <%reload%|%give%|%manage%|%settings%>'
+      root: '&c/%command% %admin% <%reload%|%give%|%manage%|%debug%>'
+      debug: '&c/%command% %admin% %debug% [owner]'
       give: '&c/%command% %admin% %give% <%village_block%|%destroyer%>'
       manage: '&c/%command% %admin% %manage% <owner> <%upgrade%|%lives%|%protection%|%remove%>'
       action: '&c/%command% %admin% %manage% <owner> %action% <%add%|%remove%>'
@@ -81,10 +99,15 @@ village:
   nearby: "&cYou can't create a village because another village is nearby (minimum distance: %distance% blocks)"
   spawn-nearby: "&cYou can't create a village this close to spawn (minimum distance: %distance% blocks)"
   cant-edit: "&cYou can't edit this member"
-  effect-not-bought: '&cThe %effect% effect has not been purchased'
+  effect-not-bought: '&cThe %effect% &ceffect has not been purchased'
   protected: '&cThis village is currently protected'
   protected-offline-members: '&cA village cannot be attacked when none of its members are active.'
   remove-member: '&7You removed &6%player% &7from the village'
+  role-changed: '&7Changed the role of &6%player% &7to %role%&7.'
+
+  upkeep-paid: '&7Village upkeep of &6%cost%$ &7was paid from the bank.'
+  upkeep-missed: '&cThe village could not pay %cost%$ upkeep. Missing: %missing%$. Missed payments: %missed%.'
+  upkeep-penalty: '&cThe village lost %lives% life because of unpaid upkeep.'
   have-tag: '&cA village must have a tag to be &4&lupgraded'
   attacked:
     title: '&8&k[&r &4WARNING &8&k]'
@@ -130,7 +153,6 @@ tag:
   has-spaces: 'The tag cannot contain spaces'
   too-long: 'The tag is too long'
   invalid-chars: 'The tag contains invalid characters'
-  anvil-name-your-village: 'Name your village'
   new-village-tag: '&7Your new village tag is &a%tag%'
   your-village-tag: '&7Your village tag is &a%tag%'
   closed-name-village-tag: '&cYou closed the menu, so no tag was set'
@@ -240,125 +262,71 @@ quests:
   command-description: 'Open village quests'
   completed: '&aYour village completed &f%quest%&a! Rewards: &6%bank%$&a, &e%experience% XP &aand &b%points% points&a.'
   activated: '&aQuest &f%quest% &ahas been activated for your village.'
-  gui:
-    menu-name: '&eVillage quests'
-    menu-lore: '&7Complete shared daily and weekly quests.'
-    daily: '&eDaily quest'
-    weekly: '&6Weekly quest'
-    progress: '&7Progress: &e%progress%&7/&e%required%'
-    completed: '&aCompleted! &7(%progress%/%required%)'
-    active: '&aActive - progress is being collected'
-    inactive: '&cInactive - progress is not being collected'
-    activate: '&eClick to activate this quest for the village.'
-    reset: '&7Resets in: &f%time%'
-    rewards: '&6Rewards:'
-    reward-bank: '&7 • Village bank: &6%amount%$'
-    reward-experience: '&7 • Every online member: &e%amount% XP'
-    reward-points: '&7 • Every member: &b%amount% points'
-    none: '&cNo quests are currently configured.'
-  tasks:
-    monster-hunt:
-      name: '&cMonster hunt'
-      description: '&7Defeat hostile creatures together with your village.'
-    mining-shift:
-      name: '&bMining shift'
-      description: '&7Mine basic ores for the village.'
-    wood-supplies:
-      name: '&6Wood supplies'
-      description: '&7Collect logs needed to expand the village.'
-    village-treasury:
-      name: '&eVillage treasury'
-      description: '&7Deposit money into the village bank.'
-    great-hunt:
-      name: '&4Great hunt'
-      description: '&7Defeat hostile creatures throughout the week.'
-    construction-shift:
-      name: '&6Construction shift'
-      description: '&7Place building blocks for the village.'
-    workshop-orders:
-      name: '&eWorkshop orders'
-      description: '&7Craft useful supplies for village members.'
-    village-angler:
-      name: '&bVillage angler'
-      description: '&7Catch fish for the village pantry.'
-    foundry-shift:
-      name: '&7Foundry shift'
-      description: '&7Smelt basic metals in furnaces.'
-    animal-care:
-      name: '&aAnimal care'
-      description: '&7Breed farm animals throughout the week.'
-    master-enchanter:
-      name: '&5Master enchanter'
-      description: '&7Enchant equipment for the village.'
-    experience-drive:
-      name: '&dExperience drive'
-      description: '&7Collect experience together as a village.'
-
-# Village activity logs addon
-logs:
-  system: 'Village system'
-  gui:
-    menu-name: '&6Activity logs'
-    menu-lore: '&7View important changes and actions in the village.'
-    none: '&7There are no recorded activities yet.'
-    actor: '&7Performed by: &f%actor%'
-    date: '&7Date: &f%date%'
-    grouped: '&8Merged actions: &7%count%'
-  types:
-    village-created: '&aVillage created'
-    member-join: '&aMember joined'
-    member-leave: '&eMember left'
-    member-kick: '&cMember removed'
-    member-permission: '&bMember permission'
-    bank-deposit: '&aBank deposit'
-    bank-withdraw: '&cBank withdrawal'
-    quest-completed: '&eQuest completed'
-    setting-changed: '&dSetting changed'
-    village-upgrade: '&bVillage upgraded'
-    village-attack: '&cVillage attacked'
-  entries:
-    village-created: '&7The village was created.'
-    member-join: '&f%member% &7joined the village.'
-    member-leave: '&f%member% &7left the village.'
-    member-kick: '&f%member% &7was removed from the village.'
-    member-permission: '&7Permission &f%permission% &7for &f%member%&7: %value%&7.'
-    bank-deposit: '&7Deposited &a%amount%$ &7into the village bank.'
-    bank-withdraw: '&7Withdrew &c%amount%$ &7from the village bank.'
-    quest-completed: '&7The village completed quest %quest%&7.'
-    setting-changed: '&7Changed &f%setting% &7to %value%&7.'
-    village-upgrade: '&7The village reached level &b%level%&7.'
-    village-attack: '&7The village was attacked. Remaining lives: &c%lives%&7.'
-  settings:
-    pvp: 'PVP'
-    tnt: 'TNT damage'
-    animations: 'village animations'
-    teleport: 'teleport location'
-    tag: 'village tag'
-    effect-regeneration: 'regeneration effect'
-    effect-speed: 'speed effect'
-    effect-jump: 'jump effect'
-    effect-haste: 'haste effect'
-    protection: 'protection'
-    lives: 'village lives'
-  permissions:
-    owner: 'owner'
-    settings: 'settings'
-    invite: 'inviting'
-    store: 'store'
-    effects-buy: 'buying effects'
-    effects-toggle: 'toggling effects'
-    upgrade: 'upgrading'
-    storage: 'storage'
-    bank-add: 'bank deposits'
-    bank-remove: 'bank withdrawals'
-    quest-toggle: 'quest activation'
-  values:
-    updated: '&aupdated'
-    purchased: '&apurchased'
-    removed: '&cremoved'
 
 # PvP ranking
 ranking:
   kill: '&aYou defeated &f%victim%&a and gained &e%points% &aranking points.'
   death: '&cYou were defeated by &f%killer%&c and lost &e%points% &cranking points.'
   assist: '&bYou assisted in defeating &f%victim%&b and gained &e%points% &branking points.'
+
+# Village diplomacy
+diplomacy:
+  unavailable: '&cThis diplomacy operation is currently unavailable.'
+  same-village: '&cYou cannot select your own village.'
+  alliance:
+    command-description: 'Manages village alliances'
+    usage: '&c%usage%'
+    request-sent: '&7Your village sent an alliance request to &a%village%&7. It expires in &f%time%&7.'
+    request-received: '&a%village% &7sent your village an alliance request. It expires in &f%time%&7.'
+    request-denied: '&c%village% rejected your alliance request.'
+    request-denied-self: '&7You rejected the alliance request from &c%village%&7.'
+    request-exists: '&cAn alliance request between these villages already exists.'
+    no-request: '&cThere is no active alliance request from that village.'
+    created: '&aYour village formed an alliance with &f%village%&a.'
+    ended: '&eThe alliance with &f%village% &ehas ended.'
+    already: '&cThese villages are already allied.'
+    not-allied: '&cYour village is not allied with that village.'
+    limit: '&cOne of the villages has reached its alliance limit.'
+    war-conflict: '&cAn alliance cannot be formed during a war or its cooldown.'
+    friendly-fire: '&cYou cannot attack members of an allied village.'
+    cannot-attack: '&cYou cannot attack the central block of an allied village.'
+    list:
+      header: '&6Alliances &7(%count%/%max%):'
+      empty: '&7Your village has no alliances.'
+      entry: '&8 • &f%village%'
+      pending-header: '&ePending alliance requests:'
+  war:
+    command-description: 'Manages village wars'
+    usage: '&c%usage%'
+    declared-attacker: '&cYour village declared war on &f%village%&c. Preparation: &f%time%&c.'
+    declared-defender: '&4%village% declared war on your village! &cPreparation: &f%time%&c.'
+    started: '&4The war with &f%village% &4has started!'
+    finished: '&6The war with &f%enemy% &6has ended. Winner: &f%winner%&6. Score: &e%our_score%&7:&e%enemy_score%&6.'
+    draw: 'draw'
+    attacker-no-village: '&cYou must belong to a village to attack during the war system.'
+    preparing: '&cThis war is still in preparation. It starts in &f%time%&c.'
+    required: '&cYour village must be in an active war with this village to attack it.'
+    allied: '&cYou cannot declare war on an allied village.'
+    exists: '&cA war between these villages is already in progress.'
+    cooldown: '&cThese villages are still covered by the post-war cooldown.'
+    limit: '&cOne of the villages has reached its active war limit.'
+    not-enough-members: '&cOne of the villages does not have enough members for a war.'
+    not-enough-online: '&cOne of the villages does not have enough online members.'
+    not-enough-bank: '&cYour village needs &6%cost%$ &cto declare this war.'
+    none: '&cThere is no active war with that village.'
+    list:
+      header: '&6Village wars &7(%count%):'
+      empty: '&7Your village has no current or cooling-down wars.'
+      entry: '&8 • &f%village% &7- %state% &7- &f%time% &7- score &e%our_score%&7:&e%enemy_score%'
+    state:
+      preparing: '&ePreparation'
+      active: '&cActive'
+      finished: '&7Cooldown'
+
+# Village development tree
+development:
+  unlocked-broadcast: '&f%player% &aunlocked village development: %node%&a.'
+  already-unlocked: '&cThis development has already been unlocked.'
+  level-required: '&cThe village must reach level &f%level% &cto unlock this development.'
+  prerequisite-required: '&cUnlock the previous development in this branch first.'
+  not-enough-bank: '&cThe village bank needs &6%cost%$&c. Current balance: &6%bank%$&c.'

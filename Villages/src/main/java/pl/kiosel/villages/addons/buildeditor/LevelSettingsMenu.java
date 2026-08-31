@@ -3,27 +3,24 @@ package pl.kiosel.villages.addons.buildeditor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import pl.kiosel.core.gui.Gui;
-import pl.kiosel.core.gui.GuiUtils;
-import pl.kiosel.dependencies.com.cryptomorin.xseries.XMaterial;
+import pl.kiosel.rosacore.gui.Gui;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.enums.Lang;
 import pl.kiosel.villages.data.village.level.Level;
 import pl.kiosel.villages.gui.Item;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static pl.kiosel.core.utils.ColorUtils.tl;
+import static pl.kiosel.rosacore.utils.ColorUtils.tl;
 
 final class LevelSettingsMenu extends Gui {
 
 	LevelSettingsMenu(AdvancedVillages plugin, Player player, VillageBuildEditorManager manager, int levelNumber) {
 		Level level = plugin.getLevelManager().getLevel(levelNumber);
 		setRows(3);
-		setTitle(tl(manager.getConfig().getString("settings-menu.title", "&8Level &6%level% &8settings")
-				.replace("%level%", String.valueOf(levelNumber))));
-		setDefaultItem(GuiUtils.getBorderItem(XMaterial.BLACK_STAINED_GLASS_PANE));
+		setTitle(manager.getConfig().getString("settings-menu.title", "&8Level &6%level% &8settings")
+				.replace("%level%", String.valueOf(levelNumber)));
+		setDefaultItem(Item.create(Material.BLACK_STAINED_GLASS_PANE, " "));
 
 		setButton(1, 1, button(Material.CHEST,
 				manager, "settings-menu.items", "&eRequired Items",
@@ -38,8 +35,9 @@ final class LevelSettingsMenu extends Gui {
 				manager, "settings-menu.size", "&bRegion size",
 				Integer.toString(level.getSize())), event -> begin(player, manager, levelNumber, LevelEditorField.SIZE));
 
-		setButton(2, 8, GuiUtils.createButtonItem(XMaterial.SPECTRAL_ARROW,
-				plugin.getMessages().text(Lang.BACK)), event -> manager.openLevelMenu(player));
+		setButton(2, 8, Item.create(Material.SPECTRAL_ARROW,
+				plugin.getGuiSettings().text("guis.common.back.name", "&9Back")),
+				event -> manager.openLevelMenu(player));
 	}
 
 	private void begin(Player player, VillageBuildEditorManager manager, int level, LevelEditorField field) {

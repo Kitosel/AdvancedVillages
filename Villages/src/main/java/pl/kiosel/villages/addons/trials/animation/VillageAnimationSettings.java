@@ -1,11 +1,11 @@
 package pl.kiosel.villages.addons.trials.animation;
 
 import lombok.Getter;
-import pl.kiosel.core.configuration.Config;
-import pl.kiosel.dependencies.com.cryptomorin.xseries.XSound;
-import pl.kiosel.dependencies.com.cryptomorin.xseries.particles.XParticle;
+import pl.kiosel.rosacore.compatibility.ZParticle;
+import pl.kiosel.rosacore.compatibility.ZSound;
+import pl.kiosel.rosacore.config.RosaConfig;
+import pl.kiosel.villages.config.Settings;
 import pl.kiosel.villages.data.village.level.LevelManager;
-import pl.kiosel.villages.settings.Settings;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,14 +29,14 @@ public final class VillageAnimationSettings {
         this.removal = removal;
     }
 
-    public static VillageAnimationSettings load(Config config) {
+    public static VillageAnimationSettings load(RosaConfig config) {
         Creation creation = new Creation(
                 config.getBoolean("creation.enabled", true),
                 clamp(config.getInt("creation.duration-ticks", 28), 1, 200),
-                particle(config.getString("creation.particle", "END_ROD"), XParticle.END_ROD),
+                particle(config.getString("creation.particle", "END_ROD"), ZParticle.END_ROD),
                 clamp(config.getInt("creation.count", 4), 1, 100),
                 Math.max(0.1, config.getDouble("creation.radius", 1.25)),
-                sound(config.getString("creation.play-sound.sound"), XSound.ENTITY_PLAYER_LEVELUP),
+                sound(config.getString("creation.play-sound.sound"), ZSound.ENTITY_PLAYER_LEVELUP),
                 clamp(config.getFloat("creation.play-sound.pitch", 1F), 0, 2),
                 clamp(config.getFloat("creation.play-sound.volume", 0.5F), 0, 1)
         );
@@ -44,10 +44,10 @@ public final class VillageAnimationSettings {
         Upgraded upgraded = new Upgraded(
                 config.getBoolean("upgrade.enabled", true),
                 clamp(config.getInt("upgrade.duration-ticks", 28), 1, 200),
-                particle(config.getString("upgrade.particle", "END_ROD"), XParticle.END_ROD),
+                particle(config.getString("upgrade.particle", "END_ROD"), ZParticle.END_ROD),
                 clamp(config.getInt("upgrade.count", 6), 1, 100),
                 Math.max(0.1, config.getDouble("upgrade.radius", 1.35)),
-                sound(config.getString("upgrade.play-sound.sound"), XSound.ENTITY_PLAYER_LEVELUP),
+                sound(config.getString("upgrade.play-sound.sound"), ZSound.ENTITY_PLAYER_LEVELUP),
                 clamp(config.getFloat("upgrade.play-sound.pitch", 1F), 0, 2),
                 clamp(config.getFloat("upgrade.play-sound.volume", 0.5F), 0, 1)
         );
@@ -55,7 +55,7 @@ public final class VillageAnimationSettings {
         Map<Integer, LevelAnimationStyle> styles = new HashMap<>();
         for (int level = 1; level <= LevelManager.MAX_LEVEL; level++) {
             String path = "central-block.levels." + level;
-            XParticle primary = particle(defaultParticle(level), XParticle.FLAME);
+            ZParticle primary = particle(defaultParticle(level), ZParticle.FLAME);
             styles.put(level, new LevelAnimationStyle(
                     config.getBoolean(path + ".enabled", true),
                     normalizePattern(config.getString(path + ".pattern", defaultPattern(level))),
@@ -98,17 +98,17 @@ public final class VillageAnimationSettings {
         return value == null ? "HALO" : value.trim().toUpperCase(Locale.ROOT).replace('-', '_');
     }
 
-    private static XParticle particle(String value, XParticle fallback) {
+    private static ZParticle particle(String value, ZParticle fallback) {
         try {
-            return XParticle.of(value.toUpperCase(Locale.ROOT)).orElse(fallback);
+            return ZParticle.match(value.toUpperCase(Locale.ROOT)).orElse(fallback);
         } catch (Exception ignored) {
             return fallback;
         }
     }
 
-    private static XSound sound(String value, XSound fallback) {
+    private static ZSound sound(String value, ZSound fallback) {
         try {
-            return XSound.of(value.toUpperCase(Locale.ROOT)).orElse(fallback);
+            return ZSound.match(value.toUpperCase(Locale.ROOT)).orElse(fallback);
         } catch (Exception ignored) {
             return fallback;
         }
@@ -179,14 +179,14 @@ public final class VillageAnimationSettings {
     public static final class Creation {
         private final boolean enabled;
         private final int durationTicks;
-        private final XParticle particle;
+        private final ZParticle particle;
         private final int count;
         private final double radius;
-        private final XSound sound;
+        private final ZSound sound;
         private final float pitch;
         private final float volume;
 
-        private Creation(boolean enabled, int durationTicks, XParticle particle, int count, double radius, XSound sound, float pitch, float volume) {
+        private Creation(boolean enabled, int durationTicks, ZParticle particle, int count, double radius, ZSound sound, float pitch, float volume) {
             this.enabled = enabled;
             this.durationTicks = durationTicks;
             this.particle = particle;
@@ -227,14 +227,14 @@ public final class VillageAnimationSettings {
     public static final class Upgraded {
         private final boolean enabled;
         private final int durationTicks;
-        private final XParticle particle;
+        private final ZParticle particle;
         private final int count;
         private final double radius;
-        private final XSound sound;
+        private final ZSound sound;
         private final float pitch;
         private final float volume;
 
-        private Upgraded(boolean enabled, int durationTicks, XParticle particle, int count, double radius, XSound sound, float pitch, float volume) {
+        private Upgraded(boolean enabled, int durationTicks, ZParticle particle, int count, double radius, ZSound sound, float pitch, float volume) {
             this.enabled = enabled;
             this.durationTicks = durationTicks;
             this.particle = particle;

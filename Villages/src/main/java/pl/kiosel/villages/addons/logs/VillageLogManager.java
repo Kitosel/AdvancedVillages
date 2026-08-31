@@ -1,10 +1,11 @@
 package pl.kiosel.villages.addons.logs;
 
 import org.bukkit.entity.Player;
+import pl.kiosel.rosacore.utils.NumberUtils;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.data.user.User;
+import pl.kiosel.villages.data.village.Permission;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.enums.Permission;
 import pl.kiosel.villages.storage.VillageLogStorage;
 
 import java.time.Instant;
@@ -69,12 +70,12 @@ public final class VillageLogManager {
 		if (player.hasPermission("villages.admin.logs")) {
 			return true;
 		}
-		User user = this.plugin.getUserManager().findByPlayer(player).orNull();
+		User user = this.plugin.getUserManager().findByPlayer(player).orElse(null);
 		Village currentVillage = user == null ? null : user.getPresentVillage();
 		return currentVillage != null
 				&& currentVillage.getUUID().equals(village.getUUID())
 				&& (village.isOwner(user)
-				|| this.plugin.getPermissionManager().hasPermission(user, Permission.SETTINGS));
+				|| this.plugin.getRoleManager().hasPermission(user, Permission.SETTINGS));
 	}
 
 	public void record(Village village, VillageLogType type, Player actor, Object... details) {
@@ -124,7 +125,7 @@ public final class VillageLogManager {
 			this.storage.save(batch, current.getMaxEntriesPerVillage(), current.getRetentionDays());
 		} catch (RuntimeException exception) {
 			this.pending.addAll(batch);
-			this.plugin.getLogger().log(Level.SEVERE, "Could not save village activity logs", exception);
+			this.plugin.getRosaLogger().log(Level.SEVERE, "Could not save village activity logs", exception);
 		}
 	}
 
@@ -183,9 +184,9 @@ public final class VillageLogManager {
 		switch (current.getType()) {
 			case BANK_DEPOSIT:
 			case BANK_WITHDRAW:
-				details.put("amount", Long.toString(safeAdd(
-						parseLong(previous.getDetails().get("amount")),
-						parseLong(current.getDetails().get("amount"))
+				details.put("amount", Long.toString(NumberUtils.safeAdd(
+						NumberUtils.parseLongOrZero(previous.getDetails().get("amount")),
+						NumberUtils.parseLongOrZero(current.getDetails().get("amount"))
 				)));
 				break;
 			case SETTING_CHANGED:
@@ -199,12 +200,15 @@ public final class VillageLogManager {
 					return null;
 				}
 				break;
+			case MEMBER_ROLE:
+				if (!sameDetail(previous, current, "member")) return null;
+				break;
 			default:
 				return null;
 		}
 
-		details.put("count", Long.toString(safeAdd(
-				Math.max(1L, parseLong(previous.getDetails().get("count"))), 1L)));
+		details.put("count", Long.toString(NumberUtils.safeAdd(
+				Math.max(1L, NumberUtils.parseLongOrZero(previous.getDetails().get("count"))), 1L)));
 		return new VillageLogEntry(
 				previous.getId(), current.getVillageId(), current.getType(),
 				current.getActorId(), current.getActorName(), current.getCreatedAt(), details
@@ -236,23 +240,5 @@ public final class VillageLogManager {
 
 	private static boolean sameDetail(VillageLogEntry first, VillageLogEntry second, String key) {
 		return Objects.equals(first.getDetails().get(key), second.getDetails().get(key));
-	}
-
-	private static long parseLong(String value) {
-		try {
-			return value == null ? 0L : Long.parseLong(value);
-		} catch (NumberFormatException ignored) {
-			return 0L;
-		}
-	}
-
-	private static long safeAdd(long first, long second) {
-		if (second > 0L && first > Long.MAX_VALUE - second) {
-			return Long.MAX_VALUE;
-		}
-		if (second < 0L && first < Long.MIN_VALUE - second) {
-			return Long.MIN_VALUE;
-		}
-		return first + second;
 	}
 }

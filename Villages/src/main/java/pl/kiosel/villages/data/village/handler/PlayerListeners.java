@@ -11,31 +11,31 @@ import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.potion.PotionEffect;
-import pl.kiosel.dependencies.com.cryptomorin.xseries.XMaterial;
+import pl.kiosel.rosacore.listener.RosaListener;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.api.events.PlayerEnterVillageEvent;
+import pl.kiosel.villages.api.events.PlayerExitVillageEvent;
+import pl.kiosel.villages.config.Settings;
 import pl.kiosel.villages.data.user.User;
+import pl.kiosel.villages.data.village.Effects;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.enums.Effects;
-import pl.kiosel.villages.events.PlayerEnterVillageEvent;
-import pl.kiosel.villages.events.PlayerExitVillageEvent;
-import pl.kiosel.villages.settings.Settings;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class PlayerListeners implements Listener {
+public class PlayerListeners extends RosaListener {
 
 	private final AdvancedVillages plugin;
 	private final Set<Player> insideVillagePlayers = new HashSet<>();
 
 	public PlayerListeners(AdvancedVillages plugin) {
+		super(plugin);
 		this.plugin = plugin;
 	}
 
@@ -56,7 +56,7 @@ public class PlayerListeners implements Listener {
 		Village village = plugin.getVillageUtilsManager().getVillageAt(event.getBlock().getLocation());
 		if (village == null) return;
 
-		if (event.getBlock().getType().equals(XMaterial.NOTE_BLOCK.get()) && village.isCentralBlock(event.getBlock())) return;
+		if (isSameType(event.getBlock().getType(), Material.NOTE_BLOCK) && village.isCentralBlock(event.getBlock())) return;
 
 		if (!village.isMember(user)) {
 			event.setCancelled(true);
@@ -87,9 +87,9 @@ public class PlayerListeners implements Listener {
 		Village village = plugin.getVillageUtilsManager().getVillageAt(block.getLocation());
 		if (village == null) return;
 
-		if (event.getClickedBlock().getType().equals(XMaterial.NOTE_BLOCK.get()) && village.isCentralBlock(event.getClickedBlock())) return;
+		if (isSameType(block.getType(), Material.NOTE_BLOCK) && village.isCentralBlock(event.getClickedBlock())) return;
 
-		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).get();
+		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).orElseThrow();
 		if (!village.isMember(user)) {
 			boolean shouldCancel = isShouldCancel(event.getAction(), block);
 			if (shouldCancel) {
@@ -208,20 +208,24 @@ public class PlayerListeners implements Listener {
 
 		if (village != null && village.isMember(user)) {
 			if (village.isRegenerationActive()) {
-				assert Effects.REGENERATION.getPotion().getPotionEffectType() != null;
-				player.addPotionEffect(new PotionEffect(Effects.REGENERATION.getPotion().getPotionEffectType(), 40, toBukkitAmplifier(Settings.EFFECTS_REGENERATION_AMPLIFIER.getInt())));
+				player.addPotionEffect(
+						new PotionEffect(Effects.REGENERATION.getPotion().getPotionEffectType().orElseThrow(), 40,
+								toBukkitAmplifier(Settings.EFFECTS_REGENERATION_AMPLIFIER.getInt())));
 			}
 			if (village.isSpeedActive()) {
-				assert Effects.SPEED.getPotion().getPotionEffectType() != null;
-				player.addPotionEffect(new PotionEffect(Effects.SPEED.getPotion().getPotionEffectType(), 40, toBukkitAmplifier(Settings.EFFECTS_SPEED_AMPLIFIER.getInt())));
+				player.addPotionEffect(
+						new PotionEffect(Effects.SPEED.getPotion().getPotionEffectType().orElseThrow(), 40,
+								toBukkitAmplifier(Settings.EFFECTS_SPEED_AMPLIFIER.getInt())));
 			}
 			if (village.isJumpActive()) {
-				assert Effects.JUMP_BOOST.getPotion().getPotionEffectType() != null;
-				player.addPotionEffect(new PotionEffect(Effects.JUMP_BOOST.getPotion().getPotionEffectType(), 40, toBukkitAmplifier(Settings.EFFECTS_JUMP_BOOST_AMPLIFIER.getInt())));
+				player.addPotionEffect(
+						new PotionEffect(Effects.JUMP_BOOST.getPotion().getPotionEffectType().orElseThrow(), 40,
+								toBukkitAmplifier(Settings.EFFECTS_JUMP_BOOST_AMPLIFIER.getInt())));
 			}
 			if (village.isHasteActive()) {
-				assert Effects.HASTE.getPotion().getPotionEffectType() != null;
-				player.addPotionEffect(new PotionEffect(Effects.HASTE.getPotion().getPotionEffectType(), 40, toBukkitAmplifier(Settings.EFFECTS_HASTE_AMPLIFIER.getInt())));
+				player.addPotionEffect(
+						new PotionEffect(Effects.HASTE.getPotion().getPotionEffectType().orElseThrow(), 40,
+								toBukkitAmplifier(Settings.EFFECTS_HASTE_AMPLIFIER.getInt())));
 			}
 		}
 

@@ -2,7 +2,6 @@ package pl.kiosel.villages.addons.antylogout;
 
 import java.util.UUID;
 
-/** A single player's current combat state. */
 final class CombatSession {
 
 	private final UUID opponent;

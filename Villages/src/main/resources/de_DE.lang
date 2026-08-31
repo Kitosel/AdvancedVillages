@@ -4,15 +4,8 @@ general:
   addon-disabled: '&cDas Add-on %addon% ist derzeit deaktiviert.'
   nametag:
     prefix: '&8[&6&lDörfer&r&8]'
-    next: '&9Weiter'
-    back: '&9Zurück'
-    exit: '&cSchließen'
-    blank: '&7&kLeer'
-    previous: '&cZurück'
     'on': '&aAN'
     'off': '&cAUS'
-    'yes': '&aJa'
-    'no': '&cNein'
   time:
     second: { one: 'Sekunde', few: 'Sekunden', many: 'Sekunden' }
     minute: { one: 'Minute', few: 'Minuten', many: 'Minuten' }
@@ -58,6 +51,30 @@ command:
     delete: '&cDas Dorf von &f%village_owner% &cwurde gelöscht!'
     protection-add: '&7Das Dorf von &a%village_owner% &7wurde für &6%time% &7geschützt'
     protection-remove: '&7Der Schutz des Dorfes von &a%village_owner% &7wurde entfernt'
+    village-not-found: '&cDu befindest dich in keinem Dorfgebiet'
+    debug:
+      info: |-
+        &7&m--------------------------------
+        &6Dorfdiagnose
+        &7Name: &6%name%
+        &7UUID: &6%uuid%
+        &7Tag: &6%tag%
+        &7Besitzer: &6%owner%
+        &7Stufe / Regionsgröße: &6%level% &7/ &6%size%
+        &7Zentrum: &c%location%
+        &7Zuhause: &c%home%
+        &7Leben / Bank: %lives% &7/ &6%bank%
+        &7Mitglieder: &6%members% &7(online: &a%online_members%&7)
+        &7Schutz bis: &6%protection%
+        &7Verbündete / aktive Kriege: &6%allies% &7/ &6%wars%
+        &7Ausstehende Unterhaltszahlungen: &6%missed_payments%
+        &7Einstellungen: &7PvP %pvp%&7, TNT %tnt%&7, Animationen %animations%
+        &7Speicherstatus: %persistence% &7(Version &6%version%&7)
+        &7&m--------------------------------
+      not-set: '&cnicht festgelegt'
+      none: '&7keine'
+      dirty: '&cwartet auf Speicherung'
+      saved: '&agespeichert'
     bank-add: '&7Der Dorfbank von &a%village_owner% &7wurden &a%money% &7gutgeschrieben'
     bank-remove: '&7Von der Dorfbank von &a%village_owner% &7wurden &c%money% &7abgezogen'
     lives-add: '&7Dem Dorf von &a%village_owner% &7wurden &a%lives% &7Leben hinzugefügt'
@@ -65,7 +82,8 @@ command:
     already-dying: '&cDieses Dorf hat keine Leben mehr'
     upgrade-failed: '&cDas Dorf konnte nicht verbessert werden. Prüfe die Serverkonsole'
     usage:
-      root: '&c/%command% %admin% <%reload%|%give%|%manage%|%settings%>'
+      root: '&c/%command% %admin% <%reload%|%give%|%manage%|%debug%>'
+      debug: '&c/%command% %admin% %debug% [Besitzer]'
       give: '&c/%command% %admin% %give% <%village_block%|%destroyer%>'
       manage: '&c/%command% %admin% %manage% <Besitzer> <%upgrade%|%lives%|%protection%|%remove%>'
       action: '&c/%command% %admin% %manage% <Besitzer> %action% <%add%|%remove%>'
@@ -84,6 +102,11 @@ village:
   protected: '&cDieses Dorf ist derzeit geschützt'
   protected-offline-members: '&cEin Dorf kann nicht angegriffen werden, wenn keiner seiner Mitglieder aktiv ist.'
   remove-member: '&7Du hast &6%player% &7aus dem Dorf entfernt'
+  role-changed: '&7Die Rolle von &6%player% &7wurde zu %role% &7geändert.'
+
+  upkeep-paid: '&7Für den Dorfunterhalt wurden &6%cost%$ &7aus der Bank bezahlt.'
+  upkeep-missed: '&cDas Dorf konnte den Unterhalt von %cost%$ nicht bezahlen. Es fehlen %missing%$. Offene Zahlungen: %missed%.'
+  upkeep-penalty: '&cDas Dorf hat wegen unbezahlten Unterhalts %lives% Leben verloren.'
 
   attacked:
     title: '&8&k[&r &4WARNUNG &8&k]'
@@ -126,7 +149,6 @@ tag:
   has-spaces: 'Das Kürzel darf keine Leerzeichen enthalten'
   too-long: 'Das Kürzel ist zu lang'
   invalid-chars: 'Das Kürzel enthält ungültige Zeichen'
-  anvil-name-your-village: 'Benenne dein Dorf'
   new-village-tag: '&7Das neue Kürzel deines Dorfes ist &a%tag%'
   your-village-tag: '&7Das Kürzel deines Dorfes ist &a%tag%'
   closed-name-village-tag: '&cDu hast das Menü geschlossen, daher wurde kein Kürzel gesetzt'
@@ -237,125 +259,71 @@ quests:
   command-description: 'Dorfaufgaben öffnen'
   completed: '&aDein Dorf hat die Aufgabe &f%quest% &aabgeschlossen! Belohnungen: &6%bank%$&a, &e%experience% EP &aund &b%points% Punkte&a.'
   activated: '&aDie Aufgabe &f%quest% &awurde für dein Dorf aktiviert.'
-  gui:
-    menu-name: '&eDorfaufgaben'
-    menu-lore: '&7Erfüllt gemeinsam tägliche und wöchentliche Aufgaben.'
-    daily: '&eTägliche Aufgabe'
-    weekly: '&6Wöchentliche Aufgabe'
-    progress: '&7Fortschritt: &e%progress%&7/&e%required%'
-    completed: '&aAbgeschlossen! &7(%progress%/%required%)'
-    active: '&aAktiv - Fortschritt wird gesammelt'
-    inactive: '&cInaktiv - Fortschritt wird nicht gesammelt'
-    activate: '&eKlicke, um diese Aufgabe für das Dorf zu aktivieren.'
-    reset: '&7Zurücksetzung in: &f%time%'
-    rewards: '&6Belohnungen:'
-    reward-bank: '&7 • Dorfbank: &6%amount%$'
-    reward-experience: '&7 • Jedes Online-Mitglied: &e%amount% EP'
-    reward-points: '&7 • Jedes Mitglied: &b%amount% Punkte'
-    none: '&cEs sind derzeit keine Aufgaben konfiguriert.'
-  tasks:
-    monster-hunt:
-      name: '&cMonsterjagd'
-      description: '&7Besiegt gemeinsam feindliche Kreaturen.'
-    mining-shift:
-      name: '&bBergbauschicht'
-      description: '&7Baut grundlegende Erze für das Dorf ab.'
-    wood-supplies:
-      name: '&6Holzvorräte'
-      description: '&7Sammelt Holz für den Ausbau des Dorfes.'
-    village-treasury:
-      name: '&eDorfschatzkammer'
-      description: '&7Zahlt Geld in die Dorfbank ein.'
-    great-hunt:
-      name: '&4Große Jagd'
-      description: '&7Besiegt während der Woche feindliche Kreaturen.'
-    construction-shift:
-      name: '&6Bauschicht'
-      description: '&7Platziert Baublöcke für das Dorf.'
-    workshop-orders:
-      name: '&eWerkstattaufträge'
-      description: '&7Stellt nützliche Vorräte für die Dorfbewohner her.'
-    village-angler:
-      name: '&bDorfangler'
-      description: '&7Fangt Fische für die Vorräte des Dorfes.'
-    foundry-shift:
-      name: '&7Hüttenschicht'
-      description: '&7Schmelzt grundlegende Metalle in Öfen.'
-    animal-care:
-      name: '&aTierpflege'
-      description: '&7Züchtet während der Woche Nutztiere.'
-    master-enchanter:
-      name: '&5Meisterverzauberer'
-      description: '&7Verzaubert Ausrüstung für das Dorf.'
-    experience-drive:
-      name: '&dErfahrungssammlung'
-      description: '&7Sammelt gemeinsam Erfahrung für das Dorf.'
-
-# Aktivitätsprotokoll des Dorfes
-logs:
-  system: 'Dorfsystem'
-  gui:
-    menu-name: '&6Aktivitätsprotokoll'
-    menu-lore: '&7Zeigt wichtige Änderungen und Aktionen im Dorf.'
-    none: '&7Es wurden noch keine Aktivitäten aufgezeichnet.'
-    actor: '&7Ausgeführt von: &f%actor%'
-    date: '&7Datum: &f%date%'
-    grouped: '&8Zusammengefasste Aktionen: &7%count%'
-  types:
-    village-created: '&aDorf erstellt'
-    member-join: '&aMitglied beigetreten'
-    member-leave: '&eMitglied ausgetreten'
-    member-kick: '&cMitglied entfernt'
-    member-permission: '&bMitgliedsberechtigung'
-    bank-deposit: '&aBankeinzahlung'
-    bank-withdraw: '&cBankauszahlung'
-    quest-completed: '&eAufgabe abgeschlossen'
-    setting-changed: '&dEinstellung geändert'
-    village-upgrade: '&bDorf verbessert'
-    village-attack: '&cDorf angegriffen'
-  entries:
-    village-created: '&7Das Dorf wurde erstellt.'
-    member-join: '&f%member% &7ist dem Dorf beigetreten.'
-    member-leave: '&f%member% &7hat das Dorf verlassen.'
-    member-kick: '&f%member% &7wurde aus dem Dorf entfernt.'
-    member-permission: '&7Berechtigung &f%permission% &7für &f%member%&7: %value%&7.'
-    bank-deposit: '&a%amount%$ &7wurden in die Dorfbank eingezahlt.'
-    bank-withdraw: '&c%amount%$ &7wurden aus der Dorfbank ausgezahlt.'
-    quest-completed: '&7Das Dorf hat die Aufgabe %quest% &7abgeschlossen.'
-    setting-changed: '&f%setting% &7wurde auf %value% &7gesetzt.'
-    village-upgrade: '&7Das Dorf hat Stufe &b%level% &7erreicht.'
-    village-attack: '&7Das Dorf wurde angegriffen. Verbleibende Leben: &c%lives%&7.'
-  settings:
-    pvp: 'PVP'
-    tnt: 'TNT-Schaden'
-    animations: 'Dorfanimationen'
-    teleport: 'Teleportposition'
-    tag: 'Dorfkürzel'
-    effect-regeneration: 'Regenerationseffekt'
-    effect-speed: 'Geschwindigkeitseffekt'
-    effect-jump: 'Sprungeffekt'
-    effect-haste: 'Eileeffekt'
-    protection: 'Schutz'
-    lives: 'Dorfleben'
-  permissions:
-    owner: 'Besitzer'
-    settings: 'Einstellungen'
-    invite: 'Einladungen'
-    store: 'Laden'
-    effects-buy: 'Effekte kaufen'
-    effects-toggle: 'Effekte umschalten'
-    upgrade: 'Verbesserungen'
-    storage: 'Lager'
-    bank-add: 'Bankeinzahlungen'
-    bank-remove: 'Bankauszahlungen'
-    quest-toggle: 'Aufgabenaktivierung'
-  values:
-    updated: '&aaktualisiert'
-    purchased: '&agekauft'
-    removed: '&centfernt'
 
 # PvP-Rangliste
 ranking:
   kill: '&aDu hast &f%victim% &abesiegt und &e%points% &aRanglistenpunkte erhalten.'
   death: '&cDu wurdest von &f%killer% &cbesiegt und hast &e%points% &cRanglistenpunkte verloren.'
   assist: '&bDu hast beim Besiegen von &f%victim% &bgeholfen und &e%points% &bRanglistenpunkte erhalten.'
+
+# Dorfdiplomatie
+diplomacy:
+  unavailable: '&cDiese diplomatische Aktion ist derzeit nicht verfügbar.'
+  same-village: '&cDu kannst dein eigenes Dorf nicht auswählen.'
+  alliance:
+    command-description: 'Verwaltet Dorfbündnisse'
+    usage: '&c%usage%'
+    request-sent: '&7Dein Dorf hat &a%village% &7eine Bündnisanfrage gesendet. Sie läuft in &f%time% &7ab.'
+    request-received: '&a%village% &7hat deinem Dorf eine Bündnisanfrage gesendet. Sie läuft in &f%time% &7ab.'
+    request-denied: '&c%village% hat deine Bündnisanfrage abgelehnt.'
+    request-denied-self: '&7Du hast die Bündnisanfrage von &c%village% &7abgelehnt.'
+    request-exists: '&cZwischen diesen Dörfern besteht bereits eine Bündnisanfrage.'
+    no-request: '&cVon diesem Dorf liegt keine aktive Bündnisanfrage vor.'
+    created: '&aDein Dorf hat ein Bündnis mit &f%village% &ageschlossen.'
+    ended: '&eDas Bündnis mit &f%village% &ewurde beendet.'
+    already: '&cDiese Dörfer sind bereits verbündet.'
+    not-allied: '&cDein Dorf ist mit diesem Dorf nicht verbündet.'
+    limit: '&cEines der Dörfer hat sein Bündnislimit erreicht.'
+    war-conflict: '&cWährend eines Krieges oder seiner Abklingzeit kann kein Bündnis geschlossen werden.'
+    friendly-fire: '&cDu kannst Mitglieder eines verbündeten Dorfes nicht angreifen.'
+    cannot-attack: '&cDu kannst den Zentralblock eines verbündeten Dorfes nicht angreifen.'
+    list:
+      header: '&6Bündnisse &7(%count%/%max%):'
+      empty: '&7Dein Dorf hat keine Bündnisse.'
+      entry: '&8 • &f%village%'
+      pending-header: '&eAusstehende Bündnisanfragen:'
+  war:
+    command-description: 'Verwaltet Dorfkriege'
+    usage: '&c%usage%'
+    declared-attacker: '&cDein Dorf hat &f%village% &cden Krieg erklärt. Vorbereitung: &f%time%&c.'
+    declared-defender: '&4%village% hat deinem Dorf den Krieg erklärt! &cVorbereitung: &f%time%&c.'
+    started: '&4Der Krieg mit &f%village% &4hat begonnen!'
+    finished: '&6Der Krieg mit &f%enemy% &6ist beendet. Sieger: &f%winner%&6. Ergebnis: &e%our_score%&7:&e%enemy_score%&6.'
+    draw: 'Unentschieden'
+    attacker-no-village: '&cDu musst einem Dorf angehören, um im Kriegssystem anzugreifen.'
+    preparing: '&cDieser Krieg wird noch vorbereitet. Er beginnt in &f%time%&c.'
+    required: '&cDein Dorf muss sich in einem aktiven Krieg mit diesem Dorf befinden, um es anzugreifen.'
+    allied: '&cDu kannst einem verbündeten Dorf keinen Krieg erklären.'
+    exists: '&cZwischen diesen Dörfern läuft bereits ein Krieg.'
+    cooldown: '&cFür diese Dörfer gilt noch die Abklingzeit des letzten Krieges.'
+    limit: '&cEines der Dörfer hat sein Limit aktiver Kriege erreicht.'
+    not-enough-members: '&cEines der Dörfer hat nicht genügend Mitglieder für einen Krieg.'
+    not-enough-online: '&cEines der Dörfer hat nicht genügend Mitglieder online.'
+    not-enough-bank: '&cDein Dorf benötigt &6%cost%$&c, um diesen Krieg zu erklären.'
+    none: '&cEs gibt keinen aktiven Krieg mit diesem Dorf.'
+    list:
+      header: '&6Dorfkriege &7(%count%):'
+      empty: '&7Dein Dorf hat keine laufenden Kriege oder Abklingzeiten.'
+      entry: '&8 • &f%village% &7- %state% &7- &f%time% &7- Ergebnis &e%our_score%&7:&e%enemy_score%'
+    state:
+      preparing: '&eVorbereitung'
+      active: '&cAktiv'
+      finished: '&7Abklingzeit'
+
+# Dorfentwicklungsbaum
+development:
+  unlocked-broadcast: '&f%player% &ahat die Dorfentwicklung freigeschaltet: %node%&a.'
+  already-unlocked: '&cDiese Entwicklung wurde bereits freigeschaltet.'
+  level-required: '&cDas Dorf muss Stufe &f%level% &cerreichen, um diese Entwicklung freizuschalten.'
+  prerequisite-required: '&cSchalte zuerst die vorherige Entwicklung dieses Zweigs frei.'
+  not-enough-bank: '&cDie Dorfbank benötigt &6%cost%$&c. Aktueller Stand: &6%bank%$&c.'

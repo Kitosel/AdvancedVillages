@@ -3,28 +3,25 @@ package pl.kiosel.villages.gui.village;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import pl.kiosel.core.gui.Gui;
-import pl.kiosel.dependencies.com.cryptomorin.xseries.XSound;
+import pl.kiosel.rosacore.compatibility.ZSound;
+import pl.kiosel.rosacore.gui.Gui;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.addons.quests.QuestDefinition;
 import pl.kiosel.villages.addons.quests.QuestPeriod;
 import pl.kiosel.villages.addons.quests.QuestReward;
 import pl.kiosel.villages.addons.quests.VillageQuestView;
+import pl.kiosel.villages.config.GuiItemConfig;
+import pl.kiosel.villages.config.Lang;
+import pl.kiosel.villages.data.village.Permission;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.enums.GUIS;
-import pl.kiosel.villages.enums.Lang;
-import pl.kiosel.villages.enums.Permission;
-import pl.kiosel.villages.gui.Item;
+import pl.kiosel.villages.gui.GUIS;
 import pl.kiosel.villages.gui.VillageGUIManager;
 import pl.kiosel.villages.gui.VillageMenu;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public final class QuestInventory extends VillageMenu {
-
-	private static final int PROGRESS_BAR_LENGTH = 20;
 
 	public QuestInventory(AdvancedVillages plugin, VillageGUIManager menus, Village village,
 	                      Player player, Gui parent) {
@@ -33,21 +30,28 @@ public final class QuestInventory extends VillageMenu {
 
 		List<VillageQuestView> views = plugin.getQuestManager().getViews(village);
 		if (views.isEmpty()) {
-			setItem(13, Item.create(Material.BARRIER, messages.text(Lang.QUESTS_GUI_NONE)));
+			GuiItemConfig empty = configured("empty", 13, Material.BARRIER,
+					"&cNo quests are currently configured.", List.of());
+			if (empty.isEnabled()) setItem(empty.getSlot(), empty.createItem());
 			return;
 		}
 
-		int slot = 9;
+		int slot = plugin.getGuiSettings().integer("guis.quests.start-slot", 9, 9,
+				Math.max(9, menuConfig.getSize() - 1));
 		for (VillageQuestView view : views) {
+			QuestDefinition definition = view.getDefinition();
+			GuiItemConfig visual = configured("tasks." + definition.getId(), slot,
+					Material.PAPER, definition.getId(), List.of());
+			if (!visual.isEnabled()) continue;
 			int questSlot = slot++;
-			ItemStack item = this.createQuestItem(view);
+			ItemStack item = this.createQuestItem(view, visual);
 			if (!view.isActive() && !view.isCompleted()) {
 				setButton(questSlot, item, event -> {
 					if (!hasPermission(Permission.QUEST_TOGGLE)) return;
-					if (plugin.getQuestManager().activate(event.player, village, view.getDefinition())) {
-						messages.sendPrefixed(event.player, Lang.QUESTS_ACTIVATED,
+					if (plugin.getQuestManager().activate(event.getPlayer(), village, view.getDefinition())) {
+						messages.sendPrefixed(event.getPlayer(), Lang.QUESTS_ACTIVATED,
 								"quest", this.questName(view.getDefinition()));
-						playSound(XSound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
+						playSound(ZSound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
 						reopen(GUIS.QUESTS);
 					}
 				});
@@ -57,77 +61,86 @@ public final class QuestInventory extends VillageMenu {
 		}
 	}
 
-	private ItemStack createQuestItem(VillageQuestView view) {
+	private ItemStack createQuestItem(VillageQuestView view, GuiItemConfig visual) {
 		QuestDefinition definition = view.getDefinition();
-		String name = messages.textOrDefault(
-				definition.getTranslationPath() + ".name",
-				definition.getId()
-		);
-		String description = messages.textOrDefault(
-				definition.getTranslationPath() + ".description",
-				""
-		);
-
 		List<String> lore = new ArrayList<>();
-		lore.add(messages.text(definition.getPeriod() == QuestPeriod.DAILY
-				? Lang.QUESTS_GUI_DAILY
-				: Lang.QUESTS_GUI_WEEKLY));
-		if (!description.isEmpty()) {
+		lore.add(definition.getPeriod() == QuestPeriod.DAILY
+				? guiText("period.daily", "&eDaily quest")
+				: guiText("period.weekly", "&6Weekly quest"));
+		if (!visual.getLore().isEmpty()) {
 			lore.add("");
-			Collections.addAll(lore, description.split("\n"));
+			lore.addAll(visual.getLore());
 		}
 		lore.add("");
 		if (view.isCompleted()) {
-			lore.add(messages.text(Lang.QUESTS_GUI_COMPLETED,
+			lore.add(guiText("status.completed", "&aCompleted! &7(%progress%/%required%)",
 					"progress", view.getProgress(),
 					"required", definition.getRequiredAmount()));
 			lore.add(this.progressBar(view.getProgress(), definition.getRequiredAmount()));
 		} else if (view.isActive()) {
-			lore.add(messages.text(Lang.QUESTS_GUI_ACTIVE));
-			lore.add(messages.text(Lang.QUESTS_GUI_PROGRESS,
+			lore.add(guiText("status.active", "&aActive - progress is being collected"));
+			lore.add(guiText("status.progress", "&7Progress: &e%progress%&7/&e%required%",
 					"progress", view.getProgress(),
 					"required", definition.getRequiredAmount()));
 			lore.add(this.progressBar(view.getProgress(), definition.getRequiredAmount()));
 		} else {
-			lore.add(messages.text(Lang.QUESTS_GUI_INACTIVE));
-			lore.add(messages.text(Lang.QUESTS_GUI_ACTIVATE));
+			lore.add(guiText("status.inactive", "&cInactive - progress is not being collected"));
+			lore.add(guiText("status.activate", "&eClick to activate this quest for the village."));
 		}
-		lore.add(messages.text(Lang.QUESTS_GUI_RESET,
+		lore.add(guiText("reset", "&7Resets in: &f%time%",
 				"time", messages.formatDuration(view.getUntilReset())));
 		this.addRewards(lore, definition.getReward());
 
-		return Item.create(definition.getIcon(), name, lore, view.isCompleted());
+		return visual.createItem(visual.getName(), lore, view.isCompleted() || visual.isGlow());
 	}
 
 	private String questName(QuestDefinition definition) {
-		return messages.textOrDefault(
-				definition.getTranslationPath() + ".name",
-				definition.getId()
-		);
+		return plugin.getGuiSettings().text(
+				"guis.quests.tasks." + definition.getId() + ".name", definition.getId());
 	}
 
 	private void addRewards(List<String> lore, QuestReward reward) {
 		lore.add("");
-		lore.add(messages.text(Lang.QUESTS_GUI_REWARDS));
-		if (reward.getBank() > 0) {
-			lore.add(messages.text(Lang.QUESTS_GUI_REWARD_BANK, "amount", reward.getBank()));
+		lore.add(guiText("rewards.title", "&6Rewards:"));
+		int bankReward = plugin.getDevelopmentManager().applyQuestBankReward(village, reward.getBank());
+		if (bankReward > 0) {
+			lore.add(guiText("rewards.bank", "&7 • Village bank: &6%amount%$",
+					"amount", bankReward));
 		}
 		if (reward.getExperience() > 0) {
-			lore.add(messages.text(Lang.QUESTS_GUI_REWARD_EXPERIENCE,
+			lore.add(guiText("rewards.experience", "&7 • Every online member: &e%amount% XP",
 					"amount", reward.getExperience()));
 		}
 		if (reward.getPoints() > 0) {
-			lore.add(messages.text(Lang.QUESTS_GUI_REWARD_POINTS, "amount", reward.getPoints()));
+			lore.add(guiText("rewards.points", "&7 • Every member: &b%amount% points",
+					"amount", reward.getPoints()));
 		}
 	}
 
 	private String progressBar(int progress, int required) {
-		int completedBars = Math.min(PROGRESS_BAR_LENGTH,
-				(int) Math.floor(PROGRESS_BAR_LENGTH * (progress / (double) required)));
-		StringBuilder bar = new StringBuilder("&8[");
-		for (int index = 0; index < PROGRESS_BAR_LENGTH; index++) {
-			bar.append(index < completedBars ? "&a|" : "&7|");
+		int length = plugin.getGuiSettings().integer("guis.quests.progress-bar.length", 20, 1, 100);
+		int completedBars = Math.min(length,
+				(int) Math.floor(length * (progress / (double) required)));
+		StringBuilder bar = new StringBuilder(guiText("progress-bar.prefix", "&8["));
+		String completed = guiText("progress-bar.completed", "&a|");
+		String remaining = guiText("progress-bar.remaining", "&7|");
+		for (int index = 0; index < length; index++) {
+			bar.append(index < completedBars ? completed : remaining);
 		}
-		return bar.append("&8]").toString();
+		return bar.append(guiText("progress-bar.suffix", "&8]")).toString();
+	}
+
+	private GuiItemConfig configured(String id, int slot, Material material, String name, List<String> lore) {
+		return plugin.getGuiSettings().item(GUIS.QUESTS,
+				"guis.quests." + id, slot, material, name, lore);
+	}
+
+	private String guiText(String path, String fallback, Object... placeholders) {
+		String result = plugin.getGuiSettings().text("guis.quests." + path, fallback);
+		for (int index = 0; index + 1 < placeholders.length; index += 2) {
+			result = result.replace("%" + placeholders[index] + "%",
+					String.valueOf(placeholders[index + 1]));
+		}
+		return result;
 	}
 }

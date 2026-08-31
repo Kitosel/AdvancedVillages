@@ -24,7 +24,7 @@ command-language:
   admin_give_village_hearth: village-hearth
   admin_give_hearth_part: village-hearth-part
   admin_manage: manage
-  admin_settings: settings
+  admin_debug: debug
 
   admin_lives: lives
   admin_upgrade: upgrade
@@ -42,9 +42,23 @@ command-language:
   request_accept: confirm
   request_deny: deny
   teleport: tp
+
   edit: edit
   edit_save: save
   edit_cancel: cancel
+
+  alliance: alliance
+  alliance_invite: invite
+  alliance_accept: accept
+  alliance_deny: deny
+  alliance_leave: leave
+  alliance_list: list
+
+  war: war
+  war_declare: declare
+  war_surrender: surrender
+  war_info: info
+
   help: help
 
   set: set

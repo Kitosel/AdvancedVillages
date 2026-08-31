@@ -1,5 +1,5 @@
 # All built-in variables follow the simple format %NAME%.
-# Examples: %PLAYER%, %POINTS%, %G-TAG%, %PTOP-POINTS-1%.
+# Examples: %PLAYER%, %POINTS%, %G-TAG%, %G-UPKEEP-COST%, %PTOP-POINTS-1%.
 # The PlaceholderAPI also works and is executed after the AdvancedVillages variables.
 
 # How many ticks should the data be refreshed every (20 ticks = 1 second)?
@@ -83,7 +83,7 @@ animation:
     points:
       duration-seconds: 10
       cells:
-        "42": " &b&lTOP &8- &b&lPunkty"
+        "42": " &b&lTOP &8- &b&lPoints"
         "46": " &b1. &7%PTOP-POINTS-1%"
         "47": " &b2. &7%PTOP-POINTS-2%"
         "48": " &b3. &7%PTOP-POINTS-3%"
@@ -94,8 +94,8 @@ animation:
         "53": " &b8. &7%PTOP-POINTS-8%"
         "54": " &b9. &7%PTOP-POINTS-9%"
         "55": " &b10. &7%PTOP-POINTS-10%"
-        "57": " &7Twoja pozycja: &b%POSITION-POINTS%"
-        "62": " &b&lTOP &8- &b&lPunkty"
+        "57": " &7Your position: &b%POSITION-POINTS%"
+        "62": " &b&lTOP &8- &b&lPoints"
         "66": " &b1. &7%GTOP-AVG_POINTS-1%"
         "67": " &b2. &7%GTOP-AVG_POINTS-2%"
         "68": " &b3. &7%GTOP-AVG_POINTS-3%"
@@ -106,7 +106,7 @@ animation:
         "73": " &b8. &7%GTOP-AVG_POINTS-8%"
         "74": " &b9. &7%GTOP-AVG_POINTS-9%"
         "75": " &b10. &7%GTOP-AVG_POINTS-10%"
-        "77": " &7Pozycja wioski: &b%G-POSITION-AVG_POINTS%"
+        "77": " &7Village position: &b%G-POSITION-AVG_POINTS%"
 
     kills:
       duration-seconds: 10
@@ -116,7 +116,7 @@ animation:
         - "&4Hi &a%player% "
         - " "
       cells:
-        "42": " &b&lTOP &8- &b&lZabojstwa"
+        "42": " &b&lTOP &8- &b&lKills"
         "46": " &b1. &7%PTOP-KILLS-1%"
         "47": " &b2. &7%PTOP-KILLS-2%"
         "48": " &b3. &7%PTOP-KILLS-3%"
@@ -127,8 +127,8 @@ animation:
         "53": " &b8. &7%PTOP-KILLS-8%"
         "54": " &b9. &7%PTOP-KILLS-9%"
         "55": " &b10. &7%PTOP-KILLS-10%"
-        "57": " &7Twoja pozycja: &b%POSITION-KILLS%"
-        "62": " &b&lTOP &8- &b&lZabojstwa"
+        "57": " &7Your position: &b%POSITION-KILLS%"
+        "62": " &b&lTOP &8- &b&lKills"
         "66": " &b1. &7%GTOP-KILLS-1%"
         "67": " &b2. &7%GTOP-KILLS-2%"
         "68": " &b3. &7%GTOP-KILLS-3%"
@@ -139,7 +139,7 @@ animation:
         "73": " &b8. &7%GTOP-KILLS-8%"
         "74": " &b9. &7%GTOP-KILLS-9%"
         "75": " &b10. &7%GTOP-KILLS-10%"
-        "77": " &7Pozycja wioski: &b%G-POSITION-KILLS%"
+        "77": " &7Village position: &b%G-POSITION-KILLS%"
 
     deaths:
       duration-seconds: 10
@@ -148,7 +148,7 @@ animation:
         - "&7Strona: &6kiosel.pl"
         - " "
       cells:
-        "42": " &b&lTOP &8- &b&lSmierci"
+        "42": " &b&lTOP &8- &b&lDeaths"
         "46": " &b1. &7%PTOP-DEATHS-1%"
         "47": " &b2. &7%PTOP-DEATHS-2%"
         "48": " &b3. &7%PTOP-DEATHS-3%"
@@ -159,8 +159,8 @@ animation:
         "53": " &b8. &7%PTOP-DEATHS-8%"
         "54": " &b9. &7%PTOP-DEATHS-9%"
         "55": " &b10. &7%PTOP-DEATHS-10%"
-        "57": " &7Twoja pozycja: &b%POSITION-DEATHS%"
-        "62": " &b&lTOP &8- &b&lSmierci"
+        "57": " &7Your position: &b%POSITION-DEATHS%"
+        "62": " &b&lTOP &8- &b&lDeaths"
         "66": " &b1. &7%GTOP-DEATHS-1%"
         "67": " &b2. &7%GTOP-DEATHS-2%"
         "68": " &b3. &7%GTOP-DEATHS-3%"
@@ -171,7 +171,7 @@ animation:
         "73": " &b8. &7%GTOP-DEATHS-8%"
         "74": " &b9. &7%GTOP-DEATHS-9%"
         "75": " &b10. &7%GTOP-DEATHS-10%"
-        "77": " &7Pozycja wioski: &b%G-POSITION-DEATHS%"
+        "77": " &7Village position: &b%G-POSITION-DEATHS%"
 
 # Opcjonalne tekstury glow. Klucz moze byc numerem pola albo zakresem, np. "1-80".
 # Kazda tekstura wymaga wartosci i podpisu z profilu Minecraft.

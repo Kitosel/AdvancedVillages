@@ -3,17 +3,18 @@ package pl.kiosel.villages.listeners;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import pl.kiosel.rosacore.listener.RosaListener;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.enums.Lang;
+import pl.kiosel.villages.config.Lang;
 
-public class MoveListener implements Listener {
+public class MoveListener extends RosaListener {
 
 	private final AdvancedVillages plugin;
 
 	public MoveListener(AdvancedVillages plugin) {
+		super(plugin);
 		this.plugin = plugin;
 	}
 
@@ -34,11 +35,11 @@ public class MoveListener implements Listener {
 
 		int refunded = this.plugin.getTeleportManager().cancelTeleport(player, true);
 		if (refunded >= 0) {
-			this.plugin.getMessages().get(Lang.TELEPORT_MOVE).sendPrefixedMessage(player);
+			this.plugin.getVillageMessages().get(Lang.TELEPORT_MOVE).sendPrefixed(player);
 			if (refunded > 0) {
-				this.plugin.getMessages().get(Lang.MONEY_ADD)
-						.processPlaceholder("money", refunded)
-						.sendPrefixedMessage(player);
+				this.plugin.getVillageMessages().get(Lang.MONEY_ADD)
+						.with("money", refunded)
+						.sendPrefixed(player);
 			}
 		}
 	}

@@ -5,9 +5,7 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
-import panda.std.Option;
-import panda.std.stream.PandaStream;
-import pl.kiosel.core.utils.LocationUtils;
+import pl.kiosel.rosacore.location.LocationUtils;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.data.AbstractMutableEntity;
 import pl.kiosel.villages.data.user.User;
@@ -15,11 +13,10 @@ import pl.kiosel.villages.data.village.level.Level;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.IntFunction;
+import java.util.function.IntUnaryOperator;
+import java.util.stream.Collectors;
 
 public class Village extends AbstractMutableEntity {
 
@@ -32,16 +29,17 @@ public class Village extends AbstractMutableEntity {
     @Getter private int lives, bank;
 	@Getter private Level level;
 
-	@Getter private Option<Region> region = Option.none();
-	@Getter private Option<Location> home = Option.none();
-	@Getter private Option<Location> location = Option.none();
+	@Nullable private volatile Region region;
+	@Nullable private volatile Location home;
+	@Nullable private volatile Location location;
 
     @Getter private User owner;
-    @Getter private Set<User> members = ConcurrentHashMap.newKeySet();
+    private final Set<User> members = ConcurrentHashMap.newKeySet();
+    private final Set<User> membersView = Collections.unmodifiableSet(this.members);
 
     @Getter private Instant born;
     @Getter private Instant protection = Instant.EPOCH;
-    @Getter private Option<Instant> build = Option.none();
+    @Nullable private volatile Instant build;
 
 	@Getter
 	private boolean speed, jump, regeneration, haste, pvp, tnt;
@@ -77,7 +75,7 @@ public class Village extends AbstractMutableEntity {
     }
 
     public void deserializationUpdate() {
-        this.owner.setVillage(this);
+        if (this.owner != null) this.owner.setVillage(this);
         this.members.forEach(user -> user.setVillage(this));
     }
 
@@ -105,8 +103,8 @@ public class Village extends AbstractMutableEntity {
 		this.markChanged();
 	}
 
-	public void updateLives(IntFunction<Integer> update) {
-		this.setLives(update.apply(this.lives));
+	public void updateLives(IntUnaryOperator update) {
+		this.setLives(update.applyAsInt(this.lives));
 	}
 
 	public void addBank(int bank) {
@@ -129,46 +127,67 @@ public class Village extends AbstractMutableEntity {
 	}
 
 	public Location getAnimation() {
-		return getLocation().get().clone().add(0.5, 1.0, 0.5);
+		return getLocation().orElseThrow(() ->
+				new IllegalStateException("Village " + this.uuid + " has no central location"))
+				.add(0.5, 1.0, 0.5);
 	}
 
-	public void updateBank(IntFunction<Integer> update) {
-		this.setBank(update.apply(this.bank));
+	public void updateBank(IntUnaryOperator update) {
+		this.setBank(update.applyAsInt(this.bank));
 	}
 
 	public boolean hasRegion() {
-        return this.region.isPresent();
+        return this.region != null;
     }
 
     public void setRegion(@Nullable Region region) {
-        this.region = Option.of(region);
-        this.region.peek(peekRegion -> peekRegion.setVillage(this));
-        this.markChanged();
+		if (this.region != region) {
+			this.region = region;
+			if (region != null) region.setVillage(this);
+			this.markChanged();
+		}
     }
 
-    public Option<Location> getCenter() {
-        return this.region
+    public Optional<Location> getCenter() {
+        return this.getRegion()
                 .map(Region::getCenter)
                 .map(Location::clone);
     }
 
+	public Optional<Region> getRegion() {
+		return Optional.ofNullable(this.region);
+	}
+
 	public boolean hasHome() {
-        return this.home.isPresent();
+        return this.home != null;
     }
 
     public void setHome(@Nullable Location home) {
-        this.home = Option.of(home);
-        this.markChanged();
+		Location updated = cloneLocation(home);
+		if (!Objects.equals(this.home, updated)) {
+			this.home = updated;
+			this.markChanged();
+		}
     }
 
     public void teleportHome(Player player) {
-        this.home.peek(player::teleport);
+        if (player != null) this.getHome().ifPresent(player::teleport);
     }
 
+	public Optional<Location> getHome() {
+		return Optional.ofNullable(cloneLocation(this.home));
+	}
 
 	public void setLocation(@Nullable Location location) {
-		this.location = Option.of(location);
-		this.markChanged();
+		Location updated = cloneLocation(location);
+		if (!Objects.equals(this.location, updated)) {
+			this.location = updated;
+			this.markChanged();
+		}
+	}
+
+	public Optional<Location> getLocation() {
+		return Optional.ofNullable(cloneLocation(this.location));
 	}
 
 	public boolean isOwner(User user) {
@@ -176,41 +195,57 @@ public class Village extends AbstractMutableEntity {
     }
 
     public void setOwner(User user) {
-        this.owner = user;
-        this.addMember(user);
-        this.markChanged();
+		Objects.requireNonNull(user, "owner");
+		if (!Objects.equals(this.owner, user)) {
+			this.owner = user;
+			this.addMember(user);
+			this.markChanged();
+		}
     }
 
 	public Set<User> getOnlineMembers() {
-        return PandaStream.of(this.members)
+        return this.members.stream()
                 .filter(User::isOnline)
-                .toSet();
+                .collect(Collectors.toUnmodifiableSet());
     }
+
+	public Set<User> getMembers() {
+		return this.membersView;
+	}
+
+	public Set<String> getMembersName() {
+		Set<String> names = new HashSet<>();
+		for (User user : this.members) {
+			names.add(user.getName());
+		}
+		return names;
+	}
 
     public boolean isMember(User user) {
 		return user != null && this.members.contains(user);
     }
 
     public void setMembers(Set<User> members) {
-		Set<User> concurrentMembers = ConcurrentHashMap.newKeySet();
-		if (members != null) {
-			concurrentMembers.addAll(members);
+		Set<User> updated = members == null ? new HashSet<>() : new HashSet<>(members);
+		if (this.owner != null) updated.add(this.owner);
+		for (User member : new HashSet<>(this.members)) {
+			if (!updated.contains(member)) this.removeMember(member);
 		}
-		if (this.owner != null) {
-			concurrentMembers.add(this.owner);
-		}
-		this.members = concurrentMembers;
-        this.markChanged();
+		for (User member : updated) this.addMember(member);
     }
 
     public void addMember(User user) {
-        this.members.add(user);
-        this.markChanged();
+		if (user != null && this.members.add(user)) {
+			user.setVillage(this);
+			this.markChanged();
+		}
     }
 
 	public void removeMember(User user) {
-		this.members.remove(user);
-		this.markChanged();
+		if (user != null && this.members.remove(user)) {
+			if (user.getPresentVillage() == this) user.removeVillage();
+			this.markChanged();
+		}
 	}
 
 	public void setBorn(Instant time) {
@@ -228,12 +263,15 @@ public class Village extends AbstractMutableEntity {
     }
 
 	public boolean canBuild() {
-        if (this.build.is(build -> build.isAfter(Instant.now()))) {
+        Instant buildUntil = this.build;
+        if (buildUntil != null && buildUntil.isAfter(Instant.now())) {
             return false;
         }
 
-        this.build = Option.none();
-        this.markChanged();
+        if (buildUntil != null) {
+			this.build = null;
+			this.markChanged();
+		}
         return true;
     }
 
@@ -242,9 +280,15 @@ public class Village extends AbstractMutableEntity {
             time = null;
         }
 
-        this.build = Option.of(time);
-        this.markChanged();
+		if (!Objects.equals(this.build, time)) {
+			this.build = time;
+			this.markChanged();
+		}
     }
+
+	public Optional<Instant> getBuild() {
+		return Optional.ofNullable(this.build);
+	}
 
     public boolean hasPvPEnabled() {
         return this.pvp;
@@ -255,10 +299,9 @@ public class Village extends AbstractMutableEntity {
         this.markChanged();
     }
 
-    public boolean togglePvP() {
+    public void togglePvP() {
 		setPvP(!this.pvp);
-        return this.pvp;
-    }
+	}
 
 	public boolean hasTntEnabled() {
 		return this.tnt;
@@ -334,6 +377,10 @@ public class Village extends AbstractMutableEntity {
         return this.uuid.hashCode();
     }
 
+	public String getID() {
+		return this.uuid.toString();
+	}
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -373,15 +420,8 @@ public class Village extends AbstractMutableEntity {
         return this.name;
     }
 
-	public String getInts() {
-		return level.getLevel() + ";" + lives + ";" + bank + ";";
-	}
-
 	public boolean isTag() {
-		if (Objects.equals(tag, "") || Objects.equals(tag, "none")) {
-			return false;
-		}
-		return tag!=null;
+		return tag != null && !tag.isBlank() && !tag.equalsIgnoreCase("none");
 	}
 
 	public void upgrade() {
@@ -389,7 +429,8 @@ public class Village extends AbstractMutableEntity {
 	}
 
 	public boolean isCentralBlock(Location loc) {
-		return LocationUtils.isLocationMatching(loc, getLocation().get());
+		Location center = this.location;
+		return center != null && LocationUtils.isLocationMatching(loc, center);
 	}
 
 	public boolean isCentralBlock(Block block) {
@@ -407,7 +448,7 @@ public class Village extends AbstractMutableEntity {
 	}
 
 	private boolean contains(Location target, int size) {
-		Location center = this.location.orNull();
+		Location center = this.location;
 		if (target == null || center == null
 				|| target.getWorld() == null || center.getWorld() == null
 				|| !center.getWorld().equals(target.getWorld())) {
@@ -441,7 +482,15 @@ public class Village extends AbstractMutableEntity {
 	}
 
 	public String tpToString() {
-		return "&eTeleport: &c" + home.get().getBlockX() + "&7&l-&c" + home.get().getBlockY() + "&7&l-&c" + home.get().getBlockZ();
+		Location teleport = this.home;
+		if (teleport == null) return "&eTeleport: &cnot set";
+		return "&eTeleport: &c" + teleport.getBlockX() + "&7&l-&c" + teleport.getBlockY()
+				+ "&7&l-&c" + teleport.getBlockZ();
+	}
+
+	@Nullable
+	private static Location cloneLocation(@Nullable Location location) {
+		return location == null ? null : location.clone();
 	}
 
 }

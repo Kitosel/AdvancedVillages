@@ -7,9 +7,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/**
- * Immutable set of overrides displayed for a configured animation frame.
- */
 public final class TablistFrame {
 
 	@Getter

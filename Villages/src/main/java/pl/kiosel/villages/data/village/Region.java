@@ -5,8 +5,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.util.Vector;
-import pl.kiosel.core.utils.LocationUtils;
+import pl.kiosel.rosacore.location.LocationUtils;
 import pl.kiosel.villages.data.AbstractMutableEntity;
+
+import java.util.List;
+import java.util.Objects;
 
 public class Region extends AbstractMutableEntity {
 
@@ -16,22 +19,19 @@ public class Region extends AbstractMutableEntity {
 
     @Getter
 	private World world;
-    @Getter
 	private Location center;
     @Getter
 	private int enlargementLevel;
     @Getter
 	private int size;
 
-    @Getter
 	private Location firstCorner;
-    @Getter
 	private Location secondCorner;
 
     public Region(String name, Location center) {
         this.name = name;
-        this.world = center.getWorld();
-        this.center = center;
+		this.center = Objects.requireNonNull(center, "center").clone();
+		this.world = this.center.getWorld();
     }
 
     public Region(Village village, Location center, int defaultSize) {
@@ -55,7 +55,8 @@ public class Region extends AbstractMutableEntity {
         }
 
         if (this.world == null) {
-            this.world = Bukkit.getWorlds().get(0);
+			List<World> worlds = Bukkit.getWorlds();
+			this.world = worlds.isEmpty() ? null : worlds.get(0);
         }
 
         if (this.world != null) {
@@ -86,9 +87,9 @@ public class Region extends AbstractMutableEntity {
             return false;
         }
 
-        if (location.getBlockX() > this.getLowerX() && location.getBlockX() < this.getUpperX()) {
-            if (location.getBlockY() > this.getLowerY() && location.getBlockY() < this.getUpperY()) {
-                return location.getBlockZ() > this.getLowerZ() && location.getBlockZ() < this.getUpperZ();
+        if (location.getBlockX() >= this.getLowerX() && location.getBlockX() <= this.getUpperX()) {
+            if (location.getBlockY() >= this.getLowerY() && location.getBlockY() <= this.getUpperY()) {
+                return location.getBlockZ() >= this.getLowerZ() && location.getBlockZ() <= this.getUpperZ();
             }
         }
 
@@ -101,20 +102,36 @@ public class Region extends AbstractMutableEntity {
     }
 
     public void setName(String name) {
-        this.name = name;
-		super.markChanged();
+		if (!Objects.equals(this.name, name)) {
+			this.name = name;
+			super.markChanged();
+		}
 	}
 
 	public void setVillage(Village village) {
-        this.village = village;
-		super.markChanged();
+		if (this.village != village) {
+			this.village = village;
+			super.markChanged();
+		}
     }
 
     void setCenter(Location location) {
-        this.center = location;
-        this.world = location.getWorld();
+		this.center = Objects.requireNonNull(location, "location").clone();
+		this.world = this.center.getWorld();
         this.update();
     }
+
+	public Location getCenter() {
+		return this.center == null ? null : this.center.clone();
+	}
+
+	public Location getFirstCorner() {
+		return this.firstCorner == null ? null : this.firstCorner.clone();
+	}
+
+	public Location getSecondCorner() {
+		return this.secondCorner == null ? null : this.secondCorner.clone();
+	}
 
 	void setEnlargementLevel(int enlargementLevel) {
         this.enlargementLevel = enlargementLevel;

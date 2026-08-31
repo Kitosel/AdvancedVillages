@@ -1,6 +1,6 @@
 package pl.kiosel.villages.data;
 
-public interface MutableEntity extends Entity {
+public interface MutableEntity extends VEntity {
 
 	void markChanged();
 

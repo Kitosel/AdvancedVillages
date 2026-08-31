@@ -1,6 +1,6 @@
 package pl.kiosel.villages.data.user;
 
-import pl.kiosel.core.utils.Position;
+import pl.kiosel.rosacore.location.Position;
 
 import java.util.Arrays;
 import java.util.HashSet;

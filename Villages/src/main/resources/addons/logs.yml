@@ -14,3 +14,64 @@ anti-spam-window-seconds: 10
 
 # Used only to display dates in the history GUI.
 time-zone: "Europe/Warsaw"
+
+# Text stored by the log system. GUI names, materials and layout are in guis.yml.
+entries:
+  village-created: '&7The village was created.'
+  village-hearth-add: '&7A village life was restored.'
+  member-join: '&f%member% &7joined the village.'
+  member-leave: '&f%member% &7left the village.'
+  member-kick: '&f%member% &7was removed from the village.'
+  member-permission: '&7Permission &f%permission% &7for &f%member%&7: %value%&7.'
+  member-role: '&7Changed the role of &f%member% &7to &f%role%&7.'
+  bank-deposit: '&7Deposited &a%amount%$ &7into the village bank.'
+  bank-withdraw: '&7Withdrew &c%amount%$ &7from the village bank.'
+  quest-completed: '&7The village completed quest %quest%&7.'
+  setting-changed: '&7Changed &f%setting% &7to %value%&7.'
+  village-upgrade: '&7The village reached level &b%level%&7.'
+  village-attack: '&7The village was attacked. Remaining lives: &c%lives%&7.'
+  alliance-created: '&7An alliance with &a%village% &7was formed.'
+  alliance-ended: '&7The alliance with &e%village% &7was ended.'
+  war-declared: '&7War was declared against &c%village%&7.'
+  war-started: '&7War with &c%village% &7has started.'
+  war-ended: '&7War with &6%village% &7has ended.'
+  development-unlocked: '&7Unlocked village development: &d%node% &7for &6%cost%$&7.'
+  upkeep-paid: '&7Paid &6%amount%$ &7for village upkeep.'
+  upkeep-missed: '&7Missed an upkeep payment of &c%amount%$&7. Missing: &c%missing%$&7.'
+  upkeep-penalty: '&7Lost &c%lives% &7village life due to unpaid upkeep.'
+
+settings:
+  pvp: 'PVP'
+  tnt: 'TNT damage'
+  animations: 'village animations'
+  teleport: 'teleport location'
+  tag: 'village tag'
+  effect-regeneration: 'regeneration effect'
+  effect-speed: 'speed effect'
+  effect-jump: 'jump effect'
+  effect-haste: 'haste effect'
+  protection: 'protection'
+  lives: 'village lives'
+
+permissions:
+  owner: 'owner'
+  settings: 'settings'
+  invite: 'inviting'
+  store: 'store'
+  effects-buy: 'buying effects'
+  effects-toggle: 'toggling effects'
+  upgrade: 'upgrading'
+  storage: 'storage'
+  bank-add: 'bank deposits'
+  bank-remove: 'bank withdrawals'
+  quest-toggle: 'quest activation'
+  alliance-manage: 'alliance management'
+  war-manage: 'war management'
+  development-buy: 'development purchases'
+
+values:
+  on: '&aON'
+  off: '&cOFF'
+  updated: '&aupdated'
+  purchased: '&apurchased'
+  removed: '&cremoved'

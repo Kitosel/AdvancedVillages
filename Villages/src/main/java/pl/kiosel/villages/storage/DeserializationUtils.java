@@ -1,9 +1,7 @@
 package pl.kiosel.villages.storage;
 
 import org.bukkit.Location;
-import panda.std.Option;
-import pl.kiosel.core.CoreLogger;
-import pl.kiosel.core.utils.TextUtils;
+import pl.kiosel.rosacore.utils.TextUtils;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.data.user.BukkitUserProfile;
 import pl.kiosel.villages.data.user.User;
@@ -16,21 +14,18 @@ import pl.kiosel.villages.data.village.level.Level;
 import pl.kiosel.villages.data.village.level.LevelManager;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public final class DeserializationUtils {
 
     private DeserializationUtils() {
     }
 
-    public static Option<User> deserializeUser(UserManager userManager, Object[] values) {
+    public static Optional<User> deserializeUser(UserManager userManager, Object[] values) {
         UUID playerUniqueId = UUID.fromString((String) values[0]);
         String playerName = (String) values[1];
 
-        UserProfile profile = new BukkitUserProfile(playerUniqueId, AdvancedVillages.getInstance().getMetaServer());
+		UserProfile profile = new BukkitUserProfile(playerUniqueId);
         User user = userManager.create(playerUniqueId, playerName, profile);
 
         user.getRank().setPoints((int) values[2]);
@@ -38,17 +33,17 @@ public final class DeserializationUtils {
         user.getRank().setDeaths((int) values[4]);
         user.getRank().setAssists((int) values[5]);
         user.getRank().setLogouts((int) values[6]);
-		user.setPermissions(AdvancedVillages.getInstance().getPermissionManager().fromString((String) values[7]));
+		AdvancedVillages.getInstance().getRoleManager().deserialize(user, (String) values[7]);
 
         user.markUnchanged();
-        return Option.of(user);
+        return Optional.of(user);
     }
 
     @SuppressWarnings("unchecked")
-    public static Option<Village> deserializeVillage(VillageManager villageManager, Object[] values) {
+    public static Optional<Village> deserializeVillage(VillageManager villageManager, Object[] values) {
         if (values == null) {
-            CoreLogger.getInstance().warning("Cannot deserialize village, caused by: null");
-            return Option.none();
+			AdvancedVillages.getInstance().getRosaLogger().warning("Cannot deserialize village, caused by: null");
+            return Optional.empty();
         }
 		AdvancedVillages plugin = AdvancedVillages.getInstance();
 		plugin.getDebug().debug("Loading deserialization " + values[1]);
@@ -86,12 +81,12 @@ public final class DeserializationUtils {
 			villageLevel = storedLevel > levelManager.getHighestLevel().getLevel()
 					? levelManager.getHighestLevel()
 					: levelManager.getLowestLevel();
-			CoreLogger.getInstance().warning("Village '" + villageName + "' references unavailable level "
+			plugin.getRosaLogger().warning("Village '" + villageName + "' references unavailable level "
 					+ storedLevel + "; using level " + villageLevel.getLevel());
 		}
 		village.setLevel(villageLevel);
 
-		Location villageLocation = village.getLocation().orNull();
+		Location villageLocation = village.getLocation().orElse(null);
 		if (villageLocation != null) {
 			Region region = new Region(village, villageLocation, villageLevel.getSize());
 			village.setRegion(region);
@@ -127,7 +122,7 @@ public final class DeserializationUtils {
 		village.deserializationUpdate();
 
 		village.markUnchanged();
-        return Option.of(village);
+        return Optional.of(village);
     }
 
 	private static boolean readBoolean(List<String> values, int index) {

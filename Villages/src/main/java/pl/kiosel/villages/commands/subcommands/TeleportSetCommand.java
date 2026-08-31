@@ -2,19 +2,16 @@ package pl.kiosel.villages.commands.subcommands;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import pl.kiosel.dependencies.com.cryptomorin.xseries.XSound;
+import pl.kiosel.rosacore.compatibility.ZSound;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.addons.logs.VillageLogType;
 import pl.kiosel.villages.commands.AVSubCommand;
+import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.data.user.User;
+import pl.kiosel.villages.data.village.Permission;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.enums.Lang;
-import pl.kiosel.villages.enums.Permission;
 
 public class TeleportSetCommand extends AVSubCommand {
-
-	@Override
-	public String getName() { return "teleporting"; }
 
 	@Override
 	public String getDescription() { return "Set teleport to village"; }
@@ -34,17 +31,27 @@ public class TeleportSetCommand extends AVSubCommand {
 	private final AdvancedVillages plugin;
 
 	public TeleportSetCommand(AdvancedVillages plugin) {
-		super(plugin);
+		super(plugin, "teleporting6");
 		this.plugin = plugin;
+	}
+
+	@Override
+	public boolean showInHelp() {
+		return false;
+	}
+
+	@Override
+	protected boolean isHidden() {
+		return true;
 	}
 
 	@Override
 	public void run(Player player, User user, String[] args) {
 		if (args.length != 3
-				&& !args[0].equalsIgnoreCase("teleporting6")
-				&& !args[1].equalsIgnoreCase("village7")
-				&& !args[2].equalsIgnoreCase("set9")
-				&& !plugin.getTeleportManager().isTeleportTask(player)) {
+				|| !args[0].equalsIgnoreCase("teleporting6")
+				|| !args[1].equalsIgnoreCase("village7")
+				|| !args[2].equalsIgnoreCase("set9")
+				|| !plugin.getTeleportManager().isTeleportTask(player)) {
 			return;
 		}
 		Village village = user.getPresentVillage();
@@ -57,7 +64,7 @@ public class TeleportSetCommand extends AVSubCommand {
 			plugin.getTeleportManager().removeTeleportTask(player);
 			getMessage(Lang.TELEPORT_SET_TITLE.getPath()).sendTitle(player);
 			getMessage(Lang.TELEPORT_SET_SUBTITLE.getPath()).sendActionBar(player);
-			player.playSound(loc, XSound.ENTITY_VILLAGER_YES.get(), 1f, 1f);
+			ZSound.ENTITY_VILLAGER_YES.play(player, 1f,1f);
 		} else {
 			sendLocalized(player, Lang.TELEPORT_SET_OUT_OF_VILLAGE);
 		}

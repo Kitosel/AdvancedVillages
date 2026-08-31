@@ -1,5 +1,5 @@
 # Village quests are shared by every member of a village.
-# All names, descriptions and interface messages are stored in the .lang files.
+# Names, descriptions, materials and interface messages are stored in guis.yml.
 # The addon can be enabled or disabled with addons.quests in config.yml.
 
 reset:
@@ -23,7 +23,6 @@ quests:
       type: KILL_ENTITY
       targets: [ZOMBIE, SKELETON, CREEPER, SPIDER]
       required: 30
-      icon: IRON_SWORD
       rewards:
         bank: 300
         experience: 40
@@ -34,7 +33,6 @@ quests:
       type: BREAK_BLOCK
       targets: [COAL_ORE, DEEPSLATE_COAL_ORE, IRON_ORE, DEEPSLATE_IRON_ORE, COPPER_ORE, DEEPSLATE_COPPER_ORE]
       required: 48
-      icon: IRON_PICKAXE
       rewards:
         bank: 250
         experience: 35
@@ -45,7 +43,6 @@ quests:
       type: COLLECT_ITEM
       targets: [OAK_LOG, SPRUCE_LOG, BIRCH_LOG, JUNGLE_LOG, ACACIA_LOG, DARK_OAK_LOG, MANGROVE_LOG, CHERRY_LOG]
       required: 64
-      icon: OAK_LOG
       rewards:
         bank: 200
         experience: 30
@@ -56,7 +53,6 @@ quests:
       type: PLACE_BLOCK
       targets: [COBBLESTONE, STONE_BRICKS, OAK_PLANKS, SPRUCE_PLANKS, BRICKS]
       required: 64
-      icon: STONE_BRICKS
       rewards:
         bank: 220
         experience: 30
@@ -67,7 +63,6 @@ quests:
       type: CRAFT_ITEM
       targets: [CHEST, BARREL, TORCH, LADDER]
       required: 32
-      icon: CRAFTING_TABLE
       rewards:
         bank: 240
         experience: 35
@@ -78,7 +73,6 @@ quests:
       type: FISH_ITEM
       targets: [COD, SALMON, TROPICAL_FISH, PUFFERFISH]
       required: 12
-      icon: FISHING_ROD
       rewards:
         bank: 260
         experience: 40
@@ -89,7 +83,6 @@ quests:
       type: SMELT_ITEM
       targets: [IRON_INGOT, COPPER_INGOT, GOLD_INGOT]
       required: 32
-      icon: FURNACE
       rewards:
         bank: 280
         experience: 45
@@ -100,7 +93,6 @@ quests:
       enabled: true
       type: BANK_DEPOSIT
       required: 2500
-      icon: SUNFLOWER
       rewards:
         bank: 750
         experience: 150
@@ -111,7 +103,6 @@ quests:
       type: KILL_ENTITY
       targets: [ZOMBIE, SKELETON, CREEPER, SPIDER, WITCH, ENDERMAN, BLAZE]
       required: 250
-      icon: DIAMOND_SWORD
       rewards:
         bank: 1500
         experience: 300
@@ -122,7 +113,6 @@ quests:
       type: BREED_ENTITY
       targets: [COW, SHEEP, PIG, CHICKEN, RABBIT]
       required: 30
-      icon: WHEAT
       rewards:
         bank: 900
         experience: 180
@@ -132,7 +122,6 @@ quests:
       enabled: true
       type: ENCHANT_ITEM
       required: 15
-      icon: ENCHANTING_TABLE
       rewards:
         bank: 1100
         experience: 220
@@ -142,7 +131,6 @@ quests:
       enabled: true
       type: GAIN_EXPERIENCE
       required: 1500
-      icon: EXPERIENCE_BOTTLE
       rewards:
         bank: 1000
         experience: 200
