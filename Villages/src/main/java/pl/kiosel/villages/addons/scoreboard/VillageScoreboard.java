@@ -5,7 +5,7 @@ import pl.kiosel.rosacore.scoreboard.RosaScoreboard;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.manager.VillageUtilsManager;
+import pl.kiosel.villages.manager.VillageUtils;
 
 public class VillageScoreboard extends RosaScoreboard {
 
@@ -82,7 +82,7 @@ public class VillageScoreboard extends RosaScoreboard {
 		Village village = user.getPresentVillage();
 		int lineIndex = 0;
 		for (String line : snapshot.renderLines(player, user, village)) {
-			String rendered = VillageUtilsManager.replaceWith(player, village, line).toText();
+			String rendered = VillageUtils.replaceWith(player, village, line).toText();
 			if (this.plugin.isPlaceholder()) {
 				rendered = this.plugin.getPlaceholder().replacePlaceholder(player, rendered);
 			}

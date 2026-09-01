@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
-import java.util.logging.Level;
 
 public final class CombatManager {
 
@@ -97,13 +96,10 @@ public final class CombatManager {
 		if (session == null || this.hasBypass(player)) {
 			return;
 		}
-
-		this.plugin.getUserManager().findByPlayer(player)
-				.ifPresent(user -> user.getRank().updateLogouts(logouts -> logouts + 1));
 		if (this.settings.isQuitBroadcastEnabled()) {
-			this.notifySafely(player, "quit broadcast", () -> this.notifier.broadcastCombatQuit(player));
+			this.notifier.broadcastCombatQuit(player);
 		}
-		if (this.settings.shouldRemoveOnOpponentDeath()) {
+		if (this.settings.isRemoveOnOpponentDeath()) {
 			this.endSessionsAgainst(player.getUniqueId(), player.getName());
 		}
 		if (!player.isDead() && player.getHealth() > 0.0D) {
@@ -113,7 +109,7 @@ public final class CombatManager {
 
 	public boolean shouldBlockCommand(Player player, String rawCommand) {
 		if (!this.settings.isEnabled()
-				|| !this.settings.areCommandsBlocked()
+				|| !this.settings.isCommandsBlocked()
 				|| !this.isInCombat(player)
 				|| this.hasBypass(player)) {
 			return false;
@@ -133,7 +129,7 @@ public final class CombatManager {
 		}
 		this.sessions.remove(entity.getUniqueId());
 		this.regionNotifications.remove(entity.getUniqueId());
-		if (this.settings.shouldRemoveOnOpponentDeath()) {
+		if (this.settings.isRemoveOnOpponentDeath()) {
 			this.endSessionsAgainst(entity.getUniqueId(), getEntityName(entity));
 		}
 	}
@@ -155,14 +151,14 @@ public final class CombatManager {
 			return;
 		}
 		this.regionNotifications.put(player.getUniqueId(), nowMillis);
-		this.notifySafely(player, "blocked region", () -> this.notifier.regionBlocked(player, regionId));
+		this.notifier.regionBlocked(player, regionId);
 	}
 
 	public void clear() {
 		for (UUID playerId : this.sessions.keySet()) {
 			Player player = Bukkit.getPlayer(playerId);
 			if (player != null && player.isOnline()) {
-				this.notifySafely(player, "action bar cleanup", () -> this.notifier.clearActionBar(player));
+				this.plugin.getMessenger().actionBar(player, "");
 			}
 		}
 		this.sessions.clear();
@@ -183,12 +179,11 @@ public final class CombatManager {
 			CombatSession session = entry.getValue();
 			if (session.hasExpired(nowMillis)) {
 				iterator.remove();
-				this.notifySafely(player, "combat end", () -> this.notifier.combatEnded(player));
+				this.notifier.combatEnded(player);
 				continue;
 			}
 			long remainingSeconds = session.getRemainingSeconds(nowMillis);
-			this.notifySafely(player, "combat update",
-					() -> this.notifier.combatTick(player, remainingSeconds));
+			this.notifier.combatTick(player, remainingSeconds);
 		}
 	}
 
@@ -205,8 +200,7 @@ public final class CombatManager {
 			iterator.remove();
 			Player player = Bukkit.getPlayer(entry.getKey());
 			if (player != null && player.isOnline()) {
-				this.notifySafely(player, "combat end after reload",
-						() -> this.notifier.combatEnded(player));
+				this.notifier.combatEnded(player);
 			}
 		}
 	}
@@ -235,16 +229,14 @@ public final class CombatManager {
 				System.currentTimeMillis()
 		));
 
-		if (!newlyTagged || !this.settings.areStartNotificationsEnabled()) {
+		if (!newlyTagged || !this.settings.isStartNotificationsEnabled()) {
 			return;
 		}
 		String opponentName = getEntityName(opponent);
 		if (playerAttacked) {
-			this.notifySafely(player, "combat start",
-					() -> this.notifier.combatStarted(player, opponentName));
+			this.notifier.combatStarted(player, opponentName);
 		} else {
-			this.notifySafely(player, "combat start",
-					() -> this.notifier.combatAttacked(player, opponentName));
+			this.notifier.combatAttacked(player, opponentName);
 		}
 	}
 
@@ -258,18 +250,8 @@ public final class CombatManager {
 			iterator.remove();
 			Player player = Bukkit.getPlayer(entry.getKey());
 			if (player != null && player.isOnline()) {
-				this.notifySafely(player, "opponent removal",
-						() -> this.notifier.opponentRemoved(player, opponentName));
+				this.notifier.opponentRemoved(player, opponentName);
 			}
-		}
-	}
-
-	private void notifySafely(Player player, String operation, Runnable notification) {
-		try {
-			notification.run();
-		} catch (RuntimeException exception) {
-			this.plugin.getRosaLogger().log(Level.WARNING,
-					"Could not send anti-logout " + operation + " to " + player.getName(), exception);
 		}
 	}
 

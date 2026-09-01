@@ -3,13 +3,8 @@ package pl.kiosel.villages.addons.logs;
 import lombok.Getter;
 
 import java.time.Instant;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
-/** One immutable and persistable village activity entry. */
 @Getter
 public final class VillageLogEntry {
 

@@ -1,15 +1,15 @@
-main: pl.kiosel.villages.AdvancedVillages
+name: '${project.name}'
 version: '${project.version}'
-name: AdvancedVillages
-authors: [ Kiosel ]
+main: pl.kiosel.villages.AdvancedVillages
+description: '${project.description}'
+author: Kiosel
 api-version: 1.13
-description: Rewrite for plugin Wioski
-website: kiosel.pl
 
 softdepend:
   - PlaceholderAPI
   - WorldEdit
   - WorldGuard
   - Vault
-  - Reserve
+  - Essentials
   - PlayerPoints
+  - AdvancedPlayerList

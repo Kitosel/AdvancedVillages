@@ -1,4 +1,4 @@
-package pl.kiosel.villages.addons.placeholder;
+package pl.kiosel.villages.manager.placeholder;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.entity.Player;

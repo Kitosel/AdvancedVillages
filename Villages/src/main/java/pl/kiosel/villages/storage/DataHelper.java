@@ -20,16 +20,6 @@ public class DataHelper {
 		this.plugin = plugin;
 	}
 
-	public void deleteVillage(Village village) {
-		if (this.plugin.getQuestManager() != null) this.plugin.getQuestManager().delete(village);
-		if (this.plugin.getDiplomacyManager() != null) this.plugin.getDiplomacyManager().removeVillage(village);
-		if (this.plugin.getLogManager() != null) this.plugin.getLogManager().delete(village);
-		if (this.plugin.getDevelopmentManager() != null) this.plugin.getDevelopmentManager().delete(village);
-		if (this.plugin.getUpkeepManager() != null) this.plugin.getUpkeepManager().delete(village);
-
-		this.database().delete(VILLAGES, "uuid", village.getUUID());
-	}
-
 	public void insertUser(User user) {
 		DatabaseManager database = database();
 		database.upsert(DatabaseTable.named("users"), DatabaseValues.create()
@@ -39,8 +29,7 @@ public class DataHelper {
 				.set("kills", user.getRank().getKills())
 				.set("deaths", user.getRank().getDeaths())
 				.set("assists", user.getRank().getAssists())
-				.set("logouts", user.getRank().getLogouts())
-				.set("permission", this.plugin.getRoleManager().serialize(user)), "uuid");
+				.set("role", this.plugin.getRoleManager().serialize(user)), "uuid");
 
 		this.plugin.getDebug().debug("Saved user: " + user.getName());
 	}
@@ -52,8 +41,8 @@ public class DataHelper {
 				.set("uuid", village.getUUID())
 				.set("name", village.getName())
 				.set("owner", village.getOwner().getName())
-				.set("location", LocationUtils.convertLocationToString(village.getLocation().get()))
-				.set("tp", LocationUtils.convertLocationToString(village.getHome().get()))
+				.set("location", LocationUtils.convertLocationToString(village.getLocation().orElseThrow()))
+				.set("tp", LocationUtils.convertLocationToString(village.getHome().orElse(null)))
 				.set("members", members)
 				.set("pvp", village.hasPvPEnabled())
 				.set("tnt", village.hasTntEnabled())

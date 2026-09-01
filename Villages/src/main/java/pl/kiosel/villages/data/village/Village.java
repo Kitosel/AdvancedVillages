@@ -1,6 +1,5 @@
 package pl.kiosel.villages.data.village;
 
-import lombok.Getter;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -12,295 +11,314 @@ import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.level.Level;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.IntUnaryOperator;
-import java.util.stream.Collectors;
 
 public class Village extends AbstractMutableEntity {
 
-    private final UUID uuid;
-
-    private String name;
-    @Getter private String tag;
-
-    @Getter private final VillageRank rank;
-    @Getter private int lives, bank;
-	@Getter private Level level;
-
+	private final UUID uuid;
+	private final VillageRank rank;
+	private final VillageMembers membership;
+	private final VillageEffects effects;
+	private volatile String name;
+	private volatile String tag;
+	private volatile int lives;
+	private volatile int bank;
+	private volatile Level level;
 	@Nullable private volatile Region region;
 	@Nullable private volatile Location home;
 	@Nullable private volatile Location location;
+	private volatile Instant born;
+	private volatile Instant protection = Instant.EPOCH;
+	@Nullable private volatile Instant build;
+	private volatile boolean pvp;
+	private volatile boolean tnt;
+	private volatile boolean animationsEnabled = true;
 
-    @Getter private User owner;
-    private final Set<User> members = ConcurrentHashMap.newKeySet();
-    private final Set<User> membersView = Collections.unmodifiableSet(this.members);
-
-    @Getter private Instant born;
-    @Getter private Instant protection = Instant.EPOCH;
-    @Nullable private volatile Instant build;
-
-	@Getter
-	private boolean speed, jump, regeneration, haste, pvp, tnt;
-
-	@Getter
-	private boolean animationsEnabled = true;
-	@Getter
-	private boolean speedActive, jumpActive, regenerationActive, hasteActive;
-
-    public Village(UUID uuid, String name, String tag) {
-        this.uuid = uuid != null ? uuid : UUID.randomUUID();
-        this.name = name;
-        this.tag = tag;
-
-        this.rank = new VillageRank(this);
-        this.born = Instant.now();
-    }
-
-	public Village(UUID uuid, Location location) {
-		this.uuid = uuid != null ? uuid : UUID.randomUUID();
-		setLocation(location);
-
+	private Village(UUID uuid) {
+		this.uuid = uuid == null ? UUID.randomUUID() : uuid;
 		this.rank = new VillageRank(this);
+		this.membership = new VillageMembers(this, this::markChanged);
+		this.effects = new VillageEffects(this::markChanged);
 		this.born = Instant.now();
 	}
 
-    public Village(String name, String tag) {
-        this(null, name, tag);
-    }
+	public Village(UUID uuid, String name, String tag) {
+		this(uuid);
+		this.name = name;
+		this.tag = tag;
+	}
 
-    public void broadcast(String message) {
-        this.members.forEach(user -> user.sendMessage(message));
-    }
+	public Village(UUID uuid, Location location) {
+		this(uuid);
+		this.location = cloneLocation(location);
+	}
 
-    public void deserializationUpdate() {
-        if (this.owner != null) this.owner.setVillage(this);
-        this.members.forEach(user -> user.setVillage(this));
-    }
+	public Village(String name, String tag) {
+		this(null, name, tag);
+	}
 
-    public UUID getUUID() {
-        return this.uuid;
-    }
+	public UUID getUUID() {
+		return this.uuid;
+	}
 
-    @Override
-    public String getName() {
-        return this.name;
-    }
+	public String getID() {
+		return this.uuid.toString();
+	}
 
-    public void setName(String name) {
-        this.name = name;
-        this.markChanged();
-    }
+	@Override
+	public String getName() {
+		return this.name;
+	}
+
+	public void setName(String name) {
+		if (Objects.equals(this.name, name)) return;
+		this.name = name;
+		this.markChanged();
+	}
+
+	public String getTag() {
+		return this.tag;
+	}
 
 	public void setTag(String tag) {
-        this.tag = tag;
-        this.markChanged();
-    }
+		if (Objects.equals(this.tag, tag)) return;
+		this.tag = tag;
+		this.markChanged();
+	}
+
+	public boolean isTag() {
+		return this.tag != null && !this.tag.isBlank() && !this.tag.equalsIgnoreCase("none");
+	}
+
+	public VillageRank getRank() {
+		return this.rank;
+	}
+
+	public int getLives() {
+		return this.lives;
+	}
 
 	public void setLives(int lives) {
-		this.lives = Math.max(0, lives);
+		int updated = Math.max(0, lives);
+		if (this.lives == updated) return;
+		this.lives = updated;
 		this.markChanged();
 	}
 
 	public void updateLives(IntUnaryOperator update) {
-		this.setLives(update.applyAsInt(this.lives));
+		this.setLives(Objects.requireNonNull(update, "update").applyAsInt(this.lives));
 	}
 
-	public void addBank(int bank) {
-		this.bank = this.bank + Math.max(0, bank);
-		this.markChanged();
+	public int getBank() {
+		return this.bank;
 	}
 
-	public void removeBank(int bank) {
-		this.setBank(this.bank - Math.max(0, bank));
+	public void addBank(int amount) {
+		if (amount > 0) this.setBank(this.bank + amount);
+	}
+
+	public void removeBank(int amount) {
+		if (amount > 0) this.setBank(this.bank - amount);
 	}
 
 	public void setBank(int bank) {
-		this.bank = Math.max(0, bank);
+		int updated = Math.max(0, bank);
+		if (this.bank == updated) return;
+		this.bank = updated;
 		this.markChanged();
 	}
 
+	public void updateBank(IntUnaryOperator update) {
+		this.setBank(Objects.requireNonNull(update, "update").applyAsInt(this.bank));
+	}
+
+	public Level getLevel() {
+		return this.level;
+	}
+
 	public void setLevel(Level level) {
+		if (Objects.equals(this.level, level)) return;
 		this.level = level;
 		this.markChanged();
 	}
 
-	public Location getAnimation() {
-		return getLocation().orElseThrow(() ->
-				new IllegalStateException("Village " + this.uuid + " has no central location"))
-				.add(0.5, 1.0, 0.5);
-	}
-
-	public void updateBank(IntUnaryOperator update) {
-		this.setBank(update.applyAsInt(this.bank));
+	public void upgrade() {
+		this.setLevel(AdvancedVillages.getInstance().getLevelManager().getLevel(this.level.getLevel() + 1));
 	}
 
 	public boolean hasRegion() {
-        return this.region != null;
-    }
-
-    public void setRegion(@Nullable Region region) {
-		if (this.region != region) {
-			this.region = region;
-			if (region != null) region.setVillage(this);
-			this.markChanged();
-		}
-    }
-
-    public Optional<Location> getCenter() {
-        return this.getRegion()
-                .map(Region::getCenter)
-                .map(Location::clone);
-    }
+		return this.region != null;
+	}
 
 	public Optional<Region> getRegion() {
 		return Optional.ofNullable(this.region);
 	}
 
-	public boolean hasHome() {
-        return this.home != null;
-    }
-
-    public void setHome(@Nullable Location home) {
-		Location updated = cloneLocation(home);
-		if (!Objects.equals(this.home, updated)) {
-			this.home = updated;
-			this.markChanged();
-		}
-    }
-
-    public void teleportHome(Player player) {
-        if (player != null) this.getHome().ifPresent(player::teleport);
-    }
-
-	public Optional<Location> getHome() {
-		return Optional.ofNullable(cloneLocation(this.home));
+	public void setRegion(@Nullable Region region) {
+		if (this.region == region) return;
+		this.region = region;
+		if (region != null) region.setVillage(this);
+		this.markChanged();
 	}
 
-	public void setLocation(@Nullable Location location) {
-		Location updated = cloneLocation(location);
-		if (!Objects.equals(this.location, updated)) {
-			this.location = updated;
-			this.markChanged();
-		}
+	public Optional<Location> getCenter() {
+		return this.getRegion().map(Region::getCenter).map(Location::clone);
 	}
 
 	public Optional<Location> getLocation() {
 		return Optional.ofNullable(cloneLocation(this.location));
 	}
 
+	public void setLocation(@Nullable Location location) {
+		Location updated = cloneLocation(location);
+		if (Objects.equals(this.location, updated)) return;
+		this.location = updated;
+		this.markChanged();
+	}
+
+	public Location getAnimation() {
+		return this.getLocation()
+				.orElseThrow(() -> new IllegalStateException("Village " + this.uuid + " has no central location"))
+				.add(0.5, 1.0, 0.5);
+	}
+
+	public boolean hasHome() {
+		return this.home != null;
+	}
+
+	public Optional<Location> getHome() {
+		return Optional.ofNullable(cloneLocation(this.home));
+	}
+
+	public void setHome(@Nullable Location home) {
+		Location updated = cloneLocation(home);
+		if (Objects.equals(this.home, updated)) return;
+		this.home = updated;
+		this.markChanged();
+	}
+
+	public void teleportHome(Player player) {
+		if (player != null) this.getHome().ifPresent(player::teleport);
+	}
+
+	public User getOwner() {
+		return this.membership.getOwner();
+	}
+
 	public boolean isOwner(User user) {
-		return Objects.equals(this.owner, user);
-    }
+		return this.membership.isOwner(user);
+	}
 
-    public void setOwner(User user) {
-		Objects.requireNonNull(user, "owner");
-		if (!Objects.equals(this.owner, user)) {
-			this.owner = user;
-			this.addMember(user);
-			this.markChanged();
-		}
-    }
-
-	public Set<User> getOnlineMembers() {
-        return this.members.stream()
-                .filter(User::isOnline)
-                .collect(Collectors.toUnmodifiableSet());
-    }
+	public void setOwner(User user) {
+		this.membership.setOwner(user);
+	}
 
 	public Set<User> getMembers() {
-		return this.membersView;
+		return this.membership.getMembers();
+	}
+
+	public Set<User> getOnlineMembers() {
+		return this.membership.getOnlineMembers();
 	}
 
 	public Set<String> getMembersName() {
-		Set<String> names = new HashSet<>();
-		for (User user : this.members) {
-			names.add(user.getName());
-		}
-		return names;
+		return this.membership.getMemberNames();
 	}
 
-    public boolean isMember(User user) {
-		return user != null && this.members.contains(user);
-    }
+	public boolean isMember(User user) {
+		return this.membership.contains(user);
+	}
 
-    public void setMembers(Set<User> members) {
-		Set<User> updated = members == null ? new HashSet<>() : new HashSet<>(members);
-		if (this.owner != null) updated.add(this.owner);
-		for (User member : new HashSet<>(this.members)) {
-			if (!updated.contains(member)) this.removeMember(member);
-		}
-		for (User member : updated) this.addMember(member);
-    }
+	public void setMembers(Set<User> members) {
+		this.membership.replace(members);
+	}
 
-    public void addMember(User user) {
-		if (user != null && this.members.add(user)) {
-			user.setVillage(this);
-			this.markChanged();
-		}
-    }
+	public void addMember(User user) {
+		this.membership.add(user);
+	}
 
 	public void removeMember(User user) {
-		if (user != null && this.members.remove(user)) {
-			if (user.getPresentVillage() == this) user.removeVillage();
-			this.markChanged();
-		}
+		this.membership.remove(user);
 	}
 
-	public void setBorn(Instant time) {
-        this.born = time;
-        this.markChanged();
-    }
+	public void deserializationUpdate() {
+		this.membership.restoreLinks();
+	}
+
+	public void broadcast(String message) {
+		this.membership.getMembers().forEach(user -> user.sendMessage(message));
+	}
+
+	public Instant getBorn() {
+		return this.born;
+	}
+
+	public void setBorn(Instant born) {
+		Instant updated = Objects.requireNonNull(born, "born");
+		if (this.born.equals(updated)) return;
+		this.born = updated;
+		this.markChanged();
+	}
+
+	public Instant getProtection() {
+		return this.protection;
+	}
+
+	public void setProtection(Instant protection) {
+		Instant updated = Objects.requireNonNull(protection, "protection");
+		if (this.protection.equals(updated)) return;
+		this.protection = updated;
+		this.markChanged();
+	}
 
 	public boolean canBeAttacked() {
-        return this.protection.isBefore(Instant.now().minus(1, ChronoUnit.SECONDS));
-    }
-
-    public void setProtection(Instant protection) {
-        this.protection = protection;
-        this.markChanged();
-    }
-
-	public boolean canBuild() {
-        Instant buildUntil = this.build;
-        if (buildUntil != null && buildUntil.isAfter(Instant.now())) {
-            return false;
-        }
-
-        if (buildUntil != null) {
-			this.build = null;
-			this.markChanged();
-		}
-        return true;
-    }
-
-    public void setBuild(@Nullable Instant time) {
-        if (time != null && time.isBefore(Instant.now())) {
-            time = null;
-        }
-
-		if (!Objects.equals(this.build, time)) {
-			this.build = time;
-			this.markChanged();
-		}
-    }
+		return !this.protection.isAfter(Instant.now());
+	}
 
 	public Optional<Instant> getBuild() {
 		return Optional.ofNullable(this.build);
 	}
 
-    public boolean hasPvPEnabled() {
-        return this.pvp;
-    }
+	public void setBuild(@Nullable Instant build) {
+		Instant updated = build != null && build.isAfter(Instant.now()) ? build : null;
+		if (Objects.equals(this.build, updated)) return;
+		this.build = updated;
+		this.markChanged();
+	}
 
-    public void setPvP(boolean pvp) {
-        this.pvp = pvp;
-        this.markChanged();
-    }
+	public boolean canBuild() {
+		Instant buildUntil = this.build;
+		if (buildUntil == null) return true;
+		if (buildUntil.isAfter(Instant.now())) return false;
+		this.build = null;
+		this.markChanged();
+		return true;
+	}
 
-    public void togglePvP() {
-		setPvP(!this.pvp);
+	public boolean isPvp() {
+		return this.pvp;
+	}
+
+	public boolean hasPvPEnabled() {
+		return this.pvp;
+	}
+
+	public void setPvP(boolean pvp) {
+		if (this.pvp == pvp) return;
+		this.pvp = pvp;
+		this.markChanged();
+	}
+
+	public void togglePvP() {
+		this.setPvP(!this.pvp);
+	}
+
+	public boolean isTnt() {
+		return this.tnt;
 	}
 
 	public boolean hasTntEnabled() {
@@ -308,152 +326,129 @@ public class Village extends AbstractMutableEntity {
 	}
 
 	public void setTnt(boolean tnt) {
+		if (this.tnt == tnt) return;
 		this.tnt = tnt;
 		this.markChanged();
 	}
 
 	public boolean toggleTnt() {
-		setTnt(!this.tnt);
+		this.setTnt(!this.tnt);
 		return this.tnt;
 	}
 
+	public boolean isAnimationsEnabled() {
+		return this.animationsEnabled;
+	}
+
 	public void setAnimationsEnabled(boolean animationsEnabled) {
+		if (this.animationsEnabled == animationsEnabled) return;
 		this.animationsEnabled = animationsEnabled;
 		this.markChanged();
 	}
 
 	public boolean toggleAnimations() {
-		setAnimationsEnabled(!this.animationsEnabled);
+		this.setAnimationsEnabled(!this.animationsEnabled);
 		return this.animationsEnabled;
 	}
 
+	public boolean isRegeneration() {
+		return this.effects.isRegeneration();
+	}
+
 	public void setRegeneration(boolean regeneration) {
-		this.regeneration = regeneration;
-		this.markChanged();
+		this.effects.setRegeneration(regeneration);
+	}
+
+	public boolean isSpeed() {
+		return this.effects.isSpeed();
 	}
 
 	public void setSpeed(boolean speed) {
-		this.speed = speed;
-		this.markChanged();
+		this.effects.setSpeed(speed);
+	}
+
+	public boolean isJump() {
+		return this.effects.isJump();
 	}
 
 	public void setJump(boolean jump) {
-		this.jump = jump;
-		this.markChanged();
+		this.effects.setJump(jump);
+	}
+
+	public boolean isHaste() {
+		return this.effects.isHaste();
 	}
 
 	public void setHaste(boolean haste) {
-		this.haste = haste;
-		this.markChanged();
+		this.effects.setHaste(haste);
 	}
 
-	public void setSpeedActive(boolean speedActive) {
-		this.speedActive = speedActive;
-		this.markChanged();
-	}
-
-	public void setJumpActive(boolean jumpActive) {
-		this.jumpActive = jumpActive;
-		this.markChanged();
+	public boolean isRegenerationActive() {
+		return this.effects.isRegenerationActive();
 	}
 
 	public void setRegenerationActive(boolean regenerationActive) {
-		this.regenerationActive = regenerationActive;
-		this.markChanged();
+		this.effects.setRegenerationActive(regenerationActive);
+	}
+
+	public boolean isSpeedActive() {
+		return this.effects.isSpeedActive();
+	}
+
+	public void setSpeedActive(boolean speedActive) {
+		this.effects.setSpeedActive(speedActive);
+	}
+
+	public boolean isJumpActive() {
+		return this.effects.isJumpActive();
+	}
+
+	public void setJumpActive(boolean jumpActive) {
+		this.effects.setJumpActive(jumpActive);
+	}
+
+	public boolean isHasteActive() {
+		return this.effects.isHasteActive();
 	}
 
 	public void setHasteActive(boolean hasteActive) {
-		this.hasteActive = hasteActive;
-		this.markChanged();
+		this.effects.setHasteActive(hasteActive);
 	}
 
-    @Override
-    public UnitType getType() {
-        return UnitType.VILLAGE;
-    }
-
-    @Override
-    public int hashCode() {
-        return this.uuid.hashCode();
-    }
-
-	public String getID() {
-		return this.uuid.toString();
+	@Override
+	public UnitType getType() {
+		return UnitType.VILLAGE;
 	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-
-        if (obj == null || this.getClass() != obj.getClass()) {
-            return false;
-        }
-
-        Village village = (Village) obj;
-        return this.uuid.equals(village.uuid);
-    }
-
-	public boolean isSameVillage(Player p1, Player p2) {
-		if (p1 == null || p2 == null) return false;
-
-		UUID uuid1 = p1.getUniqueId();
-		UUID uuid2 = p2.getUniqueId();
-		return containsMember(uuid1) && containsMember(uuid2);
+	public boolean isSameVillage(Player first, Player second) {
+		if (first == null || second == null) return false;
+		return this.membership.contains(first.getUniqueId()) && this.membership.contains(second.getUniqueId());
 	}
 
-	private boolean containsMember(UUID playerId) {
-		if (this.owner != null && this.owner.getUUID().equals(playerId)) {
-			return true;
-		}
-		for (User member : this.members) {
-			if (member.getUUID().equals(playerId)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-    @Override
-    public String toString() {
-        return this.name;
-    }
-
-	public boolean isTag() {
-		return tag != null && !tag.isBlank() && !tag.equalsIgnoreCase("none");
-	}
-
-	public void upgrade() {
-		setLevel(AdvancedVillages.getInstance().getLevelManager().getLevel(getLevel().getLevel() + 1));
-	}
-
-	public boolean isCentralBlock(Location loc) {
+	public boolean isCentralBlock(Location location) {
 		Location center = this.location;
-		return center != null && LocationUtils.isLocationMatching(loc, center);
+		return center != null && LocationUtils.isLocationMatching(location, center);
 	}
 
 	public boolean isCentralBlock(Block block) {
-		return isCentralBlock(block.getLocation());
+		return block != null && this.isCentralBlock(block.getLocation());
 	}
 
 	@Nullable
-	public Village getVillageAt(Location loc) {
-		return this.contains(loc, this.getLevel().getSize()) ? this : null;
+	public Village getVillageAt(Location location) {
+		Level currentLevel = this.level;
+		return currentLevel != null && this.contains(location, currentLevel.getSize()) ? this : null;
 	}
 
 	@Nullable
-	public Village getVillageAt(Location loc, int customSize) {
-		return this.contains(loc, customSize) ? this : null;
+	public Village getVillageAt(Location location, int customSize) {
+		return this.contains(location, customSize) ? this : null;
 	}
 
 	private boolean contains(Location target, int size) {
 		Location center = this.location;
-		if (target == null || center == null
-				|| target.getWorld() == null || center.getWorld() == null
-				|| !center.getWorld().equals(target.getWorld())) {
-			return false;
-		}
+		if (target == null || center == null || target.getWorld() == null || center.getWorld() == null) return false;
+		if (!center.getWorld().equals(target.getWorld())) return false;
 
 		long radius = Math.max(0, size);
 		long distanceX = Math.abs((long) target.getBlockX() - center.getBlockX());
@@ -466,19 +461,20 @@ public class Village extends AbstractMutableEntity {
 	}
 
 	public String convertToString() {
-		return "tnt:" + tnt + ";pvp:" + pvp + ";animations:" + animationsEnabled + ";protection:" + protection+";";
+		return "tnt:" + this.tnt + ";pvp:" + this.pvp + ";animations:" + this.animationsEnabled
+				+ ";protection:" + this.protection + ";";
 	}
 
 	public String effectsBuyedToString() {
-		return isRegeneration() + ";" + isSpeed() + ";" + isJump() + ";" + isHaste() + ";";
+		return this.effects.purchasedToString();
 	}
 
 	public String effectsActiveToString() {
-		return isRegenerationActive() + ";" + isSpeedActive() + ";" + isJumpActive() + ";" + isHasteActive() + ";";
+		return this.effects.activeToString();
 	}
 
 	public String intsToString() {
-		return getLevel().getLevel() + ";" + getLives() + ";" + getBank() + ";";
+		return this.level.getLevel() + ";" + this.lives + ";" + this.bank + ";";
 	}
 
 	public String tpToString() {
@@ -488,9 +484,26 @@ public class Village extends AbstractMutableEntity {
 				+ "&7&l-&c" + teleport.getBlockZ();
 	}
 
+	@Override
+	public int hashCode() {
+		return this.uuid.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object object) {
+		if (this == object) return true;
+		if (!(object instanceof Village)) return false;
+		Village village = (Village) object;
+		return this.uuid.equals(village.uuid);
+	}
+
+	@Override
+	public String toString() {
+		return this.name;
+	}
+
 	@Nullable
 	private static Location cloneLocation(@Nullable Location location) {
 		return location == null ? null : location.clone();
 	}
-
 }

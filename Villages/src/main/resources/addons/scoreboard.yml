@@ -36,7 +36,6 @@ animation:
 # village.animationsEnabled(), village.hasHome(), village.hasRegion(),
 # village.hasAllies(), village.hasWars(), village.levelAtLeast(2),
 # village.bankAtLeast(1000), village.livesAtLeast(5).
-
 placeholders:
   if-village:
     condition: "user.inVillage()"

@@ -5,17 +5,17 @@ import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.level.Level;
 import pl.kiosel.villages.manager.VillageNameGenerator;
 
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
 public class VillageBuilder {
 
 	private final Village village;
-	private final VillageNameGenerator villageNameGenerator;
+	private final VillageNameGenerator nameGenerator = new VillageNameGenerator();
 
 	public VillageBuilder(UUID uuid, Location location) {
 		this.village = new Village(uuid, location);
-		this.villageNameGenerator = new VillageNameGenerator();
 	}
 
 	public VillageBuilder setLocation(Location location) {
@@ -44,8 +44,7 @@ public class VillageBuilder {
 	}
 
 	public VillageBuilder setRandomVillageName() {
-		this.setName(villageNameGenerator.getRandomName());
-		return this;
+		return this.setName(this.nameGenerator.getRandomName());
 	}
 
 	public VillageBuilder setLevel(Level level) {
@@ -53,33 +52,29 @@ public class VillageBuilder {
 		return this;
 	}
 
-	public VillageBuilder setLives(int life) {
-		this.village.setLives(life);
+	public VillageBuilder setLives(int lives) {
+		this.village.setLives(lives);
+		return this;
+	}
+
+	public VillageBuilder setBank(int bank) {
+		this.village.setBank(bank);
 		return this;
 	}
 
 	public VillageBuilder setEffectsDefault() {
-		setEffects(false, false, false, false);
-		setEffectsActive(false, false, false, false);
-		return this;
+		return this.setEffects(false, false, false, false)
+				.setEffectsActive(false, false, false, false);
 	}
 
-	public VillageBuilder setEffects(String effects) {
-		String[] effects_data_array = effects.split(";");
-		this.setEffects(Boolean.parseBoolean(effects_data_array[0]),
-				Boolean.parseBoolean(effects_data_array[1]),
-				Boolean.parseBoolean(effects_data_array[2]),
-				Boolean.parseBoolean(effects_data_array[3]));
-		return this;
+	public VillageBuilder setEffects(String serialized) {
+		boolean[] values = parseEffects(serialized);
+		return this.setEffects(values[0], values[2], values[1], values[3]);
 	}
 
-	public VillageBuilder setEffectsActive(String effects) {
-		String[] effects_active_array = effects.split(";");
-		this.setEffectsActive(Boolean.parseBoolean(effects_active_array[0]),
-				Boolean.parseBoolean(effects_active_array[1]),
-				Boolean.parseBoolean(effects_active_array[2]),
-				Boolean.parseBoolean(effects_active_array[3]));
-		return this;
+	public VillageBuilder setEffectsActive(String serialized) {
+		boolean[] values = parseEffects(serialized);
+		return this.setEffectsActive(values[0], values[2], values[1], values[3]);
 	}
 
 	public VillageBuilder setEffects(boolean regeneration, boolean jump, boolean speed, boolean haste) {
@@ -104,16 +99,28 @@ public class VillageBuilder {
 	}
 
 	public VillageBuilder noTag() {
-		this.setTag("none");
-		return this;
-	}
-
-	public VillageBuilder setBank(int bank) {
-		this.village.setBank(bank);
-		return this;
+		return this.setTag("none");
 	}
 
 	public Village build() {
+		Objects.requireNonNull(this.village.getOwner(), "owner");
+		Objects.requireNonNull(this.village.getLevel(), "level");
+		if (this.village.getName() == null || this.village.getName().isBlank()) {
+			throw new IllegalStateException("Village name cannot be blank");
+		}
+		if (this.village.getLocation().isEmpty()) {
+			throw new IllegalStateException("Village location is required");
+		}
 		return this.village;
+	}
+
+	private static boolean[] parseEffects(String serialized) {
+		boolean[] values = new boolean[4];
+		if (serialized == null || serialized.isBlank()) return values;
+		String[] parts = serialized.split(";");
+		for (int index = 0; index < values.length && index < parts.length; index++) {
+			values[index] = Boolean.parseBoolean(parts[index]);
+		}
+		return values;
 	}
 }

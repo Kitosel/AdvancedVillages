@@ -9,26 +9,18 @@ import java.util.Set;
 
 public final class CombatSettings {
 
-	@Getter
-	private final boolean enabled;
-	@Getter
-	private final boolean bypassEnabled;
-	@Getter
-	private final String bypassPermission;
-	@Getter
-	private final boolean quitBroadcastEnabled;
-	@Getter
-	private final long durationSeconds;
-	private final boolean startNotificationsEnabled;
-	private final boolean removeOnOpponentDeath;
-	@Getter
-	private final boolean combatFromMobs;
-	@Getter
-	private final boolean combatFromProjectiles;
-	private final boolean commandsBlocked;
+	@Getter	private final boolean enabled;
+	@Getter	private final boolean bypassEnabled;
+	@Getter	private final String bypassPermission;
+	@Getter	private final boolean quitBroadcastEnabled;
+	@Getter	private final long durationSeconds;
+	@Getter	private final boolean startNotificationsEnabled;
+	@Getter	private final boolean removeOnOpponentDeath;
+	@Getter	private final boolean combatFromMobs;
+	@Getter	private final boolean combatFromProjectiles;
+	@Getter private final boolean commandsBlocked;
 	private final Set<String> commandWhitelist;
-	@Getter
-	private final double blockedRegionKnockback;
+	@Getter private final double blockedRegionKnockback;
 	private final Set<String> blockedRegions;
 
 	public CombatSettings(boolean enabled, boolean bypassEnabled, String bypassPermission,
@@ -50,18 +42,6 @@ public final class CombatSettings {
 		this.commandWhitelist = normalize(commandWhitelist, true);
 		this.blockedRegionKnockback = Math.max(0.0D, blockedRegionKnockback);
 		this.blockedRegions = normalize(blockedRegions, false);
-	}
-
-	public boolean areStartNotificationsEnabled() {
-		return this.startNotificationsEnabled;
-	}
-
-	public boolean shouldRemoveOnOpponentDeath() {
-		return this.removeOnOpponentDeath;
-	}
-
-	public boolean areCommandsBlocked() {
-		return this.commandsBlocked;
 	}
 
 	public boolean isCommandAllowed(String command) {

@@ -18,7 +18,7 @@ import pl.kiosel.villages.config.Settings;
 import pl.kiosel.villages.config.VillageMessage;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.manager.VillageUtilsManager;
+import pl.kiosel.villages.manager.VillageUtils;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -399,7 +399,7 @@ public final class TeleportManager {
 				.with("time", secondsLeft)
 				.with("seconds", secondsLeft);
 		String text = message.toText();
-		return village == null ? text : VillageUtilsManager.replaceWith(village, text);
+		return village == null ? text : VillageUtils.replaceWith(village, text);
 	}
 
 	private boolean checkCooldown(Player player, TeleportType type) {

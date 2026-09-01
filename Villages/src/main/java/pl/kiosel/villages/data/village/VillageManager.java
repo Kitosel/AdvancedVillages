@@ -1,142 +1,112 @@
 package pl.kiosel.villages.data.village;
 
-import lombok.Getter;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.data.user.User;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class VillageManager {
 
-	private final Map<UUID, Village> villageMap = new ConcurrentHashMap<>();
+	private final ConcurrentMap<UUID, Village> villagesByUuid = new ConcurrentHashMap<>();
+	private final Collection<Village> villagesView = Collections.unmodifiableCollection(this.villagesByUuid.values());
 
-	@Getter
-	private final Collection<Village> villagesView = Collections.unmodifiableCollection(this.villageMap.values());
+	public int countVillage() {
+		return this.villagesByUuid.size();
+	}
 
-    public int countVillage() {
-        return this.villageMap.size();
-    }
+	public Set<Village> getVillages() {
+		return new HashSet<>(this.villagesByUuid.values());
+	}
 
-    public Set<Village> getVillages() {
-        return new HashSet<>(this.villageMap.values());
-    }
+	public Collection<Village> getVillagesView() {
+		return this.villagesView;
+	}
 
-    public void clearVillage() {
-        this.villageMap.clear();
-    }
+	public void clearVillage() {
+		this.villagesByUuid.clear();
+	}
 
-    public Set<Village> findByNames(Collection<String> names) {
-		if (names == null || names.isEmpty()) return Collections.emptySet();
-		Set<Village> villages = new HashSet<>();
-		for (String name : names) {
-			this.findByName(name, true).ifPresent(villages::add);
-		}
-		return villages;
-    }
+	public Set<Village> findByNames(Collection<String> names) {
+		return this.findMany(names, this::findByName);
+	}
 
-    public Set<Village> findByTags(Collection<String> tags) {
-		if (tags == null || tags.isEmpty()) return Collections.emptySet();
-		Set<Village> villages = new HashSet<>();
-		for (String tag : tags) {
-			this.findByTag(tag, true).ifPresent(villages::add);
-		}
-		return villages;
-    }
+	public Set<Village> findByTags(Collection<String> tags) {
+		return this.findMany(tags, this::findByTag);
+	}
 
-    public Optional<Village> findByUuid(UUID uuid) {
-        return Optional.ofNullable(uuid == null ? null : this.villageMap.get(uuid));
-    }
-
-	public Optional<Village> findByOwner(String name, boolean ignoreCase) {
-		if (name == null || name.isBlank()) return Optional.empty();
-		return this.villageMap.values().stream()
-				.filter(Objects::nonNull)
-				.filter(village -> village.getOwner() != null && village.getOwner().getName() != null)
-				.filter(village -> ignoreCase
-						? village.getOwner().getName().equalsIgnoreCase(name)
-						: village.getOwner().getName().equals(name))
-				.findFirst();
+	public Optional<Village> findByUuid(UUID uuid) {
+		return uuid == null ? Optional.empty() : Optional.ofNullable(this.villagesByUuid.get(uuid));
 	}
 
 	public Optional<Village> findByOwner(String name) {
 		return this.findByOwner(name, false);
 	}
 
-    public Optional<Village> findByName(String name, boolean ignoreCase) {
-		if (name == null || name.isBlank()) return Optional.empty();
-		return this.villageMap.values().stream()
-				.filter(Objects::nonNull)
-				.filter(village -> ignoreCase
-						? village.getName().equalsIgnoreCase(name)
-						: village.getName().equals(name))
-				.findFirst();
-    }
+	public Optional<Village> findByOwner(String name, boolean ignoreCase) {
+		return this.findByValue(name, ignoreCase, village -> {
+			User owner = village.getOwner();
+			return owner == null ? null : owner.getName();
+		});
+	}
 
-    public Optional<Village> findByName(String name) {
-        return this.findByName(name, false);
-    }
+	public Optional<Village> findByName(String name) {
+		return this.findByName(name, false);
+	}
 
-    public Optional<Village> findByTag(String tag, boolean ignoreCase) {
-		if (tag == null || tag.isBlank()) return Optional.empty();
-		return this.villageMap.values().stream()
-				.filter(Objects::nonNull)
-				.filter(village -> village.getTag() != null)
-				.filter(village -> ignoreCase
-						? village.getTag().equalsIgnoreCase(tag)
-						: village.getTag().equals(tag))
-				.findFirst();
-    }
+	public Optional<Village> findByName(String name, boolean ignoreCase) {
+		return this.findByValue(name, ignoreCase, Village::getName);
+	}
 
-    public Optional<Village> findByTag(String tag) {
-        return this.findByTag(tag, false);
-    }
+	public Optional<Village> findByTag(String tag) {
+		return this.findByTag(tag, false);
+	}
 
-    public void addVillage(Village village) {
-		Objects.requireNonNull(village, "village can't be null!");
-		Village existing = this.villageMap.putIfAbsent(village.getUUID(), village);
+	public Optional<Village> findByTag(String tag, boolean ignoreCase) {
+		return this.findByValue(tag, ignoreCase, Village::getTag);
+	}
+
+	public void addVillage(Village village) {
+		Objects.requireNonNull(village, "village");
+		Village existing = this.villagesByUuid.putIfAbsent(village.getUUID(), village);
 		if (existing != null && existing != village) {
 			throw new IllegalArgumentException("A village with UUID " + village.getUUID() + " is already loaded");
 		}
 	}
 
-    public void deleteVillage(Village village) {
-		Objects.requireNonNull(village, "village can't be null!");
-        this.villageMap.remove(village.getUUID());
-    }
+	public void deleteVillage(Village village) {
+		if (village != null) this.villagesByUuid.remove(village.getUUID(), village);
+	}
 
 	public void deleteVillage(AdvancedVillages plugin, Village village) {
-        if (village == null) {
-            return;
-        }
-
+		if (plugin == null || village == null) return;
 		village.getMembers().forEach(User::removeVillage);
-		if (plugin.getQuestManager() != null) {
-			plugin.getQuestManager().delete(village);
-		}
-		if (plugin.getDiplomacyManager() != null) {
-			plugin.getDiplomacyManager().removeVillage(village);
-		}
-		if (plugin.getLogManager() != null) {
-			plugin.getLogManager().delete(village);
-		}
-		if (plugin.getDevelopmentManager() != null) {
-			plugin.getDevelopmentManager().delete(village);
-		}
-		if (plugin.getUpkeepManager() != null) {
-			plugin.getUpkeepManager().delete(village);
-		}
-        this.deleteVillage(village);
-    }
+		if (plugin.getQuestManager() != null) plugin.getQuestManager().delete(village);
+		if (plugin.getDiplomacyManager() != null) plugin.getDiplomacyManager().removeVillage(village);
+		if (plugin.getLogManager() != null) plugin.getLogManager().delete(village);
+		if (plugin.getDevelopmentManager() != null) plugin.getDevelopmentManager().delete(village);
+		if (plugin.getUpkeepManager() != null) plugin.getUpkeepManager().delete(village);
+		this.deleteVillage(village);
+	}
 
-    public boolean nameExists(String name) {
-        return this.findByName(name, true).isPresent();
-    }
+	public boolean nameExists(String name) {
+		return this.findByName(name, true).isPresent();
+	}
 
-    public boolean tagExists(String tag) {
-        return this.findByTag(tag, true).isPresent();
-    }
+	public boolean tagExists(String tag) {
+		return this.findByTag(tag, true).isPresent();
+	}
 
 	public static Set<String> getTags(Collection<Village> villages) {
 		if (villages == null || villages.isEmpty()) return Collections.emptySet();
@@ -148,36 +118,56 @@ public class VillageManager {
 	}
 
 	public List<Village> getVillageAsList() {
-		return new ArrayList<>(villageMap.values());
+		return new ArrayList<>(this.villagesByUuid.values());
 	}
 
 	public List<String> getVillageOwners() {
-		List<String> names = new ArrayList<>();
-		for (Village village : getVillageAsList()) {
-			if (village != null && village.getOwner() != null) {
-				names.add(village.getOwner().getName());
-			}
-		}
-		return names;
+		return this.villagesByUuid.values().stream()
+				.map(Village::getOwner)
+				.filter(Objects::nonNull)
+				.map(User::getName)
+				.collect(Collectors.toList());
 	}
 
 	public List<String> getVillageNamesAsList() {
-		return villageMap.values().stream()
-				.filter(Objects::nonNull)
-				.map(Village::getName)
-				.filter(Objects::nonNull)
-				.collect(Collectors.toList());
+		return this.values(Village::getName);
 	}
 
 	public List<String> getVillageTagsAsList() {
-		return villageMap.values().stream()
+		return this.values(Village::getTag);
+	}
+
+	public void onDisable() {
+		this.clearVillage();
+	}
+
+	private Set<Village> findMany(Collection<String> values, Function<String, Optional<Village>> finder) {
+		if (values == null || values.isEmpty()) return Collections.emptySet();
+		Set<Village> villages = new HashSet<>();
+		for (String value : values) {
+			if (value != null) finder.apply(value).ifPresent(villages::add);
+		}
+		return villages;
+	}
+
+	private Optional<Village> findByValue(String value, boolean ignoreCase, Function<Village, String> extractor) {
+		if (value == null || value.isBlank()) return Optional.empty();
+		return this.villagesByUuid.values().stream()
 				.filter(Objects::nonNull)
-				.map(Village::getTag)
+				.filter(village -> matches(extractor.apply(village), value, ignoreCase))
+				.findFirst();
+	}
+
+	private List<String> values(Function<Village, String> extractor) {
+		return this.villagesByUuid.values().stream()
+				.filter(Objects::nonNull)
+				.map(extractor)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
 	}
 
-	public void onDisable() {
-		villageMap.clear();
+	private static boolean matches(String candidate, String expected, boolean ignoreCase) {
+		if (candidate == null) return false;
+		return ignoreCase ? candidate.equalsIgnoreCase(expected) : candidate.equals(expected);
 	}
 }

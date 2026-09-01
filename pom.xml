@@ -6,12 +6,12 @@
 
     <groupId>pl.kiosel</groupId>
     <artifactId>villages-parent</artifactId>
-    <version>1.0</version>
+    <version>1.0-beta1</version>
     <packaging>pom</packaging>
 
     <properties>
-        <maven.compiler.release>16</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.release>16</maven.compiler.release>
     </properties>
 
     <distributionManagement>

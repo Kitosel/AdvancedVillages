@@ -13,16 +13,16 @@ import pl.kiosel.villages.addons.diplomacy.DiplomacyManager;
 import pl.kiosel.villages.addons.logs.VillageLogManager;
 import pl.kiosel.villages.addons.quests.VillageQuestManager;
 import pl.kiosel.villages.addons.ranking.RankingManager;
+import pl.kiosel.villages.addons.rent.VillageUpkeepManager;
 import pl.kiosel.villages.addons.trials.VillageAnimationManager;
-import pl.kiosel.villages.addons.upkeep.VillageUpkeepManager;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.user.UserManager;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.data.village.VillageManager;
 import pl.kiosel.villages.gui.Item;
-import pl.kiosel.villages.manager.UpgradeManager;
 import pl.kiosel.villages.manager.RoleManager;
+import pl.kiosel.villages.manager.UpgradeManager;
 import pl.kiosel.villages.manager.VillageRemoveManager;
 import pl.kiosel.villages.manager.teleport.TeleportManager;
 
@@ -136,7 +136,7 @@ public class VillageAPI {
 
 	@Nullable
 	public Village getVillageAt(Location location) {
-		return location == null ? null : plugin.getVillageUtilsManager().getVillageAt(location);
+		return location == null ? null : plugin.getVillageUtils().getVillageAt(location);
 	}
 
 	public boolean isVillageAt(Location location) {

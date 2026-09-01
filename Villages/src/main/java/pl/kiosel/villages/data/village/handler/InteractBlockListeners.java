@@ -4,7 +4,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -25,7 +24,7 @@ import pl.kiosel.villages.config.Settings;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.gui.Item;
-import pl.kiosel.villages.manager.VillageUtilsManager;
+import pl.kiosel.villages.manager.VillageUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,13 +33,13 @@ import java.util.Objects;
 public class InteractBlockListeners extends RosaListener {
 
 	private final AdvancedVillages plugin;
-	private final VillageUtilsManager villageManager;
+	private final VillageUtils villageManager;
 	private final int maxX, maxY, maxZ, minX, minY, minZ;
 
 	public InteractBlockListeners(AdvancedVillages plugin) {
 		super(plugin);
 		this.plugin = plugin;
-		this.villageManager = plugin.getVillageUtilsManager();
+		this.villageManager = plugin.getVillageUtils();
 		maxX = 2;
 		maxY = 6;
 		maxZ = 2;
@@ -51,7 +50,7 @@ public class InteractBlockListeners extends RosaListener {
 
 	private boolean isInEnabledWorld(Location loc) {
 		if (loc == null || loc.getWorld() == null) return true;
-		return plugin.getVillageUtilsManager().isBlacklisted(loc.getWorld());
+		return plugin.getVillageUtils().isBlacklisted(loc.getWorld());
 	}
 
 	@EventHandler(priority = EventPriority.NORMAL)
@@ -91,7 +90,7 @@ public class InteractBlockListeners extends RosaListener {
 					item.add(plugin.getApi().createHearth());
 					PlayerUtils.removeItem(player, item);
 
-					VillageUtilsManager.replaceWith(player, village, Lang.VILLAGE_HEARTH_ADD).sendPrefixed(player);
+					VillageUtils.replaceWith(player, village, Lang.VILLAGE_HEARTH_ADD).sendPrefixed(player);
 					player.playSound(player.getLocation(), Sound.ENTITY_BLAZE_HURT, 0.8f, 2.0f);
 				}
 				return;
@@ -174,7 +173,7 @@ public class InteractBlockListeners extends RosaListener {
 					item.setVelocity(location.getDirection().multiply(0).setY(0.5));
 				});
 				plugin.getDebug().debug("Player " + player.getName() + " destroy central block of village " + village.getName());
-				plugin.getVillageUtilsManager().attackOnVillage(village, 1, player);
+				plugin.getVillageUtils().attackOnVillage(village, 1, player);
 				player.playSound(player.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1.0f, 1.0f);
 			}
 			return;
@@ -245,26 +244,6 @@ public class InteractBlockListeners extends RosaListener {
 
 		if (cuboid.contains(loc)) {
 			event.setCancelled(true);
-		}
-	}
-
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onFire(TNTPrimeEvent event) {
-		Location location = event.getBlock().getLocation();
-		if (isInEnabledWorld(location)) return;
-
-		Entity entity = event.getPrimingEntity();
-		Village village = villageManager.getVillageAt(location);
-		if (village != null) {
-			if(!village.isTnt()) {
-				if (entity instanceof Player) {
-					Player player = (Player) entity;
-					User user = plugin.getUserManager().findByUuid(player.getUniqueId()).orElseThrow();
-					if (!village.isMember(user)) return;
-					event.setCancelled(true);
-					player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_AMBIENT, 0.5f, 1.0f);
-				}
-			}
 		}
 	}
 

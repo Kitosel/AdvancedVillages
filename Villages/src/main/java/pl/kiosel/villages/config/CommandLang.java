@@ -7,13 +7,16 @@ public enum CommandLang {
 	ADMIN("admin", "admin"),
 	ADMIN_RELOAD("admin_reload", "reload"),
 	ADMIN_GIVE("admin_give", "give"),
+	ADMIN_MANAGE("admin_manage", "manage"),
+	ADMIN_DEBUG("admin_debug", "debug"),
+	ADMIN_INTEGRATION("admin_integration", "integration"),
+
 	ADMIN_GIVE_VILLAGE("admin_give_villageblock", "village"),
 	ADMIN_GIVE_DESTROYER("admin_give_destroyer", "destroyer"),
 	ADMIN_GIVE_DESTROYER_HEARTH("admin_give_destroyer_hearth", "destroyer-hearth"),
 	ADMIN_GIVE_VILLAGE_HEARTH("admin_give_village_hearth", "village-hearth"),
 	ADMIN_GIVE_VILLAGE_HEARTH_PART("admin_give_hearth_part", "village-hearth-part"),
-	ADMIN_MANAGE("admin_manage", "manage"),
-	ADMIN_DEBUG("admin_debug", "debug"),
+
 	ADMIN_ADD("admin_add", "add"),
 	ADMIN_REMOVE("admin_remove", "remove"),
 
@@ -22,6 +25,11 @@ public enum CommandLang {
 	ADMIN_PROTECTION("admin_protection", "protection"),
 	ADMIN_LIVES("admin_lives", "lives"),
 	ADMIN_BANK("admin_bank", "bank"),
+
+	ADMIN_INTEGRATION_TABLIST("admin_integration_tablist", "tablist"),
+	ADMIN_INTEGRATION_INSTALL("admin_integration_install", "install"),
+	ADMIN_INTEGRATION_RESTORE("admin_integration_restore", "restore"),
+	ADMIN_INTEGRATION_STATUS("admin_integration_status", "status"),
 
 	REQUEST("request", "request"),
 	REQUEST_ACCEPT("request_accept", "accept"),

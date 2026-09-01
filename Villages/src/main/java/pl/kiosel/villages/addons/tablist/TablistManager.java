@@ -39,7 +39,7 @@ public final class TablistManager {
 		this.stopTask();
 		this.clearSessions();
 		this.snapshot = this.configuration.snapshot();
-		if (!this.snapshot.isEnabled()) {
+		if (!this.snapshot.isEnabled() || isExternallyManaged()) {
 			return;
 		}
 
@@ -53,7 +53,7 @@ public final class TablistManager {
 	}
 
 	public void handleJoin(Player player, User user) {
-		if (!this.snapshot.isEnabled()) {
+		if (!this.snapshot.isEnabled() || isExternallyManaged()) {
 			return;
 		}
 		this.close(player, true);
@@ -144,5 +144,9 @@ public final class TablistManager {
 			this.plugin.getRosaLogger().log(Level.FINE,
 					"Could not clear tablist for " + player.getName(), exception);
 		}
+	}
+
+	private boolean isExternallyManaged() {
+		return this.plugin.getAdvancedPlayerListIntegration() != null;
 	}
 }

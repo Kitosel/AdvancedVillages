@@ -21,7 +21,7 @@ header:
 footer:
   - " "
   - "&aPlay with your friends! :D"
-  - "&7WWW: &6domain.pl - &7&lMoney: &a%vault_eco_balance_fixed%"
+  - "&7WWW: &6domain.com - &7&lMoney: &a%vault_eco_balance_fixed%"
   - " "
 
 # The field numbers range from 1 to 80
@@ -34,13 +34,13 @@ cells:
   "9": " &7Asysty: &b%ASSISTS%"
   "10": " &7KDR: &b%KDR%"
 
-  "12": " &b&lINFORMACJE"
+  "12": " &b&lINFORMATION"
   "14": " &7Ping: &b%PING%"
   "15": " &7TPS: &b%TPS%"
   "17": " &7Online: &b%ONLINE%"
-  "19": " &7Godzina: &b%HOUR%:%MINUTE%:%SECOND%"
+  "19": " &7Hour: &b%HOUR%:%MINUTE%:%SECOND%"
 
-  "22": " &c&lVillage Statistics"
+  "22": " &c&lVILLAGE STATISTIC"
   "24": " &7Village: &b%G-TAG%"
   "26": " &7Points: &b%G-AVG-POINTS%"
   "27": " &7Kills: &b%G-KILLS%"
@@ -145,7 +145,7 @@ animation:
       duration-seconds: 10
       footer:
         - " "
-        - "&7Strona: &6kiosel.pl"
+        - "&7Web: &6domain.com"
         - " "
       cells:
         "42": " &b&lTOP &8- &b&lDeaths"
@@ -173,8 +173,8 @@ animation:
         "75": " &b10. &7%GTOP-DEATHS-10%"
         "77": " &7Village position: &b%G-POSITION-DEATHS%"
 
-# Opcjonalne tekstury glow. Klucz moze byc numerem pola albo zakresem, np. "1-80".
-# Kazda tekstura wymaga wartosci i podpisu z profilu Minecraft.
+# Optional glow textures. The key can be a field number or a range, e.g., “1-80”.
+# Each texture requires a value and a signature from the Minecraft profile.
 heads:
   enabled: false
   textures: {}

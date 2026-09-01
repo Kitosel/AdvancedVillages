@@ -10,7 +10,7 @@ import pl.kiosel.villages.config.VillageMessage;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.Permission;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.manager.VillageUtilsManager;
+import pl.kiosel.villages.manager.VillageUtils;
 
 import java.util.List;
 
@@ -68,14 +68,14 @@ public class RequestCommand extends AVSubCommand {
 					return;
 				}
 				player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 1.0f, 1.0f);
-				VillageUtilsManager.replaceWith(player, villageInvited, Lang.INVITE_CONFIRMED).sendPrefixed(player);
+				VillageUtils.replaceWith(player, villageInvited, Lang.INVITE_CONFIRMED).sendPrefixed(player);
 				plugin.getInviteManager().acceptInvite(player);
 				return;
 			}
 
 		if (arg1.equals(getCommand(CommandLang.REQUEST_DENY))) {
 			Village villageInvited = plugin.getInviteManager().getVillageInvited(player);
-			VillageMessage message = VillageUtilsManager.replaceWith(player, villageInvited, Lang.INVITE_DECLINE);
+			VillageMessage message = VillageUtils.replaceWith(player, villageInvited, Lang.INVITE_DECLINE);
 			villageInvited.broadcast(message.getPrefixedMessage());
 
 			sendLocalized(player, Lang.INVITE_CANCELED);

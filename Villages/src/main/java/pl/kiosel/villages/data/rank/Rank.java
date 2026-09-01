@@ -56,8 +56,6 @@ public abstract class Rank<T extends MutableEntity> {
 
     public abstract int getAssists();
 
-    public abstract int getLogouts();
-
     public abstract float getKDR();
 
     public abstract float getKDA();

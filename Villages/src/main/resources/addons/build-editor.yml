@@ -40,9 +40,7 @@ settings-menu:
     name: "&bRegion size"
     lore: ["&7Currently: &f%value%", "", "&eClick to change in the chat"]
 
-new-level:
-  # Obszar nowego poziomu ma stały rozmiar 5x5x10.
-  base-material: STONE
+base-material: STONE
 
 search:
   height-offset: 48

@@ -42,8 +42,7 @@ public class _1_InitialMigration extends DatabaseMigration {
 					"`kills` INT NULL, " +
 					"`deaths` INT NULL, " +
 					"`assists` INT NULL, " +
-					"`logouts` INT NULL, " +
-					"`permission` TEXT NULL, " +
+					"`role` TEXT NULL, " +
 					"PRIMARY KEY (`uuid`));");
 
 			//Create quest table

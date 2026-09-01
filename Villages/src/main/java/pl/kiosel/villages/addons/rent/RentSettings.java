@@ -1,11 +1,11 @@
-package pl.kiosel.villages.addons.upkeep;
+package pl.kiosel.villages.addons.rent;
 
 import lombok.Getter;
 
 import java.time.Duration;
 
 @Getter
-public final class UpkeepSettings {
+public final class RentSettings {
 	private final boolean enabled;
 	private final Duration interval;
 	private final int baseCost;
@@ -16,9 +16,9 @@ public final class UpkeepSettings {
 	private final int missedBeforePenalty;
 	private final int lifePenalty;
 
-	public UpkeepSettings(boolean enabled, Duration interval, int baseCost, int costPerLevel,
-	                      int costPerMember, int regionBlockUnit, int costPerRegionUnit,
-	                      int missedBeforePenalty, int lifePenalty) {
+	public RentSettings(boolean enabled, Duration interval, int baseCost, int costPerLevel,
+						int costPerMember, int regionBlockUnit, int costPerRegionUnit,
+						int missedBeforePenalty, int lifePenalty) {
 		this.enabled = enabled;
 		this.interval = interval;
 		this.baseCost = baseCost;

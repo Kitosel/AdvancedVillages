@@ -82,11 +82,18 @@ command:
     lives-remove: "&7Removed &c%lives% &7lives from &a%village_owner%'s &7village"
     already-dying: '&cThis village has no lives remaining'
     upgrade-failed: '&cThe village could not be upgraded. Check the server console'
+    integration:
+      unavailable: '&cAdvancedPlayerList is not installed or its API is unavailable.'
+      installed: '&aThe AdvancedVillages tablist profile was installed and activated.'
+      restored: '&7Restored the previous tablist profile: &a%profile%&7.'
+      status: '&7AdvancedPlayerList integration — installed: &f%installed%&7, active: &f%active%&7, selected profile: &f%profile%'
+      error: '&cAdvancedPlayerList integration failed: &7%error%'
     usage:
-      root: '&c/%command% %admin% <%reload%|%give%|%manage%|%debug%>'
+      root: '&c/%command% %admin% <%reload%|%give%|%manage%|%debug%|%integration%>'
       debug: '&c/%command% %admin% %debug% [owner]'
       give: '&c/%command% %admin% %give% <%village_block%|%destroyer%>'
       manage: '&c/%command% %admin% %manage% <owner> <%upgrade%|%lives%|%protection%|%remove%>'
+      integration: '&c/%command% %admin% %integration% %tablist% AdvancedPlayerList <%install%|%restore%|%status%>'
       action: '&c/%command% %admin% %manage% <owner> %action% <%add%|%remove%>'
       number: '&c/%command% %admin% %manage% <owner> %action% <%add%|%remove%> <number>'
       duration: '&c/%command% %admin% %manage% <owner> %action% <%add%|%remove%> <number> <time unit>'
@@ -153,6 +160,7 @@ tag:
   has-spaces: 'The tag cannot contain spaces'
   too-long: 'The tag is too long'
   invalid-chars: 'The tag contains invalid characters'
+  empty: "Tag is empty"
   new-village-tag: '&7Your new village tag is &a%tag%'
   your-village-tag: '&7Your village tag is &a%tag%'
   closed-name-village-tag: '&cYou closed the menu, so no tag was set'

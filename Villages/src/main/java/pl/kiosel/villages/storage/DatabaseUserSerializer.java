@@ -4,45 +4,33 @@ import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.data.user.User;
 
 import java.sql.ResultSet;
-import java.util.Optional;
 
 public final class DatabaseUserSerializer {
 
     private DatabaseUserSerializer() {
     }
 
-    public static Optional<User> deserialize(ResultSet resultSet) {
+    public static void deserialize(ResultSet resultSet) {
         if (resultSet == null) {
-            return Optional.empty();
+            return;
         }
 
-        try {
-            String uuid = resultSet.getString("uuid");
-            String name = resultSet.getString("name");
-            int points = resultSet.getInt("points");
-            int kills = resultSet.getInt("kills");
-            int deaths = resultSet.getInt("deaths");
-            int assists = resultSet.getInt("assists");
-            int logouts = resultSet.getInt("logouts");
-			String permissions = resultSet.getString("permission");
-
-            Object[] values = new Object[8];
-            values[0] = uuid;
-            values[1] = name;
-            values[2] = points;
-            values[3] = kills;
-            values[4] = deaths;
-            values[5] = assists;
-            values[6] = logouts;
-			values[7] = permissions;
-
-            return DeserializationUtils.deserializeUser(AdvancedVillages.getInstance().getUserManager(), values);
-        } catch (Exception exception) {
+		try {
+			UserData data = new UserData(
+					java.util.UUID.fromString(resultSet.getString("uuid")),
+					resultSet.getString("name"),
+					resultSet.getInt("points"),
+					resultSet.getInt("kills"),
+					resultSet.getInt("deaths"),
+					resultSet.getInt("assists"),
+					resultSet.getString("role")
+			);
+			DeserializationUtils.deserializeUser(AdvancedVillages.getInstance().getUserManager(), data);
+		} catch (Exception exception) {
 			AdvancedVillages.getInstance().getRosaLogger().warning("Could not deserialize user: " + exception.getMessage());
         }
 
-        return Optional.empty();
-    }
+	}
 
     public static void serialize(User user) {
 		AdvancedVillages plugin = AdvancedVillages.getInstance();

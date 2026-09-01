@@ -12,7 +12,7 @@ import pl.kiosel.villages.api.events.PlayerExitVillageEvent;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.manager.VillageUtilsManager;
+import pl.kiosel.villages.manager.VillageUtils;
 
 import java.time.Duration;
 
@@ -39,8 +39,8 @@ public class VillageListener extends RosaListener {
             push(player, village.getLocation().get());
             return;
         }
-		String title = VillageUtilsManager.replaceWith(village, plugin.getVillageMessages().get(Lang.ENTER_VILLAGE_AREA_TITLE).toString());
-		String subtitle = VillageUtilsManager.replaceWith(village, plugin.getVillageMessages().get(Lang.ENTER_VILLAGE_AREA_SUBTITLE).toString());
+		String title = VillageUtils.replaceWith(village, plugin.getVillageMessages().get(Lang.ENTER_VILLAGE_AREA_TITLE).toString());
+		String subtitle = VillageUtils.replaceWith(village, plugin.getVillageMessages().get(Lang.ENTER_VILLAGE_AREA_SUBTITLE).toString());
 		plugin.getVillageMessages().sendTitle(player, title, subtitle, times);
     }
 

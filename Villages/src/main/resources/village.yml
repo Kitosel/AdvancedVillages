@@ -1,0 +1,140 @@
+# Roles shared by all villages. The owner role is reserved and always has every permission.
+# Changing this file and using the plugin reload updates permissions immediately.
+default-role: member
+#
+# ROLES SETTINGS
+#
+roles:
+  member:
+    name: '&7Member'
+    priority: 10
+    permissions:
+      - BANK_ADD
+      - BANK_REMOVE
+      - STORE
+      - UPGRADE
+      - EFFECTS_BUY
+      - QUEST_TOGGLE
+
+  trusted:
+    name: '&aTrusted'
+    priority: 20
+    permissions:
+      - BANK_ADD
+      - BANK_REMOVE
+      - STORE
+      - STORAGE
+      - UPGRADE
+      - EFFECTS_BUY
+      - EFFECTS_TOGGLE
+      - QUEST_TOGGLE
+
+  officer:
+    name: '&6Officer'
+    priority: 30
+    permissions:
+      - SETTINGS
+      - INVITE
+      - STORE
+      - STORAGE
+      - EFFECTS_BUY
+      - EFFECTS_TOGGLE
+      - UPGRADE
+      - BANK_ADD
+      - BANK_REMOVE
+      - QUEST_TOGGLE
+      - ALLIANCE_MANAGE
+      - WAR_MANAGE
+      - DEVELOPMENT_BUY
+#
+# VILLAGE RENT/UPKEEP SETTINGS
+#
+rent:
+  # Periodic village maintenance paid from the village bank.
+  enabled: true
+  payment-interval: 24h
+
+  # Final cost: base + (level * per-level) + (members * per-member)
+  # + (rounded region area / region-block-unit * per-region-unit).
+  cost:
+    base: 100
+    per-level: 50
+    per-member: 25
+    region-block-unit: 100
+    per-region-unit: 2
+
+  # After this many missed payments, the village loses the configured number of lives.
+  # Set lives to 0 to disable the penalty. A village is never automatically deleted.
+  penalty:
+    missed-payments: 3
+    lives: 1
+#
+# DIPLOMACY SETTINGS
+#
+diplomacy:
+  # Village alliances and wars. Changes are applied by the normal plugin reload.
+  enabled: true
+
+  alliances:
+    enabled: true
+    maximum-per-village: 3
+    # Supported units: s, m, h, d, w, mo, y. Values may be combined, for example 1h30m.
+    request-expiration: 10m
+    prevent-friendly-fire: true
+    prevent-village-attacks: true
+
+  wars:
+    enabled: true
+    # When enabled, a destroyer works against another village only during an active war.
+    require-war-to-attack: true
+    preparation-time: 10m
+    duration: 24h
+    cooldown: 12h
+    maximum-per-village: 1
+    minimum-members: 1
+    minimum-online-members: 1
+    declaration-cost: 0
+
+    scoring:
+      player-kill: 1
+      village-life: 5
+
+    rewards:
+      winner-bank: 0
+#
+# RANKING SETTINGS
+#
+ranking:
+  # Player ranking also powers the collective village tops.
+  enabled: true
+
+  points:
+    # ELO, STATIC or PERCENT
+    algorithm: ELO
+    starting: 1000
+    minimum: 0
+
+    # ELO only. A larger value makes every fight change more points.
+    elo-k-factor: 32
+
+    # STATIC only.
+    static-winner-gain: 15
+    static-loser-loss: 10
+
+    # PERCENT only. Percentage of the defeated player's points.
+    percent-transfer: 1.0
+
+  assists:
+    points: 3
+    window-seconds: 15
+
+  anti-farm:
+    # Repeated kills of the same victim do not grant kills or points during this time.
+    # Set to 0 to disable this protection.
+    same-opponent-cooldown-seconds: 120
+
+  # Friendly kills do not affect ranking by default.
+  count-same-village-kills: false
+
+  # Positions and tops are recalculated together, not after every hit or kill.
+  top-refresh-seconds: 30

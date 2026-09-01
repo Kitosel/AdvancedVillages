@@ -4,7 +4,6 @@ import lombok.Getter;
 
 import java.time.ZoneId;
 
-/** Immutable runtime settings for village history. */
 @Getter
 public final class VillageLogSettings {
 

@@ -8,7 +8,7 @@ import pl.kiosel.rosacore.utils.ColorUtils;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.config.Settings;
 import pl.kiosel.villages.data.user.User;
-import pl.kiosel.villages.manager.VillageUtilsManager;
+import pl.kiosel.villages.manager.VillageUtils;
 
 public class ChatListener extends RosaListener {
 
@@ -29,9 +29,9 @@ public class ChatListener extends RosaListener {
 
 		String messageFormat;
 		if (user.hasVillage()) {
-			messageFormat = VillageUtilsManager.replaceWith(player, user.getPresentVillage(), Settings.CHAT_FORMAT_VILLAGE.getString()).toText();
+			messageFormat = VillageUtils.replaceWith(player, user.getPresentVillage(), Settings.CHAT_FORMAT_VILLAGE.getString()).toText();
 		} else {
-			messageFormat = VillageUtilsManager.replacePlayer(player, Settings.CHAT_FORMAT_NO_VILLAGE.getString()).toText();
+			messageFormat = VillageUtils.replacePlayer(player, Settings.CHAT_FORMAT_NO_VILLAGE.getString()).toText();
 		}
 		if (plugin.isPlaceholder()) {
 			messageFormat = plugin.getPlaceholder().replacePlaceholder(player, messageFormat);

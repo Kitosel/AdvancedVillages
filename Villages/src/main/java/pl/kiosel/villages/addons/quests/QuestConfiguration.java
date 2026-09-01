@@ -33,7 +33,7 @@ public final class QuestConfiguration {
 
 		this.settings = new QuestSettings(
 				Settings.ADDONS_QUESTS_ENABLE.getBoolean(),
-				TimeUtils.readZoneId(this.file.getString("reset.time-zone", "Europe/Warsaw")),
+				TimeUtils.readZoneId(Settings.TIME_ZONE.getString()),
 				this.file.getInt("reset.hour", 0),
 				this.readResetDay(),
 				definitions

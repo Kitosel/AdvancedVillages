@@ -1,8 +1,8 @@
 package pl.kiosel.villages.data.village;
 
 import org.jetbrains.annotations.NotNull;
-import pl.kiosel.villages.data.village.top.VillageComparator;
 import pl.kiosel.villages.data.rank.Rank;
+import pl.kiosel.villages.data.village.top.VillageComparator;
 
 public class VillageRank extends Rank<Village> implements Comparable<VillageRank> {
 
@@ -56,17 +56,6 @@ public class VillageRank extends Rank<Village> implements Comparable<VillageRank
 
     public int getAverageAssists() {
         return this.calculateAverage(this.getAssists());
-    }
-
-    @Override
-    public int getLogouts() {
-        return this.entity.getMembers().stream()
-                .mapToInt(user -> user.getRank().getLogouts())
-                .sum();
-    }
-
-    public int getAverageLogouts() {
-        return this.calculateAverage(this.getLogouts());
     }
 
     @Override

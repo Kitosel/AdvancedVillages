@@ -3,8 +3,7 @@
 # The addon can be enabled or disabled with addons.quests in config.yml.
 
 reset:
-  # Resets use real calendar time and also pass while the server is offline.
-  time-zone: "Europe/Warsaw"
+  # Resets use settings.time-zone from config.yml and also pass while the server is offline.
   hour: 0
   weekly-day: "MONDAY"
 

@@ -25,34 +25,25 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VillageUtilsManager {
+public class VillageUtils {
 
 	private static final String[] VILLAGE_PLACEHOLDERS = {
-			"village_level",
-			"village_next_level",
-			"village_cost",
-			"village_teleport",
-			"village_name",
-			"village_owner",
-			"village_bank",
-			"village_life",
-			"village_lives",
-			"village_life_as_symbol",
-			"village_size",
-			"village_tag",
-			"village_pvp",
-			"village_tnt",
-			"village_animations",
-			"village_allies",
-			"village_wars",
-			"istagset"
+			"village_level", "village_next_level",
+			"village_cost", "village_teleport",
+			"village_name", "village_owner",
+			"village_bank", "village_life",
+			"village_lives", "village_life_as_symbol",
+			"village_size", "village_tag",
+			"village_pvp", "village_tnt",
+			"village_animations", "village_allies",
+			"village_wars", "istagset"
 	};
 
 	private final AdvancedVillages plugin;
 	private final VillageManager manager;
 	private static final AdvancedVillages instance = AdvancedVillages.getInstance();
 
-	public VillageUtilsManager(AdvancedVillages plugin) {
+	public VillageUtils(AdvancedVillages plugin) {
 		this.plugin = plugin;
 		this.manager = plugin.getVillageManager();
 	}
@@ -64,11 +55,6 @@ public class VillageUtilsManager {
 		}
 		DatabaseVillageSerializer.serialize(village);
 		plugin.getDebug().debug("Created village: " + village.getName());
-	}
-
-	public void deleteVillage(Village village) {
-		plugin.getDataHelper().deleteVillage(village);
-		plugin.getDebug().debug("Deleted village: " + village.getName());
 	}
 
 	public void attackOnVillage(Village village, int hearth, Player attacker) {
@@ -265,5 +251,28 @@ public class VillageUtilsManager {
 	public static VillageMessage replaceWith(Player player, Village village, String message) {
 		String noVillage = replacePlayer(player, instance.getScoreboardHandler().scoreboardNoVillage()).toText();
 		return applyPlayerPlaceholders(replaceWithM(village, message, noVillage), player);
+	}
+
+	public static ValidTag validate(String tag, int maxLength) {
+		if (tag == null || tag.isEmpty())
+			return ValidTag.EMPTY;
+
+		if (tag.contains(" "))
+			return ValidTag.HAS_SPACES;
+
+		if (maxLength > 0 && tag.length() > maxLength)
+			return ValidTag.TOO_LONG;
+
+		if (!tag.matches("^[a-zA-Z0-9_]+$"))
+			return ValidTag.INVALID_CHARACTERS;
+
+		boolean occupied = AdvancedVillages.getInstance().getVillageManager().tagExists(tag);
+		if (occupied)
+			return ValidTag.OCCUPIED;
+		return ValidTag.VALID;
+	}
+
+	public enum ValidTag {
+		VALID, EMPTY, HAS_SPACES, TOO_LONG, INVALID_CHARACTERS, OCCUPIED
 	}
 }

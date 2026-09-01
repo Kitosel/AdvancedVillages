@@ -1,4 +1,4 @@
-package pl.kiosel.villages.addons.upkeep;
+package pl.kiosel.villages.addons.rent;
 
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
@@ -17,13 +17,13 @@ import java.util.logging.Level;
 
 public final class VillageUpkeepManager {
 	private final AdvancedVillages plugin;
-	private final UpkeepConfiguration configuration;
+	private final RentConfiguration configuration;
 	private final UpkeepStorage storage;
 	private final Map<UUID, VillageUpkeepState> states = new ConcurrentHashMap<>();
-	private volatile UpkeepSettings settings;
+	private volatile RentSettings settings;
 	private volatile BukkitTask task;
 
-	public VillageUpkeepManager(AdvancedVillages plugin, UpkeepConfiguration configuration) {
+	public VillageUpkeepManager(AdvancedVillages plugin, RentConfiguration configuration) {
 		this.plugin = plugin;
 		this.configuration = configuration;
 		this.storage = new UpkeepStorage(plugin);
@@ -70,7 +70,7 @@ public final class VillageUpkeepManager {
 
 	public int calculateCost(Village village) {
 		if (village == null) return 0;
-		UpkeepSettings current = this.settings;
+		RentSettings current = this.settings;
 		long level = village.getLevel() == null ? 1L : Math.max(1, village.getLevel().getLevel());
 		long members = village.getMembers().size();
 		long radius = village.getRegion().map(region -> (long) region.getSize())

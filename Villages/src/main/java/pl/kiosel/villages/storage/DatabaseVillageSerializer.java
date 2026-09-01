@@ -21,9 +21,9 @@ public final class DatabaseVillageSerializer {
     private DatabaseVillageSerializer() {
     }
 
-    public static Optional<Village> deserialize(ResultSet resultSet) {
+    public static void deserialize(ResultSet resultSet) {
         if (resultSet == null) {
-            return Optional.empty();
+            return;
         }
 
         String id = null;
@@ -52,17 +52,17 @@ public final class DatabaseVillageSerializer {
 
             if (name == null) {
 				plugin.getRosaLogger().severe("Cannot deserialize village, caused by: name is null");
-                return Optional.empty();
+                return;
             }
 
             if (tag == null) {
 				plugin.getRosaLogger().severe("Cannot deserialize village: " + name + ", caused by: tag is null");
-                return Optional.empty();
+                return;
             }
 
             if (os == null) {
 				plugin.getRosaLogger().severe("Cannot deserialize village: " + name + ", caused by: owner is null");
-                return Optional.empty();
+                return;
             }
 
             UUID uuid = UUID.randomUUID();
@@ -73,7 +73,7 @@ public final class DatabaseVillageSerializer {
             Optional<User> ownerOption = userManager.findByName(os);
             if (ownerOption.isEmpty()) {
 				plugin.getRosaLogger().severe("Cannot deserialize village! Caused by: owner (user instance) doesn't exist");
-                return Optional.empty();
+                return;
             }
 
             Set<User> members = new HashSet<>();
@@ -83,39 +83,38 @@ public final class DatabaseVillageSerializer {
 
             if (protection == null) {
 				plugin.getRosaLogger().severe("Cannot deserialize village: " + name + ", caused by: protection is null");
-                return Optional.empty();
+                return;
             }
 
             if (lives == 0) {
                 lives = 3;
             }
 
-			Object[] values = new Object[16];
-            values[0] = uuid;
-            values[1] = name;
-            values[2] = ownerOption.get();
-			values[3] = LocationUtils.getLocationFromString(loc);
-			values[4] = LocationUtils.getLocationFromString(tp);
-            values[5] = members;
-            values[6] = pvp;
-            values[7] = lives;
-			values[8] = bank;
-			values[9] = level;
-			values[10] = effects_data;
-            values[11] = effects_active;
-            values[12] = protection;
-            values[13] = tag;
-			values[14] = tnt;
-			values[15] = trails;
-
-            return DeserializationUtils.deserializeVillage(plugin.getVillageManager(), values);
-        } catch (Exception exception) {
+			VillageData data = new VillageData(
+					uuid,
+					name,
+					ownerOption.get(),
+					LocationUtils.getLocationFromString(loc),
+					LocationUtils.getLocationFromString(tp),
+					members,
+					pvp,
+					lives,
+					bank,
+					level,
+					effects_data,
+					effects_active,
+					protection,
+					tag,
+					tnt,
+					trails
+			);
+			DeserializationUtils.deserializeVillage(plugin.getVillageManager(), data);
+		} catch (Exception exception) {
 			AdvancedVillages.getInstance().getRosaLogger().log(Level.WARNING,
 					"Could not deserialize village (id: " + id + ", name: " + name + ")", exception);
         }
 
-        return Optional.empty();
-    }
+	}
 
     public static void serialize(Village village) {
 		AdvancedVillages plugin = AdvancedVillages.getInstance();

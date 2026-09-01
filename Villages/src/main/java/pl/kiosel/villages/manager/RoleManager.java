@@ -30,7 +30,7 @@ public class RoleManager {
 	}
 
 	public synchronized void reload() {
-		RosaConfig file = this.plugin.getRolesFile();
+		RosaConfig file = this.plugin.getVillageFile();
 		Map<String, VillageRole> loaded = new LinkedHashMap<>();
 		ConfigurationSection section = file.getConfigurationSection("roles");
 		if (section != null) {
@@ -51,13 +51,13 @@ public class RoleManager {
 		if (loaded.isEmpty()) {
 			VillageRole member = fallbackMember();
 			loaded.put(member.getId(), member);
-			this.plugin.getRosaLogger().warning("No valid roles in roles.yml; using the built-in member role");
+			this.plugin.getRosaLogger().warning("No valid roles in village.yml; using the built-in member role");
 		}
 
 		String configuredDefault = normalize(file.getString("default-role", "member"), false);
 		if (!loaded.containsKey(configuredDefault)) {
 			configuredDefault = loaded.keySet().iterator().next();
-			this.plugin.getRosaLogger().warning("Invalid default-role in roles.yml; using " + configuredDefault);
+			this.plugin.getRosaLogger().warning("Invalid default-role in village.yml; using " + configuredDefault);
 		}
 
 		List<VillageRole> ordered = new ArrayList<>(loaded.values());

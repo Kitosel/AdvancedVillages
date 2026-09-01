@@ -81,11 +81,18 @@ command:
     lives-remove: '&7Usunięto &c%lives% &7żyć wiosce gracza &a%village_owner%'
     already-dying: '&cTa wioska nie ma już żadnych żyć'
     upgrade-failed: '&cNie udało się ulepszyć wioski. Sprawdź konsolę serwera'
+    integration:
+      unavailable: '&cAdvancedPlayerList nie jest zainstalowany albo jego API jest niedostępne.'
+      installed: '&aProfil tablisty AdvancedVillages został zainstalowany i aktywowany.'
+      restored: '&7Przywrócono poprzedni profil tablisty: &a%profile%&7.'
+      status: '&7Integracja AdvancedPlayerList — zainstalowana: &f%installed%&7, aktywna: &f%active%&7, wybrany profil: &f%profile%'
+      error: '&cBłąd integracji z AdvancedPlayerList: &7%error%'
     usage:
-      root: '&c/%command% %admin% <%reload%|%give%|%manage%|%debug%>'
+      root: '&c/%command% %admin% <%reload%|%give%|%manage%|%debug%|%integration%>'
       debug: '&c/%command% %admin% %debug% [właściciel]'
       give: '&c/%command% %admin% %give% <%village_block%|%destroyer%>'
       manage: '&c/%command% %admin% %manage% <właściciel> <%upgrade%|%lives%|%protection%|%remove%>'
+      integration: '&c/%command% %admin% %integration% %tablist% AdvancedPlayerList <%install%|%restore%|%status%>'
       action: '&c/%command% %admin% %manage% <właściciel> %action% <%add%|%remove%>'
       number: '&c/%command% %admin% %manage% <właściciel> %action% <%add%|%remove%> <liczba>'
       duration: '&c/%command% %admin% %manage% <właściciel> %action% <%add%|%remove%> <liczba> <jednostka czasu>'
@@ -107,6 +114,7 @@ village:
   upkeep-paid: '&7Z banku pobrano &6%cost%$ &7na utrzymanie wioski.'
   upkeep-missed: '&cWioska nie opłaciła utrzymania w wysokości %cost%$. Brakuje: %missing%$. Zaległości: %missed%.'
   upkeep-penalty: '&cWioska straciła %lives% życie przez nieopłacone utrzymanie.'
+  have-tag: '&cWioska musi posiadać tag, aby można ją było &4&lulepszyć'
 
   attacked:
     title: '&8&k[&r &4UWAGA &8&k]'
@@ -116,6 +124,9 @@ village:
     title: '&8&k[&r &4UWAGA &8&k]'
     subtitle: '&7Twoja &ewioska &7została zniszczona!'
     message: '%separator% \n&e%attacker% &czniszczył twoją wioskę \n%separator%'
+
+  attacker-attacked: '%separator%\n &4Zaatakowałeś wioskę &6%village_tag%\n%separator%'
+  attacker-destroyed: '%separator%\n &4Zniszczyłeś wioskę &6%village_tag%\n%separator%'
 
   in-village: '&cNależysz już do wioski'
   no-village: '&cNie należysz do żadnej wioski'
@@ -149,6 +160,7 @@ tag:
   has-spaces: 'Tag nie może zawierać spacji'
   too-long: 'Tag jest zbyt długi'
   invalid-chars: 'Tag zawiera niedozwolone znaki'
+  empty: 'Tag nie może być pusty'
   new-village-tag: '&7Nowy tag twojej wioski to &a%tag%'
   your-village-tag: '&7Tag twojej wioski to &a%tag%'
   closed-name-village-tag: '&cZamknąłeś menu, więc tag nie został ustawiony'

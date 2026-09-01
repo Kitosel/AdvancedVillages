@@ -1,4 +1,4 @@
-package pl.kiosel.villages.addons.upkeep;
+package pl.kiosel.villages.addons.rent;
 
 import lombok.Getter;
 

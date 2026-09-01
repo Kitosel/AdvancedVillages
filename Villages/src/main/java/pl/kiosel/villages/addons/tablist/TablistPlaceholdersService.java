@@ -3,10 +3,12 @@ package pl.kiosel.villages.addons.tablist;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import pl.kiosel.rosacore.utils.NumberRange;
+import pl.kiosel.rosacore.utils.TimeUtils;
 import pl.kiosel.rosacore.utils.format.Formater;
 import pl.kiosel.rosacore.utils.format.RangeFormatting;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.config.Lang;
+import pl.kiosel.villages.config.Settings;
 import pl.kiosel.villages.config.TempMessages;
 import pl.kiosel.villages.data.rank.DefaultTops;
 import pl.kiosel.villages.data.rank.RankPlaceholdersService;
@@ -15,13 +17,12 @@ import pl.kiosel.villages.data.user.UserRank;
 import pl.kiosel.villages.data.village.Region;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.data.village.VillageRank;
-import pl.kiosel.villages.manager.VillageUtilsManager;
-import pl.kiosel.villages.config.Settings;
+import pl.kiosel.villages.manager.VillageUtils;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.*;
@@ -51,7 +52,7 @@ public final class TablistPlaceholdersService {
 		Matcher matcher = PLACEHOLDER.matcher(rankedText);
 		StringBuffer result = new StringBuffer(rankedText.length());
 		Map<String, String> cache = new HashMap<>();
-		OffsetDateTime now = OffsetDateTime.now();
+		ZonedDateTime now = ZonedDateTime.now(configuredZoneId());
 		Village village = user.getVillage().orElse(null);
 
 		while (matcher.find()) {
@@ -63,12 +64,12 @@ public final class TablistPlaceholdersService {
 		return result.toString();
 	}
 
-	private String resolve(String key, User user, Player player, Village village, OffsetDateTime now) {
+	private String resolve(String key, User user, Player player, Village village, ZonedDateTime now) {
 		UserRank rank = user.getRank();
 		Locale language = languageLocale();
 		switch (key) {
 			case "tps":
-				return Objects.toString(this.plugin.getNMS().getNmsServer().getTpsInLastMinute());
+				return formatTps(this.plugin.getNMS().getNmsServer().getTpsInLastMinute());
 			case "players":
 				return Integer.toString(Bukkit.getOnlinePlayers().size());
 			case "villages":
@@ -123,8 +124,6 @@ public final class TablistPlaceholdersService {
 				return Integer.toString(rank.getDeaths());
 			case "assists":
 				return Integer.toString(rank.getAssists());
-			case "logouts":
-				return Integer.toString(rank.getLogouts());
 			case "kdr":
 				return formatNumber(rank.getKDR());
 			case "kda":
@@ -204,9 +203,9 @@ public final class TablistPlaceholdersService {
 			case "lives":
 				return Integer.toString(village.getLives());
 			case "lives-symbol":
-				return VillageUtilsManager.getLivesSymbol(village.getLives(), true);
+				return VillageUtils.getLivesSymbol(village.getLives(), true);
 			case "lives-symbol-all":
-				return VillageUtilsManager.getLivesSymbol(village.getLives(), false);
+				return VillageUtils.getLivesSymbol(village.getLives(), false);
 			case "position":
 			case "rank":
 				return this.plugin.getVillageRankManager().isRankedVillage(village)
@@ -230,10 +229,6 @@ public final class TablistPlaceholdersService {
 				return Integer.toString(rank.getAssists());
 			case "avg-assists":
 				return Integer.toString(rank.getAverageAssists());
-			case "logouts":
-				return Integer.toString(rank.getLogouts());
-			case "avg-logouts":
-				return Integer.toString(rank.getAverageLogouts());
 			case "kdr":
 				return formatNumber(rank.getKDR());
 			case "avg-kdr":
@@ -262,8 +257,6 @@ public final class TablistPlaceholdersService {
 			case "avg-deaths":
 			case "assists":
 			case "avg-assists":
-			case "logouts":
-			case "avg-logouts":
 			case "kdr":
 			case "avg-kdr":
 			case "kda":
@@ -296,7 +289,7 @@ public final class TablistPlaceholdersService {
 		}
 		return remainingTime
 				? this.plugin.getVillageMessages().formatDuration(Duration.between(Instant.now(), protection))
-				: DATE_FORMAT.withZone(ZoneId.systemDefault()).format(protection);
+				: DATE_FORMAT.withZone(configuredZoneId()).format(protection);
 	}
 
 	private static String twoDigits(int value) {
@@ -308,9 +301,18 @@ public final class TablistPlaceholdersService {
 		return Locale.forLanguageTag(language == null ? "en-US" : language.replace('_', '-'));
 	}
 
+	private static ZoneId configuredZoneId() {
+		return TimeUtils.readZoneId(Settings.TIME_ZONE.getString());
+	}
+
 	private static String formatNumber(Number value) {
 		return value instanceof Float || value instanceof Double
 				? String.format(Locale.US, "%.2f", value.doubleValue())
 				: value.toString();
+	}
+
+	private static String formatTps(double tps) {
+		if (!Double.isFinite(tps)) return "0.0";
+		return String.format(Locale.US, "%.1f", Math.max(0.0D, Math.min(20.0D, tps)));
 	}
 }

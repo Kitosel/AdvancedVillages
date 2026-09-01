@@ -18,7 +18,7 @@ import pl.kiosel.villages.data.village.level.Level;
 import pl.kiosel.villages.gui.GUIS;
 import pl.kiosel.villages.gui.VillageGUIManager;
 import pl.kiosel.villages.gui.VillageMenu;
-import pl.kiosel.villages.manager.VillageUtilsManager;
+import pl.kiosel.villages.manager.VillageUtils;
 
 import java.util.List;
 
@@ -65,7 +65,7 @@ public final class UpgradeInventory extends VillageMenu {
 							"&7highest level set in levels.yml."));
 			if (maxLevel.isEnabled()) {
 				setItem(maxLevel.getSlot(), maxLevel.createItem(maxLevel.getName(),
-						VillageUtilsManager.replaceWithList(village, maxLevel.getLore())));
+						VillageUtils.replaceWithList(village, maxLevel.getLore())));
 			}
 		} else {
 			GuiItemConfig upgrade = plugin.getGuiSettings().item(GUIS.UPGRADE,
@@ -75,7 +75,7 @@ public final class UpgradeInventory extends VillageMenu {
 							"&cClick to &6Upgrade"));
 			if (upgrade.isEnabled()) {
 				setButton(upgrade.getSlot(), upgrade.createItem(upgrade.getName(),
-						VillageUtilsManager.replaceWithList(village, upgrade.getLore())),
+						VillageUtils.replaceWithList(village, upgrade.getLore())),
 						event -> upgrade(next));
 			}
 		}

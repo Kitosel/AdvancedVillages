@@ -5,6 +5,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 import pl.kiosel.rosacore.compatibility.ZMaterial;
+import pl.kiosel.rosacore.compatibility.ZParticle;
 import pl.kiosel.rosacore.config.RosaConfig;
 import pl.kiosel.rosacore.hook.worldedit.WorldEditHook;
 import pl.kiosel.villages.AdvancedVillages;
@@ -169,7 +170,7 @@ public final class VillageBuildEditorManager {
         BuildEditorBounds bounds = relative.at(origin);
         int margin = Math.max(0, config.getInt("search.empty-margin", 8));
         BuildEditorBounds cleanupBounds = bounds.expand(margin);
-        ZMaterial baseMaterial = ZMaterial.match(config.getString("new-level.base-material", "STONE")).orElse(ZMaterial.STONE);
+        ZMaterial baseMaterial = ZMaterial.match(config.getString("base-material", "STONE")).orElse(ZMaterial.STONE);
         if (!Objects.requireNonNull(baseMaterial.getMaterial().orElse(Material.STONE)).isBlock()) {
             baseMaterial = ZMaterial.STONE;
         }
@@ -683,7 +684,7 @@ public final class VillageBuildEditorManager {
     }
 
     private void showBoundaries() {
-        Particle particle = parseParticle(config.getString("boundary.particle", "END_ROD"));
+        ZParticle particle = parseParticle(config.getString("boundary.particle", "END_ROD"));
         double step = Math.max(0.5, config.getDouble("boundary.step", 1.0));
         for (BuildEditorSession session : sessions.values()) {
             Player player = Bukkit.getPlayer(session.getPlayerId());
@@ -694,7 +695,7 @@ public final class VillageBuildEditorManager {
         }
     }
 
-    private void drawBounds(Player player, BuildEditorBounds bounds, Particle particle, double step) {
+    private void drawBounds(Player player, BuildEditorBounds bounds, ZParticle particle, double step) {
         double minX = bounds.getMinX();
         double minY = bounds.getMinY();
         double minZ = bounds.getMinZ();
@@ -722,16 +723,14 @@ public final class VillageBuildEditorManager {
         }
     }
 
-    private void particle(Player player, Particle particle, double x, double y, double z) {
-        player.spawnParticle(particle, x, y, z, 1, 0, 0, 0, 0);
+    private void particle(Player player, ZParticle particle, double x, double y, double z) {
+        particle.spawn(player, new Location(player.getWorld(), x, y, z), 1, 0, 0, 0, 0);
     }
 
-    private Particle parseParticle(String name) {
-        try {
-            return Particle.valueOf(name.toUpperCase(Locale.ROOT));
-        } catch (Exception ignored) {
-            return Particle.END_ROD;
-        }
+    private ZParticle parseParticle(String name) {
+        return ZParticle.match(name)
+                .filter(ZParticle::isSupported)
+                .orElse(ZParticle.END_ROD);
     }
 
     private static final class RelativeBounds {

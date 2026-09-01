@@ -2,7 +2,6 @@ package pl.kiosel.villages.addons.trials.animation;
 
 import lombok.Getter;
 import org.bukkit.Location;
-import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import pl.kiosel.rosacore.compatibility.ZParticle;
 
@@ -39,9 +38,9 @@ public final class CentralAnimationFrame {
         double x = center.getX() + offsetX;
         double y = center.getY() + offsetY;
         double z = center.getZ() + offsetZ;
+        Location point = new Location(center.getWorld(), x, y, z);
         for (Player viewer : viewers) {
-            if (particle.getName() != null)
-                viewer.spawnParticle(Particle.valueOf(particle.getName()), x, y, z, 1, 0, 0, 0, 0);
+            particle.spawn(viewer, point, 1, 0, 0, 0, 0);
         }
     }
 }

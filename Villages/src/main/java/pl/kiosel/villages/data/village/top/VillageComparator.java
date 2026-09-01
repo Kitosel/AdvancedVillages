@@ -1,8 +1,8 @@
 package pl.kiosel.villages.data.village.top;
 
-import pl.kiosel.villages.data.village.VillageRank;
 import pl.kiosel.villages.data.rank.Rank;
 import pl.kiosel.villages.data.rank.TopComparator;
+import pl.kiosel.villages.data.village.VillageRank;
 
 import java.util.function.Function;
 
@@ -14,7 +14,6 @@ public final class VillageComparator implements TopComparator<VillageRank> {
     public static final TopComparator<VillageRank> KDR_COMPARATOR = new VillageComparator(VillageRank::getKDR).reversed();
     public static final TopComparator<VillageRank> KDA_COMPARATOR = new VillageComparator(VillageRank::getKDA).reversed();
     public static final TopComparator<VillageRank> ASSISTS_COMPARATOR = new VillageComparator(VillageRank::getAssists).reversed();
-    public static final TopComparator<VillageRank> LOGOUTS_COMPARATOR = new VillageComparator(VillageRank::getLogouts).reversed();
 
     public static final TopComparator<VillageRank> AVG_POINTS_COMPARATOR = new VillageComparator(VillageRank::getAveragePoints).reversed();
     public static final TopComparator<VillageRank> AVG_KILLS_COMPARATOR = new VillageComparator(VillageRank::getAverageKills).reversed();
@@ -22,7 +21,6 @@ public final class VillageComparator implements TopComparator<VillageRank> {
     public static final TopComparator<VillageRank> AVG_KDR_COMPARATOR = new VillageComparator(VillageRank::getAverageKDR).reversed();
     public static final TopComparator<VillageRank> AVG_KDA_COMPARATOR = new VillageComparator(VillageRank::getAverageKDA).reversed();
     public static final TopComparator<VillageRank> AVG_ASSISTS_COMPARATOR = new VillageComparator(VillageRank::getAverageAssists).reversed();
-    public static final TopComparator<VillageRank> AVG_LOGOUTS_COMPARATOR = new VillageComparator(VillageRank::getAverageLogouts).reversed();
 
     private final Function<VillageRank, Number> valueFunction;
 

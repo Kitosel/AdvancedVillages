@@ -82,7 +82,7 @@ public final class VillageAnimationSettings {
                 config.getBoolean("removal.enabled", true),
                 clamp(config.getInt("removal.duration-ticks", 50), 1, 200),
                 Math.max(1, config.getInt("removal.beep-interval-ticks", 5)),
-                config.getString("removal.beep-sound", "BLOCK_NOTE_BLOCK_HAT"),
+                sound(config.getString("removal.beep-sound", "BLOCK_NOTE_BLOCK_HAT"), ZSound.BLOCK_NOTE_BLOCK_HAT),
                 (float) config.getDouble("removal.beep-volume", 1.0),
                 config.getDouble("removal.beep-pitch-start", 0.65),
                 config.getDouble("removal.beep-pitch-rise", 0.8),
@@ -251,7 +251,7 @@ public final class VillageAnimationSettings {
         private final boolean enabled;
         private final int durationTicks;
         private final int beepIntervalTicks;
-        private final String beepSound;
+        private final ZSound beepSound;
         private final float beepVolume;
         private final double beepPitchStart;
         private final double beepPitchRise;
@@ -259,7 +259,7 @@ public final class VillageAnimationSettings {
         private final double knockbackStrength;
         private final double knockbackY;
 
-        private Removal(boolean enabled, int durationTicks, int beepIntervalTicks, String beepSound,
+        private Removal(boolean enabled, int durationTicks, int beepIntervalTicks, ZSound beepSound,
                         float beepVolume, double beepPitchStart, double beepPitchRise,
                         double knockbackRadius, double knockbackStrength, double knockbackY) {
             this.enabled = enabled;

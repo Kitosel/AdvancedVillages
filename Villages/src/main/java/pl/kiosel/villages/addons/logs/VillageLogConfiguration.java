@@ -4,6 +4,7 @@ import pl.kiosel.rosacore.config.RosaConfig;
 import pl.kiosel.rosacore.utils.NumberUtils;
 import pl.kiosel.rosacore.utils.TimeUtils;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.config.Settings;
 
 import static pl.kiosel.rosacore.utils.ColorUtils.tl;
 
@@ -23,7 +24,7 @@ public final class VillageLogConfiguration {
 				NumberUtils.clamp(this.file.getInt("max-entries-per-village", 100), 10, 500),
 				NumberUtils.clamp(this.file.getInt("retention-days", 30), 1, 3650),
 				NumberUtils.clamp(this.file.getInt("anti-spam-window-seconds", 10), 0, 300),
-				TimeUtils.readZoneId(this.file.getString("time-zone", "Europe/Warsaw"))
+				TimeUtils.readZoneId(Settings.TIME_ZONE.getString())
 		);
 	}
 

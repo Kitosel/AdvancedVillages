@@ -12,9 +12,6 @@ retention-days: 30
 # inside this window are merged into one entry. Set to 0 to disable merging.
 anti-spam-window-seconds: 10
 
-# Used only to display dates in the history GUI.
-time-zone: "Europe/Warsaw"
-
 # Text stored by the log system. GUI names, materials and layout are in guis.yml.
 entries:
   village-created: '&7The village was created.'

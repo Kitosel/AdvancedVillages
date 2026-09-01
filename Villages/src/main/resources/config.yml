@@ -3,8 +3,9 @@ settings:
   economy: Vault
   # Enables WorldEdit schematics and the building editor integration.
   use-worldedit: false
-  license: PUT-YOUR-LICENSE-HERE
   language: en_US
+  # Used by quest resets, village logs and date/time placeholders.
+  time-zone: "Europe/Warsaw"
 
 addons:
   antylogout: true
@@ -12,9 +13,7 @@ addons:
   tablist: true
   spawn: true
   quests: true
-  diplomacy: true
   development: true
-  upkeep: true
   village-animations: true
 
 teleport:

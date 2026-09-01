@@ -12,7 +12,6 @@ public class UserRank extends Rank<User> implements Comparable<UserRank> {
     private int kills;
     private int deaths;
     private int assists;
-    private int logouts;
 
     UserRank(User user, int rankStart) {
         super(user);
@@ -77,20 +76,6 @@ public class UserRank extends Rank<User> implements Comparable<UserRank> {
 
     public void updateAssists(IntUnaryOperator update) {
         this.setAssists(update.applyAsInt(this.assists));
-    }
-
-    @Override
-    public int getLogouts() {
-        return this.logouts;
-    }
-
-    public void setLogouts(int logouts) {
-        this.logouts = Math.max(0, logouts);
-        this.entity.markChanged();
-    }
-
-    public void updateLogouts(IntUnaryOperator update) {
-        this.setLogouts(update.applyAsInt(this.logouts));
     }
 
     @Override

@@ -14,7 +14,6 @@ public final class UserComparator implements TopComparator<UserRank> {
     public static final TopComparator<UserRank> KDR_COMPARATOR = new UserComparator(UserRank::getKDR).reversed();
     public static final TopComparator<UserRank> KDA_COMPARATOR = new UserComparator(UserRank::getKDA).reversed();
     public static final TopComparator<UserRank> ASSISTS_COMPARATOR = new UserComparator(UserRank::getAssists).reversed();
-    public static final TopComparator<UserRank> LOGOUTS_COMPARATOR = new UserComparator(UserRank::getLogouts).reversed();
 
     private final Function<UserRank, Number> valueFunction;
 

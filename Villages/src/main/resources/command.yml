@@ -18,13 +18,20 @@ command-language:
   admin: admin
   admin_reload: reload
   admin_give: give
+  admin_manage: manage
+  admin_debug: debug
+  admin_integration: integration
+
   admin_give_villageblock: village
   admin_give_destroyer: destroyer
   admin_give_destroyer_hearth: destroyer-hearth
   admin_give_village_hearth: village-hearth
   admin_give_hearth_part: village-hearth-part
-  admin_manage: manage
-  admin_debug: debug
+
+  admin_integration_tablist: tablist
+  admin_integration_install: install
+  admin_integration_restore: restore
+  admin_integration_status: status
 
   admin_lives: lives
   admin_upgrade: upgrade

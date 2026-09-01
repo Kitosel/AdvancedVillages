@@ -21,11 +21,10 @@ public class Settings {
 					"Supported plugins you have installed: \"" + String.join("\", \"", getEnabledEconomies()) + "\".");
 	public static final ConfigSetting WORLDEDIT = new ConfigSetting(CONFIG, "settings.use-worldedit", false,
 			"Should plugin use worldedit schematic for villages?");
-	public static final ConfigSetting LICENSE = new ConfigSetting(CONFIG, "settings.license", "PUT-YOUR-LICENSE-HERE",
-			"Put your license for your plugin");
-    public static final ConfigSetting LANGUAGE_MODE = new ConfigSetting(CONFIG, "settings.language", "en_US",
-            "The enabled language file.",
-            "More language files (if available) can be found in the plugins data folder.");
+	public static final ConfigSetting LANGUAGE_MODE = new ConfigSetting(CONFIG, "settings.language", "en_US",
+			"The enabled language file.",
+			"More language files (if available) can be found in the plugins data folder.");
+	public static final ConfigSetting TIME_ZONE = new ConfigSetting(CONFIG, "settings.time-zone", "Europe/Warsaw");
 
 	public static final ConfigSetting ADDONS_ANTYLOGOUT_ENABLE = new ConfigSetting(CONFIG, "addons.antylogout", true,
 			"Should addons be enabled");
@@ -34,12 +33,8 @@ public class Settings {
 	public static final ConfigSetting ADDONS_SPAWN_ENABLE = new ConfigSetting(CONFIG, "addons.spawn", true);
 	public static final ConfigSetting ADDONS_QUESTS_ENABLE = new ConfigSetting(CONFIG, "addons.quests", true,
 			"Should shared village quests be enabled?");
-	public static final ConfigSetting ADDONS_DIPLOMACY_ENABLE = new ConfigSetting(CONFIG, "addons.diplomacy", true,
-			"Should village alliances and wars be enabled?");
 	public static final ConfigSetting ADDONS_DEVELOPMENT_ENABLE = new ConfigSetting(CONFIG, "addons.development", true,
 			"Should the village development tree be enabled?");
-	public static final ConfigSetting ADDONS_UPKEEP_ENABLE = new ConfigSetting(CONFIG, "addons.upkeep", true,
-			"Should village upkeep payments be enabled?");
 	public static final ConfigSetting ADDONS_VILLAGE_ANIMATIONS_ENABLE = new ConfigSetting(CONFIG, "addons.village-animations", true,
 			"Should village creation, level and removal animations be enabled globally?");
 

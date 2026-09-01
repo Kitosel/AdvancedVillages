@@ -1,0 +1,37 @@
+# Installed as profiles/advancedvillages/global.yml by the integration command.
+# The layout mirrors the built-in AdvancedVillages tablist addon.
+size: 80
+defaultSkin: '%player_name%'
+defaultPing: 0
+
+columns:
+  - items:
+      - text: '{avPlayerOverview}'
+        amount: -1
+
+  - items:
+      - text: '{avVillageOverview}'
+        amount: -1
+
+  - items:
+      - text: '{avPlayerRanking}'
+        amount: -1
+
+  - items:
+      - text: '{avVillageRanking}'
+        amount: -1
+
+header:
+  refreshTicks: 20
+  lines:
+    - ''
+    - '&6Advanced&bVillages'
+    - '&7Hi &6{villages_name}'
+    - ''
+
+footer:
+  lines:
+    - ''
+    - '&aPlay with your friends! :D'
+    - '&7WWW: &6domain.pl &8- &7Money: &a%vault_eco_balance_fixed%'
+    - ''

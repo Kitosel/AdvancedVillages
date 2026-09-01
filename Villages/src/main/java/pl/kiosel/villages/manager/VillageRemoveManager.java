@@ -3,6 +3,7 @@ package pl.kiosel.villages.manager;
 import org.bukkit.*;
 import org.bukkit.entity.Firework;
 import org.bukkit.inventory.meta.FireworkMeta;
+import pl.kiosel.rosacore.compatibility.ZParticle;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.storage.DatabaseVillageSerializer;
@@ -26,8 +27,8 @@ public class VillageRemoveManager {
 
 		if (location.getWorld()==null) return;
 		if (playAnimation) {
-			location.getWorld().spawnParticle(Particle.SMOKE, location, 2);
-			location.getWorld().spawnParticle(Particle.ASH, location, 5);
+			ZParticle.SMOKE.spawn(location, 2);
+			ZParticle.ASH.spawn(location, 5);
 		}
 	}
 
@@ -40,7 +41,7 @@ public class VillageRemoveManager {
 
 		Bukkit.getScheduler().runTaskLater(plugin, () -> {
 			if (animationDuration == 0 && location.getWorld() != null) {
-				location.getWorld().spawnParticle(Particle.EXPLOSION, location, 2);
+				ZParticle.EXPLOSION.spawn(location, 2);
 			}
 			plugin.getUpgradeManager().remove(village);
 			plugin.getVillageManager().deleteVillage(village);

@@ -7,14 +7,13 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+@Getter
 public final class TablistFrame {
 
-	@Getter
 	private final long durationTicks;
-	@Getter
 	private final Map<Integer, String> cells;
-	private final String header;
-	private final String footer;
+	@Nullable private final String header;
+	@Nullable private final String footer;
 
 	public TablistFrame(long durationTicks, Map<Integer, String> cells,
 	                    @Nullable String header, @Nullable String footer) {
@@ -24,13 +23,4 @@ public final class TablistFrame {
 		this.footer = footer;
 	}
 
-	@Nullable
-	public String getHeader() {
-		return this.header;
-	}
-
-	@Nullable
-	public String getFooter() {
-		return this.footer;
-	}
 }

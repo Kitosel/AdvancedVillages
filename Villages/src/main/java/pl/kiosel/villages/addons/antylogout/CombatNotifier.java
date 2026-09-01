@@ -49,10 +49,6 @@ final class CombatNotifier {
 		}
 	}
 
-	void clearActionBar(Player player) {
-		this.plugin.getMessenger().actionBar(player, "");
-	}
-
 	private void sendActionBar(Player player, Lang key, Object... placeholders) {
 		String content = this.messages().text(key, placeholders);
 		this.plugin.getMessenger().actionBar(player, content);

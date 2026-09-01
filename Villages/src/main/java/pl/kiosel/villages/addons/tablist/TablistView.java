@@ -1,30 +1,20 @@
 package pl.kiosel.villages.addons.tablist;
 
+import lombok.Getter;
+
 import java.util.Arrays;
 import java.util.Objects;
 
 final class TablistView {
 
-	private final String[] cells;
-	private final String header;
-	private final String footer;
+	@Getter private final String[] cells;
+	@Getter private final String header;
+	@Getter private final String footer;
 
 	TablistView(String[] cells, String header, String footer) {
 		this.cells = cells;
 		this.header = header;
 		this.footer = footer;
-	}
-
-	String[] getCells() {
-		return this.cells;
-	}
-
-	String getHeader() {
-		return this.header;
-	}
-
-	String getFooter() {
-		return this.footer;
 	}
 
 	boolean hasSameContent(TablistView other) {

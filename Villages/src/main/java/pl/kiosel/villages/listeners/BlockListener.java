@@ -23,7 +23,7 @@ import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.data.village.VillageBuilder;
 import pl.kiosel.villages.data.village.level.Level;
 import pl.kiosel.villages.gui.Item;
-import pl.kiosel.villages.manager.VillageUtilsManager;
+import pl.kiosel.villages.manager.VillageUtils;
 
 import java.sql.SQLException;
 import java.time.Duration;
@@ -60,7 +60,7 @@ public class BlockListener extends RosaListener {
 
 		event.setCancelled(true);
 
-		if (plugin.getVillageUtilsManager().isBlacklisted(block.getWorld())) {
+		if (plugin.getVillageUtils().isBlacklisted(block.getWorld())) {
 			messages.sendPrefixed(player, Lang.DISABLED_WORLD);
 			return;
 		}
@@ -71,13 +71,13 @@ public class BlockListener extends RosaListener {
 		}
 
 		int minDistance = Settings.VILLAGE_MINIMAL_DISTANCE.getInt();
-		if (plugin.getVillageUtilsManager().isVillageNearby(block.getLocation(), minDistance + 10)) {
+		if (plugin.getVillageUtils().isVillageNearby(block.getLocation(), minDistance + 10)) {
 			messages.sendPrefixed(player, Lang.VILLAGE_NEARBY, "distance", minDistance);
 			return;
 		}
 
 		int spawnMinDistance = Settings.VILLAGE_SPAWN_MINIMAL_DISTANCE.getInt();
-		if (plugin.getVillageUtilsManager().isSpawnNearby(block.getLocation(), spawnMinDistance)) {
+		if (plugin.getVillageUtils().isSpawnNearby(block.getLocation(), spawnMinDistance)) {
 			messages.sendPrefixed(player, Lang.VILLAGE_SPAWN, "distance", spawnMinDistance);
 			return;
 		}
@@ -118,7 +118,7 @@ public class BlockListener extends RosaListener {
 		village.setProtection(Instant.now().plus(duration));
 
 		try {
-			plugin.getVillageUtilsManager().createVillage(village);
+			plugin.getVillageUtils().createVillage(village);
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
@@ -130,7 +130,7 @@ public class BlockListener extends RosaListener {
 			plugin.getUpgradeManager().upgrade(village);
 			village.teleportHome(player);
 		});
-		VillageUtilsManager.replaceWithM(village, plugin.getVillageMessages().text(Lang.CREATED))
+		VillageUtils.replaceWithM(village, plugin.getVillageMessages().text(Lang.CREATED))
 				.with("time", plugin.getVillageMessages().formatDuration(duration))
 				.sendMessage(player);
 	}

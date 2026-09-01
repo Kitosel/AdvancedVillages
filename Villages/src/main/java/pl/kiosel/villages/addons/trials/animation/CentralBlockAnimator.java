@@ -1,8 +1,6 @@
 package pl.kiosel.villages.addons.trials.animation;
 
 import org.bukkit.Location;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -12,7 +10,6 @@ import pl.kiosel.villages.data.village.Village;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Predicate;
 
 public final class CentralBlockAnimator {
@@ -63,8 +60,7 @@ public final class CentralBlockAnimator {
         if (world == null || !style.isEnabled()) {
             return;
         }
-        Sound sound = Objects.requireNonNull(upgraded.getSound().getSound().orElse(null));
-        center.getWorld().playSound(village.getLocation().get(), sound, upgraded.getVolume(), upgraded.getPitch());
+        upgraded.getSound().play(village.getLocation().get(), upgraded.getVolume(), upgraded.getPitch());
 
         new BukkitRunnable() {
             private int tick;
@@ -93,8 +89,7 @@ public final class CentralBlockAnimator {
                             0.15 + progress * 1.6,
                             Math.sin(angle) * radius
                     );
-                    center.getWorld().spawnParticle(Particle.valueOf(upgraded.getParticle().getName()), point,
-                            upgraded.getCount(), 0, 0, 0, 0);
+                    upgraded.getParticle().spawn(point, upgraded.getCount(), 0, 0, 0, 0);
                 }
 
                 tick += 2;

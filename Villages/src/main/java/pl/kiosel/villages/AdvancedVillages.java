@@ -11,7 +11,7 @@ import pl.kiosel.rosacore.database.DatabaseManager;
 import pl.kiosel.rosacore.dependencies.nbtapi.NBT;
 import pl.kiosel.rosacore.gui.GuiManager;
 import pl.kiosel.rosacore.hook.economy.EconomyHook;
-import pl.kiosel.rosacore.input.Licenses;
+import pl.kiosel.rosacore.utils.ReflectionUtils;
 import pl.kiosel.rosacore.version.Version;
 import pl.kiosel.villages.addons.antylogout.CombatConfig;
 import pl.kiosel.villages.addons.antylogout.CombatManager;
@@ -26,21 +26,20 @@ import pl.kiosel.villages.addons.diplomacy.DiplomacyListener;
 import pl.kiosel.villages.addons.diplomacy.DiplomacyManager;
 import pl.kiosel.villages.addons.logs.VillageLogConfiguration;
 import pl.kiosel.villages.addons.logs.VillageLogManager;
-import pl.kiosel.villages.addons.placeholder.PlaceholderManager;
 import pl.kiosel.villages.addons.quests.QuestConfiguration;
 import pl.kiosel.villages.addons.quests.QuestListener;
 import pl.kiosel.villages.addons.quests.VillageQuestManager;
 import pl.kiosel.villages.addons.ranking.RankingConfiguration;
 import pl.kiosel.villages.addons.ranking.RankingListener;
 import pl.kiosel.villages.addons.ranking.RankingManager;
+import pl.kiosel.villages.addons.rent.RentConfiguration;
+import pl.kiosel.villages.addons.rent.VillageUpkeepManager;
 import pl.kiosel.villages.addons.scoreboard.ScoreboardHandler;
 import pl.kiosel.villages.addons.scoreboard.ScoreboardManager;
 import pl.kiosel.villages.addons.tablist.TablistConfiguration;
 import pl.kiosel.villages.addons.tablist.TablistManager;
 import pl.kiosel.villages.addons.tablist.TablistPlaceholdersService;
 import pl.kiosel.villages.addons.trials.VillageAnimationManager;
-import pl.kiosel.villages.addons.upkeep.UpkeepConfiguration;
-import pl.kiosel.villages.addons.upkeep.VillageUpkeepManager;
 import pl.kiosel.villages.api.VillageAPI;
 import pl.kiosel.villages.commands.CommandCrafting;
 import pl.kiosel.villages.commands.CommandTest;
@@ -55,11 +54,15 @@ import pl.kiosel.villages.data.village.VillageRankManager;
 import pl.kiosel.villages.data.village.handler.BlockItemListener;
 import pl.kiosel.villages.data.village.handler.InteractBlockListeners;
 import pl.kiosel.villages.data.village.handler.PlayerListeners;
+import pl.kiosel.villages.data.village.handler.TntPrimeListener;
 import pl.kiosel.villages.data.village.handler.VillageListener;
 import pl.kiosel.villages.data.village.level.LevelManager;
 import pl.kiosel.villages.gui.VillageGUIManager;
+import pl.kiosel.villages.integrations.AdvancedPlayerListIntegration;
+import pl.kiosel.villages.integrations.PlayerListProfileIntegration;
 import pl.kiosel.villages.listeners.*;
 import pl.kiosel.villages.manager.*;
+import pl.kiosel.villages.manager.placeholder.PlaceholderManager;
 import pl.kiosel.villages.manager.teleport.TeleportManager;
 import pl.kiosel.villages.storage.DataHelper;
 import pl.kiosel.villages.storage.Dataloader;
@@ -83,7 +86,7 @@ public final class AdvancedVillages extends RosaPlugin {
 	@Getter private final RosaConfig coreConfig = this.configurationManager.get(VillageConfigFile.CONFIG);
 	@Getter private final RosaConfig databaseConfig = this.configurationManager.get(VillageConfigFile.DATABASE);
 	@Getter private final RosaConfig levelsFile = this.configurationManager.get(VillageConfigFile.LEVELS);
-	@Getter private final RosaConfig rolesFile = this.configurationManager.get(VillageConfigFile.ROLES);
+	@Getter private final RosaConfig villageFile = this.configurationManager.get(VillageConfigFile.VILLAGE);
 	@Getter private final RosaConfig buildEditorFile = this.configurationManager.get(VillageConfigFile.BUILD_EDITOR);
 	@Getter private final RosaConfig animationFile = this.configurationManager.get(VillageConfigFile.ANIMATIONS);
 	@Getter private final RosaConfig commandFile = this.configurationManager.get(VillageConfigFile.COMMANDS);
@@ -94,16 +97,13 @@ public final class AdvancedVillages extends RosaPlugin {
 	@Getter private final RosaConfig tablistFile = this.configurationManager.get(VillageConfigFile.TABLIST);
 	@Getter private final RosaConfig questFile = this.configurationManager.get(VillageConfigFile.QUESTS);
 	@Getter private final RosaConfig logFile = this.configurationManager.get(VillageConfigFile.LOGS);
-	@Getter private final RosaConfig rankingFile = this.configurationManager.get(VillageConfigFile.RANKING);
-	@Getter private final RosaConfig diplomacyFile = this.configurationManager.get(VillageConfigFile.DIPLOMACY);
 	@Getter private final RosaConfig developmentFile = this.configurationManager.get(VillageConfigFile.DEVELOPMENT);
-	@Getter private final RosaConfig upkeepFile = this.configurationManager.get(VillageConfigFile.UPKEEP);
 
 	@Getter	private EconomyHook economy;
 
     @Getter private static AdvancedVillages instance;
     @Getter private VillageAPI api;
-    @Getter private VillageUtilsManager villageUtilsManager;
+    @Getter private VillageUtils villageUtils;
 	@Getter private RoleManager roleManager;
     @Getter private InviteManager inviteManager;
     @Getter private UpgradeManager upgradeManager;
@@ -130,6 +130,7 @@ public final class AdvancedVillages extends RosaPlugin {
 	@Getter private TablistConfiguration tablistConfig;
 	@Getter private TablistPlaceholdersService tablistPlaceholdersService;
 	@Getter private TablistManager tablistManager;
+	@Getter private PlayerListProfileIntegration advancedPlayerListIntegration;
 	@Getter private RankPlaceholdersService rankPlaceholdersService;
 
 	@Getter private UserManager userManager;
@@ -153,7 +154,7 @@ public final class AdvancedVillages extends RosaPlugin {
 	@Getter private DiplomacyManager diplomacyManager;
 	@Getter private DevelopmentConfiguration developmentConfig;
 	@Getter private VillageDevelopmentManager developmentManager;
-	@Getter private UpkeepConfiguration upkeepConfig;
+	@Getter private RentConfiguration upkeepConfig;
 	@Getter private VillageUpkeepManager upkeepManager;
 	@Getter private volatile boolean dataReady;
 	private boolean runtimeHandlersRegistered;
@@ -161,18 +162,18 @@ public final class AdvancedVillages extends RosaPlugin {
 
 	@Override
 	public void onPluginLoad() {
-		if (Version.isServerVersionBelow(Version.V1_16)) {
+		if (Version.isServerVersionBelow(Version.V1_17)) {
 			getRosaLogger().warning("--------------------------------------");
 			getRosaLogger().warning(" ");
 			getRosaLogger().warning("AdvancedVillages supporting only");
-			getRosaLogger().warning("Minecraft version above 1.16");
+			getRosaLogger().warning("Minecraft version above 1.17");
 			getRosaLogger().warning("Plugin is disabling now...");
 			getRosaLogger().warning(" ");
 			getRosaLogger().warning("--------------------------------------");
 			emergencyStop();
 		}
 		instance = this;
-		setDev(true);
+		setDev(false);
 	}
 
 	@Override
@@ -184,10 +185,8 @@ public final class AdvancedVillages extends RosaPlugin {
 		if (!getHookManager().getEconomy().setPreferredHook(Settings.ECONOMY_PLUGIN.getString()))
 			getRosaLogger().warning("Economy '" + Settings.ECONOMY_PLUGIN.getString() + "' is unavailable. Selecting automatically.");
 
-		this.economy = getHookManager().getEconomy().getActiveHook().orElseThrow(() -> {
-			emergencyStop();
-			return new IllegalStateException("No supported economy plugin found");
-		});
+		this.economy = getHookManager().getEconomy().getActiveHook()
+				.orElseThrow(() -> new IllegalStateException("No supported economy plugin found"));
 		this.villageMessages.reload(Settings.LANGUAGE_MODE.getString(), true);
 
 		if (!this.configurationManager.loadAll())
@@ -200,21 +199,6 @@ public final class AdvancedVillages extends RosaPlugin {
 			return;
 		}
 		getDebug().debug("Enabling Plugin");
-
-		if (!isDev()) {
-			getDebug().debug("Checking license");
-			if (!(new Licenses(Settings.LICENSE.getString(), this).register())) {
-				getRosaLogger().warning("--------------------------------------");
-				getRosaLogger().warning(" ");
-				getRosaLogger().warning("The license check failed.");
-				getRosaLogger().warning("Please check to see if you have");
-				getRosaLogger().warning("entered the license in config.yml.");
-				getRosaLogger().warning(" ");
-				getRosaLogger().warning("--------------------------------------");
-				emergencyStop();
-				return;
-			}
-		}
 
 		this.levelManager = new LevelManager(this);
 		if (!this.levelManager.loadLevels()) {
@@ -252,7 +236,7 @@ public final class AdvancedVillages extends RosaPlugin {
 		this.diplomacyManager = new DiplomacyManager(this, this.diplomacyConfig);
 		this.developmentConfig = new DevelopmentConfiguration(this);
 		this.developmentManager = new VillageDevelopmentManager(this, this.developmentConfig);
-		this.upkeepConfig = new UpkeepConfiguration(this);
+		this.upkeepConfig = new RentConfiguration(this);
 		this.upkeepManager = new VillageUpkeepManager(this, this.upkeepConfig);
 
 		if(getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
@@ -266,7 +250,7 @@ public final class AdvancedVillages extends RosaPlugin {
 			saveSchematics();
 
 		this.inviteManager = new InviteManager(this);
-		this.villageUtilsManager = new VillageUtilsManager(this);
+		this.villageUtils = new VillageUtils(this);
 		this.villageRemoveManager = new VillageRemoveManager(this);
 		this.upgradeManager = new UpgradeManager(this);
 		this.villageAnimationManager = new VillageAnimationManager(this, this.animationFile);
@@ -279,6 +263,16 @@ public final class AdvancedVillages extends RosaPlugin {
 
 		this.tablistConfig = new TablistConfiguration(this);
 		this.registerPlaceholders();
+		if (getServer().getPluginManager().isPluginEnabled("AdvancedPlayerList")) {
+			try {
+				this.advancedPlayerListIntegration = new AdvancedPlayerListIntegration(this);
+				this.advancedPlayerListIntegration.enable();
+				getRosaLogger().info("AdvancedPlayerList integration enabled");
+			} catch (RuntimeException exception) {
+				this.advancedPlayerListIntegration = null;
+				getRosaLogger().log(Level.WARNING, "Could not enable AdvancedPlayerList integration", exception);
+			}
+		}
 		this.tablistManager = new TablistManager(
 				this,
 				this.tablistConfig,
@@ -355,6 +349,10 @@ public final class AdvancedVillages extends RosaPlugin {
 			if (isPlaceholder())
 				this.placeholder.unregister();
 		});
+		runShutdownStep("unregistering AdvancedPlayerList integration", () -> {
+			if (this.advancedPlayerListIntegration != null)
+				this.advancedPlayerListIntegration.disable();
+		});
 		runShutdownStep("unregistering configured commands", () -> {
 			if (this.configuredCommandRegistry != null)
 				this.configuredCommandRegistry.unregister();
@@ -363,6 +361,7 @@ public final class AdvancedVillages extends RosaPlugin {
 		this.dataReady = false;
 		this.runtimeHandlersRegistered = false;
 		this.worldedit = false;
+		this.advancedPlayerListIntegration = null;
 		instance = null;
 	}
 
@@ -404,9 +403,9 @@ public final class AdvancedVillages extends RosaPlugin {
 	@Override
 	public void onConfigReload() {
 		getDebug().debug("Reloading Plugin..");
-		this.villageMessages.reload(Settings.LANGUAGE_MODE.getString(), true);
 		if (!this.configurationManager.loadAll())
 			getRosaLogger().warning("One or more configuration files were invalid and kept their previous values");
+		this.villageMessages.reload(Settings.LANGUAGE_MODE.getString(), true);
 
 		this.villageAnimationManager.reload();
 		this.commandLang.reload();
@@ -455,6 +454,8 @@ public final class AdvancedVillages extends RosaPlugin {
 				new CommandCrafting(this),
 				isDev() ? new CommandTest(this) : null
 		);
+		ReflectionUtils.syncCommands();
+		Bukkit.getOnlinePlayers().forEach(Player::updateCommands);
 
 		registerListeners(
 				new JoinListener(this),
@@ -464,6 +465,7 @@ public final class AdvancedVillages extends RosaPlugin {
 				new MoveListener(this),
 				new ChatListener(this),
 				new InteractBlockListeners(this),
+				createTntPrimeListener(),
 				new PlayerListeners(this),
 				new VillageListener(this),
 				new BlockItemListener(this),
@@ -475,6 +477,15 @@ public final class AdvancedVillages extends RosaPlugin {
 				getHookManager().getWorldEdit().isEnabled() ? new CombatRegionListener(this) : null
 		);
 		this.runtimeHandlersRegistered = true;
+	}
+
+	private TntPrimeListener createTntPrimeListener() {
+		try {
+			Class.forName("org.bukkit.event.block.TNTPrimeEvent", false, getClass().getClassLoader());
+			return new TntPrimeListener(this);
+		} catch (ClassNotFoundException | LinkageError ignored) {
+			return null;
+		}
 	}
 
 	private void synchronizeOnlineUsers() {
@@ -560,9 +571,9 @@ public final class AdvancedVillages extends RosaPlugin {
 		getDebug().debug("Tablist: " + Settings.ADDONS_TABLIST_ENABLE.getBoolean());
 		getDebug().debug("Spawn: " + Settings.ADDONS_SPAWN_ENABLE.getBoolean());
 		getDebug().debug("Quests: " + Settings.ADDONS_QUESTS_ENABLE.getBoolean());
-		getDebug().debug("Diplomacy: " + Settings.ADDONS_DIPLOMACY_ENABLE.getBoolean());
+		getDebug().debug("Diplomacy: " + this.diplomacyConfig.snapshot().isEnabled());
 		getDebug().debug("Development: " + Settings.ADDONS_DEVELOPMENT_ENABLE.getBoolean());
-		getDebug().debug("Upkeep: " + Settings.ADDONS_UPKEEP_ENABLE.getBoolean());
+		getDebug().debug("Upkeep: " + this.upkeepConfig.snapshot().isEnabled());
 		getDebug().debug("Village-animations: " + Settings.ADDONS_VILLAGE_ANIMATIONS_ENABLE.getBoolean());
 	}
 

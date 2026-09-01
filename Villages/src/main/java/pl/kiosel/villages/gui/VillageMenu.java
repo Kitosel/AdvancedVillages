@@ -18,7 +18,7 @@ import pl.kiosel.villages.config.VillageMessages;
 import pl.kiosel.villages.data.village.Permission;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.manager.UpgradeManager;
-import pl.kiosel.villages.manager.VillageUtilsManager;
+import pl.kiosel.villages.manager.VillageUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -128,7 +128,7 @@ public abstract class VillageMenu extends PagedGui {
 	}
 
 	protected List<String> replaceWith(List<String> strings) {
-		return VillageUtilsManager.replaceWithList(village, strings);
+		return VillageUtils.replaceWithList(village, strings);
 	}
 
 	protected List<String> replaceWithLevelInfo(List<String> strings, int level) {

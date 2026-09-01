@@ -81,11 +81,18 @@ command:
     lives-remove: '&7Dem Dorf von &a%village_owner% &7wurden &c%lives% &7Leben entfernt'
     already-dying: '&cDieses Dorf hat keine Leben mehr'
     upgrade-failed: '&cDas Dorf konnte nicht verbessert werden. Prüfe die Serverkonsole'
+    integration:
+      unavailable: '&cAdvancedPlayerList ist nicht installiert oder seine API ist nicht verfügbar.'
+      installed: '&aDas AdvancedVillages-Tablistenprofil wurde installiert und aktiviert.'
+      restored: '&7Das vorherige Tablistenprofil wurde wiederhergestellt: &a%profile%&7.'
+      status: '&7AdvancedPlayerList-Integration — installiert: &f%installed%&7, aktiv: &f%active%&7, ausgewähltes Profil: &f%profile%'
+      error: '&cFehler bei der AdvancedPlayerList-Integration: &7%error%'
     usage:
-      root: '&c/%command% %admin% <%reload%|%give%|%manage%|%debug%>'
+      root: '&c/%command% %admin% <%reload%|%give%|%manage%|%debug%|%integration%>'
       debug: '&c/%command% %admin% %debug% [Besitzer]'
       give: '&c/%command% %admin% %give% <%village_block%|%destroyer%>'
       manage: '&c/%command% %admin% %manage% <Besitzer> <%upgrade%|%lives%|%protection%|%remove%>'
+      integration: '&c/%command% %admin% %integration% %tablist% AdvancedPlayerList <%install%|%restore%|%status%>'
       action: '&c/%command% %admin% %manage% <Besitzer> %action% <%add%|%remove%>'
       number: '&c/%command% %admin% %manage% <Besitzer> %action% <%add%|%remove%> <Zahl>'
       duration: '&c/%command% %admin% %manage% <Besitzer> %action% <%add%|%remove%> <Zahl> <Zeiteinheit>'
@@ -107,6 +114,7 @@ village:
   upkeep-paid: '&7Für den Dorfunterhalt wurden &6%cost%$ &7aus der Bank bezahlt.'
   upkeep-missed: '&cDas Dorf konnte den Unterhalt von %cost%$ nicht bezahlen. Es fehlen %missing%$. Offene Zahlungen: %missed%.'
   upkeep-penalty: '&cDas Dorf hat wegen unbezahlten Unterhalts %lives% Leben verloren.'
+  have-tag: '&cEin Dorf benötigt ein Kürzel, um &4&laufgewertet &czu werden'
 
   attacked:
     title: '&8&k[&r &4WARNUNG &8&k]'
@@ -116,6 +124,9 @@ village:
     title: '&8&k[&r &4WARNUNG &8&k]'
     subtitle: '&7Dein &eDorf &7wurde zerstört!'
     message: '%separator% \n&e%attacker% &chat dein Dorf zerstört \n%separator%'
+
+  attacker-attacked: '%separator%\n &4Du hast das Dorf &6%village_tag% &4angegriffen\n%separator%'
+  attacker-destroyed: '%separator%\n &4Du hast das Dorf &6%village_tag% &4zerstört\n%separator%'
 
   in-village: '&cDu gehörst bereits zu einem Dorf'
   no-village: '&cDu gehörst zu keinem Dorf'
@@ -149,6 +160,7 @@ tag:
   has-spaces: 'Das Kürzel darf keine Leerzeichen enthalten'
   too-long: 'Das Kürzel ist zu lang'
   invalid-chars: 'Das Kürzel enthält ungültige Zeichen'
+  empty: 'Das Kürzel darf nicht leer sein'
   new-village-tag: '&7Das neue Kürzel deines Dorfes ist &a%tag%'
   your-village-tag: '&7Das Kürzel deines Dorfes ist &a%tag%'
   closed-name-village-tag: '&cDu hast das Menü geschlossen, daher wurde kein Kürzel gesetzt'

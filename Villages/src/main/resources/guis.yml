@@ -113,7 +113,7 @@ guis:
           - "&8—————————————"
       animations:
         slot: 13
-        material: REDSTONE_DUST
+        material: REDSTONE
         name: "&d&lAnimations"
         lore:
           - "&8—————————————"
@@ -146,7 +146,7 @@ guis:
         - "&7Alliances and wars"
     development:
       slot: 33
-      material: AMETHYST_SHARD
+      material: BLAZE_POWDER
       name: "&dDevelopment tree"
       lore:
         - "&7Choose permanent village bonuses"
@@ -369,7 +369,7 @@ guis:
       war-declared: { material: WRITABLE_BOOK, name: "&cWar declared" }
       war-started: { material: IRON_SWORD, name: "&4War started" }
       war-ended: { material: SHIELD, name: "&6War ended" }
-      development-unlocked: { material: AMETHYST_SHARD, name: "&dDevelopment unlocked" }
+      development-unlocked: { material: BLAZE_ROD, name: "&dDevelopment unlocked" }
       upkeep-paid: { material: GOLD_INGOT, name: "&aUpkeep paid" }
       upkeep-missed: { material: REDSTONE, name: "&cUpkeep missed" }
       upkeep-penalty: { material: WITHER_SKELETON_SKULL, name: "&4Upkeep penalty" }

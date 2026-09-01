@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class TempMessages {
 
-	public static String noValue = "Brak";
+	public static String noValue = "&c-";
 
 	public static RawString ptop = new RawString(" &7[%VALUE-FORMAT%&7]");
 	public static RawString gtop = new RawString(" &7[&b%VALUE-FORMAT%&7]");

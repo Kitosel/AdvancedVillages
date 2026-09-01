@@ -40,7 +40,7 @@ public class BlockItemListener extends RosaListener {
 
 		if (!Item.hasTag(item, "villageDestroyer")) return;
 
-		Village village = plugin.getVillageUtilsManager().getVillageAt(event.getBlock().getLocation());
+		Village village = plugin.getVillageUtils().getVillageAt(event.getBlock().getLocation());
 		if (village == null || !village.isCentralBlock(event.getBlock()))
 			event.setCancelled(true);
 	}

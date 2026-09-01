@@ -40,7 +40,7 @@ public class PlayerListeners extends RosaListener {
 	}
 
 	private boolean isWorldEnabled(World world) {
-		return plugin.getVillageUtilsManager().isBlacklisted(world);
+		return plugin.getVillageUtils().isBlacklisted(world);
 	}
 
 	private void deny(Player player) {
@@ -53,7 +53,7 @@ public class PlayerListeners extends RosaListener {
 		if (isWorldEnabled(player.getWorld())) return;
 
 		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).get();
-		Village village = plugin.getVillageUtilsManager().getVillageAt(event.getBlock().getLocation());
+		Village village = plugin.getVillageUtils().getVillageAt(event.getBlock().getLocation());
 		if (village == null) return;
 
 		if (isSameType(event.getBlock().getType(), Material.NOTE_BLOCK) && village.isCentralBlock(event.getBlock())) return;
@@ -70,7 +70,7 @@ public class PlayerListeners extends RosaListener {
 		if (isWorldEnabled(player.getWorld())) return;
 
 		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).get();
-		Village village = plugin.getVillageUtilsManager().getVillageAt(event.getBlock().getLocation());
+		Village village = plugin.getVillageUtils().getVillageAt(event.getBlock().getLocation());
 		if (village != null && !village.isMember(user)) {
 			event.setCancelled(true);
 			deny(player);
@@ -84,7 +84,7 @@ public class PlayerListeners extends RosaListener {
 		if (event.getClickedBlock() == null) return;
 
 		Block block = event.getClickedBlock();
-		Village village = plugin.getVillageUtilsManager().getVillageAt(block.getLocation());
+		Village village = plugin.getVillageUtils().getVillageAt(block.getLocation());
 		if (village == null) return;
 
 		if (isSameType(block.getType(), Material.NOTE_BLOCK) && village.isCentralBlock(event.getClickedBlock())) return;
@@ -101,14 +101,12 @@ public class PlayerListeners extends RosaListener {
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerInteractFrame(PlayerInteractEntityEvent event) {
-		if (!(event.getRightClicked() instanceof ItemFrame frame) || !(event.getRightClicked() instanceof GlowItemFrame frame2)) return;
+		if (!(event.getRightClicked() instanceof ItemFrame frame)) return;
 
 		Player player = event.getPlayer();
 		if (!isWorldEnabled(player.getWorld())) return;
 
-		Village village = plugin.getVillageUtilsManager().getVillageAt(frame.getLocation());
-		if (village == null)
-			village = plugin.getVillageUtilsManager().getVillageAt(frame2.getLocation());
+		Village village = plugin.getVillageUtils().getVillageAt(frame.getLocation());
 		if (village == null) return;
 
 		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).get();
@@ -148,7 +146,7 @@ public class PlayerListeners extends RosaListener {
 		if(event.getEntity() instanceof Player victim && event.getDamager() instanceof Player damager) {
 			if (isWorldEnabled(damager.getWorld())) return;
 
-			Village village = plugin.getVillageUtilsManager().getVillageAt(victim.getLocation());
+			Village village = plugin.getVillageUtils().getVillageAt(victim.getLocation());
 			if (village == null) return;
 			if(village.isSameVillage(damager, victim) && !village.isPvp()) {
 				event.setCancelled(true);
@@ -159,7 +157,7 @@ public class PlayerListeners extends RosaListener {
 			if (isWorldEnabled(frame.getWorld())) return;
 			User user = plugin.getUserManager().findByUuid(player.getUniqueId()).get();
 
-			Village village = plugin.getVillageUtilsManager().getVillageAt(player.getLocation());
+			Village village = plugin.getVillageUtils().getVillageAt(player.getLocation());
 			if (village == null) return;
 			if (!village.isMember(user)) {
 				event.setCancelled(true);
@@ -169,7 +167,7 @@ public class PlayerListeners extends RosaListener {
 			if (isWorldEnabled(frame.getWorld())) return;
 			User user = plugin.getUserManager().findByUuid(player.getUniqueId()).get();
 
-			Village village = plugin.getVillageUtilsManager().getVillageAt(player.getLocation());
+			Village village = plugin.getVillageUtils().getVillageAt(player.getLocation());
 			if (village == null) return;
 			if (!village.isMember(user)) {
 				event.setCancelled(true);
@@ -185,7 +183,7 @@ public class PlayerListeners extends RosaListener {
 
 		EntityType type = event.getRightClicked().getType();
 		if (type == EntityType.ITEM_FRAME || type == EntityType.GLOW_ITEM_FRAME || type == EntityType.ARMOR_STAND) {
-			Village village = plugin.getVillageUtilsManager().getVillageAt(event.getRightClicked().getLocation());
+			Village village = plugin.getVillageUtils().getVillageAt(event.getRightClicked().getLocation());
 			if (village != null && !village.isMember(user)) {
 				event.setCancelled(true);
 				deny(player);
@@ -204,7 +202,7 @@ public class PlayerListeners extends RosaListener {
 				|| (event.getFrom().getBlockX() == destination.getBlockX()
 				&& event.getFrom().getBlockZ() == destination.getBlockZ())) return;
 
-		Village village = plugin.getVillageUtilsManager().getVillageAt(destination);
+		Village village = plugin.getVillageUtils().getVillageAt(destination);
 
 		if (village != null && village.isMember(user)) {
 			if (village.isRegenerationActive()) {
@@ -250,7 +248,7 @@ public class PlayerListeners extends RosaListener {
 		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).get();
 		if (isWorldEnabled(player.getWorld())) return;
 
-		Village village = plugin.getVillageUtilsManager().getVillageAt(event.getBlock().getLocation());
+		Village village = plugin.getVillageUtils().getVillageAt(event.getBlock().getLocation());
 		if (village != null && !village.isMember(user)) {
 			event.setCancelled(true);
 			deny(player);
@@ -263,7 +261,7 @@ public class PlayerListeners extends RosaListener {
 		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).get();
 		if (isWorldEnabled(player.getWorld())) return;
 
-		Village village = plugin.getVillageUtilsManager().getVillageAt(event.getBlock().getLocation());
+		Village village = plugin.getVillageUtils().getVillageAt(event.getBlock().getLocation());
 		if (village != null && !village.isMember(user)) {
 			event.setCancelled(true);
 			deny(player);
