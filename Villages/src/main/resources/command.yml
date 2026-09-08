@@ -5,14 +5,16 @@ command:
   aliases:
     - wioski
     - vil
-  permission: villages.command
 
 spawn:
   name: spawn
   aliases:
     - tpspawn
-  permission: villages.spawn
-  permission-set: villages.spawn.set
+
+crafting:
+  name: crafting
+  aliases:
+    - villagecrafting
 
 command-language:
   admin: admin

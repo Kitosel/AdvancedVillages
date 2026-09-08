@@ -1,23 +1,19 @@
 package pl.kiosel.villages.data.user;
 
 import org.jetbrains.annotations.Nullable;
-import pl.kiosel.villages.data.village.Permission;
 import pl.kiosel.villages.data.village.Village;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 final class UserVillageState {
 
 	private final Runnable changeListener;
-	private final Set<Permission> permissions = ConcurrentHashMap.newKeySet();
+	private final Set<VillagePermission> permissions = ConcurrentHashMap.newKeySet();
 	@Nullable private volatile Village village;
 	@Nullable private volatile String roleId;
+	@Nullable private volatile VillageSpecialization specialization;
+	private volatile long specializationChangedAt;
 
 	UserVillageState(Runnable changeListener) {
 		this.changeListener = Objects.requireNonNull(changeListener, "changeListener");
@@ -43,9 +39,12 @@ final class UserVillageState {
 	}
 
 	void clear() {
-		if (this.village == null && this.roleId == null && this.permissions.isEmpty()) return;
+		if (this.village == null && this.roleId == null && this.specialization == null
+				&& this.permissions.isEmpty()) return;
 		this.village = null;
 		this.roleId = null;
+		this.specialization = null;
+		this.specializationChangedAt = 0L;
 		this.permissions.clear();
 		this.changeListener.run();
 	}
@@ -54,13 +53,21 @@ final class UserVillageState {
 		return Optional.ofNullable(this.roleId);
 	}
 
-	Set<Permission> getPermissions() {
+	Optional<VillageSpecialization> getSpecialization() {
+		return Optional.ofNullable(this.specialization);
+	}
+
+	long getSpecializationChangedAt() {
+		return this.specializationChangedAt;
+	}
+
+	Set<VillagePermission> getPermissions() {
 		return Collections.unmodifiableSet(new HashSet<>(this.permissions));
 	}
 
-	void assignRole(@Nullable String roleId, @Nullable Set<Permission> permissions) {
+	void assignRole(@Nullable String roleId, @Nullable Set<VillagePermission> permissions) {
 		String normalizedRoleId = normalizeRoleId(roleId);
-		Set<Permission> updated = copyPermissions(permissions);
+		Set<VillagePermission> updated = copyPermissions(permissions);
 		if (Objects.equals(this.roleId, normalizedRoleId) && this.permissions.equals(updated)) return;
 
 		this.roleId = normalizedRoleId;
@@ -69,27 +76,35 @@ final class UserVillageState {
 		this.changeListener.run();
 	}
 
-	boolean hasPermission(Permission permission, boolean owner) {
-		if (permission == null) return false;
-		if (owner) return true;
-		return permission != Permission.OWNER && this.permissions.contains(permission);
+	void setSpecialization(@Nullable VillageSpecialization specialization, long changedAt) {
+		long normalizedChangedAt = specialization == null ? 0L : Math.max(0L, changedAt);
+		if (this.specialization == specialization && this.specializationChangedAt == normalizedChangedAt) return;
+		this.specialization = specialization;
+		this.specializationChangedAt = normalizedChangedAt;
+		this.changeListener.run();
 	}
 
-	void addPermission(@Nullable Permission permission) {
+	boolean hasPermission(VillagePermission permission, boolean owner) {
+		if (permission == null) return false;
+		if (owner) return true;
+		return permission != VillagePermission.OWNER && this.permissions.contains(permission);
+	}
+
+	void addPermission(@Nullable VillagePermission permission) {
 		if (permission != null && this.permissions.add(permission)) {
 			this.changeListener.run();
 		}
 	}
 
-	void removePermission(@Nullable Permission permission) {
+	void removePermission(@Nullable VillagePermission permission) {
 		if (permission != null && this.permissions.remove(permission)) {
 			this.changeListener.run();
 		}
 
 	}
 
-	void setPermissions(@Nullable Set<Permission> permissions) {
-		Set<Permission> updated = copyPermissions(permissions);
+	void setPermissions(@Nullable Set<VillagePermission> permissions) {
+		Set<VillagePermission> updated = copyPermissions(permissions);
 		if (this.roleId == null && this.permissions.equals(updated)) return;
 
 		this.roleId = null;
@@ -102,7 +117,7 @@ final class UserVillageState {
 		return roleId == null ? null : roleId.trim().toLowerCase(Locale.ROOT);
 	}
 
-	private static Set<Permission> copyPermissions(@Nullable Set<Permission> permissions) {
+	private static Set<VillagePermission> copyPermissions(@Nullable Set<VillagePermission> permissions) {
 		return permissions == null ? Collections.emptySet() : new HashSet<>(permissions);
 	}
 }

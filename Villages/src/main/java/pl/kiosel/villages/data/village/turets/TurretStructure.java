@@ -193,6 +193,7 @@ public final class TurretStructure {
 		}
 	}
 
+	@Getter
 	public static final class Bounds {
 
 		private final int minimumX;
@@ -231,12 +232,6 @@ public final class TurretStructure {
 			return new Bounds(minimumX, minimumY, minimumZ, maximumX, maximumY, maximumZ);
 		}
 
-		public int getMinimumX() { return this.minimumX; }
-		public int getMinimumY() { return this.minimumY; }
-		public int getMinimumZ() { return this.minimumZ; }
-		public int getMaximumX() { return this.maximumX; }
-		public int getMaximumY() { return this.maximumY; }
-		public int getMaximumZ() { return this.maximumZ; }
 		public int getWidth() { return this.maximumX - this.minimumX + 1; }
 		public int getHeight() { return this.maximumY - this.minimumY + 1; }
 		public int getDepth() { return this.maximumZ - this.minimumZ + 1; }

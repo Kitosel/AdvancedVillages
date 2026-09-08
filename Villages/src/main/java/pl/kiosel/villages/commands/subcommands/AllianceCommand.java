@@ -1,22 +1,28 @@
 package pl.kiosel.villages.commands.subcommands;
 
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.addons.diplomacy.DiplomacyResult;
 import pl.kiosel.villages.commands.AVSubCommand;
 import pl.kiosel.villages.config.CommandLang;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.data.user.User;
-import pl.kiosel.villages.data.village.Permission;
+import pl.kiosel.villages.data.user.VillagePermission;
 import pl.kiosel.villages.data.village.Village;
+import pl.kiosel.villages.data.village.features.diplomacy.DiplomacyManager;
+import pl.kiosel.villages.data.village.features.diplomacy.DiplomacyResult;
+import pl.kiosel.villages.manager.VillageUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public final class AllianceCommand extends AVSubCommand {
 
+	private final DiplomacyManager diplomacyManager;
+
 	public AllianceCommand(AdvancedVillages plugin) {
 		super(plugin, CommandLang.ALLIANCE);
+		this.diplomacyManager = plugin.getDiplomacyManager();
 	}
 
 	@Override
@@ -30,22 +36,28 @@ public final class AllianceCommand extends AVSubCommand {
 	}
 
 	@Override
-	public String getPermission() { return "villages.command.alliance"; }
+	public String getPermission() { return "advancedvillages.command.alliance"; }
 
 	@Override
 	public boolean requireVillage() { return true; }
 
 	@Override
-	public Permission getVillagePermission() { return Permission.UNSET; }
+	public boolean isAvailable(CommandSender sender) {
+		if (!diplomacyManager.isEnabled()
+				|| !diplomacyManager.getSettings().isAlliancesEnabled()) {
+			sendLocalized(sender, Lang.ADDON_DISABLED, "addon", "diplomacy/alliance");
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public VillagePermission getVillagePermission() { return VillagePermission.UNSET; }
 
 	@Override
 	public void run(Player player, User user, String[] args) {
 		Village village = user.getPresentVillage();
-		if (!plugin.getDiplomacyManager().isEnabled()
-				|| !plugin.getDiplomacyManager().getSettings().isAlliancesEnabled()) {
-			sendLocalized(player, Lang.ADDON_DISABLED, "addon", "diplomacy/alliance");
-			return;
-		}
+		if (village == null) return;
 		if (!village.isTag()) {
 			sendLocalized(player, Lang.TAG_NO);
 			return;
@@ -60,7 +72,7 @@ public final class AllianceCommand extends AVSubCommand {
 			sendLocalized(player, Lang.DIPLOMACY_ALLIANCE_USAGE, "usage", getUsage());
 			return;
 		}
-		if (!plugin.getRoleManager().hasPermission(user, Permission.ALLIANCE_MANAGE)) {
+		if (!plugin.getRoleManager().hasPermission(user, VillagePermission.ALLIANCE_MANAGE)) {
 			sendLocalized(player, Lang.VILLAGE_NO_PERMISSION);
 			return;
 		}
@@ -73,13 +85,13 @@ public final class AllianceCommand extends AVSubCommand {
 
 		DiplomacyResult result;
 		if (args[1].equalsIgnoreCase(getCommand(CommandLang.ALLIANCE_INVITE))) {
-			result = plugin.getDiplomacyManager().requestAlliance(village, target);
+			result = diplomacyManager.requestAlliance(village, target);
 		} else if (args[1].equalsIgnoreCase(getCommand(CommandLang.ALLIANCE_ACCEPT))) {
-			result = plugin.getDiplomacyManager().acceptAlliance(village, target);
+			result = diplomacyManager.acceptAlliance(village, target);
 		} else if (args[1].equalsIgnoreCase(getCommand(CommandLang.ALLIANCE_DENY))) {
-			result = plugin.getDiplomacyManager().denyAlliance(village, target);
+			result = diplomacyManager.denyAlliance(village, target);
 		} else if (args[1].equalsIgnoreCase(getCommand(CommandLang.ALLIANCE_LEAVE))) {
-			result = plugin.getDiplomacyManager().breakAlliance(village, target);
+			result = diplomacyManager.breakAlliance(village, target);
 		} else {
 			sendLocalized(player, Lang.DIPLOMACY_ALLIANCE_USAGE, "usage", getUsage());
 			return;
@@ -105,12 +117,12 @@ public final class AllianceCommand extends AVSubCommand {
 		String selected = args[1];
 		if (selected.equalsIgnoreCase(getCommand(CommandLang.ALLIANCE_ACCEPT))
 				|| selected.equalsIgnoreCase(getCommand(CommandLang.ALLIANCE_DENY))) {
-			return plugin.getDiplomacyManager().getPendingAllianceSenders(village).stream()
+			return diplomacyManager.getPendingAllianceSenders(village).stream()
 					.filter(Village::isTag)
 					.map(Village::getTag).toList();
 		}
 		if (selected.equalsIgnoreCase(getCommand(CommandLang.ALLIANCE_LEAVE))) {
-			return plugin.getDiplomacyManager().getAllies(village).stream()
+			return diplomacyManager.getAllies(village).stream()
 					.filter(Village::isTag)
 					.map(Village::getTag).toList();
 		}
@@ -118,29 +130,29 @@ public final class AllianceCommand extends AVSubCommand {
 			return plugin.getVillageManager().getVillagesView().stream()
 					.filter(other -> !other.equals(village))
 					.filter(Village::isTag)
-					.filter(other -> !plugin.getDiplomacyManager().areAllied(village, other))
+					.filter(other -> !diplomacyManager.areAllied(village, other))
 					.map(Village::getTag).sorted(String.CASE_INSENSITIVE_ORDER).toList();
 		}
 		return List.of();
 	}
 
 	private void showList(Player player, Village village) {
-		List<Village> allies = plugin.getDiplomacyManager().getAllies(village);
-		List<Village> pending = plugin.getDiplomacyManager().getPendingAllianceSenders(village);
+		List<Village> allies = diplomacyManager.getAllies(village);
+		List<Village> pending = diplomacyManager.getPendingAllianceSenders(village);
 		plugin.getVillageMessages().send(player, Lang.SEPARATOR);
 		plugin.getVillageMessages().send(player, Lang.DIPLOMACY_ALLIANCE_LIST_HEADER,
-				"count", allies.size(), "max", plugin.getDiplomacyManager().getSettings().getMaximumAlliances());
+				"count", allies.size(), "max", diplomacyManager.getSettings().getMaximumAlliances());
 		if (allies.isEmpty()) {
 			plugin.getVillageMessages().send(player, Lang.DIPLOMACY_ALLIANCE_LIST_EMPTY);
 		} else {
 			for (Village ally : allies) {
-				plugin.getVillageMessages().send(player, Lang.DIPLOMACY_ALLIANCE_LIST_ENTRY, "village", ally.getName());
+				VillageUtils.replaceWithM(ally, plugin.getVillageMessages().text(Lang.DIPLOMACY_ALLIANCE_LIST_ENTRY)).sendMessage(player);
 			}
 		}
 		if (!pending.isEmpty()) {
 			plugin.getVillageMessages().send(player, Lang.DIPLOMACY_ALLIANCE_PENDING_HEADER);
 			for (Village sender : pending) {
-				plugin.getVillageMessages().send(player, Lang.DIPLOMACY_ALLIANCE_LIST_ENTRY, "village", sender.getName());
+				VillageUtils.replaceWithM(sender, plugin.getVillageMessages().text(Lang.DIPLOMACY_ALLIANCE_LIST_ENTRY)).sendMessage(player);
 			}
 		}
 		plugin.getVillageMessages().send(player, Lang.SEPARATOR);

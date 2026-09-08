@@ -44,6 +44,10 @@ public class PlaceholderVillage extends PlaceholderExpansion {
         }
 
 		switch (params) {
+			case "player-specialization":
+				return user.getSpecialization()
+						.map(plugin.getSpecializationManager()::getDisplayName)
+						.orElse("");
 			case "role":
 				return plugin.getRoleManager().getRole(user).getName();
 			case "owner":
@@ -65,11 +69,14 @@ public class PlaceholderVillage extends PlaceholderExpansion {
 			case "wars":
 				return Integer.toString(plugin.getDiplomacyManager().countCurrentWars(village));
 			case "upkeep_cost":
-				return Integer.toString(plugin.getUpkeepManager().calculateCost(village));
+				return plugin.getUpkeepManager().isEnabled()
+						? Integer.toString(plugin.getUpkeepManager().calculateCost(village)) : "0";
 			case "upkeep_time":
-				return plugin.getVillageMessages().formatDuration(plugin.getUpkeepManager().getRemaining(village));
+				return plugin.getUpkeepManager().isEnabled()
+						? plugin.getVillageMessages().formatDuration(plugin.getUpkeepManager().getRemaining(village)) : "";
 			case "upkeep_missed":
-				return Integer.toString(plugin.getUpkeepManager().getMissedPayments(village));
+				return plugin.getUpkeepManager().isEnabled()
+						? Integer.toString(plugin.getUpkeepManager().getMissedPayments(village)) : "0";
             default:
                 return "";
         }

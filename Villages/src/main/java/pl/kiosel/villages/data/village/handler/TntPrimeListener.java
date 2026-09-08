@@ -1,24 +1,34 @@
 package pl.kiosel.villages.data.village.handler;
 
 import org.bukkit.Location;
-import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.TNTPrimeEvent;
-import pl.kiosel.rosacore.listener.RosaListener;
+import pl.kiosel.rosacore.compatibility.ZSound;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.api.events.VillageListener;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.Village;
 
-public final class TntPrimeListener extends RosaListener {
+public final class TntPrimeListener extends VillageListener {
 
 	private final AdvancedVillages plugin;
 
 	public TntPrimeListener(AdvancedVillages plugin) {
 		super(plugin);
 		this.plugin = plugin;
+	}
+
+	@Override
+	public boolean isAvailable() {
+		try {
+			Class.forName("org.bukkit.event.block.TNTPrimeEvent", false, getClass().getClassLoader());
+			return true;
+		} catch (ClassNotFoundException | LinkageError ignored) {
+			return false;
+		}
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
@@ -33,10 +43,10 @@ public final class TntPrimeListener extends RosaListener {
 		if (!(entity instanceof Player)) return;
 
 		Player player = (Player) entity;
-		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).orElse(null);
+		User user = getUser(player);
 		if (user == null || !village.isMember(user)) return;
 
 		event.setCancelled(true);
-		player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_AMBIENT, 0.5f, 1.0f);
+		ZSound.ENTITY_VILLAGER_NO.play(player, 0.5f, 1f);
 	}
 }

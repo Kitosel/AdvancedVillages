@@ -17,10 +17,10 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.potion.PotionEffect;
-import pl.kiosel.rosacore.listener.RosaListener;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.api.events.PlayerEnterVillageEvent;
 import pl.kiosel.villages.api.events.PlayerExitVillageEvent;
+import pl.kiosel.villages.api.events.VillageListener;
 import pl.kiosel.villages.config.Settings;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.Effects;
@@ -29,7 +29,7 @@ import pl.kiosel.villages.data.village.Village;
 import java.util.HashSet;
 import java.util.Set;
 
-public class PlayerListeners extends RosaListener {
+public class PlayerListeners extends VillageListener {
 
 	private final AdvancedVillages plugin;
 	private final Set<Player> insideVillagePlayers = new HashSet<>();
@@ -52,7 +52,7 @@ public class PlayerListeners extends RosaListener {
 		Player player = event.getPlayer();
 		if (isWorldEnabled(player.getWorld())) return;
 
-		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).get();
+		User user = getUser(player);
 		Village village = plugin.getVillageUtils().getVillageAt(event.getBlock().getLocation());
 		if (village == null) return;
 
@@ -69,7 +69,7 @@ public class PlayerListeners extends RosaListener {
 		Player player = event.getPlayer();
 		if (isWorldEnabled(player.getWorld())) return;
 
-		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).get();
+		User user = getUser(player);
 		Village village = plugin.getVillageUtils().getVillageAt(event.getBlock().getLocation());
 		if (village != null && !village.isMember(user)) {
 			event.setCancelled(true);
@@ -89,7 +89,7 @@ public class PlayerListeners extends RosaListener {
 
 		if (isSameType(block.getType(), Material.NOTE_BLOCK) && village.isCentralBlock(event.getClickedBlock())) return;
 
-		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).orElseThrow();
+		User user = getUser(player);
 		if (!village.isMember(user)) {
 			boolean shouldCancel = isShouldCancel(event.getAction(), block);
 			if (shouldCancel) {
@@ -109,7 +109,7 @@ public class PlayerListeners extends RosaListener {
 		Village village = plugin.getVillageUtils().getVillageAt(frame.getLocation());
 		if (village == null) return;
 
-		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).get();
+		User user = getUser(player);
 		if (!village.isMember(user)) {
 			event.setCancelled(true);
 			deny(player);
@@ -155,7 +155,7 @@ public class PlayerListeners extends RosaListener {
 		}
 		if (event.getEntity() instanceof ItemFrame frame && event.getDamager() instanceof Player player) {
 			if (isWorldEnabled(frame.getWorld())) return;
-			User user = plugin.getUserManager().findByUuid(player.getUniqueId()).get();
+			User user = getUser(player);
 
 			Village village = plugin.getVillageUtils().getVillageAt(player.getLocation());
 			if (village == null) return;
@@ -165,7 +165,7 @@ public class PlayerListeners extends RosaListener {
 		}
 		if (event.getEntity() instanceof GlowItemFrame frame && event.getDamager() instanceof Player player) {
 			if (isWorldEnabled(frame.getWorld())) return;
-			User user = plugin.getUserManager().findByUuid(player.getUniqueId()).get();
+			User user = getUser(player);
 
 			Village village = plugin.getVillageUtils().getVillageAt(player.getLocation());
 			if (village == null) return;
@@ -179,7 +179,7 @@ public class PlayerListeners extends RosaListener {
 	public void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent event) {
 		Player player = event.getPlayer();
 		if (isWorldEnabled(player.getWorld())) return;
-		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).get();
+		User user = getUser(player);
 
 		EntityType type = event.getRightClicked().getType();
 		if (type == EntityType.ITEM_FRAME || type == EntityType.GLOW_ITEM_FRAME || type == EntityType.ARMOR_STAND) {
@@ -195,7 +195,7 @@ public class PlayerListeners extends RosaListener {
 	public void onPlayerMove(PlayerMoveEvent event) {
 		Player player = event.getPlayer();
 		if (isWorldEnabled(player.getWorld())) return;
-		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).get();
+		User user = getUser(player);
 
 		Location destination = event.getTo();
 		if (destination == null
@@ -245,7 +245,7 @@ public class PlayerListeners extends RosaListener {
 	@EventHandler
 	public void onPlayerBucketFill(PlayerBucketFillEvent event) {
 		Player player = event.getPlayer();
-		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).get();
+		User user = getUser(player);
 		if (isWorldEnabled(player.getWorld())) return;
 
 		Village village = plugin.getVillageUtils().getVillageAt(event.getBlock().getLocation());
@@ -258,7 +258,7 @@ public class PlayerListeners extends RosaListener {
 	@EventHandler
 	public void onPlayerBucketEmpty(PlayerBucketEmptyEvent event) {
 		Player player = event.getPlayer();
-		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).get();
+		User user = getUser(player);
 		if (isWorldEnabled(player.getWorld())) return;
 
 		Village village = plugin.getVillageUtils().getVillageAt(event.getBlock().getLocation());

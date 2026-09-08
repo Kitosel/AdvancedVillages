@@ -2,7 +2,9 @@ package pl.kiosel.villages.data.village.level;
 
 import org.bukkit.configuration.ConfigurationSection;
 import pl.kiosel.rosacore.compatibility.ZMaterial;
+import pl.kiosel.rosacore.config.ConfigView;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.config.VillageConfigFile;
 
 import java.util.*;
 
@@ -47,10 +49,12 @@ public class LevelManager {
 		this.registeredLevels.clear();
 	}
 
-	public boolean loadLevels() {
+	public synchronized boolean loadLevels() {
 		plugin.getDebug().debug("Loading levels from file");
-		for (String levelName : plugin.getLevelsFile().getKeys(false)) {
-			ConfigurationSection levels = plugin.getLevelsFile().getConfigurationSection(levelName);
+		ConfigView config = plugin.getLevelsFile().snapshot();
+		NavigableMap<Integer, Level> loadedLevels = new TreeMap<>();
+		for (String levelName : config.getKeys(false)) {
+			ConfigurationSection levels = config.getConfigurationSection(levelName);
 			if (levels == null || !levelName.toLowerCase().startsWith("level-")) {
 				plugin.getRosaLogger().warning("Ignoring invalid levels.yml section: " + levelName);
 				continue;
@@ -71,38 +75,49 @@ public class LevelManager {
 					String[] parts = materialEntry.split(":", 2);
 					ZMaterial material = parts.length == 2
 							? ZMaterial.match(parts[0].trim()).orElse(null) : null;
-					if (material == null) {
-						plugin.getRosaLogger().warning("Ignoring invalid level material: " + materialEntry);
-						continue;
+					if (material == null || material.resolveForItem().isEmpty()) {
+						plugin.getRosaLogger().warning("Invalid level material: " + materialEntry);
+						return false;
 					}
 					int amount = Integer.parseInt(parts[1].trim());
 					if (amount > 0) {
 						materials.put(material, amount);
 					}
 				}
-				addLevel(level, costExperience, costEconomy, size, materials);
+				loadedLevels.put(level, new Level(level, costExperience, costEconomy, size, materials));
 			} catch (NumberFormatException exception) {
 				plugin.getRosaLogger().log(java.util.logging.Level.WARNING, "Ignoring invalid level definition: " + levelName, exception);
+				return false;
 			}
 		}
 
-		if (!isLevel(1)) {
+		if (!loadedLevels.containsKey(1)) {
 			plugin.getRosaLogger().severe("levels.yml must contain a valid level-1 section");
 			return false;
 		}
 
-		int highestLevel = getHighestLevel().getLevel();
+		int highestLevel = loadedLevels.lastKey();
 		for (int level = 1; level <= highestLevel; level++) {
-			if (!isLevel(level)) {
+			if (!loadedLevels.containsKey(level)) {
 				plugin.getRosaLogger().severe("levels.yml is missing level-" + level + "; keeping the previous level configuration");
 				return false;
 			}
 		}
+		this.registeredLevels.clear();
+		this.registeredLevels.putAll(loadedLevels);
+		if (plugin.getVillageManager() != null) {
+			plugin.getVillageManager().getVillages().forEach(village -> {
+				Level current = village.getLevel();
+				Level reloaded = current == null ? null : loadedLevels.get(current.getLevel());
+				if (reloaded == null) return;
+				village.setLevel(reloaded);
+				village.getRegion().ifPresent(region -> region.setSize(reloaded.getSize()));
+			});
+		}
 		return true;
 	}
 
-	public void reloadLevels() {
-		plugin.getLevelsFile().load();
-		this.loadLevels();
+	public boolean reloadLevels() {
+		return plugin.getConfigurationManager().reload(VillageConfigFile.LEVELS) && this.loadLevels();
 	}
 }

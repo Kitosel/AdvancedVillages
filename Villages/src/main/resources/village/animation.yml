@@ -1,0 +1,164 @@
+# Cosmetic effects for village creation, upgrades and removal.
+# The per-village switch is available in the village settings GUI.
+# https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Sound.html
+enabled: true
+
+creation:
+  enabled: true
+  duration-ticks: 28
+  particle: END_ROD
+  count: 4
+  radius: 1.25
+  # A sound while creating the village
+  play-sound:
+    sound: ENTITY_PLAYER_LEVELUP
+    pitch: 1.0
+    volume: 0.3
+
+upgrade:
+  enabled: true
+  duration-ticks: 30
+  particle: END_ROD
+  count: 6
+  radius: 1.35
+  # A sound while upgrading the village
+  play-sound:
+    sound: ENTITY_PLAYER_LEVELUP
+    pitch: 1.0
+    volume: 0.2
+
+central-block:
+  enabled: true
+  # Particles are sent only to players within this distance.
+  interval-ticks: 2
+  view-distance: 32
+  # A stronger version of the selected level pattern after an upgrade.
+  upgrade-duration-ticks: 24
+  # Available patterns:
+  # HALO, DOUBLE_RING, HELIX, CROWN, ORBITS,
+  # SPIRAL, VORTEX, PILLARS, WAVE, STAR.
+  # You can use any pattern at any village level.
+  # Each level can also be disabled independently with "enabled: false".
+  levels:
+    1:
+      enabled: true
+      pattern: HALO
+      particle: FLAME
+      secondary-particle: SMOKE
+      count: 8
+      radius: 0.7
+      height: 0.3
+      vertical-span: 0.6
+      vertical-offset: 0.04
+      speed: 0.1
+    2:
+      enabled: true
+      pattern: DOUBLE_RING
+      particle: ENCHANT
+      secondary-particle: WITCH
+      count: 10
+      radius: 0.8
+      height: 0.4
+      vertical-span: 0.6
+      vertical-offset: 0.04
+      speed: 0.11
+    3:
+      enabled: true
+      pattern: CROWN
+      particle: SOUL_FIRE_FLAME
+      secondary-particle: SOUL
+      count: 11
+      radius: 1.2
+      height: 0.5
+      vertical-span: 1.1
+      vertical-offset: 0.04
+      speed: 0.13
+    4:
+      enabled: true
+      pattern: HELIX
+      particle: END_ROD
+      secondary-particle: ELECTRIC_SPARK
+      count: 8
+      radius: 1.0
+      height: 0.4
+      vertical-span: 1.1
+      vertical-offset: 0.04
+      speed: 0.12
+    5:
+      enabled: true
+      pattern: STAR
+      particle: TOTEM_OF_UNDYING
+      secondary-particle: END_ROD
+      count: 10
+      radius: 2.2
+      height: 0.4
+      vertical-span: 1.2
+      vertical-offset: 0.03
+      speed: 0.13
+    6:
+      enabled: true
+      pattern: SPIRAL
+      particle: DRAGON_BREATH
+      secondary-particle: PORTAL
+      count: 12
+      radius: 2.3
+      height: 0.5
+      vertical-span: 1.4
+      vertical-offset: 0.03
+      speed: 0.15
+    7:
+      enabled: true
+      pattern: VORTEX
+      particle: ELECTRIC_SPARK
+      secondary-particle: END_ROD
+      count: 13
+      radius: 2.5
+      height: 0.55
+      vertical-span: 1.5
+      vertical-offset: 0.03
+      speed: 0.16
+    8:
+      enabled: true
+      pattern: PILLARS
+      particle: SOUL_FIRE_FLAME
+      secondary-particle: WITCH
+      count: 14
+      radius: 2.7
+      height: 0.6
+      vertical-span: 1.7
+      vertical-offset: 0.03
+      speed: 0.17
+    9:
+      enabled: true
+      pattern: STAR
+      particle: TOTEM_OF_UNDYING
+      secondary-particle: ELECTRIC_SPARK
+      count: 16
+      radius: 3.0
+      height: 0.65
+      vertical-span: 1.9
+      vertical-offset: 0.03
+      speed: 0.18
+    10:
+      enabled: true
+      pattern: WAVE
+      particle: DRAGON_BREATH
+      secondary-particle: END_ROD
+      count: 18
+      radius: 3.2
+      height: 0.7
+      vertical-span: 2.0
+      vertical-offset: 0.03
+      speed: 0.2
+
+removal:
+  enabled: true
+  duration-ticks: 50
+  beep-interval-ticks: 5
+  beep-sound: BLOCK_NOTE_BLOCK_HAT
+  beep-volume: 1.0
+  beep-pitch-start: 0.65
+  beep-pitch-rise: 0.8
+  knockback-radius: 4.5
+  knockback-strength: 0.75
+  knockback-y: 0.4

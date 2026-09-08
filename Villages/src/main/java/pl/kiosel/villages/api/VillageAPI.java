@@ -9,19 +9,20 @@ import pl.kiosel.rosacore.dependencies.nbtapi.NBT;
 import pl.kiosel.rosacore.dependencies.nbtapi.iface.ReadWriteItemNBT;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.addons.buildeditor.VillageBuildEditorManager;
-import pl.kiosel.villages.addons.diplomacy.DiplomacyManager;
-import pl.kiosel.villages.addons.logs.VillageLogManager;
-import pl.kiosel.villages.addons.quests.VillageQuestManager;
-import pl.kiosel.villages.addons.ranking.RankingManager;
-import pl.kiosel.villages.addons.rent.VillageUpkeepManager;
 import pl.kiosel.villages.addons.trials.VillageAnimationManager;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.user.UserManager;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.data.village.VillageManager;
+import pl.kiosel.villages.data.village.features.diplomacy.DiplomacyManager;
+import pl.kiosel.villages.data.village.features.logs.VillageLogManager;
+import pl.kiosel.villages.data.village.features.quest.VillageQuestManager;
+import pl.kiosel.villages.data.village.features.ranking.RankingManager;
+import pl.kiosel.villages.data.village.features.rent.VillageUpkeepManager;
 import pl.kiosel.villages.gui.Item;
 import pl.kiosel.villages.manager.RoleManager;
+import pl.kiosel.villages.manager.SpecializationManager;
 import pl.kiosel.villages.manager.UpgradeManager;
 import pl.kiosel.villages.manager.VillageRemoveManager;
 import pl.kiosel.villages.manager.teleport.TeleportManager;
@@ -57,6 +58,11 @@ public class VillageAPI {
 	@NotNull
 	public RoleManager getRoleManager() {
 		return plugin.getRoleManager();
+	}
+
+	@NotNull
+	public SpecializationManager getSpecializationManager() {
+		return plugin.getSpecializationManager();
 	}
 
 	public boolean isDataReady() {

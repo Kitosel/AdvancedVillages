@@ -8,21 +8,21 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockPlaceEvent;
-import pl.kiosel.rosacore.listener.RosaListener;
+import pl.kiosel.rosacore.material.ItemTag;
 import pl.kiosel.rosacore.utils.TimeUtils;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.addons.logs.VillageLogType;
+import pl.kiosel.villages.data.village.features.logs.VillageLogType;
 import pl.kiosel.villages.api.events.VillageCreateEvent;
+import pl.kiosel.villages.api.events.VillageListener;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.config.Settings;
 import pl.kiosel.villages.config.VillageMessages;
 import pl.kiosel.villages.data.user.User;
-import pl.kiosel.villages.data.village.Permission;
-import pl.kiosel.villages.data.village.Region;
+import pl.kiosel.villages.data.user.VillagePermission;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.data.village.VillageBuilder;
+import pl.kiosel.villages.data.village.VillageRegion;
 import pl.kiosel.villages.data.village.level.Level;
-import pl.kiosel.villages.gui.Item;
 import pl.kiosel.villages.manager.VillageUtils;
 
 import java.sql.SQLException;
@@ -30,7 +30,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
 
-public class BlockListener extends RosaListener {
+public class BlockListener extends VillageListener {
 
 	private final AdvancedVillages plugin;
 
@@ -45,7 +45,7 @@ public class BlockListener extends RosaListener {
 		Block block = event.getBlock();
 
 		if (!isSameType(block.getType(), Material.NOTE_BLOCK)) return;
-		boolean villageBlockTag = Item.hasTag(event.getItemInHand(), "villageBlock");
+		boolean villageBlockTag = ItemTag.has(event.getItemInHand(), "villageBlock");
 		boolean legacyVillageBlock = event.getItemInHand().hasItemMeta()
 				&& Objects.requireNonNull(event.getItemInHand().getItemMeta()).hasDisplayName()
 				&& event.getItemInHand().getItemMeta().hasLore()
@@ -53,7 +53,7 @@ public class BlockListener extends RosaListener {
 						plugin.getVillageMessages().get(Lang.VILLAGE_BLOCK_NAME).toString());
 		if (!villageBlockTag && !legacyVillageBlock) return;
 
-		User user = this.plugin.getUserManager().findByPlayer(player).orElse(null);
+		User user = getUser(player);
 		if (user == null) return;
 
 		VillageMessages messages = plugin.getVillageMessages();
@@ -109,7 +109,7 @@ public class BlockListener extends RosaListener {
 		}
 		event.setCancelled(false);
 
-		Region region = new Region(village, village.getLocation().orElseGet(block::getLocation), level.getSize());
+		VillageRegion region = new VillageRegion(village, village.getLocation().orElseGet(block::getLocation), level.getSize());
 		village.setRegion(region);
 
 		Duration duration = TimeUtils.getDuration("hour", 24);
@@ -122,7 +122,7 @@ public class BlockListener extends RosaListener {
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
-		user.setPermissions(Permission.OWNER);
+		user.setPermissions(VillagePermission.OWNER);
 		plugin.getLogManager().record(village, VillageLogType.VILLAGE_CREATED, player);
 
 		Bukkit.getScheduler().runTask(plugin, () -> {

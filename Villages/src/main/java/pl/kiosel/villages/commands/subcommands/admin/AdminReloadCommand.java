@@ -25,6 +25,7 @@ public final class AdminReloadCommand extends AdminSubCommand {
 	@Override
 	public void run(Player player, User user, String[] args) {
 		this.plugin.reloadConfig();
-		sendLocalized(player, Lang.COMMAND_RELOAD);
+		sendLocalized(player, this.plugin.wasLastConfigReloadSuccessful()
+				? Lang.COMMAND_RELOAD : Lang.COMMAND_RELOAD_FAILED);
 	}
 }

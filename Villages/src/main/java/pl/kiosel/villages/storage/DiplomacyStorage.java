@@ -1,12 +1,12 @@
 package pl.kiosel.villages.storage;
 
+import lombok.Getter;
 import pl.kiosel.rosacore.database.DatabaseTable;
 import pl.kiosel.rosacore.database.DatabaseValues;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.addons.diplomacy.AllianceRequest;
-import pl.kiosel.villages.addons.diplomacy.VillageAlliance;
-import pl.kiosel.villages.addons.diplomacy.VillageWar;
-import pl.kiosel.villages.addons.diplomacy.WarEndReason;
+import pl.kiosel.villages.data.village.features.diplomacy.VillageAlliance;
+import pl.kiosel.villages.data.village.features.diplomacy.VillageWar;
+import pl.kiosel.villages.data.village.features.diplomacy.WarEndReason;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -18,7 +18,6 @@ import java.util.logging.Level;
 public final class DiplomacyStorage {
 
 	private static final DatabaseTable ALLIANCES = DatabaseTable.named("village_alliances");
-	private static final DatabaseTable REQUESTS = DatabaseTable.named("village_alliance_requests");
 	private static final DatabaseTable WARS = DatabaseTable.named("village_wars");
 
 	private final AdvancedVillages plugin;
@@ -29,7 +28,6 @@ public final class DiplomacyStorage {
 
 	public LoadedDiplomacy load() {
 		List<VillageAlliance> alliances = new ArrayList<>();
-		List<AllianceRequest> requests = new ArrayList<>();
 		List<VillageWar> wars = new ArrayList<>();
 		this.plugin.getDataManager().withSession(session -> {
 			session.queryEach("SELECT * FROM " + session.tableName(ALLIANCES), row -> {
@@ -39,16 +37,6 @@ public final class DiplomacyStorage {
 							uuid(row.getString("second_uuid")), instant(row.getLongObject("created_at"))));
 				} catch (RuntimeException exception) {
 					warn("alliance", exception);
-				}
-			});
-			session.queryEach("SELECT * FROM " + session.tableName(REQUESTS), row -> {
-				try {
-					requests.add(new AllianceRequest(
-							uuid(row.getString("id")), uuid(row.getString("sender_uuid")),
-							uuid(row.getString("target_uuid")), instant(row.getLongObject("created_at")),
-							instant(row.getLongObject("expires_at"))));
-				} catch (RuntimeException exception) {
-					warn("alliance request", exception);
 				}
 			});
 			session.queryEach("SELECT * FROM " + session.tableName(WARS), row -> {
@@ -66,15 +54,13 @@ public final class DiplomacyStorage {
 				}
 			});
 		});
-		return new LoadedDiplomacy(alliances, requests, wars);
+		return new LoadedDiplomacy(alliances, wars);
 	}
 
-	public void save(Collection<VillageAlliance> alliances, Collection<AllianceRequest> requests,
-	                 Collection<VillageWar.Snapshot> wars, Collection<UUID> removedAllianceIds,
-	                 Collection<UUID> removedRequestIds, Collection<UUID> removedWarIds) {
+	public void save(Collection<VillageAlliance> alliances, Collection<VillageWar.Snapshot> wars,
+	                 Collection<UUID> removedAllianceIds, Collection<UUID> removedWarIds) {
 		this.plugin.getDataManager().withTransaction(session -> {
 			for (UUID id : removedAllianceIds) session.delete(ALLIANCES, "id", id);
-			for (UUID id : removedRequestIds) session.delete(REQUESTS, "id", id);
 			for (UUID id : removedWarIds) session.delete(WARS, "id", id);
 
 			for (VillageAlliance alliance : alliances) {
@@ -83,14 +69,6 @@ public final class DiplomacyStorage {
 						.set("first_uuid", alliance.getFirstVillageId())
 						.set("second_uuid", alliance.getSecondVillageId())
 						.set("created_at", alliance.getCreatedAt()), "id");
-			}
-			for (AllianceRequest request : requests) {
-				session.upsert(REQUESTS, DatabaseValues.create()
-						.set("id", request.getId())
-						.set("sender_uuid", request.getSenderVillageId())
-						.set("target_uuid", request.getTargetVillageId())
-						.set("created_at", request.getCreatedAt())
-						.set("expires_at", request.getExpiresAt()), "id");
 			}
 			for (VillageWar.Snapshot war : wars) {
 				session.upsert(WARS, DatabaseValues.create()
@@ -139,28 +117,15 @@ public final class DiplomacyStorage {
 		return value == null || value.isBlank() ? null : WarEndReason.valueOf(value);
 	}
 
+	@Getter
 	public static final class LoadedDiplomacy {
 		private final List<VillageAlliance> alliances;
-		private final List<AllianceRequest> requests;
 		private final List<VillageWar> wars;
 
-		private LoadedDiplomacy(List<VillageAlliance> alliances,
-		                        List<AllianceRequest> requests, List<VillageWar> wars) {
+		private LoadedDiplomacy(List<VillageAlliance> alliances, List<VillageWar> wars) {
 			this.alliances = alliances;
-			this.requests = requests;
 			this.wars = wars;
 		}
 
-		public List<VillageAlliance> getAlliances() {
-			return this.alliances;
-		}
-
-		public List<AllianceRequest> getRequests() {
-			return this.requests;
-		}
-
-		public List<VillageWar> getWars() {
-			return this.wars;
-		}
 	}
 }

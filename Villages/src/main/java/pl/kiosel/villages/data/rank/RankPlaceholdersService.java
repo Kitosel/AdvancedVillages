@@ -6,7 +6,6 @@ import pl.kiosel.rosacore.dependencies.adventure.adventure.text.Component;
 import pl.kiosel.rosacore.dependencies.adventure.adventure.text.TextReplacementConfig;
 import pl.kiosel.rosacore.utils.NumberRange;
 import pl.kiosel.rosacore.utils.format.RangeFormatting;
-import pl.kiosel.rosacore.utils.format.RawString;
 import pl.kiosel.rosacore.utils.format.Replaceable;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.addons.tablist.TablistConfiguration;
@@ -28,15 +27,15 @@ import java.util.regex.Pattern;
 public final class RankPlaceholdersService {
 
 	private static final Pattern TOP = Pattern.compile(
-			"%(PTOP|GTOP)(?:-([A-Za-z_]+))?-([0-9]+)%",
+			"%(PLAYERTOP|VILLAGETOP)-([A-Za-z_]+)-([0-9]+)%",
 			Pattern.CASE_INSENSITIVE
 	);
 	private static final Pattern POSITION = Pattern.compile(
-			"%((?:G-)?POSITION)-([A-Za-z_]+)%",
+			"%((?:PLAYER|VILLAGE)-POSITION)-([A-Za-z_]+)%",
 			Pattern.CASE_INSENSITIVE
 	);
 	private static final Pattern RANK_PLACEHOLDER = Pattern.compile(
-			"%(?:(?:PTOP|GTOP)(?:-[A-Za-z_]+)?-[0-9]+|(?:G-)?POSITION-[A-Za-z_]+)%",
+			"%(?:(?:PLAYERTOP|VILLAGETOP)-[A-Za-z_]+-[0-9]+|(?:PLAYER|VILLAGE)-POSITION-[A-Za-z_]+)%",
 			Pattern.CASE_INSENSITIVE
 	);
 
@@ -66,10 +65,7 @@ public final class RankPlaceholdersService {
 
 	private String resolveTop(Matcher matcher, @Nullable User targetUser) {
 		String type = matcher.group(1).toUpperCase(Locale.ROOT);
-		boolean legacy = matcher.group(2) == null;
-		String comparator = legacy
-				? (type.equals("PTOP") ? DefaultTops.USER_POINTS_TOP : DefaultTops.VILLAGE_AVG_POINTS_TOP)
-				: matcher.group(2).toLowerCase(Locale.ROOT);
+		String comparator = matcher.group(2).toLowerCase(Locale.ROOT);
 
 		int index;
 		try {
@@ -81,7 +77,7 @@ public final class RankPlaceholdersService {
 			return TempMessages.noValue;
 		}
 
-		if (type.equals("PTOP")) {
+		if (type.equals("PLAYERTOP")) {
 			Optional<UserTop> top = this.userRankManager.getTop(comparator);
 			if (top.isEmpty()) {
 				return TempMessages.noValue;
@@ -92,9 +88,7 @@ public final class RankPlaceholdersService {
 			}
 
 			Number value = top.get().getComparator().getValue(user.get().getRank());
-			String suffix = legacy
-					? formatLegacyValue(value, TempMessages.ptopPoints.getValue())
-					: formatTopValue(value, TempMessages.ptop.getValue(), TempMessages.ptopValueFormatting.get(comparator));
+			String suffix = formatTopValue(value, TempMessages.playerTop.getValue(), TempMessages.topValueFormatting.get(comparator));
 			return formatUser(user.get(), suffix);
 		}
 
@@ -108,16 +102,14 @@ public final class RankPlaceholdersService {
 		}
 
 		Number value = top.get().getComparator().getValue(village.get().getRank());
-		String suffix = legacy
-				? formatLegacyValue(value, TempMessages.gtopPoints.getValue())
-				: formatTopValue(value, TempMessages.gtop.getValue(), TempMessages.gtopValueFormatting.get(comparator));
+		String suffix = formatTopValue(value, TempMessages.villageTop.getValue(), TempMessages.gtopValueFormatting.get(comparator));
 		return this.formatVillage(targetUser, village.get(), suffix);
 	}
 
 	private String resolvePosition(Matcher matcher, @Nullable User targetUser) {
 		String type = matcher.group(1).toUpperCase(Locale.ROOT);
 		String comparator = matcher.group(2).toLowerCase(Locale.ROOT);
-		if (type.equals("POSITION")) {
+		if (type.equals("PLAYER-POSITION")) {
 			return targetUser == null ? "0" : Integer.toString(targetUser.getRank().getPosition(comparator));
 		}
 
@@ -136,15 +128,9 @@ public final class RankPlaceholdersService {
 		return format.replace("%VALUE-FORMAT%", formattedValue).replace("%VALUE%", rawValue);
 	}
 
-	private static String formatLegacyValue(Number value, String format) {
-		String rawValue = formatNumber(value);
-		String formattedValue = NumberRange.inRangeToString(value, TempMessages.pointsFormat);
-		return format.replace("%POINTS-FORMAT%", formattedValue).replace("%POINTS%", rawValue);
-	}
-
 	private static String formatUser(User user, String suffix) {
 		boolean online = user.isOnline() && !user.isVanished();
-		RawString color = online ? TempMessages.online : TempMessages.offline;
+		String color = online ? "&a" : "&c";
 		return color + user.getName() + suffix;
 	}
 

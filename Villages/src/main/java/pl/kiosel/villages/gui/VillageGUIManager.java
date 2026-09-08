@@ -19,45 +19,48 @@ public class VillageGUIManager {
 			return;
 		}
 
-		VillageInventory main = new VillageInventory(plugin, this, village, player);
+		VillageGUI main = new VillageGUI(plugin, this, village, player);
 		Gui gui;
 		switch (type) {
 			case SETTINGS:
-				gui = new SettingsInventory(plugin, this, village, player, main);
+				gui = new SettingsGUI(plugin, this, village, player, main);
 				break;
 			case BANK:
-				gui = new BankInventory(plugin, this, village, player, main);
+				gui = new BankGUI(plugin, this, village, player, main);
 				break;
 			case REMOVE:
-				gui = new RemoveInventory(plugin, village, player, main);
+				gui = new RemoveGUI(plugin, village, player, main);
 				break;
 			case UPGRADE:
-				gui = new UpgradeInventory(plugin, this, village, player, main);
+				gui = new UpgradeGUI(plugin, this, village, player, main);
 				break;
 			case EFFECTS:
-				gui = new EffectsInventory(plugin, this, village, player, main);
+				gui = new EffectsGUI(plugin, this, village, player, main);
 				break;
 			case QUESTS:
-				gui = new QuestInventory(plugin, this, village, player, main);
+				gui = new QuestGUI(plugin, this, village, player, main);
 				break;
 			case LOGS:
-				gui = new VillageLogInventory(plugin, this, village, player, main);
+				gui = new VillageLogGUI(plugin, this, village, player, main);
 				break;
 			case DIPLOMACY:
-				gui = new DiplomacyInventory(plugin, this, village, player, main);
+				gui = new DiplomacyGUI(plugin, this, village, player, main);
 				break;
 			case DEVELOPMENT:
-				gui = new DevelopmentInventory(plugin, this, village, player, main);
+				gui = new DevelopmentGUI(plugin, this, village, player, main);
+				break;
+			case SPECIALIZATIONS:
+				gui = new SpecializationGUI(plugin, this, village, player, main);
 				break;
 			case RESIDENT:
-				gui = new ResidentInventory(plugin, this, village, player, main);
+				gui = new ResidentGUI(plugin, this, village, player, main);
 				break;
 			case STORE:
-				gui = new StoreInventory(plugin, this, village, player, main);
+				gui = new StoreGUI(plugin, this, village, player, main);
 				break;
 			case TAG:
-				SettingsInventory settings = new SettingsInventory(plugin, this, village, player, main);
-				gui = new TagInventory(plugin, village, player, settings);
+				SettingsGUI settings = new SettingsGUI(plugin, this, village, player, main);
+				gui = new TagGUI(plugin, village, player, settings);
 				break;
 			default:
 				gui = main;

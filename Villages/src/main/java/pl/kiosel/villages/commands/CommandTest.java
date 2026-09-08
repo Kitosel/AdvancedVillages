@@ -1,19 +1,22 @@
 package pl.kiosel.villages.commands;
 
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import pl.kiosel.rosacore.command.RosaCommand;
 import pl.kiosel.rosacore.utils.ColorUtils;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.addons.firststeps.TutorialGUI;
 import pl.kiosel.villages.data.user.User;
-import pl.kiosel.villages.data.village.Permission;
+import pl.kiosel.villages.data.user.VillagePermission;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.manager.VillageNameGenerator;
 
 import java.io.File;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public class CommandTest extends RosaCommand {
 
@@ -21,7 +24,7 @@ public class CommandTest extends RosaCommand {
 	private final VillageNameGenerator generator;
 
 	public CommandTest(AdvancedVillages plugin) {
-		super(plugin, "test");
+		super(plugin, "test", List.of());
 		this.plugin = plugin;
 		this.generator = new VillageNameGenerator();
 	}
@@ -34,6 +37,7 @@ public class CommandTest extends RosaCommand {
 	@Override
 	public boolean onExecute(CommandSender sender, String label, String[] args) {
 		Player player = (Player) sender;
+		if (!player.isOp()) return true;
 		User user = plugin.getUserManager().getOrCreate(player);
 
 		if (args.length == 1) {
@@ -50,9 +54,9 @@ public class CommandTest extends RosaCommand {
 					plugin.getMessenger().actionBar(player, "test1");
 					break;
 				case "test1":
-//					player.sendMessage("teststeststest");
-//					OfflinePlayer player1 = Bukkit.getOfflinePlayer(UUID.fromString("cb8b7c68-1787-3a6e-aebb-221c0218b1bb"));
-//					player.sendMessage("player: " + player1.getName());
+					player.sendMessage("teststeststest");
+					OfflinePlayer player1 = Bukkit.getOfflinePlayer(UUID.fromString("cb8b7c68-1787-3a6e-aebb-221c0218b1bb"));
+					player.sendMessage("player: " + player1.getName());
 					break;
 				case "memory_test":
 					player.sendMessage(player.toString());
@@ -74,7 +78,7 @@ public class CommandTest extends RosaCommand {
 						player.sendMessage("member is null");
 						break;
 					}
-					plugin.getRoleManager().addPermission(user, Permission.EFFECTS_TOGGLE);
+					plugin.getRoleManager().addPermission(user, VillagePermission.EFFECTS_TOGGLE);
 					player.sendMessage("added perm");
 					break;
 				case "getPermissions":
@@ -89,6 +93,23 @@ public class CommandTest extends RosaCommand {
 					break;
 				case "local":
 					player.sendMessage("provide a node");
+					break;
+				case "dev":
+					plugin.setDev(!plugin.isDev());
+					player.sendMessage("Settings dev to " + (plugin.isDev() ? "Enabled" : "Disabled"));
+					break;
+				case "tutorial":
+					plugin.getMessenger().animatedTitle(
+							player,
+							plugin.getGuiSettings().text("guis.tutorial.welcome.title",
+									"&aThanks for using &f&lADVANCED&6&lVILLAGES"),
+							plugin.getGuiSettings().text("guis.tutorial.welcome.subtitle",
+									"&7Personalize your experience"),
+							1
+					);
+					plugin.getRosaScheduler().runForEntityLater(player,
+							() -> plugin.getGuiManager().openGUI(player, new TutorialGUI(plugin, false)),
+							() -> {}, 4 * 20L);
 					break;
 			}
 		}
@@ -158,7 +179,7 @@ public class CommandTest extends RosaCommand {
 			return complete(args[0], List.of(
 					"villages", "adv_title", "adv_actionbar", "test1", "worldedit_test",
 					"addpermission", "villagemembers", "getPermissions", "memory_test",
-					"local"
+					"local", "tutorial", "dev"
 			));
 		}
 		if (args.length == 2) {

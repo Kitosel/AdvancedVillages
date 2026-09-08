@@ -1,6 +1,9 @@
 package pl.kiosel.villages.addons.buildeditor;
 
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
@@ -11,8 +14,8 @@ import pl.kiosel.rosacore.hook.worldedit.WorldEditHook;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.config.Settings;
-import pl.kiosel.villages.data.village.Region;
 import pl.kiosel.villages.data.village.Village;
+import pl.kiosel.villages.data.village.VillageRegion;
 import pl.kiosel.villages.data.village.level.Level;
 import pl.kiosel.villages.data.village.level.LevelManager;
 
@@ -39,9 +42,9 @@ public final class VillageBuildEditorManager {
     private final Map<UUID, LevelSetupConversation> conversations = new ConcurrentHashMap<>();
     private BukkitTask boundaryTask;
 
-    public VillageBuildEditorManager(AdvancedVillages plugin, RosaConfig config) {
+    public VillageBuildEditorManager(AdvancedVillages plugin) {
         this.plugin = plugin;
-        this.config = config;
+        this.config = plugin.getBuildEditorFile();
         restartBoundaryTask();
     }
 
@@ -385,7 +388,7 @@ public final class VillageBuildEditorManager {
                 } catch (NumberFormatException ignored) {
                     return false;
                 }
-                if (material == null || material.getMaterial().isPresent() || !material.getMaterial().orElseThrow().isItem() || amount < 1) {
+                if (material == null || material.resolveForItem().isEmpty() || amount < 1) {
                     return false;
                 }
                 parsed.merge(material, amount, Integer::sum);
@@ -411,8 +414,7 @@ public final class VillageBuildEditorManager {
             plugin.getRosaLogger().severe("Could not save level " + level + " to levels.yml");
             return false;
         }
-        plugin.getLevelManager().reloadLevels();
-        return plugin.getLevelManager().isLevel(level);
+        return plugin.getLevelManager().reloadLevels() && plugin.getLevelManager().isLevel(level);
     }
 
     private void backupLevelsFile(Path source) {
@@ -609,7 +611,7 @@ public final class VillageBuildEditorManager {
 			return false;
 		}
 		for (Village village : plugin.getVillageManager().getVillagesView()) {
-			Region region = village.getRegion().orElse(null);
+			VillageRegion region = village.getRegion().orElse(null);
 			if (region == null || region.getWorld() == null || !region.getWorld().equals(bounds.getWorld())) {
 				continue;
 			}

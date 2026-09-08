@@ -4,7 +4,6 @@ import lombok.Getter;
 import pl.kiosel.rosacore.compatibility.ZParticle;
 import pl.kiosel.rosacore.compatibility.ZSound;
 import pl.kiosel.rosacore.config.RosaConfig;
-import pl.kiosel.villages.config.Settings;
 import pl.kiosel.villages.data.village.level.LevelManager;
 
 import java.util.Collections;
@@ -91,7 +90,7 @@ public final class VillageAnimationSettings {
                 Math.max(0, config.getDouble("removal.knockback-y", 0.4))
         );
 
-        return new VillageAnimationSettings(Settings.ADDONS_VILLAGE_ANIMATIONS_ENABLE.getBoolean(), creation, central, upgraded, removal);
+        return new VillageAnimationSettings(config.getBoolean("enabled", true), creation, central, upgraded, removal);
     }
 
 	private static String normalizePattern(String value) {

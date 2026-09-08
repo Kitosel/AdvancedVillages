@@ -9,7 +9,7 @@ import pl.kiosel.villages.config.CommandLang;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.config.VillageMessage;
 import pl.kiosel.villages.data.user.User;
-import pl.kiosel.villages.data.village.Permission;
+import pl.kiosel.villages.data.user.VillagePermission;
 
 import java.util.Collections;
 import java.util.List;
@@ -45,7 +45,7 @@ public abstract class AVSubCommand extends RosaSubCommand {
 
 	public abstract boolean requireVillage();
 
-	public abstract Permission getVillagePermission();
+	public abstract VillagePermission getVillagePermission();
 
 	public abstract void run(Player player, User user, String[] args);
 

@@ -9,7 +9,7 @@ import pl.kiosel.villages.data.village.turets.TurretStructure;
 
 public class TurretSetBrick extends Turret {
 
-	private static final TurretStructure STRUCTURE = TurretStructure.builder()
+	private static final TurretStructure BODY = TurretStructure.builder()
 			.layer(Material.STONE, -1, 2)
 			.block(Material.STONE_BRICKS, 0, -1, 0)
 			.mirrorXZ(Material.COBBLESTONE, 2, -1, 1)
@@ -25,16 +25,6 @@ public class TurretSetBrick extends Turret {
 
 			.cardinals(Material.STONE_BRICKS, 3, 2)
 			.cardinals(Material.STONE_BRICK_SLAB, 4, 2)
-			.blocks(Material.STONE_BRICK_WALL,
-					2, 4, 1,
-					2, 4, -1,
-					-2, 4, -1,
-					1, 4, 2,
-					1, 4, -2)
-			.blocks(Material.MOSSY_STONE_BRICK_WALL,
-					-2, 4, 1,
-					-1, 4, 2,
-					-1, 4, -2)
 
 			.stairs(Material.STONE_BRICK_STAIRS, 2, 3, 1, BlockFace.NORTH)
 			.stairs(Material.STONE_BRICK_STAIRS, 2, 3, -1, BlockFace.SOUTH)
@@ -55,8 +45,22 @@ public class TurretSetBrick extends Turret {
 			.stairs(Material.STONE_BRICK_STAIRS, -1, 2, -2, BlockFace.WEST, Bisected.Half.TOP)
 			.build();
 
+	private static final TurretStructure CONNECTED = TurretStructure.builder()
+			.blocks(Material.STONE_BRICK_WALL,
+					2, 4, 1,
+					2, 4, -1,
+					-2, 4, -1,
+					1, 4, 2,
+					1, 4, -2)
+			.blocks(Material.MOSSY_STONE_BRICK_WALL,
+					-2, 4, 1,
+					-1, 4, 2,
+					-1, 4, -2)
+			.build();
+
 	@Override
 	public void setTurret(World world, int x, int y, int z) {
-		paste(STRUCTURE, world, x, y, z);
+		paste(CONNECTED, world, x, y, z);
+		paste(BODY, world, x, y, z);
 	}
 }

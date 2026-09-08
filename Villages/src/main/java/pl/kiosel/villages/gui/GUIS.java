@@ -17,6 +17,9 @@ public enum GUIS {
 	LOGS("logs", "gui-logs", "Village - &6Activity logs", 4, 4),
 	DIPLOMACY("diplomacy", "gui-diplomacy", "Village - &bDiplomacy", 4, 4),
 	DEVELOPMENT("development", "gui-development", "Village - &dDevelopment", 4, 4),
+	PERMISSION("permission", "gui-permission", "Village - &dMember Permission", 4, 4),
+	SPECIALIZATIONS("specializations", "gui-specializations", "Village - &aSpecializations", 3, 4),
+	TUTORIAL("tutorial", "gui-tutorial", "&6AdvancedVillages setup", 3, 4),
 	TAG("tag", "gui-tag", "TAG", 1, 4),
 	DELETE_MEMBER("delete-member", "gui-remove-member", "&cRemove member", 3, 4),
 	MEMBER_SETTINGS("member-settings", "gui-member-settings", "Village - &7Member Settings", 3, 8);

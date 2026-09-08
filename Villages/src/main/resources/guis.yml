@@ -11,6 +11,8 @@ gui-logs: "Village - &6Activity logs"
 gui-diplomacy: "Village - &bDiplomacy"
 gui-development: "Village - &dDevelopment"
 gui-quests: "Village - &eQuests"
+gui-specializations: "Village - &aSpecializations"
+gui-tutorial: "&6AdvancedVillages setup"
 gui-member-settings: "Village - &7Member Settings"
 gui-remove-member: "&cRemove member"
 gui-delete-village: "&7Do you want to delete village?"
@@ -30,6 +32,8 @@ layout:
   logs: { rows: 4, back-slot: 4 }
   diplomacy: { rows: 4, back-slot: 4 }
   development: { rows: 4, back-slot: 4 }
+  specializations: { rows: 3, back-slot: 4 }
+  tutorial: { rows: 3, back-slot: 4 }
   delete-member: { rows: 3, back-slot: 4 }
   member-settings: { rows: 3, back-slot: 8 }
 
@@ -50,7 +54,169 @@ guis:
   crafting:
     title: "Crafting"
     recipe-title: "Crafting recipe"
+    editor-title: "&8Edit recipe: %recipe%"
     result-arrow: "&e→"
+
+  tutorial:
+    welcome:
+      title: "&aThanks for using &f&lADVANCED&6&lVILLAGES"
+      subtitle: "&7Personalize your experience"
+    titles:
+      main: "&6Main settings"
+      addons: "&6Addons"
+      features: "&6Village features"
+    status:
+      enabled: "&aEnabled"
+      disabled: "&cDisabled"
+      value: "&f%value%"
+      unsaved: "&eYou have unsaved changes."
+      unchanged: "&7No settings were changed."
+    editor:
+      title: "&8Edit %setting%"
+      valid:
+        - "&aClick to save"
+        - "&7Type: &f%type%"
+      invalid:
+        - "&cInvalid value"
+        - "&7Expected: &f%type%"
+    options:
+      title: "&8Choose %setting%"
+      name: "&f%value%"
+      selected:
+        - "&aSelected"
+      available:
+        - "&eClick to select"
+      unavailable:
+        - "&cRequired plugin is unavailable"
+    categories:
+      main:
+        slot: 10
+        material: COMPARATOR
+        name: "&eMain settings"
+        lore:
+          - "&7Configure the basic plugin behavior."
+      addons:
+        slot: 12
+        material: WRITABLE_BOOK
+        name: "&6Addons"
+        lore:
+          - "&7Enable or disable optional modules."
+      features:
+        slot: 14
+        material: EMERALD
+        name: "&aVillage features"
+        lore:
+          - "&7Choose the mechanics available to villages."
+    info:
+      slot: 16
+      material: KNOWLEDGE_BOOK
+      name: "&bInformation"
+      lore:
+        - "&7Click to see additional information."
+      lines:
+        - "&8!&7------------------------------------&8!"
+        - "&7This wizard configures the most important options."
+        - "&7You can edit every setting later in the config files."
+        - "&7Some changes require a complete server restart."
+        - "&8!&7------------------------------------&8!"
+    save:
+      slot: 22
+      material: LIME_DYE
+      name: "&a&lSave and quit"
+      lore:
+        - "%changes%"
+        - "&7The plugin will reload once."
+    settings:
+      language:
+        slot: 10
+        material: BOOK
+        name: "&eLanguage"
+        lore: ["&7Current: %value%", "&eClick to change."]
+      timezone:
+        slot: 12
+        material: CLOCK
+        name: "&eTime zone"
+        lore: ["&7Current: %value%", "&eClick to change."]
+      economy:
+        slot: 14
+        material: GOLD_NUGGET
+        name: "&eEconomy"
+        lore: ["&7Current: %value%", "&eClick to change."]
+      worldedit:
+        slot: 16
+        material: WOODEN_AXE
+        name: "&eWorldEdit schematics"
+        lore: ["%status%", "&7Use schematics and the build editor.", "&eClick to change."]
+      scoreboard:
+        slot: 10
+        material: OAK_SIGN
+        name: "&eScoreboard"
+        lore: ["%status%", "&eClick to change."]
+      tablist:
+        slot: 11
+        material: PLAYER_HEAD
+        name: "&eTablist"
+        lore: ["%status%", "&eClick to change."]
+      antilogout:
+        slot: 12
+        material: IRON_SWORD
+        name: "&eAnti-logout"
+        lore: ["%status%", "&eClick to change."]
+      build-editor:
+        slot: 13
+        material: BRICKS
+        name: "&eBuild editor"
+        lore: ["%status%", "&eClick to change."]
+      spawn:
+        slot: 14
+        material: COMPASS
+        name: "&eSpawn"
+        lore: ["%status%", "&eClick to change."]
+      chat:
+        slot: 15
+        material: PAPER
+        name: "&ePaper"
+        lore: ["%status%", "&eClick to change."]
+      animations:
+        slot: 9
+        material: BLAZE_POWDER
+        name: "&eVillage animations"
+        lore: ["%status%", "&eClick to change."]
+      development:
+        slot: 10
+        material: EXPERIENCE_BOTTLE
+        name: "&eDevelopment tree"
+        lore: ["%status%", "&eClick to change."]
+      logs:
+        slot: 11
+        material: BOOK
+        name: "&eActivity logs"
+        lore: ["%status%", "&eClick to change."]
+      quests:
+        slot: 12
+        material: WRITABLE_BOOK
+        name: "&eQuests"
+        lore: ["%status%", "&eClick to change."]
+      specializations:
+        slot: 13
+        material: KNOWLEDGE_BOOK
+        name: "&eSpecializations"
+        lore: ["%status%", "&eClick to change."]
+      rent:
+        slot: 14
+        material: GOLD_INGOT
+        name: "&eVillage upkeep"
+        lore: ["%status%", "&eClick to change."]
+      diplomacy:
+        slot: 15
+        material: PAPER
+        name: "&eDiplomacy"
+        lore: ["%status%", "&eClick to change."]
+      ranking:
+        slot: 16
+        material: NETHER_STAR
+        name: "&eRanking"
+        lore: ["%status%", "&eClick to change."]
 
   tag:
     title: "Name your village"
@@ -150,6 +316,12 @@ guis:
       name: "&dDevelopment tree"
       lore:
         - "&7Choose permanent village bonuses"
+    specializations:
+      slot: 29
+      material: KNOWLEDGE_BOOK
+      name: "&aSpecializations"
+      lore:
+        - "&7Choose your personal village bonus"
     #
     # STORE
     #
@@ -185,6 +357,7 @@ guis:
         name: "&6%PLAYER% &cOWNER"
         lore:
           - "&7Role: %role%"
+          - "&7Specialization: %specialization%"
           - " "
           - "&7Last online: %PLAYER_LAST_ONLINE%"
           - " "
@@ -193,6 +366,7 @@ guis:
         name: "%PLAYER%"
         lore:
           - "&7Role: %role%"
+          - "&7Specialization: %specialization%"
           - " "
           - "&7Last online: %PLAYER_LAST_ONLINE%"
           - " "
@@ -576,6 +750,71 @@ guis:
         - "&7Remaining: &f%time%"
         - "&7Score: &e%our_score%&7:&e%enemy_score%"
     empty: { slot: 13, material: BARRIER, name: "&7No diplomatic relations" }
+
+  specializations:
+    status:
+      selected: "&aSelected"
+      available: "&eClick to select"
+      cooldown: "&cAvailable in %time%"
+    warrior:
+      slot: 10
+      material: IRON_SWORD
+      name: "&cWarrior"
+      lore:
+        - "&7Deal &a%bonus%% &7more damage."
+        - ""
+        - "%status%"
+    defender:
+      slot: 11
+      material: SHIELD
+      name: "&9Defender"
+      lore:
+        - "&7Receive &a%bonus%% &7less damage"
+        - "&7inside your village."
+        - ""
+        - "%status%"
+    farmer:
+      slot: 12
+      material: WHEAT
+      name: "&eFarmer"
+      lore:
+        - "&a%bonus%% &7chance for double crops."
+        - ""
+        - "%status%"
+    forester:
+      slot: 13
+      material: OAK_SAPLING
+      name: "&2Forester"
+      lore:
+        - "&a%bonus%% &7chance to prevent axe"
+        - "&7durability loss."
+        - ""
+        - "%status%"
+    miner:
+      slot: 14
+      material: IRON_PICKAXE
+      name: "&7Miner"
+      lore:
+        - "&7Gain &a%bonus%% &7more experience"
+        - "&7from ores."
+        - ""
+        - "%status%"
+    merchant:
+      slot: 15
+      material: EMERALD
+      name: "&aMerchant"
+      lore:
+        - "&a%bonus%% &7discount in the village store."
+        - ""
+        - "%status%"
+    healer:
+      slot: 16
+      material: GOLDEN_APPLE
+      name: "&dHealer"
+      lore:
+        - "&7Receive &a%bonus%% &7more healing."
+        - ""
+        - "%status%"
 
   remove:
     confirm: { slot: 12, material: LIME_CONCRETE, name: "&aYes" }

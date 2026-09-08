@@ -9,22 +9,22 @@ avPlayerOverview:
     - ''
     - ' &c&lSTATISTICS'
     - ''
-    - ' &7Nick: &b{villages_name}'
+    - ' &7Nick: &b{villages_player-name}'
     - ''
-    - ' &7Points: &b{villages_points}'
-    - ' &7Kills: &b{villages_kills}'
-    - ' &7Deaths: &b{villages_deaths}'
-    - ' &7Assists: &b{villages_assists}'
-    - ' &7KDR: &b{villages_kdr}'
+    - ' &7Points: &b{villages_player-points}'
+    - ' &7Kills: &b{villages_player-kills}'
+    - ' &7Deaths: &b{villages_player-deaths}'
+    - ' &7Assists: &b{villages_player-assists}'
+    - ' &7KDR: &b{villages_player-kdr}'
     - ''
     - ' &b&lINFORMATION'
     - ''
-    - ' &7Ping: &b{villages_ping}ms'
-    - ' &7TPS: &b{villages_tps}'
+    - ' &7Ping: &b{villages_player-ping}ms'
+    - ' &7TPS: &b{server_tps}'
     - ''
-    - ' &7Online: &b{villages_online}'
+    - ' &7Online: &b{villages_server-online}'
     - ''
-    - ' &7Time: &b{villages_hour}:{villages_minute}:{villages_second}'
+    - ' &7Time: &b{villages_time-hour}:{villages_time-minute}:{villages_time-second}'
     - ''
 
 avVillageOverview:
@@ -35,22 +35,22 @@ avVillageOverview:
     - ''
     - ' &c&lVILLAGE STATISTICS'
     - ''
-    - ' &7Village: &b{villages_g-tag}'
+    - ' &7Village: &b{villages_village-tag}'
     - ''
-    - ' &7Points: &b{villages_g-avg-points}'
-    - ' &7Kills: &b{villages_g-kills}'
-    - ' &7Deaths: &b{villages_g-deaths}'
-    - ' &7Assists: &b{villages_g-assists}'
-    - ' &7KDR: &b{villages_g-kdr}'
+    - ' &7Points: &b{villages_village-avg-points}'
+    - ' &7Kills: &b{villages_village-kills}'
+    - ' &7Deaths: &b{villages_village-deaths}'
+    - ' &7Assists: &b{villages_village-assists}'
+    - ' &7KDR: &b{villages_village-kdr}'
     - ''
-    - ' &7Lives: &b{villages_g-lives-symbol} &8(&b{villages_g-lives}&8)'
+    - ' &7Lives: &b{villages_village-lives-symbol} &8(&b{villages_village-lives}&8)'
     - ''
-    - ' &7Level: &b{villages_g-level}'
-    - ' &7Members: &b{villages_g-members-online}&7/{villages_g-members-all}'
-    - ' &7Allies: &a{villages_g-allies}'
-    - ' &7Wars: &c{villages_g-wars}'
+    - ' &7Level: &b{villages_village-level}'
+    - ' &7Members: &b{villages_village-members-online}&7/{villages_village-members-all}'
+    - ' &7Allies: &a{villages_village-allies}'
+    - ' &7Wars: &c{villages_village-wars}'
     - ''
-    - ' &7Protection: &b{villages_g-protection-time}'
+    - ' &7Protection: &b{villages_village-protection-time}'
     - ''
 
 avPlayerRanking:
@@ -68,64 +68,64 @@ avPlayerRanking:
         - text: ' &6&lTOP &8- &b&lPLAYER DEATHS'
           delay: 200
     - ''
-    - ' &7Players: &b{villages_players}'
+    - ' &7Players: &b{villages_server-player-count}'
     - ''
     - amount: 1
       text:
-        - { text: ' &b1. &7{villages_ptop-points-1}', delay: 200 }
-        - { text: ' &b1. &7{villages_ptop-kills-1}', delay: 200 }
-        - { text: ' &b1. &7{villages_ptop-deaths-1}', delay: 200 }
+        - { text: ' &b1. &7{villages_playertop-points-1}', delay: 200 }
+        - { text: ' &b1. &7{villages_playertop-kills-1}', delay: 200 }
+        - { text: ' &b1. &7{villages_playertop-deaths-1}', delay: 200 }
     - amount: 1
       text:
-        - { text: ' &b2. &7{villages_ptop-points-2}', delay: 200 }
-        - { text: ' &b2. &7{villages_ptop-kills-2}', delay: 200 }
-        - { text: ' &b2. &7{villages_ptop-deaths-2}', delay: 200 }
+        - { text: ' &b2. &7{villages_playertop-points-2}', delay: 200 }
+        - { text: ' &b2. &7{villages_playertop-kills-2}', delay: 200 }
+        - { text: ' &b2. &7{villages_playertop-deaths-2}', delay: 200 }
     - amount: 1
       text:
-        - { text: ' &b3. &7{villages_ptop-points-3}', delay: 200 }
-        - { text: ' &b3. &7{villages_ptop-kills-3}', delay: 200 }
-        - { text: ' &b3. &7{villages_ptop-deaths-3}', delay: 200 }
+        - { text: ' &b3. &7{villages_playertop-points-3}', delay: 200 }
+        - { text: ' &b3. &7{villages_playertop-kills-3}', delay: 200 }
+        - { text: ' &b3. &7{villages_playertop-deaths-3}', delay: 200 }
     - amount: 1
       text:
-        - { text: ' &b4. &7{villages_ptop-points-4}', delay: 200 }
-        - { text: ' &b4. &7{villages_ptop-kills-4}', delay: 200 }
-        - { text: ' &b4. &7{villages_ptop-deaths-4}', delay: 200 }
+        - { text: ' &b4. &7{villages_playertop-points-4}', delay: 200 }
+        - { text: ' &b4. &7{villages_playertop-kills-4}', delay: 200 }
+        - { text: ' &b4. &7{villages_playertop-deaths-4}', delay: 200 }
     - amount: 1
       text:
-        - { text: ' &b5. &7{villages_ptop-points-5}', delay: 200 }
-        - { text: ' &b5. &7{villages_ptop-kills-5}', delay: 200 }
-        - { text: ' &b5. &7{villages_ptop-deaths-5}', delay: 200 }
+        - { text: ' &b5. &7{villages_playertop-points-5}', delay: 200 }
+        - { text: ' &b5. &7{villages_playertop-kills-5}', delay: 200 }
+        - { text: ' &b5. &7{villages_playertop-deaths-5}', delay: 200 }
     - amount: 1
       text:
-        - { text: ' &b6. &7{villages_ptop-points-6}', delay: 200 }
-        - { text: ' &b6. &7{villages_ptop-kills-6}', delay: 200 }
-        - { text: ' &b6. &7{villages_ptop-deaths-6}', delay: 200 }
+        - { text: ' &b6. &7{villages_playertop-points-6}', delay: 200 }
+        - { text: ' &b6. &7{villages_playertop-kills-6}', delay: 200 }
+        - { text: ' &b6. &7{villages_playertop-deaths-6}', delay: 200 }
     - amount: 1
       text:
-        - { text: ' &b7. &7{villages_ptop-points-7}', delay: 200 }
-        - { text: ' &b7. &7{villages_ptop-kills-7}', delay: 200 }
-        - { text: ' &b7. &7{villages_ptop-deaths-7}', delay: 200 }
+        - { text: ' &b7. &7{villages_playertop-points-7}', delay: 200 }
+        - { text: ' &b7. &7{villages_playertop-kills-7}', delay: 200 }
+        - { text: ' &b7. &7{villages_playertop-deaths-7}', delay: 200 }
     - amount: 1
       text:
-        - { text: ' &b8. &7{villages_ptop-points-8}', delay: 200 }
-        - { text: ' &b8. &7{villages_ptop-kills-8}', delay: 200 }
-        - { text: ' &b8. &7{villages_ptop-deaths-8}', delay: 200 }
+        - { text: ' &b8. &7{villages_playertop-points-8}', delay: 200 }
+        - { text: ' &b8. &7{villages_playertop-kills-8}', delay: 200 }
+        - { text: ' &b8. &7{villages_playertop-deaths-8}', delay: 200 }
     - amount: 1
       text:
-        - { text: ' &b9. &7{villages_ptop-points-9}', delay: 200 }
-        - { text: ' &b9. &7{villages_ptop-kills-9}', delay: 200 }
-        - { text: ' &b9. &7{villages_ptop-deaths-9}', delay: 200 }
+        - { text: ' &b9. &7{villages_playertop-points-9}', delay: 200 }
+        - { text: ' &b9. &7{villages_playertop-kills-9}', delay: 200 }
+        - { text: ' &b9. &7{villages_playertop-deaths-9}', delay: 200 }
     - amount: 1
       text:
-        - { text: ' &b10. &7{villages_ptop-points-10}', delay: 200 }
-        - { text: ' &b10. &7{villages_ptop-kills-10}', delay: 200 }
-        - { text: ' &b10. &7{villages_ptop-deaths-10}', delay: 200 }
+        - { text: ' &b10. &7{villages_playertop-points-10}', delay: 200 }
+        - { text: ' &b10. &7{villages_playertop-kills-10}', delay: 200 }
+        - { text: ' &b10. &7{villages_playertop-deaths-10}', delay: 200 }
     - ''
     - amount: 1
       text:
-        - { text: ' &7Your position: &b#{villages_position-points}', delay: 200 }
-        - { text: ' &7Your position: &b#{villages_position-kills}', delay: 200 }
-        - { text: ' &7Your position: &b#{villages_position-deaths}', delay: 200 }
+        - { text: ' &7Your position: &b#{villages_player-position-points}', delay: 200 }
+        - { text: ' &7Your position: &b#{villages_player-position-kills}', delay: 200 }
+        - { text: ' &7Your position: &b#{villages_player-position-deaths}', delay: 200 }
     - ''
     - ''
     - ''
@@ -145,64 +145,64 @@ avVillageRanking:
         - text: ' &d&lTOP &8- &b&lVILLAGE DEATHS'
           delay: 200
     - ''
-    - ' &7Villages: &b{villages_villages}'
+    - ' &7Villages: &b{villages_server-village-count}'
     - ''
     - amount: 1
       text:
-        - { text: ' &b1. &7{villages_gtop-avg_points-1}', delay: 200 }
-        - { text: ' &b1. &7{villages_gtop-kills-1}', delay: 200 }
-        - { text: ' &b1. &7{villages_gtop-deaths-1}', delay: 200 }
+        - { text: ' &b1. &7{villages_villagetop-avg_points-1}', delay: 200 }
+        - { text: ' &b1. &7{villages_villagetop-kills-1}', delay: 200 }
+        - { text: ' &b1. &7{villages_villagetop-deaths-1}', delay: 200 }
     - amount: 1
       text:
-        - { text: ' &b2. &7{villages_gtop-avg_points-2}', delay: 200 }
-        - { text: ' &b2. &7{villages_gtop-kills-2}', delay: 200 }
-        - { text: ' &b2. &7{villages_gtop-deaths-2}', delay: 200 }
+        - { text: ' &b2. &7{villages_villagetop-avg_points-2}', delay: 200 }
+        - { text: ' &b2. &7{villages_villagetop-kills-2}', delay: 200 }
+        - { text: ' &b2. &7{villages_villagetop-deaths-2}', delay: 200 }
     - amount: 1
       text:
-        - { text: ' &b3. &7{villages_gtop-avg_points-3}', delay: 200 }
-        - { text: ' &b3. &7{villages_gtop-kills-3}', delay: 200 }
-        - { text: ' &b3. &7{villages_gtop-deaths-3}', delay: 200 }
+        - { text: ' &b3. &7{villages_villagetop-avg_points-3}', delay: 200 }
+        - { text: ' &b3. &7{villages_villagetop-kills-3}', delay: 200 }
+        - { text: ' &b3. &7{villages_villagetop-deaths-3}', delay: 200 }
     - amount: 1
       text:
-        - { text: ' &b4. &7{villages_gtop-avg_points-4}', delay: 200 }
-        - { text: ' &b4. &7{villages_gtop-kills-4}', delay: 200 }
-        - { text: ' &b4. &7{villages_gtop-deaths-4}', delay: 200 }
+        - { text: ' &b4. &7{villages_villagetop-avg_points-4}', delay: 200 }
+        - { text: ' &b4. &7{villages_villagetop-kills-4}', delay: 200 }
+        - { text: ' &b4. &7{villages_villagetop-deaths-4}', delay: 200 }
     - amount: 1
       text:
-        - { text: ' &b5. &7{villages_gtop-avg_points-5}', delay: 200 }
-        - { text: ' &b5. &7{villages_gtop-kills-5}', delay: 200 }
-        - { text: ' &b5. &7{villages_gtop-deaths-5}', delay: 200 }
+        - { text: ' &b5. &7{villages_villagetop-avg_points-5}', delay: 200 }
+        - { text: ' &b5. &7{villages_villagetop-kills-5}', delay: 200 }
+        - { text: ' &b5. &7{villages_villagetop-deaths-5}', delay: 200 }
     - amount: 1
       text:
-        - { text: ' &b6. &7{villages_gtop-avg_points-6}', delay: 200 }
-        - { text: ' &b6. &7{villages_gtop-kills-6}', delay: 200 }
-        - { text: ' &b6. &7{villages_gtop-deaths-6}', delay: 200 }
+        - { text: ' &b6. &7{villages_villagetop-avg_points-6}', delay: 200 }
+        - { text: ' &b6. &7{villages_villagetop-kills-6}', delay: 200 }
+        - { text: ' &b6. &7{villages_villagetop-deaths-6}', delay: 200 }
     - amount: 1
       text:
-        - { text: ' &b7. &7{villages_gtop-avg_points-7}', delay: 200 }
-        - { text: ' &b7. &7{villages_gtop-kills-7}', delay: 200 }
-        - { text: ' &b7. &7{villages_gtop-deaths-7}', delay: 200 }
+        - { text: ' &b7. &7{villages_villagetop-avg_points-7}', delay: 200 }
+        - { text: ' &b7. &7{villages_villagetop-kills-7}', delay: 200 }
+        - { text: ' &b7. &7{villages_villagetop-deaths-7}', delay: 200 }
     - amount: 1
       text:
-        - { text: ' &b8. &7{villages_gtop-avg_points-8}', delay: 200 }
-        - { text: ' &b8. &7{villages_gtop-kills-8}', delay: 200 }
-        - { text: ' &b8. &7{villages_gtop-deaths-8}', delay: 200 }
+        - { text: ' &b8. &7{villages_villagetop-avg_points-8}', delay: 200 }
+        - { text: ' &b8. &7{villages_villagetop-kills-8}', delay: 200 }
+        - { text: ' &b8. &7{villages_villagetop-deaths-8}', delay: 200 }
     - amount: 1
       text:
-        - { text: ' &b9. &7{villages_gtop-avg_points-9}', delay: 200 }
-        - { text: ' &b9. &7{villages_gtop-kills-9}', delay: 200 }
-        - { text: ' &b9. &7{villages_gtop-deaths-9}', delay: 200 }
+        - { text: ' &b9. &7{villages_villagetop-avg_points-9}', delay: 200 }
+        - { text: ' &b9. &7{villages_villagetop-kills-9}', delay: 200 }
+        - { text: ' &b9. &7{villages_villagetop-deaths-9}', delay: 200 }
     - amount: 1
       text:
-        - { text: ' &b10. &7{villages_gtop-avg_points-10}', delay: 200 }
-        - { text: ' &b10. &7{villages_gtop-kills-10}', delay: 200 }
-        - { text: ' &b10. &7{villages_gtop-deaths-10}', delay: 200 }
+        - { text: ' &b10. &7{villages_villagetop-avg_points-10}', delay: 200 }
+        - { text: ' &b10. &7{villages_villagetop-kills-10}', delay: 200 }
+        - { text: ' &b10. &7{villages_villagetop-deaths-10}', delay: 200 }
     - ''
     - amount: 1
       text:
-        - { text: ' &7Village position: &b#{villages_g-position-avg_points}', delay: 200 }
-        - { text: ' &7Village position: &b#{villages_g-position-kills}', delay: 200 }
-        - { text: ' &7Village position: &b#{villages_g-position-deaths}', delay: 200 }
+        - { text: ' &7Village position: &b#{villages_village-position-avg_points}', delay: 200 }
+        - { text: ' &7Village position: &b#{villages_village-position-kills}', delay: 200 }
+        - { text: ' &7Village position: &b#{villages_village-position-deaths}', delay: 200 }
     - ''
     - ''
     - ''

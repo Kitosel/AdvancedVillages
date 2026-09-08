@@ -3,7 +3,7 @@ package pl.kiosel.villages.addons.scoreboard;
 import org.bukkit.entity.Player;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.data.user.User;
-import pl.kiosel.villages.data.village.Permission;
+import pl.kiosel.villages.data.user.VillagePermission;
 import pl.kiosel.villages.data.village.Village;
 
 import java.util.ArrayList;
@@ -137,13 +137,13 @@ public final class ScoreboardCondition {
 				}
 				case "user.hasvillagepermission": {
 					requireArguments(identifier, arguments, 1);
-					Permission permission;
+					VillagePermission permission;
 					try {
-						permission = Permission.valueOf(arguments.get(0).trim().toUpperCase(Locale.ROOT).replace('-', '_'));
+						permission = VillagePermission.valueOf(arguments.get(0).trim().toUpperCase(Locale.ROOT).replace('-', '_'));
 					} catch (IllegalArgumentException exception) {
 						throw error("unknown village permission '" + arguments.get(0) + "'");
 					}
-					Permission required = permission;
+					VillagePermission required = permission;
 					return context -> context.user != null && context.user.hasVillagePermission(required);
 				}
 				case "player.isop":

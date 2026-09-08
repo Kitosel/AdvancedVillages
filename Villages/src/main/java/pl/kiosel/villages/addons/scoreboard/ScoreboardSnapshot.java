@@ -1,5 +1,6 @@
 package pl.kiosel.villages.addons.scoreboard;
 
+import lombok.Getter;
 import org.bukkit.entity.Player;
 import pl.kiosel.rosacore.scoreboard.RosaScoreboard;
 import pl.kiosel.villages.AdvancedVillages;
@@ -11,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-final class ScoreboardSnapshot {
+public final class ScoreboardSnapshot {
 
 	private static final int EXPANSION_DEPTH_LIMIT = 24;
 	private static final Pattern TOKEN = Pattern.compile("%([A-Za-z0-9_.-]+)%");
@@ -20,10 +21,15 @@ final class ScoreboardSnapshot {
 	private final List<String> lines;
 	private final Map<String, List<String>> handlers;
 	private final Map<String, ConditionalPlaceholder> placeholders;
+	@Getter
 	private final List<String> titleFrames;
+	@Getter
 	private final long animationIntervalTicks;
+	@Getter
 	private final long refreshIntervalTicks;
+	@Getter
 	private final long updateIntervalTicks;
+	@Getter
 	private final boolean hideNumbers;
 	private final Set<String> reportedWarnings = ConcurrentHashMap.newKeySet();
 
@@ -47,7 +53,7 @@ final class ScoreboardSnapshot {
 		this.hideNumbers = hideNumbers;
 	}
 
-	List<String> renderLines(Player player, User user, Village village) {
+	public List<String> renderLines(Player player, User user, Village village) {
 		ScoreboardCondition.Context context = ScoreboardCondition.context(this.plugin, player, user, village);
 		List<String> expanded = new ArrayList<>();
 		for (String line : this.lines) {
@@ -59,26 +65,6 @@ final class ScoreboardSnapshot {
 		warnOnce("too-many-lines", "Expanded scoreboard contains more than " + RosaScoreboard.MAX_LINES
 				+ " lines; extra lines are hidden");
 		return new ArrayList<>(expanded.subList(0, RosaScoreboard.MAX_LINES));
-	}
-
-	List<String> getTitleFrames() {
-		return this.titleFrames;
-	}
-
-	long getAnimationIntervalTicks() {
-		return this.animationIntervalTicks;
-	}
-
-	long getRefreshIntervalTicks() {
-		return this.refreshIntervalTicks;
-	}
-
-	long getUpdateIntervalTicks() {
-		return this.updateIntervalTicks;
-	}
-
-	boolean isHideNumbers() {
-		return this.hideNumbers;
 	}
 
 	private void expandLine(String source, ScoreboardCondition.Context context, Deque<String> handlerStack,
@@ -146,7 +132,7 @@ final class ScoreboardSnapshot {
 				} catch (RuntimeException exception) {
 					warnOnce("placeholder-error:" + identifier, "Could not evaluate scoreboard placeholder '%"
 							+ identifier + "%': " + exception.getMessage());
-					replacement = placeholder.fallback();
+					replacement = placeholder.getFallback();
 				}
 				placeholderStack.removeLast();
 			}
@@ -182,7 +168,7 @@ final class ScoreboardSnapshot {
 		return Math.max(1L, left);
 	}
 
-	static final class ConditionalPlaceholder {
+	public static final class ConditionalPlaceholder {
 
 		private final ScoreboardCondition condition;
 		private final String positive;
@@ -198,7 +184,7 @@ final class ScoreboardSnapshot {
 			return this.condition.test(context) ? this.positive : this.negative;
 		}
 
-		private String fallback() {
+		private String getFallback() {
 			return this.negative;
 		}
 	}

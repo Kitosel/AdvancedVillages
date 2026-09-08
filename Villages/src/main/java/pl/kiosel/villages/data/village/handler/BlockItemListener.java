@@ -10,10 +10,10 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.inventory.ItemStack;
 import pl.kiosel.rosacore.listener.RosaListener;
+import pl.kiosel.rosacore.material.ItemTag;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.gui.Item;
 
 public class BlockItemListener extends RosaListener {
 
@@ -29,7 +29,7 @@ public class BlockItemListener extends RosaListener {
 		ItemStack item = event.getItemInHand();
 		if (isSameType(item.getType(), Material.AIR)) return;
 
-		if (Item.hasTag(item, "noPlace"))
+		if (ItemTag.has(item, "noPlace"))
 			event.setCancelled(true);
 	}
 
@@ -38,7 +38,7 @@ public class BlockItemListener extends RosaListener {
 		ItemStack item = event.getPlayer().getInventory().getItemInMainHand();
 		if (isSameType(item.getType(), Material.AIR)) return;
 
-		if (!Item.hasTag(item, "villageDestroyer")) return;
+		if (!ItemTag.has(item, "villageDestroyer")) return;
 
 		Village village = plugin.getVillageUtils().getVillageAt(event.getBlock().getLocation());
 		if (village == null || !village.isCentralBlock(event.getBlock()))
@@ -57,7 +57,7 @@ public class BlockItemListener extends RosaListener {
 					? item.getItemMeta().getDisplayName()
 					: "";
 
-			if (Item.hasTag(item, "noPlace")
+			if (ItemTag.has(item, "noPlace")
 					|| (displayName.contains(plugin.getVillageMessages().get(Lang.VILLAGE_HEARTH_BLOCK_NAME).toString()))
 					|| (displayName.contains(plugin.getVillageMessages().get(Lang.VILLAGE_DESTROYER_NAME).toString()))) {
 				event.setCancelled(true);

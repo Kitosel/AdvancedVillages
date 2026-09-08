@@ -4,6 +4,7 @@ import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.data.user.User;
 
 import java.sql.ResultSet;
+import java.util.UUID;
 
 public final class DatabaseUserSerializer {
 
@@ -17,13 +18,15 @@ public final class DatabaseUserSerializer {
 
 		try {
 			UserData data = new UserData(
-					java.util.UUID.fromString(resultSet.getString("uuid")),
+					UUID.fromString(resultSet.getString("uuid")),
 					resultSet.getString("name"),
 					resultSet.getInt("points"),
 					resultSet.getInt("kills"),
 					resultSet.getInt("deaths"),
 					resultSet.getInt("assists"),
-					resultSet.getString("role")
+					resultSet.getString("role"),
+					resultSet.getString("specialization"),
+					resultSet.getLong("specialization_changed_at")
 			);
 			DeserializationUtils.deserializeUser(AdvancedVillages.getInstance().getUserManager(), data);
 		} catch (Exception exception) {

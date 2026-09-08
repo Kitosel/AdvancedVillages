@@ -5,7 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.data.village.role.VillageRole;
+import pl.kiosel.villages.data.village.VillageRole;
 
 public final class VillageMemberRoleChangeEvent extends VillageEvent implements Cancellable {
 

@@ -118,7 +118,7 @@ public class UpgradeManager {
     }
 
     public void upgrade(Village village, Upgrade upgrade) {
-        Location location = village.getLocation().get();
+        Location location = village.getLocation().orElseThrow();
 		if (!canPasteLevel(upgrade.getLevel())) {
 			plugin.getRosaLogger().warning("Cannot paste village level " + upgrade.getLevel() + ": compatible turret build is missing.");
 			return;
@@ -129,7 +129,7 @@ public class UpgradeManager {
 			worldEditTurret.pasteVillage(location, upgrade.getLevel());
 			plugin.getServer().getScheduler().runTaskLater(plugin, () ->
 					turretMap.get(Upgrade.WORLDEDIT).setTurret(location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ()),
-			2);
+			1);
 		} else {
 			turretMap.get(Upgrade.WORLDEDIT).setTurret(location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
 			turretMap.get(upgrade).setTurret(location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
@@ -137,11 +137,11 @@ public class UpgradeManager {
     }
 
     public void reset(Village village) {
-        ((TurretReset) turretMap.get(Upgrade.RESET)).setAir(village.getLocation().get());
+        ((TurretReset) turretMap.get(Upgrade.RESET)).setAir(village.getLocation().orElseThrow());
     }
 
     public void remove(Village village) {
-        ((TurretReset) turretMap.get(Upgrade.RESET)).removeVillage(village.getLocation().get());
+        ((TurretReset) turretMap.get(Upgrade.RESET)).removeVillage(village.getLocation().orElseThrow());
     }
 
 	public boolean upgradeVillage(Village village) {
@@ -150,7 +150,7 @@ public class UpgradeManager {
 			return false;
 		}
 		village.setLevel(nextLevel);
-		village.getRegion().get().setSize(nextLevel.getSize());
+		village.getRegion().orElseThrow().setSize(nextLevel.getSize());
 		plugin.getVillageAnimationManager().playLevelUpgrade(village);
 		plugin.getServer().getScheduler().runTaskLater(plugin, () -> upgrade(village, village.getLevel().getLevel()), 4L);
 		return true;

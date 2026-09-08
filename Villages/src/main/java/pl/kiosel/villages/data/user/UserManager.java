@@ -159,7 +159,7 @@ public class UserManager {
 	}
 
 	private int startingPoints() {
-		return this.plugin.getRankingManager() == null
+		return this.plugin.getRankingManager() == null || !this.plugin.getRankingManager().isEnabled()
 				? 1000
 				: this.plugin.getRankingManager().getStartingPoints();
 	}

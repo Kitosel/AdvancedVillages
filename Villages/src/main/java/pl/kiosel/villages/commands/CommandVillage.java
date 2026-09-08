@@ -19,7 +19,7 @@ public class CommandVillage extends RosaCommand {
 
 	public CommandVillage(AdvancedVillages plugin) {
 		super(plugin, plugin.getCommandLang().getCommandName(), plugin.getCommandLang().getCommandAliases(),
-				plugin.getCommandLang().getCommandPermission());
+				"advancedvillages.command.main");
 		this.plugin = plugin;
 		reloadArguments();
 	}
@@ -33,11 +33,13 @@ public class CommandVillage extends RosaCommand {
 				new RequestCommand(plugin),
 				new TpCommand(plugin),
 				new BuildEditCommand(plugin),
-				new AllianceCommand(plugin),
-				new WarCommand(plugin),
 				new HelpCommand(plugin, this),
 				new TeleportSetCommand(plugin)
 		);
+		if (plugin.isDev()) {
+			refreshed.add(new AllianceCommand(plugin));
+			refreshed.add(new WarCommand(plugin));
+		}
 		setSubCommands(refreshed);
 		this.villageSubCommands = Collections.unmodifiableList(refreshed);
 	}

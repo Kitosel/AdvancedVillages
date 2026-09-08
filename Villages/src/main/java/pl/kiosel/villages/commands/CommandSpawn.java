@@ -19,17 +19,18 @@ public class CommandSpawn extends RosaCommand {
 
 	public CommandSpawn(AdvancedVillages plugin) {
 		super(plugin, plugin.getCommandLang().getSpawnCommandName(), plugin.getCommandLang().getSpawnCommandAliases(),
-				plugin.getCommandLang().getSpawnCommandPermission());
+				"advancedvillages.command.spawn");
 		this.plugin = plugin;
 		this.teleportManager = plugin.getTeleportManager();
 	}
 
 	@Override
+	public boolean isPlayerOnly() {
+		return true;
+	}
+
+	@Override
 	public boolean onExecute(CommandSender sender, String label, String[] args) {
-		if (!(sender instanceof Player)) {
-			this.plugin.getVillageMessages().get(Lang.COMMAND_CONSOLE).sendPrefixed(sender);
-			return true;
-		}
 		if (!Settings.ADDONS_SPAWN_ENABLE.getBoolean()) {
 			this.plugin.getVillageMessages().get(Lang.COMMAND_ENABLED).sendPrefixed(sender);
 			return true;
@@ -42,7 +43,7 @@ public class CommandSpawn extends RosaCommand {
 
 		String setArgument = this.plugin.getCommandLang().getCommand(CommandLang.SET);
 		if (args.length == 1 && args[0].equalsIgnoreCase(setArgument)) {
-			if (!player.hasPermission(this.plugin.getCommandLang().getSpawnCommandSetPermission())) {
+			if (!player.hasPermission("advancedvillages.command.spawn.set")) {
 				this.plugin.getVillageMessages().get(Lang.COMMAND_NO_PERMISSION).sendPrefixed(sender);
 				return true;
 			}
@@ -57,7 +58,7 @@ public class CommandSpawn extends RosaCommand {
 	@Override
 	public List<String> onTabComplete(CommandSender sender, String[] args) {
 		if (!Settings.ADDONS_SPAWN_ENABLE.getBoolean() || args.length != 1
-				|| !sender.hasPermission(this.plugin.getCommandLang().getSpawnCommandSetPermission())) {
+				|| !sender.hasPermission("advancedvillages.command.spawn.set")) {
 			return EMPTY;
 		}
 		return complete(args[0], Collections.singletonList(this.plugin.getCommandLang().getCommand(CommandLang.SET)));

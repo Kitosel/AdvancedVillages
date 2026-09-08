@@ -53,8 +53,8 @@
             <url>https://mvn.wesjd.net/</url>
         </repository>
         <repository>
-            <id>songoda-third-party</id>
-            <url>https://repo.songoda.com/repository/third-party/</url>
+            <id>enginehub-maven</id>
+            <url>https://maven.enginehub.org/repo/</url>
         </repository>
     </repositories>
 

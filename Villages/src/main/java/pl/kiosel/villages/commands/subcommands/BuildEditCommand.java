@@ -7,18 +7,16 @@ import pl.kiosel.villages.commands.AVSubCommand;
 import pl.kiosel.villages.config.CommandLang;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.data.user.User;
-import pl.kiosel.villages.data.village.Permission;
+import pl.kiosel.villages.data.user.VillagePermission;
 
 import java.util.List;
 
 public final class BuildEditCommand extends AVSubCommand {
 
-    private final AdvancedVillages plugin;
 	private final VillageBuildEditorManager editorManager;
 
     public BuildEditCommand(AdvancedVillages plugin) {
 	    super(plugin, CommandLang.EDIT);
-		this.plugin = plugin;
 		this.editorManager = plugin.getVillageBuildEditorManager();
     }
 
@@ -36,7 +34,7 @@ public final class BuildEditCommand extends AVSubCommand {
 	public boolean requireVillage() { return false; }
 
     @Override
-    public Permission getVillagePermission() { return Permission.UNSET; }
+    public VillagePermission getVillagePermission() { return VillagePermission.UNSET; }
 
     @Override
     public void run(Player player, User user, String[] args) {

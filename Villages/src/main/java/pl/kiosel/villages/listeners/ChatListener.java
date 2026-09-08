@@ -3,14 +3,14 @@ package pl.kiosel.villages.listeners;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import pl.kiosel.rosacore.listener.RosaListener;
 import pl.kiosel.rosacore.utils.ColorUtils;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.api.events.VillageListener;
 import pl.kiosel.villages.config.Settings;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.manager.VillageUtils;
 
-public class ChatListener extends RosaListener {
+public class ChatListener extends VillageListener {
 
 	private final AdvancedVillages plugin;
 
@@ -25,7 +25,7 @@ public class ChatListener extends RosaListener {
 			return;
 
 		Player player = event.getPlayer();
-		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).orElseThrow();
+		User user = getUser(player);
 
 		String messageFormat;
 		if (user.hasVillage()) {

@@ -19,9 +19,9 @@ public final class VillageAnimationManager {
     private RemovalAnimator removalAnimator;
     private boolean started;
 
-    public VillageAnimationManager(AdvancedVillages plugin, RosaConfig config) {
+    public VillageAnimationManager(AdvancedVillages plugin) {
         this.plugin = plugin;
-        this.config = config;
+        this.config = plugin.getAnimationFile();
         loadComponents();
     }
 

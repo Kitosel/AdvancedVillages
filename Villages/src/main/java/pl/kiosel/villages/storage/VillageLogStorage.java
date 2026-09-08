@@ -4,8 +4,8 @@ import pl.kiosel.rosacore.database.DatabaseSession;
 import pl.kiosel.rosacore.database.DatabaseTable;
 import pl.kiosel.rosacore.database.DatabaseValues;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.addons.logs.VillageLogEntry;
-import pl.kiosel.villages.addons.logs.VillageLogType;
+import pl.kiosel.villages.data.village.features.logs.VillageLogEntry;
+import pl.kiosel.villages.data.village.features.logs.VillageLogType;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;

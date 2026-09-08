@@ -11,7 +11,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import pl.kiosel.rosacore.config.RosaConfig;
+import pl.kiosel.rosacore.location.LocationUtils;
 import pl.kiosel.rosacore.utils.NumberUtils;
+import pl.kiosel.rosacore.utils.TimeUtils;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.config.Settings;
@@ -20,6 +22,7 @@ import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.manager.VillageUtils;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -54,8 +57,11 @@ public final class TeleportManager {
 	}
 
 	public void reload() {
-		this.spawnCooldown = NumberUtils.clampSeconds(this.spawnFile.getLong("cooldown", 60L), 0L, MAX_COOLDOWN_SECONDS);
-		this.spawnDelay = NumberUtils.clampSeconds(this.spawnFile.getLong("delay", 5L), 0L, MAX_TELEPORT_DELAY_SECONDS);
+		Duration cooldown = TimeUtils.duration(this.spawnFile.getString("cooldown"), Duration.ofMinutes(1), true);
+		Duration delay = TimeUtils.duration(this.spawnFile.getString("delay"), Duration.ofSeconds(5), true);
+
+		this.spawnCooldown = NumberUtils.clampSeconds(cooldown.getSeconds(), 0L, MAX_COOLDOWN_SECONDS);
+		this.spawnDelay = NumberUtils.clampSeconds(delay.getSeconds(), 0L, MAX_TELEPORT_DELAY_SECONDS);
 		this.spawnCost = Math.max(0, this.spawnFile.getInt("cost", 5));
 		this.spawnCancelOnMove = this.spawnFile.getBoolean("cancel-on-move", true);
 		this.spawnMessage = this.spawnFile.getBoolean("messages.message", true);
@@ -77,11 +83,12 @@ public final class TeleportManager {
 
 	public void sendHoverSet(Player player) {
 		if (!this.isTeleportTask(player)) return;
+		String command = this.plugin.getCommandLang().getCommandName();
 		TextComponent message = new TextComponent(this.plugin.getVillageMessages().get(Lang.TELEPORT_SET).toText());
 		message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
 				new ComponentBuilder(this.plugin.getVillageMessages().get(Lang.TELEPORT_SET_HOVER).toText()).create()));
 		message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
-				"/village teleporting6 village7 set9"));
+				"/"+command+" teleporting6 village7 set9"));
 		player.sendMessage(tl("&8——————————————————————————"));
 		player.spigot().sendMessage(message);
 		player.sendMessage(tl("&8——————————————————————————"));
@@ -106,7 +113,7 @@ public final class TeleportManager {
 	}
 
 	public void setTeleportToVillage(Location location, Village village) {
-		village.setHome(location);
+		village.setHome(LocationUtils.getLocationWithPrecision(location, 2));
 	}
 
 	public boolean teleportPlayer(Player player, TeleportType teleportType) {
@@ -134,9 +141,11 @@ public final class TeleportManager {
 			return false;
 		}
 
-		long delay = NumberUtils.clampSeconds(Settings.TELEPORT_COOLDOWN.getLong(), 0L, MAX_TELEPORT_DELAY_SECONDS);
+		Duration delayS = TimeUtils.duration(Settings.TELEPORT_COOLDOWN.getString(), Duration.ofMinutes(1), true);
+		long delay = NumberUtils.clampSeconds(delayS.getSeconds(), 0L, MAX_TELEPORT_DELAY_SECONDS);
 		delay = this.plugin.getDevelopmentManager().applyTeleportDelay(village, delay);
-		long cooldown = NumberUtils.clampSeconds(Settings.TELEPORT_BETWEEN_COOLDOWN.getLong(), 0L, MAX_COOLDOWN_SECONDS);
+		Duration cooldownS = TimeUtils.duration(Settings.TELEPORT_BETWEEN_COOLDOWN.getString(), Duration.ofSeconds(5), true);
+		long cooldown = NumberUtils.clampSeconds(cooldownS.getSeconds(), 0L, MAX_COOLDOWN_SECONDS);
 		TeleportSession session = new TeleportSession(
 				TeleportType.VILLAGE,
 				destination,
@@ -238,13 +247,14 @@ public final class TeleportManager {
 		if (world == null) {
 			throw new IllegalArgumentException("Spawn location must have a world");
 		}
+		Location better = LocationUtils.getLocationWithPrecision(location, 3);
 
 		this.spawnFile.set("spawn.world", world.getName());
-		this.spawnFile.set("spawn.x", location.getX());
-		this.spawnFile.set("spawn.y", location.getY());
-		this.spawnFile.set("spawn.z", location.getZ());
-		this.spawnFile.set("spawn.yaw", location.getYaw());
-		this.spawnFile.set("spawn.pitch", location.getPitch());
+		this.spawnFile.set("spawn.x", better.getX());
+		this.spawnFile.set("spawn.y", better.getY());
+		this.spawnFile.set("spawn.z", better.getZ());
+		this.spawnFile.set("spawn.yaw", better.getYaw());
+		this.spawnFile.set("spawn.pitch", better.getPitch());
 		this.spawnFile.save();
 	}
 

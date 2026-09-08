@@ -6,9 +6,9 @@ import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.data.user.BukkitUserProfile;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.user.UserManager;
-import pl.kiosel.villages.data.village.Region;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.data.village.VillageManager;
+import pl.kiosel.villages.data.village.VillageRegion;
 import pl.kiosel.villages.data.village.level.Level;
 import pl.kiosel.villages.data.village.level.LevelManager;
 
@@ -32,6 +32,8 @@ public final class DeserializationUtils {
 		user.getRank().setDeaths(data.deaths());
 		user.getRank().setAssists(data.assists());
 		AdvancedVillages.getInstance().getRoleManager().deserialize(user, data.role());
+		AdvancedVillages.getInstance().getSpecializationManager().deserialize(
+				user, data.specialization(), data.specializationChangedAt());
 		user.markUnchanged();
 		return Optional.of(user);
 	}
@@ -59,7 +61,7 @@ public final class DeserializationUtils {
 		village.setLevel(level);
 		Location location = village.getLocation().orElse(null);
 		if (location != null) {
-			Region region = new Region(village, location, level.getSize());
+			VillageRegion region = new VillageRegion(village, location, level.getSize());
 			village.setRegion(region);
 			region.markUnchanged();
 		}

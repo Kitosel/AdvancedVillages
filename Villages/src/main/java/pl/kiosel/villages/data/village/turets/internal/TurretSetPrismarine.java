@@ -7,14 +7,18 @@ import pl.kiosel.villages.data.village.turets.TurretStructure;
 
 public class TurretSetPrismarine extends Turret {
 
-	private static final TurretStructure STRUCTURE = TurretStructure.builder()
+	private static final TurretStructure CONNECTED = TurretStructure.builder()
+			.mirrorXZ(Material.PRISMARINE_WALL, 2, 0, 1)
+			.mirrorXZ(Material.PRISMARINE_WALL, 1, 0, 2)
+			.cardinals(Material.WHITE_STAINED_GLASS_PANE, 3, 2)
+			.build();
+
+	private static final TurretStructure BODY = TurretStructure.builder()
 			.layer(Material.PRISMARINE, -1, 2)
 			.block(Material.DARK_PRISMARINE, 0, -1, 0)
 			.corners(Material.DARK_PRISMARINE, -1, 1)
 			.corners(Material.DARK_PRISMARINE, -1, 2)
 
-			.mirrorXZ(Material.PRISMARINE_WALL, 2, 0, 1)
-			.mirrorXZ(Material.PRISMARINE_WALL, 1, 0, 2)
 			.corners(Material.SEA_LANTERN, 0, 2)
 			.corners(Material.DARK_PRISMARINE, 1, 2)
 			.corners(Material.SMOOTH_QUARTZ_SLAB, 2, 2)
@@ -23,7 +27,6 @@ public class TurretSetPrismarine extends Turret {
 			.mirrorXZ(Material.QUARTZ_PILLAR, 1, 2, 2)
 			.mirrorXZ(Material.PRISMARINE_BRICKS, 2, 3, 1)
 			.mirrorXZ(Material.PRISMARINE_BRICKS, 1, 3, 2)
-			.cardinals(Material.WHITE_STAINED_GLASS_PANE, 3, 2)
 
 			.corners(Material.PRISMARINE, 4, 1)
 			.mirrorXZ(Material.SMOOTH_QUARTZ_SLAB, 2, 4, 1)
@@ -35,6 +38,7 @@ public class TurretSetPrismarine extends Turret {
 
 	@Override
 	public void setTurret(World world, int x, int y, int z) {
-		paste(STRUCTURE, world, x, y, z);
+		paste(CONNECTED, world, x, y, z);
+		paste(BODY, world, x, y, z);
 	}
 }

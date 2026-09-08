@@ -4,7 +4,7 @@ import org.bukkit.entity.Player;
 import pl.kiosel.rosacore.utils.NumberUtils;
 import pl.kiosel.rosacore.utils.TimeUtils;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.addons.logs.VillageLogType;
+import pl.kiosel.villages.data.village.features.logs.VillageLogType;
 import pl.kiosel.villages.api.events.VillageUpgradeEvent;
 import pl.kiosel.villages.config.CommandLang;
 import pl.kiosel.villages.config.Lang;

@@ -7,7 +7,7 @@ import pl.kiosel.villages.config.CommandConfig;
 import pl.kiosel.villages.config.CommandLang;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.data.user.User;
-import pl.kiosel.villages.data.village.Permission;
+import pl.kiosel.villages.data.user.VillagePermission;
 
 import java.util.List;
 
@@ -28,8 +28,8 @@ public abstract class AdminSubCommand extends AVSubCommand {
 	}
 
 	@Override
-	public Permission getVillagePermission() {
-		return Permission.UNSET;
+	public VillagePermission getVillagePermission() {
+		return VillagePermission.UNSET;
 	}
 
 	@Override

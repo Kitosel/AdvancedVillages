@@ -31,10 +31,20 @@ general:
     take-items: '&7Es wurden &a%amount%x %item% &7entfernt'
 
 # Befehle
+crafting:
+  recipe-saved: '&aDas Rezept &f%recipe% &awurde gespeichert.'
+  recipe-save-failed: '&cDas Rezept &f%recipe% &ckonnte nicht gespeichert werden. Prüfe die Konsole.'
+  recipe-invalid: '&cDas Rezept muss mindestens eine Zutat enthalten.'
+
+tutorial:
+  saved: '&aDie Starteinstellungen wurden gespeichert. Starte den Server neu, um alle Änderungen anzuwenden.'
+  save-failed: '&cDie Starteinstellungen konnten nicht gespeichert werden. Prüfe die Konsole.'
+
 command:
   no-console: '&cDieser Befehl kann nur von einem Spieler verwendet werden'
   not-enabled: '&cDieser Befehl ist deaktiviert'
   reload: '&7Alle Konfigurationsdateien wurden neu geladen'
+  reload-failed: '&cDas Neuladen ist fehlgeschlagen. Ungültige Dateien behielten ihre vorherigen Werte; prüfe die Konsole.'
   no-permission: '&cDu hast keine Berechtigung für diesen Befehl'
   village-not-found: '&cDas Dorf von &f%village_owner% &cwurde nicht gefunden'
   invalid-number: '&cDer angegebene Wert ist keine gültige Zahl'
@@ -153,6 +163,18 @@ village:
   leave-area-subtitle: '&6Du hast das Dorf verlassen'
   chat-format: '&8[&5&lDorf&r&8] &f%player%&7: &f%message%'
   chat-format-owner-color: '&6'
+
+specializations:
+  selected: '&7Deine Spezialisierung ist jetzt %specialization%&7.'
+  cooldown: '&cDu kannst deine Spezialisierung in %time% erneut ändern.'
+  names:
+    warrior: '&cKrieger'
+    defender: '&9Verteidiger'
+    farmer: '&eLandwirt'
+    forester: '&2Förster'
+    miner: '&7Bergarbeiter'
+    merchant: '&aHändler'
+    healer: '&dHeiler'
 
 # Dorfkürzel
 tag:

@@ -8,7 +8,7 @@ import pl.kiosel.villages.config.CommandLang;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.config.VillageMessage;
 import pl.kiosel.villages.data.user.User;
-import pl.kiosel.villages.data.village.Permission;
+import pl.kiosel.villages.data.user.VillagePermission;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.manager.VillageUtils;
 
@@ -29,7 +29,7 @@ public class RequestCommand extends AVSubCommand {
 	public boolean requireVillage() { return false; }
 
 	@Override
-	public Permission getVillagePermission() { return Permission.UNSET; }
+	public VillagePermission getVillagePermission() { return VillagePermission.UNSET; }
 
 	private final AdvancedVillages plugin;
 

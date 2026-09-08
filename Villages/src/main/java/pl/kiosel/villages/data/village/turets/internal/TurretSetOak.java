@@ -1,15 +1,13 @@
 package pl.kiosel.villages.data.village.turets.internal;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
-import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.data.village.turets.Turret;
 import pl.kiosel.villages.data.village.turets.TurretStructure;
 
 public class TurretSetOak extends Turret {
 
-	private static final TurretStructure FENCES = TurretStructure.builder()
+	private static final TurretStructure CONNECTED = TurretStructure.builder()
 			.cardinals(Material.SPRUCE_FENCE, 3, 2)
 			.mirrorXZ(Material.SPRUCE_FENCE, 2, 4, 1)
 			.mirrorXZ(Material.SPRUCE_FENCE, 1, 4, 2)
@@ -27,8 +25,9 @@ public class TurretSetOak extends Turret {
 
 	@Override
 	public void setTurret(World world, int x, int y, int z) {
-		paste(FENCES, world, x, y, z);
-		Bukkit.getScheduler().runTaskLater(AdvancedVillages.getInstance(),
-				() -> paste(BODY, world, x, y, z), 5L);
+		paste(CONNECTED, world, x, y, z);
+		paste(BODY, world, x, y, z);
+//		Bukkit.getScheduler().runTaskLater(AdvancedVillages.getInstance(),
+//				() -> , 5L);
 	}
 }

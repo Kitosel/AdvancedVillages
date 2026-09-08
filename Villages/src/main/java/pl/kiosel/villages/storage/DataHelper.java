@@ -8,6 +8,7 @@ import pl.kiosel.rosacore.utils.TextUtils;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.data.VEntity;
 import pl.kiosel.villages.data.user.User;
+import pl.kiosel.villages.data.user.VillageSpecialization;
 import pl.kiosel.villages.data.village.Village;
 
 public class DataHelper {
@@ -29,7 +30,9 @@ public class DataHelper {
 				.set("kills", user.getRank().getKills())
 				.set("deaths", user.getRank().getDeaths())
 				.set("assists", user.getRank().getAssists())
-				.set("role", this.plugin.getRoleManager().serialize(user)), "uuid");
+				.set("role", this.plugin.getRoleManager().serialize(user))
+				.set("specialization", user.getSpecialization().map(VillageSpecialization::getId).orElse(null))
+				.set("specialization_changed_at", user.getSpecializationChangedAt()), "uuid");
 
 		this.plugin.getDebug().debug("Saved user: " + user.getName());
 	}

@@ -5,7 +5,7 @@ import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.config.CommandLang;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.data.user.User;
-import pl.kiosel.villages.integrations.PlayerListProfileIntegration;
+import pl.kiosel.villages.integrations.TabListIntegration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,7 @@ public class AdminIntegrationCommand extends AdminSubCommand {
 			return;
 		}
 
-		PlayerListProfileIntegration integration = plugin.getAdvancedPlayerListIntegration();
+		TabListIntegration integration = plugin.getIntegrationManager().getTabListIntegration();
 		if (integration == null) {
 			sendLocalized(player, Lang.COMMAND_ADMIN_INTEGRATION_UNAVAILABLE);
 			return;

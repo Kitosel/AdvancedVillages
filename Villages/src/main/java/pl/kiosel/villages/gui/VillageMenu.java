@@ -15,7 +15,7 @@ import pl.kiosel.villages.config.GuiItemConfig;
 import pl.kiosel.villages.config.GuiMenuConfig;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.config.VillageMessages;
-import pl.kiosel.villages.data.village.Permission;
+import pl.kiosel.villages.data.user.VillagePermission;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.manager.UpgradeManager;
 import pl.kiosel.villages.manager.VillageUtils;
@@ -32,7 +32,6 @@ public abstract class VillageMenu extends PagedGui {
 	protected final Player viewer;
 	protected final GuiMenuConfig menuConfig;
 	@Getter protected final VillageMessages messages;
-	private final boolean paged;
 
 	protected VillageMenu(AdvancedVillages plugin, VillageGUIManager menus, Village village, Player viewer, GUIS type, Gui parent) {
 		this(plugin, menus, village, viewer, type, parent, false);
@@ -45,7 +44,6 @@ public abstract class VillageMenu extends PagedGui {
 		this.menus = menus;
 		this.village = village;
 		this.viewer = viewer;
-		this.paged = paged;
 		this.messages = plugin.getVillageMessages();
 		this.menuConfig = plugin.getGuiSettings().menu(type);
 
@@ -119,7 +117,7 @@ public abstract class VillageMenu extends PagedGui {
 		menus.openGui(village, viewer, type);
 	}
 
-	protected boolean hasPermission(Permission permission) {
+	protected boolean hasPermission(VillagePermission permission) {
 		if (plugin.getRoleManager().hasPermission(viewer.getUniqueId(), permission))
 			return true;
 

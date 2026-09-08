@@ -6,7 +6,7 @@ import pl.kiosel.rosacore.dependencies.adventure.adventure.text.Component;
 import pl.kiosel.rosacore.dependencies.adventure.adventure.text.event.ClickEvent;
 import pl.kiosel.rosacore.dependencies.adventure.adventure.text.event.HoverEvent;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.addons.logs.VillageLogType;
+import pl.kiosel.villages.data.village.features.logs.VillageLogType;
 import pl.kiosel.villages.config.CommandLang;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.config.Settings;

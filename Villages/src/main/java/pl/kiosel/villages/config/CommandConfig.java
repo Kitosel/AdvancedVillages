@@ -8,13 +8,13 @@ import java.util.*;
 public class CommandConfig {
 
 	@Getter private String commandName;
-	@Getter private String commandPermission;
 	@Getter private List<String> commandAliases;
 
 	@Getter private String spawnCommandName;
-	@Getter private String spawnCommandPermission;
-	@Getter private String spawnCommandSetPermission;
 	@Getter private List<String> spawnCommandAliases;
+
+	@Getter private String craftingCommandName;
+	@Getter private List<String> craftingCommandAliases;
 
 	private volatile Map<String, String> command = Collections.emptyMap();
 	private final AdvancedVillages plugin;
@@ -40,11 +40,12 @@ public class CommandConfig {
 
 		commandName = getString("command.name", "village");
 		commandAliases = getList("command.aliases", List.of("villages", "vil", "v"));
-		commandPermission = getString("command.permission", "villages.command");
 
 		spawnCommandName = getString("spawn.name", "spawn");
 		spawnCommandAliases = getList("spawn.aliases", List.of("tpspawn"));
-		spawnCommandPermission = getString("spawn.permission", "villages.spawn");
+
+		craftingCommandName = getString("spawn.crafting", "crafting");
+		craftingCommandAliases = getList("spawn.aliases", List.of("villagecrafting"));
 	}
 
 	public void reload() {
@@ -60,7 +61,6 @@ public class CommandConfig {
 			}
 		}
 		this.command = Collections.unmodifiableMap(refreshed);
-		spawnCommandSetPermission = getString("spawn.permission-set", "villages.spawn.set");
 	}
 
 	private String getString(String path, String def) {

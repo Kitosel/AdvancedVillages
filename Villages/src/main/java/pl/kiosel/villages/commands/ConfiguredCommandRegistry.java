@@ -12,18 +12,19 @@ import java.util.logging.Level;
 
 public final class ConfiguredCommandRegistry {
 
-	private static final String FALLBACK_PREFIX = "village";
+	private static final String FALLBACK_PREFIX = "advancedvillages";
 
 	private final AdvancedVillages plugin;
 	private CommandVillage villageCommand;
 	private CommandSpawn spawnCommand;
+	private CommandCrafting commandCrafting;
 
 	public ConfiguredCommandRegistry(AdvancedVillages plugin) {
 		this.plugin = plugin;
 	}
 
 	public synchronized void register() {
-		if (this.villageCommand == null && this.spawnCommand == null) {
+		if (this.villageCommand == null && this.spawnCommand == null && this.commandCrafting == null) {
 			registerCommands();
 		}
 	}
@@ -37,6 +38,7 @@ public final class ConfiguredCommandRegistry {
 	private void registerCommands() {
 		CommandVillage newVillageCommand = new CommandVillage(this.plugin);
 		CommandSpawn newSpawnCommand = new CommandSpawn(this.plugin);
+		CommandCrafting newCraftingCommand = new CommandCrafting(this.plugin);
 
 		try {
 			plugin.getDebug().debug("Registered prefix" + FALLBACK_PREFIX);
@@ -44,11 +46,15 @@ public final class ConfiguredCommandRegistry {
 			plugin.getDebug().debug("Registering command " + newVillageCommand.getName());
 			ReflectionUtils.registerCommand(FALLBACK_PREFIX, newSpawnCommand);
 			plugin.getDebug().debug("Registering command " + newSpawnCommand.getName());
+			ReflectionUtils.registerCommand(FALLBACK_PREFIX, newCraftingCommand);
+			plugin.getDebug().debug("Registering command " + newCraftingCommand.getName());
 
 			this.villageCommand = newVillageCommand;
 			plugin.getDebug().debug("Registered command " + villageCommand.getName());
 			this.spawnCommand = newSpawnCommand;
 			plugin.getDebug().debug("Registered command " + spawnCommand.getName());
+			this.commandCrafting = newCraftingCommand;
+			plugin.getDebug().debug("Registered command " + commandCrafting.getName());
 			Bukkit.getOnlinePlayers().forEach(Player::updateCommands);
 		} catch (RuntimeException exception) {
 			this.plugin.getRosaLogger().log(Level.SEVERE, "Could not register configured commands", exception);
@@ -64,8 +70,10 @@ public final class ConfiguredCommandRegistry {
 			Map<String, Command> knownCommands = ReflectionUtils.getKnownCommands(commandMap);
 			ReflectionUtils.unregisterCommand(knownCommands, this.villageCommand);
 			ReflectionUtils.unregisterCommand(knownCommands, this.spawnCommand);
+			ReflectionUtils.unregisterCommand(knownCommands, this.commandCrafting);
 			this.villageCommand = null;
 			this.spawnCommand = null;
+			this.commandCrafting = null;
 		} catch (ReflectiveOperationException | RuntimeException exception) {
 			this.plugin.getRosaLogger().log(Level.WARNING, "Could not unregister configured commands", exception);
 		}

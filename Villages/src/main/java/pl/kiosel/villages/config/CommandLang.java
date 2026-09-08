@@ -6,6 +6,7 @@ public enum CommandLang {
 
 	ADMIN("admin", "admin"),
 	ADMIN_RELOAD("admin_reload", "reload"),
+	ADMIN_SETTINGS("admin_settings", "settings"),
 	ADMIN_GIVE("admin_give", "give"),
 	ADMIN_MANAGE("admin_manage", "manage"),
 	ADMIN_DEBUG("admin_debug", "debug"),

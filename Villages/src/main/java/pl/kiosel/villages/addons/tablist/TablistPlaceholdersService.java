@@ -3,6 +3,7 @@ package pl.kiosel.villages.addons.tablist;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import pl.kiosel.rosacore.utils.NumberRange;
+import pl.kiosel.rosacore.utils.NumberUtils;
 import pl.kiosel.rosacore.utils.TimeUtils;
 import pl.kiosel.rosacore.utils.format.Formater;
 import pl.kiosel.rosacore.utils.format.RangeFormatting;
@@ -14,9 +15,9 @@ import pl.kiosel.villages.data.rank.DefaultTops;
 import pl.kiosel.villages.data.rank.RankPlaceholdersService;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.user.UserRank;
-import pl.kiosel.villages.data.village.Region;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.data.village.VillageRank;
+import pl.kiosel.villages.data.village.VillageRegion;
 import pl.kiosel.villages.manager.VillageUtils;
 
 import java.time.Duration;
@@ -50,7 +51,7 @@ public final class TablistPlaceholdersService {
 
 		String rankedText = this.rankPlaceholders.format(text, user);
 		Matcher matcher = PLACEHOLDER.matcher(rankedText);
-		StringBuffer result = new StringBuffer(rankedText.length());
+		StringBuilder result = new StringBuilder(rankedText.length());
 		Map<String, String> cache = new HashMap<>();
 		ZonedDateTime now = ZonedDateTime.now(configuredZoneId());
 		Village village = user.getVillage().orElse(null);
@@ -65,22 +66,42 @@ public final class TablistPlaceholdersService {
 	}
 
 	private String resolve(String key, User user, Player player, Village village, ZonedDateTime now) {
-		UserRank rank = user.getRank();
-		Locale language = languageLocale();
+		if (key.startsWith("server-")) {
+			return resolveServer(key.substring("server-".length()), player);
+		}
+		if (key.startsWith("player-")) {
+			return resolvePlayer(key.substring("player-".length()), user, player);
+		}
+		if (key.startsWith("village-")) {
+			return resolveVillage(key.substring("village-".length()), village);
+		}
+		if (key.startsWith("time-")) {
+			return resolveTime(key.substring("time-".length()), now);
+		}
+		return null;
+	}
+
+	private String resolveServer(String key, Player player) {
 		switch (key) {
 			case "tps":
-				return formatTps(this.plugin.getNMS().getNmsServer().getTpsInLastMinute());
-			case "players":
+				return NumberUtils.formatTps(this.plugin.getNMS().getNmsServer().getTpsInLastMinute());
+			case "player-count":
 				return Integer.toString(Bukkit.getOnlinePlayers().size());
-			case "villages":
+			case "village-count":
 				return Integer.toString(this.plugin.getVillageManager().countVillage());
 			case "online":
 				return Long.toString(Bukkit.getOnlinePlayers().stream().filter(player::canSee).count());
+			default:
+				return null;
+		}
+	}
 
+	private String resolvePlayer(String key, User user, Player player) {
+		UserRank rank = user.getRank();
+		switch (key) {
 			case "name":
-			case "player":
 				return player.getName();
-			case "displayname":
+			case "display-name":
 				return player.getDisplayName();
 			case "ping":
 				return Integer.toString(player.getPing());
@@ -92,22 +113,26 @@ public final class TablistPlaceholdersService {
 				return Objects.toString(player.getAddress(), "");
 			case "level":
 				return Integer.toString(player.getLevel());
-			case "exp":
+			case "experience":
 				return formatNumber(player.getExp());
 			case "world":
 				return player.getWorld().getName();
-			case "wg-region":
+			case "worldguard-region":
 				return worldGuardRegions(player).stream().findFirst().orElse(TempMessages.noValue);
-			case "wg-regions":
+			case "worldguard-regions":
 				List<String> regions = worldGuardRegions(player);
 				return regions.isEmpty() ? TempMessages.noValue : String.join(", ", regions);
-			case "vault-money":
+			case "balance":
 				return this.plugin.getHookManager().getEconomy().getActiveHook().isPresent()
 						? String.format(Locale.US, "%.2f", this.plugin.getEconomy().getBalance(player))
 						: "";
 
 			case "has-village":
 				return Boolean.toString(user.hasVillage());
+			case "specialization":
+				return user.getSpecialization()
+						.map(this.plugin.getSpecializationManager()::getDisplayName)
+						.orElse(TempMessages.noValue);
 			case "role":
 				return user.hasVillage()
 						? this.plugin.getRoleManager().getRole(user).getName()
@@ -128,25 +153,32 @@ public final class TablistPlaceholdersService {
 				return formatNumber(rank.getKDR());
 			case "kda":
 				return formatNumber(rank.getKDA());
+			default:
+				return null;
+		}
+	}
 
+	private String resolveTime(String key, ZonedDateTime now) {
+		Locale language = languageLocale();
+		switch (key) {
 			case "hour":
 				return twoDigits(now.getHour());
 			case "minute":
 				return twoDigits(now.getMinute());
 			case "second":
 				return twoDigits(now.getSecond());
-			case "day_of_week":
+			case "day-of-week":
 				return now.getDayOfWeek().getDisplayName(TextStyle.FULL, language);
-			case "day_of_month":
+			case "day-of-month":
 				return twoDigits(now.getDayOfMonth());
 			case "month":
 				return now.getMonth().getDisplayName(TextStyle.FULL, language);
-			case "month_number":
+			case "month-number":
 				return twoDigits(now.getMonthValue());
 			case "year":
 				return Integer.toString(now.getYear());
 			default:
-				return key.startsWith("g-") ? resolveVillage(key.substring(2), village) : null;
+				return null;
 		}
 	}
 
@@ -158,7 +190,6 @@ public final class TablistPlaceholdersService {
 		VillageRank rank = village.getRank();
 		switch (key) {
 			case "name":
-			case "village":
 				return village.getName();
 			case "tag":
 				return village.getTag();
@@ -181,7 +212,7 @@ public final class TablistPlaceholdersService {
 			case "wars":
 				return Integer.toString(this.plugin.getDiplomacyManager().countCurrentWars(village));
 			case "region-size":
-				return village.getRegion().map(Region::getSize).map(String::valueOf).orElse(TempMessages.noValue);
+				return village.getRegion().map(VillageRegion::getSize).map(String::valueOf).orElse(TempMessages.noValue);
 			case "upkeep-cost":
 				return this.plugin.getUpkeepManager().isEnabled()
 						? Integer.toString(this.plugin.getUpkeepManager().calculateCost(village)) : "0";
@@ -207,7 +238,6 @@ public final class TablistPlaceholdersService {
 			case "lives-symbol-all":
 				return VillageUtils.getLivesSymbol(village.getLives(), false);
 			case "position":
-			case "rank":
 				return this.plugin.getVillageRankManager().isRankedVillage(village)
 						? Integer.toString(rank.getPosition(DefaultTops.VILLAGE_AVG_POINTS_TOP))
 						: TempMessages.noValue;
@@ -306,13 +336,6 @@ public final class TablistPlaceholdersService {
 	}
 
 	private static String formatNumber(Number value) {
-		return value instanceof Float || value instanceof Double
-				? String.format(Locale.US, "%.2f", value.doubleValue())
-				: value.toString();
-	}
-
-	private static String formatTps(double tps) {
-		if (!Double.isFinite(tps)) return "0.0";
-		return String.format(Locale.US, "%.1f", Math.max(0.0D, Math.min(20.0D, tps)));
+		return NumberUtils.formatNumber(value, 2);
 	}
 }

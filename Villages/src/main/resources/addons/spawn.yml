@@ -1,16 +1,17 @@
-#Should teleport be canceled when player moves?
+# Should teleport be canceled when player moves?
 cancel-on-move: true
 
-#Delay when player is teleporting
-delay: 5
+# Delay when player is teleporting
+# Supported units: s, m, h, d, w, mo, y. Use 0s to disable the cooldown.
+delay: 5s
 
-#Cooldown between using command
-cooldown: 60
+# Cooldown between using command
+cooldown: 60s
 
-#Cost of teleporting to spawn
+# Cost of teleporting to spawn
 cost: 5
 
-#Settings of messages
+# Settings of messages
 messages:
   title: true
   message: true

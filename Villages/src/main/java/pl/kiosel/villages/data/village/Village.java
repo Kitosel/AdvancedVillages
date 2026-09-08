@@ -1,5 +1,6 @@
 package pl.kiosel.villages.data.village;
 
+import lombok.Getter;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -20,23 +21,24 @@ import java.util.function.IntUnaryOperator;
 public class Village extends AbstractMutableEntity {
 
 	private final UUID uuid;
-	private final VillageRank rank;
+	@Getter	private final VillageRank rank;
 	private final VillageMembers membership;
 	private final VillageEffects effects;
 	private volatile String name;
-	private volatile String tag;
-	private volatile int lives;
-	private volatile int bank;
-	private volatile Level level;
-	@Nullable private volatile Region region;
+	@Getter	private volatile String tag;
+	@Getter	private volatile int lives;
+	@Getter	private volatile int bank;
+	@Getter	private volatile Level level;
+	@Nullable private volatile VillageRegion region;
+	@Nullable private volatile VillageRegion turretRegion;
 	@Nullable private volatile Location home;
 	@Nullable private volatile Location location;
-	private volatile Instant born;
-	private volatile Instant protection = Instant.EPOCH;
 	@Nullable private volatile Instant build;
-	private volatile boolean pvp;
-	private volatile boolean tnt;
-	private volatile boolean animationsEnabled = true;
+	@Getter	private volatile Instant born;
+	@Getter	private volatile Instant protection = Instant.EPOCH;
+	@Getter	private volatile boolean pvp;
+	@Getter	private volatile boolean tnt;
+	@Getter	private volatile boolean animationsEnabled = true;
 
 	private Village(UUID uuid) {
 		this.uuid = uuid == null ? UUID.randomUUID() : uuid;
@@ -80,10 +82,6 @@ public class Village extends AbstractMutableEntity {
 		this.markChanged();
 	}
 
-	public String getTag() {
-		return this.tag;
-	}
-
 	public void setTag(String tag) {
 		if (Objects.equals(this.tag, tag)) return;
 		this.tag = tag;
@@ -92,14 +90,6 @@ public class Village extends AbstractMutableEntity {
 
 	public boolean isTag() {
 		return this.tag != null && !this.tag.isBlank() && !this.tag.equalsIgnoreCase("none");
-	}
-
-	public VillageRank getRank() {
-		return this.rank;
-	}
-
-	public int getLives() {
-		return this.lives;
 	}
 
 	public void setLives(int lives) {
@@ -111,10 +101,6 @@ public class Village extends AbstractMutableEntity {
 
 	public void updateLives(IntUnaryOperator update) {
 		this.setLives(Objects.requireNonNull(update, "update").applyAsInt(this.lives));
-	}
-
-	public int getBank() {
-		return this.bank;
 	}
 
 	public void addBank(int amount) {
@@ -136,10 +122,6 @@ public class Village extends AbstractMutableEntity {
 		this.setBank(Objects.requireNonNull(update, "update").applyAsInt(this.bank));
 	}
 
-	public Level getLevel() {
-		return this.level;
-	}
-
 	public void setLevel(Level level) {
 		if (Objects.equals(this.level, level)) return;
 		this.level = level;
@@ -154,11 +136,11 @@ public class Village extends AbstractMutableEntity {
 		return this.region != null;
 	}
 
-	public Optional<Region> getRegion() {
+	public Optional<VillageRegion> getRegion() {
 		return Optional.ofNullable(this.region);
 	}
 
-	public void setRegion(@Nullable Region region) {
+	public void setRegion(@Nullable VillageRegion region) {
 		if (this.region == region) return;
 		this.region = region;
 		if (region != null) region.setVillage(this);
@@ -166,7 +148,7 @@ public class Village extends AbstractMutableEntity {
 	}
 
 	public Optional<Location> getCenter() {
-		return this.getRegion().map(Region::getCenter).map(Location::clone);
+		return this.getRegion().map(VillageRegion::getCenter).map(Location::clone);
 	}
 
 	public Optional<Location> getLocation() {
@@ -253,19 +235,11 @@ public class Village extends AbstractMutableEntity {
 		this.membership.getMembers().forEach(user -> user.sendMessage(message));
 	}
 
-	public Instant getBorn() {
-		return this.born;
-	}
-
 	public void setBorn(Instant born) {
 		Instant updated = Objects.requireNonNull(born, "born");
 		if (this.born.equals(updated)) return;
 		this.born = updated;
 		this.markChanged();
-	}
-
-	public Instant getProtection() {
-		return this.protection;
 	}
 
 	public void setProtection(Instant protection) {
@@ -299,10 +273,6 @@ public class Village extends AbstractMutableEntity {
 		return true;
 	}
 
-	public boolean isPvp() {
-		return this.pvp;
-	}
-
 	public boolean hasPvPEnabled() {
 		return this.pvp;
 	}
@@ -315,10 +285,6 @@ public class Village extends AbstractMutableEntity {
 
 	public void togglePvP() {
 		this.setPvP(!this.pvp);
-	}
-
-	public boolean isTnt() {
-		return this.tnt;
 	}
 
 	public boolean hasTntEnabled() {
@@ -334,10 +300,6 @@ public class Village extends AbstractMutableEntity {
 	public boolean toggleTnt() {
 		this.setTnt(!this.tnt);
 		return this.tnt;
-	}
-
-	public boolean isAnimationsEnabled() {
-		return this.animationsEnabled;
 	}
 
 	public void setAnimationsEnabled(boolean animationsEnabled) {

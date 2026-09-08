@@ -7,14 +7,14 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import pl.kiosel.rosacore.listener.RosaListener;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.api.events.VillageBlockInteractEvent;
+import pl.kiosel.villages.api.events.VillageListener;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.gui.GUIS;
 
-public class InteractListener extends RosaListener {
+public class InteractListener extends VillageListener {
 
 	private final AdvancedVillages plugin;
 
@@ -32,7 +32,7 @@ public class InteractListener extends RosaListener {
 		if (action != Action.LEFT_CLICK_BLOCK && action != Action.RIGHT_CLICK_BLOCK) return;
 
 		Player player = event.getPlayer();
-		User user = plugin.getUserManager().findByUuid(player.getUniqueId()).orElseThrow();
+		User user = getUser(player);
 		if (user.getPresentVillage() == null) return;
 
 		Village village = user.getPresentVillage();

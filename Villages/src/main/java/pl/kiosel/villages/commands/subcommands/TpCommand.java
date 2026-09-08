@@ -6,7 +6,7 @@ import pl.kiosel.villages.commands.AVSubCommand;
 import pl.kiosel.villages.config.CommandLang;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.data.user.User;
-import pl.kiosel.villages.data.village.Permission;
+import pl.kiosel.villages.data.user.VillagePermission;
 import pl.kiosel.villages.manager.teleport.TeleportManager;
 
 public class TpCommand extends AVSubCommand {
@@ -24,7 +24,7 @@ public class TpCommand extends AVSubCommand {
 	public boolean requireVillage() { return true; }
 
 	@Override
-	public Permission getVillagePermission() { return Permission.UNSET; }
+	public VillagePermission getVillagePermission() { return VillagePermission.UNSET; }
 
 	private final AdvancedVillages plugin;
 

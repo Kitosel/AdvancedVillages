@@ -9,6 +9,8 @@ record UserData(
 		int kills,
 		int deaths,
 		int assists,
-		String role
+		String role,
+		String specialization,
+		long specializationChangedAt
 ) {
 }

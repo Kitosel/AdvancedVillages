@@ -9,7 +9,7 @@ import pl.kiosel.villages.config.GuiItemConfig;
 import pl.kiosel.villages.config.GuiMenuConfig;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.config.VillageMessages;
-import pl.kiosel.villages.data.village.Permission;
+import pl.kiosel.villages.data.user.VillagePermission;
 import pl.kiosel.villages.data.village.Village;
 
 import java.util.List;
@@ -45,7 +45,7 @@ public abstract class VillageConfirmationMenu extends ConfirmationGui {
 		return plugin.getVillageMessages();
 	}
 
-	protected boolean hasPermission(Permission permission) {
+	protected boolean hasPermission(VillagePermission permission) {
 		if (plugin.getRoleManager().hasPermission(viewer.getUniqueId(), permission)) return true;
 		messages().get(Lang.VILLAGE_NO_PERMISSION).sendPrefixed(viewer);
 		return false;

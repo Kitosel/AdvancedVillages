@@ -1,0 +1,34 @@
+enabled: true
+
+# A player may change specialization again after this time.
+# Supported units: s, m, h, d, w, mo, y. Use 0s to disable the cooldown.
+change-cooldown: 1h
+
+specializations:
+  warrior:
+    enabled: true
+    bonus-percent: 8.0
+
+  defender:
+    enabled: true
+    bonus-percent: 10.0
+
+  farmer:
+    enabled: true
+    bonus-percent: 15.0
+
+  forester:
+    enabled: true
+    bonus-percent: 20.0
+
+  miner:
+    enabled: true
+    bonus-percent: 25.0
+
+  merchant:
+    enabled: true
+    bonus-percent: 5.0
+
+  healer:
+    enabled: true
+    bonus-percent: 15.0

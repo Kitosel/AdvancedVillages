@@ -1,22 +1,19 @@
 package pl.kiosel.villages.data.user;
 
+import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 import pl.kiosel.rosacore.utils.ColorUtils;
 import pl.kiosel.villages.data.AbstractMutableEntity;
-import pl.kiosel.villages.data.village.Permission;
 import pl.kiosel.villages.data.village.Village;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class User extends AbstractMutableEntity {
 
 	private final UUID uuid;
+	@Getter
 	private final UserProfile profile;
+	@Getter
 	private final UserRank rank;
 	private final UserVillageState villageState;
 	private volatile String name;
@@ -51,14 +48,6 @@ public class User extends AbstractMutableEntity {
 		return UnitType.USER;
 	}
 
-	public UserRank getRank() {
-		return this.rank;
-	}
-
-	public UserProfile getProfile() {
-		return this.profile;
-	}
-
 	@Nullable
 	public Village getPresentVillage() {
 		return this.villageState.getPresentVillage();
@@ -80,7 +69,7 @@ public class User extends AbstractMutableEntity {
 		this.villageState.clear();
 	}
 
-	public Set<Permission> getPermissions() {
+	public Set<VillagePermission> getPermissions() {
 		return this.villageState.getPermissions();
 	}
 
@@ -88,7 +77,19 @@ public class User extends AbstractMutableEntity {
 		return this.villageState.getRoleId();
 	}
 
-	public void assignRole(String roleId, Set<Permission> permissions) {
+	public Optional<VillageSpecialization> getSpecialization() {
+		return this.villageState.getSpecialization();
+	}
+
+	public long getSpecializationChangedAt() {
+		return this.villageState.getSpecializationChangedAt();
+	}
+
+	public void setSpecialization(@Nullable VillageSpecialization specialization, long changedAt) {
+		this.villageState.setSpecialization(specialization, changedAt);
+	}
+
+	public void assignRole(String roleId, Set<VillagePermission> permissions) {
 		this.villageState.assignRole(roleId, permissions);
 	}
 
@@ -97,24 +98,24 @@ public class User extends AbstractMutableEntity {
 		return village != null && village.isOwner(this);
 	}
 
-	public boolean hasVillagePermission(Permission permission) {
+	public boolean hasVillagePermission(VillagePermission permission) {
 		return this.villageState.hasPermission(permission, this.isOwner());
 	}
 
-	public void addVillagePermission(Permission permission) {
+	public void addVillagePermission(VillagePermission permission) {
 		this.villageState.addPermission(permission);
 	}
 
-	public void removeVillagePermission(Permission permission) {
+	public void removeVillagePermission(VillagePermission permission) {
 		this.villageState.removePermission(permission);
 	}
 
-	public void setPermissions(Set<Permission> permissions) {
+	public void setPermissions(Set<VillagePermission> permissions) {
 		this.villageState.setPermissions(permissions);
 	}
 
-	public void setPermissions(Permission... permissions) {
-		Set<Permission> updated = permissions == null
+	public void setPermissions(VillagePermission... permissions) {
+		Set<VillagePermission> updated = permissions == null
 				? Set.of()
 				: new HashSet<>(Arrays.asList(permissions));
 		updated.remove(null);

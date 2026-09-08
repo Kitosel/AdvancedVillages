@@ -8,13 +8,13 @@ import pl.kiosel.rosacore.dependencies.adventure.adventure.title.Title;
 import pl.kiosel.rosacore.utils.TimeUtils;
 import pl.kiosel.rosacore.utils.format.RawString;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.addons.logs.VillageLogType;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.config.Settings;
 import pl.kiosel.villages.config.VillageMessage;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.data.village.VillageManager;
+import pl.kiosel.villages.data.village.features.logs.VillageLogType;
 import pl.kiosel.villages.storage.DatabaseUserSerializer;
 import pl.kiosel.villages.storage.DatabaseVillageSerializer;
 
@@ -42,10 +42,25 @@ public class VillageUtils {
 	private final AdvancedVillages plugin;
 	private final VillageManager manager;
 	private static final AdvancedVillages instance = AdvancedVillages.getInstance();
+	private final int maxX, maxY, maxZ, minX, minY, minZ;
 
 	public VillageUtils(AdvancedVillages plugin) {
 		this.plugin = plugin;
 		this.manager = plugin.getVillageManager();
+		maxX = 2;
+		maxY = 6;
+		maxZ = 2;
+		minX = -2;
+		minY = -3;
+		minZ = -2;
+	}
+
+	public Location getTurretMax(Location location) {
+		return location.clone().add(maxX, maxY, maxZ);
+	}
+
+	public Location getTurretMin(Location location) {
+		return location.clone().add(minX, minY, minZ);
 	}
 
 	public void createVillage(Village village) throws SQLException {
@@ -109,6 +124,7 @@ public class VillageUtils {
 	}
 
 	public boolean isBlacklisted(World world) {
+		if (world == null) return true;
 		List<String> worlds = Settings.VILLAGE_BLACKLISTED_WORLDS.getStringList();
 		String worldName = world.getName();
 
@@ -142,14 +158,14 @@ public class VillageUtils {
 	}
 
 	public boolean isSpawnNearby(Location location, int radius) {
-		Location vLoc = plugin.getTeleportManager().getSpawn().orElse(null);
-		if (vLoc == null || vLoc.getWorld() == null) return false;
+		Location vLoc = plugin.getTeleportManager().getSpawn().orElse(new Location(Bukkit.getWorlds().get(0), 0, 0, 0));
+		if (vLoc.getWorld() == null) return false;
 		if (!vLoc.getWorld().equals(location.getWorld())) return false;
 
 		return vLoc.distanceSquared(location) + 40 <= (double) radius * radius;
 	}
 
-	private static final String liveSymbol = "\u2764";
+	private static final String liveSymbol = "❤";
 	public static RawString full = new RawString("&c"+liveSymbol);
 	public static RawString empty = new RawString("&8"+liveSymbol);
 

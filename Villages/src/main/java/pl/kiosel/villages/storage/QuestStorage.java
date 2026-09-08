@@ -3,7 +3,7 @@ package pl.kiosel.villages.storage;
 import pl.kiosel.rosacore.database.DatabaseTable;
 import pl.kiosel.rosacore.database.DatabaseValues;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.addons.quests.VillageQuestState;
+import pl.kiosel.villages.data.village.features.quest.VillageQuestState;
 
 import java.util.*;
 import java.util.function.Consumer;

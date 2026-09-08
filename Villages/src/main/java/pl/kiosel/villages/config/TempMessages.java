@@ -15,10 +15,8 @@ public class TempMessages {
 
 	public static String noValue = "&c-";
 
-	public static RawString ptop = new RawString(" &7[%VALUE-FORMAT%&7]");
-	public static RawString gtop = new RawString(" &7[&b%VALUE-FORMAT%&7]");
-	public static RawString gtopPoints = new RawString(" &7[&b%POINTS-FORMAT%&7]");
-	public static RawString ptopPoints = new RawString(" &7[%POINTS%&7]");
+	public static RawString playerTop = new RawString(" &7[%VALUE-FORMAT%&7]");
+	public static RawString villageTop = new RawString(" &7[&b%VALUE-FORMAT%&7]");
 
 	public static List<RangeFormatting> pointsFormat = Arrays.asList(
 			new RangeFormatting(0, 749, "&4%POINTS%"),
@@ -34,7 +32,7 @@ public class TempMessages {
 			new RangeFormatting(301, Integer.MAX_VALUE, "&c%PING%")
 	);
 
-	public static Map<String, List<RangeFormatting>> ptopValueFormatting = ImmutableMap.<String, List<RangeFormatting>>builder()
+	public static Map<String, List<RangeFormatting>> topValueFormatting = ImmutableMap.<String, List<RangeFormatting>>builder()
 			.put("points", Arrays.asList(
 					new RangeFormatting(0, 749, "&4%VALUE%"),
 					new RangeFormatting(750, 999, "&c%VALUE%"),
@@ -110,7 +108,4 @@ public class TempMessages {
 		}
 
 	}
-
-	public static RawString online = new RawString("&a");
-	public static RawString offline = new RawString("&c");
 }

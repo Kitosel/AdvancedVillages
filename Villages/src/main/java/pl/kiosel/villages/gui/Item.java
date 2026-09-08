@@ -6,7 +6,6 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.inventory.ItemStack;
 import pl.kiosel.rosacore.compatibility.ZMaterial;
 import pl.kiosel.rosacore.material.ItemCreator;
-import pl.kiosel.rosacore.material.ItemTag;
 import pl.kiosel.villages.AdvancedVillages;
 
 import java.util.Collections;
@@ -14,17 +13,13 @@ import java.util.List;
 
 public class Item {
 
-	public static boolean hasTag(ItemStack item, String key) {
-		return ItemTag.has(item, key);
-	}
-
     public static ItemStack create(Material material, int amount, String name, List<String> lore, boolean glow) {
 		ItemCreator itemCreator = ItemCreator.of(material).amount(amount).name(name).glow(glow)
 				.hideAttributes().hideAll();
 		if (lore != null) {
 			itemCreator.lore(lore);
 		}
-        return itemCreator.make();
+        return itemCreator.makeMenuItem();
     }
 
 	public static ItemStack create(Material mat, int amount, String name) {

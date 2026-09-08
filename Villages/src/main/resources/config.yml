@@ -8,19 +8,18 @@ settings:
   time-zone: "Europe/Warsaw"
 
 addons:
+  # Should addons be enabled
   antylogout: true
   scoreboard: true
   tablist: true
   spawn: true
-  quests: true
-  development: true
-  village-animations: true
 
 teleport:
+  # Cancel teleport on player move
   cancel-on-move: true
-  # Values are expressed in seconds.
-  between-cooldown: 60
-  cooldown: 5
+  # Supported units: s, m, h, d, w, mo, y. Use 0s to disable the cooldown.
+  between-cooldown: 60s
+  cooldown: 5s
 
 chat:
   enabled: false
@@ -28,10 +27,15 @@ chat:
   format-novillage: '%player%&7: &r%message%'
 
 village:
+  # Distance between another villages
   village-minimal-distance: 300
+  # Distance between spawn
+  # (if spawn is not set default location is 0,0,0)
   spawn-minimal-distance: 1000
+  # Real max is 27
   max-members: 7
   tag-max-length: 5
+  # Protection for village after attack
   destroy-protection: 12h
   default-lives: 3
   max-lives: 3
@@ -48,6 +52,7 @@ village:
     - world_the_end
     - world1
     - world2
+  # Can village be attacked when no member is online
   attack-when-offline: false
   effects:
     regeneration:
@@ -62,3 +67,5 @@ village:
     haste:
       cost: 500
       amplifier: 2
+
+first-steps-completed: false

@@ -1,0 +1,18 @@
+package pl.kiosel.villages.data.village.features.quest;
+
+public enum QuestType {
+	KILL_ENTITY,
+	BREAK_BLOCK,
+	PLACE_BLOCK,
+	COLLECT_ITEM,
+	CRAFT_ITEM,
+	FISH_ITEM,
+	SMELT_ITEM,
+	ENCHANT_ITEM,
+	CONSUME_ITEM,
+	BREED_ENTITY,
+	TAME_ENTITY,
+	GAIN_EXPERIENCE,
+	BANK_DEPOSIT,
+	CUSTOM
+}

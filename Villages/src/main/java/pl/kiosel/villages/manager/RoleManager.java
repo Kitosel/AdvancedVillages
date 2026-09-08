@@ -6,9 +6,9 @@ import pl.kiosel.rosacore.config.RosaConfig;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.api.events.VillageMemberRoleChangeEvent;
 import pl.kiosel.villages.data.user.User;
-import pl.kiosel.villages.data.village.Permission;
+import pl.kiosel.villages.data.user.VillagePermission;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.data.village.role.VillageRole;
+import pl.kiosel.villages.data.village.VillageRole;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -17,7 +17,7 @@ public class RoleManager {
 
 	private static final String ROLE_PREFIX = "role:";
 	private static final VillageRole OWNER_ROLE = new VillageRole(
-			"owner", "&cOwner", Integer.MAX_VALUE, EnumSet.allOf(Permission.class));
+			"owner", "&cOwner", Integer.MAX_VALUE, Collections.singleton(VillagePermission.OWNER));
 
 	protected final AdvancedVillages plugin;
 	private volatile Map<String, VillageRole> roles = Collections.emptyMap();
@@ -41,7 +41,7 @@ public class RoleManager {
 					continue;
 				}
 				String path = "roles." + rawId;
-				Set<Permission> permissions = this.readPermissions(file.getStringList(path + ".permissions"), id);
+				Set<VillagePermission> permissions = this.readPermissions(file.getStringList(path + ".permissions"), id);
 				loaded.put(id, new VillageRole(id,
 						file.getString(path + ".name", rawId),
 						file.getInt(path + ".priority", 0), permissions));
@@ -141,40 +141,40 @@ public class RoleManager {
 		return available.get(next);
 	}
 
-	public boolean hasCommandPermission(Player player, Permission permission) {
-		return permission == Permission.UNSET || this.hasPermission(player.getUniqueId(), permission);
+	public boolean hasCommandPermission(Player player, VillagePermission permission) {
+		return permission == VillagePermission.UNSET || this.hasPermission(player.getUniqueId(), permission);
 	}
 
-	public boolean hasPermission(User user, Permission permission) {
+	public boolean hasPermission(User user, VillagePermission permission) {
 		if (user == null || permission == null) return false;
-		if (permission == Permission.UNSET) return true;
+		if (permission == VillagePermission.UNSET) return true;
 		if (!user.hasVillage()) return false;
 		if (user.isOwner()) return true;
-		if (permission == Permission.OWNER) return false;
+		if (permission == VillagePermission.OWNER) return false;
 		return this.getRole(user).hasPermission(permission);
 	}
 
-	public boolean hasPermission(Player player, Permission permission) {
+	public boolean hasPermission(Player player, VillagePermission permission) {
 		return player != null && this.hasPermission(player.getUniqueId(), permission);
 	}
 
-	public boolean hasPermission(UUID uuid, Permission permission) {
+	public boolean hasPermission(UUID uuid, VillagePermission permission) {
 		return this.plugin.getUserManager().findByUuid(uuid)
 				.map(user -> this.hasPermission(user, permission))
 				.orElse(false);
 	}
 
-	public void addPermission(User user, Permission permission) {
+	public void addPermission(User user, VillagePermission permission) {
 		if (user == null || permission == null) return;
-		Set<Permission> permissions = EnumSet.noneOf(Permission.class);
+		Set<VillagePermission> permissions = EnumSet.noneOf(VillagePermission.class);
 		permissions.addAll(this.getRole(user).getPermissions());
 		permissions.add(permission);
 		user.setPermissions(permissions);
 	}
 
-	public void removePermission(User user, Permission permission) {
+	public void removePermission(User user, VillagePermission permission) {
 		if (user == null || permission == null) return;
-		Set<Permission> permissions = EnumSet.noneOf(Permission.class);
+		Set<VillagePermission> permissions = EnumSet.noneOf(VillagePermission.class);
 		permissions.addAll(this.getRole(user).getPermissions());
 		permissions.remove(permission);
 		user.setPermissions(permissions);
@@ -201,7 +201,7 @@ public class RoleManager {
 			return;
 		}
 
-		Set<Permission> legacy = this.fromString(raw);
+		Set<VillagePermission> legacy = this.fromString(raw);
 		for (VillageRole role : this.orderedRoles) {
 			if (role.getPermissions().equals(legacy)) {
 				user.assignRole(role.getId(), role.getPermissions());
@@ -211,17 +211,17 @@ public class RoleManager {
 		user.setPermissions(legacy);
 	}
 
-	public String toString(Set<Permission> permissions) {
+	public String toString(Set<VillagePermission> permissions) {
 		if (permissions == null || permissions.isEmpty()) return null;
 		return permissions.stream().map(Enum::name).sorted().collect(Collectors.joining(";"));
 	}
 
-	public Set<Permission> fromString(String raw) {
-		Set<Permission> permissions = EnumSet.noneOf(Permission.class);
+	public Set<VillagePermission> fromString(String raw) {
+		Set<VillagePermission> permissions = EnumSet.noneOf(VillagePermission.class);
 		if (raw == null || raw.isBlank()) return permissions;
 		for (String value : raw.split(";")) {
 			try {
-				permissions.add(Permission.valueOf(normalize(value, true)));
+				permissions.add(VillagePermission.valueOf(normalize(value, true)));
 			} catch (IllegalArgumentException exception) {
 				this.plugin.getRosaLogger().warning("Invalid village permission: " + value);
 			}
@@ -229,12 +229,12 @@ public class RoleManager {
 		return permissions;
 	}
 
-	private Set<Permission> readPermissions(List<String> values, String roleId) {
-		Set<Permission> permissions = EnumSet.noneOf(Permission.class);
+	private Set<VillagePermission> readPermissions(List<String> values, String roleId) {
+		Set<VillagePermission> permissions = EnumSet.noneOf(VillagePermission.class);
 		for (String value : values) {
 			try {
-				Permission permission = Permission.valueOf(normalize(value, true).replace('-', '_'));
-				if (permission != Permission.OWNER && permission != Permission.UNSET) permissions.add(permission);
+				VillagePermission permission = VillagePermission.valueOf(normalize(value, true).replace('-', '_'));
+				if (permission != VillagePermission.OWNER && permission != VillagePermission.UNSET) permissions.add(permission);
 			} catch (IllegalArgumentException exception) {
 				this.plugin.getRosaLogger().warning("Invalid permission '" + value + "' in role " + roleId);
 			}
@@ -244,8 +244,8 @@ public class RoleManager {
 
 	private static VillageRole fallbackMember() {
 		return new VillageRole("member", "&7Member", 0, EnumSet.of(
-				Permission.BANK_ADD, Permission.BANK_REMOVE, Permission.STORE,
-				Permission.UPGRADE, Permission.EFFECTS_BUY, Permission.QUEST_TOGGLE));
+				VillagePermission.BANK_ADD, VillagePermission.BANK_REMOVE, VillagePermission.STORE,
+				VillagePermission.UPGRADE, VillagePermission.EFFECTS_BUY, VillagePermission.QUEST_TOGGLE));
 	}
 
 	private static String normalize(String id, boolean uppercase) {

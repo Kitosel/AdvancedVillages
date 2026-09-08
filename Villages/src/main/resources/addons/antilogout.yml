@@ -14,10 +14,10 @@ remove-combat-on-opponent-death: true
 combat-start-notifications-enabled: true
 
 # Whether combat can start from mob attacks
-combat-from-mobs: true
+combat-from-mobs: false
 
 # Whether combat can start from projectiles (e.g., arrows)
-combat-from-projectiles: true
+combat-from-projectiles: false
 
 # Broadcast when opponent quit while combat
 combat-quit-broadcast: true

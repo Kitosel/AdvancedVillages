@@ -12,4 +12,59 @@ softdepend:
   - Vault
   - Essentials
   - PlayerPoints
-  - AdvancedPlayerList
+  - advancedvillages
+
+permissions:
+  advancedvillages.*:
+    description: Allows you to manage the plugin
+    default: op
+    children:
+      advancedvillages.command.main: true
+      advancedvillages.command.admin: true
+      advancedvillages.command.settings: true
+      advancedvillages.command.alliance: true
+      advancedvillages.command.edit: true
+      advancedvillages.command.chat: true
+      advancedvillages.command.help: true
+      advancedvillages.command.invite: true
+      advancedvillages.command.leave: true
+      advancedvillages.command.request: true
+      advancedvillages.command.tp: true
+      advancedvillages.command.war: true
+      advancedvillages.command.crafting: true
+      advancedvillages.command.crafting.edit: true
+      advancedvillages.command.spawn: true
+      advancedvillages.command.spawn.set: true
+
+  advancedvillages.command.main:
+    default: true
+  advancedvillages.command.admin:
+    default: op
+  advancedvillages.command.settings:
+    default: op
+  advancedvillages.command.alliance:
+    default: true
+  advancedvillages.command.edit:
+    default: op
+  advancedvillages.command.chat:
+    default: true
+  advancedvillages.command.help:
+    default: true
+  advancedvillages.command.invite:
+    default: true
+  advancedvillages.command.leave:
+    default: true
+  advancedvillages.command.request:
+    default: true
+  advancedvillages.command.tp:
+    default: true
+  advancedvillages.command.war:
+    default: true
+  advancedvillages.command.crafting:
+    default: true
+  advancedvillages.command.crafting.edit:
+    default: op
+  advancedvillages.command.spawn:
+    default: true
+  advancedvillages.command.spawn.set:
+    default: op

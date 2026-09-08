@@ -17,6 +17,13 @@ public final class AdminCommand extends AdminSubCommand {
 		addSubCommand(new AdminManageCommand(plugin));
 		addSubCommand(new AdminDebugCommand(plugin));
 		addSubCommand(new AdminIntegrationCommand(plugin));
+		if (plugin.isDev())
+			addSubCommand(new AdminSettingsCommand(plugin));
+	}
+
+	@Override
+	public String getPermission() {
+		return "advancedvillages.command.admin";
 	}
 
 	@Override

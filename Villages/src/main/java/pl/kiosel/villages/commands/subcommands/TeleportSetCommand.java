@@ -4,11 +4,11 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import pl.kiosel.rosacore.compatibility.ZSound;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.addons.logs.VillageLogType;
+import pl.kiosel.villages.data.village.features.logs.VillageLogType;
 import pl.kiosel.villages.commands.AVSubCommand;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.data.user.User;
-import pl.kiosel.villages.data.village.Permission;
+import pl.kiosel.villages.data.user.VillagePermission;
 import pl.kiosel.villages.data.village.Village;
 
 public class TeleportSetCommand extends AVSubCommand {
@@ -26,7 +26,7 @@ public class TeleportSetCommand extends AVSubCommand {
 	public boolean requireVillage() { return true; }
 
 	@Override
-	public Permission getVillagePermission() { return Permission.SETTINGS; }
+	public VillagePermission getVillagePermission() { return VillagePermission.SETTINGS; }
 
 	private final AdvancedVillages plugin;
 
@@ -55,6 +55,9 @@ public class TeleportSetCommand extends AVSubCommand {
 			return;
 		}
 		Village village = user.getPresentVillage();
+		if (village == null) {
+			return;
+		}
 
 		if (village.getRegion().get().isIn(player.getLocation())) {
 			Location loc = player.getLocation();

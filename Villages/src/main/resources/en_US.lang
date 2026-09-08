@@ -4,7 +4,7 @@ general:
   separator: '&8——————————————————————————'
   addon-disabled: '&cAddon %addon% is currently disabled.'
   nametag:
-    prefix: '&8[&6&lVillages&r&8]'
+    prefix: '&8[&f&lAdvanced&6&lVillages&r&8]'
     'on': '&aON'
     'off': '&cOFF'
   time:
@@ -32,10 +32,20 @@ general:
     take-items: '&7Removed &a%amount%x %item%'
 
 # Commands
+crafting:
+  recipe-saved: '&aRecipe &f%recipe% &ahas been saved.'
+  recipe-save-failed: '&cCould not save recipe &f%recipe%&c. Check the console.'
+  recipe-invalid: '&cThe recipe must contain at least one ingredient.'
+
+tutorial:
+  saved: '&aThe startup settings were saved. Restart the server to apply every change.'
+  save-failed: '&cCould not save the startup settings. Check the console.'
+
 command:
   no-console: '&cThis command can only be used by a player'
   not-enabled: '&cThis command is disabled'
   reload: '&7All configuration files have been reloaded'
+  reload-failed: '&cReload failed. Invalid files kept their previous working values; check the console.'
   no-permission: "&cYou don't have permission to use this command"
   village-not-found: '&cCould not find the village belonging to &f%village_owner%'
   invalid-number: '&cThe provided value is not a valid number'
@@ -153,6 +163,18 @@ village:
   leave-area-subtitle: '&6You left the village'
   chat-format: '&8[&5&lVillage&r&8] &f%player%&7: &f%message%'
   chat-format-owner-color: '&6'
+
+specializations:
+  selected: '&7Your specialization is now %specialization%&7.'
+  cooldown: '&cYou can change your specialization again in %time%.'
+  names:
+    warrior: '&cWarrior'
+    defender: '&9Defender'
+    farmer: '&eFarmer'
+    forester: '&2Forester'
+    miner: '&7Miner'
+    merchant: '&aMerchant'
+    healer: '&dHealer'
 
 # Village tag
 tag:
@@ -301,7 +323,7 @@ diplomacy:
     list:
       header: '&6Alliances &7(%count%/%max%):'
       empty: '&7Your village has no alliances.'
-      entry: '&8 • &f%village%'
+      entry: '&8 • &f%village_tag%'
       pending-header: '&ePending alliance requests:'
   war:
     command-description: 'Manages village wars'

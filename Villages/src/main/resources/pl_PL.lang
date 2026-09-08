@@ -3,7 +3,7 @@ general:
   separator: '&8————————————————————————————'
   addon-disabled: '&cDodatek %addon% jest aktualnie wyłączony.'
   nametag:
-    prefix: '&8[&6&lWioski&r&8]'
+    prefix: '&8[&f&lAdvanced&6&lVillages&r&8]'
     'on': '&aON'
     'off': '&cOFF'
   time:
@@ -31,10 +31,20 @@ general:
     take-items: '&7Pobrano &a%amount%x %item%'
 
 # Komendy
+crafting:
+  recipe-saved: '&aReceptura &f%recipe% &azostała zapisana.'
+  recipe-save-failed: '&cNie udało się zapisać receptury &f%recipe%&c. Sprawdź konsolę.'
+  recipe-invalid: '&cReceptura musi zawierać przynajmniej jeden składnik.'
+
+tutorial:
+  saved: '&aUstawienia początkowe zostały zapisane. Uruchom serwer ponownie, aby zastosować wszystkie zmiany.'
+  save-failed: '&cNie udało się zapisać ustawień początkowych. Sprawdź konsolę.'
+
 command:
   no-console: '&cTej komendy może użyć tylko gracz'
   not-enabled: '&cTa komenda jest wyłączona'
   reload: '&7Wszystkie pliki konfiguracyjne zostały przeładowane'
+  reload-failed: '&cPrzeładowanie nie powiodło się. Błędne pliki zachowały poprzednie działające wartości; sprawdź konsolę.'
   no-permission: '&cNie masz uprawnień do użycia tej komendy'
   village-not-found: '&cNie znaleziono wioski należącej do gracza &f%village_owner%'
   invalid-number: '&cPodana wartość nie jest prawidłową liczbą'
@@ -153,6 +163,18 @@ village:
   leave-area-subtitle: '&6Opuściłeś teren wioski'
   chat-format: '&8[&5&lWioska&r&8] &f%player%&7: &f%message%'
   chat-format-owner-color: '&6'
+
+specializations:
+  selected: '&7Twoja specjalizacja to teraz %specialization%&7.'
+  cooldown: '&cMożesz ponownie zmienić specjalizację za %time%.'
+  names:
+    warrior: '&cWojownik'
+    defender: '&9Obrońca'
+    farmer: '&eRolnik'
+    forester: '&2Leśnik'
+    miner: '&7Górnik'
+    merchant: '&aHandlarz'
+    healer: '&dMedyk'
 
 # Tag wioski
 tag:

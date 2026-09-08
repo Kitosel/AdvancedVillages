@@ -147,6 +147,6 @@ public final class TablistManager {
 	}
 
 	private boolean isExternallyManaged() {
-		return this.plugin.getAdvancedPlayerListIntegration() != null;
+		return this.plugin.getIntegrationManager().getTabListIntegration() != null;
 	}
 }

@@ -8,7 +8,7 @@ import pl.kiosel.villages.commands.AVSubCommand;
 import pl.kiosel.villages.config.CommandLang;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.data.user.User;
-import pl.kiosel.villages.data.village.Permission;
+import pl.kiosel.villages.data.user.VillagePermission;
 import pl.kiosel.villages.data.village.Village;
 
 import java.util.List;
@@ -28,7 +28,7 @@ public class InviteCommand extends AVSubCommand {
 	public boolean requireVillage() { return true; }
 
 	@Override
-	public Permission getVillagePermission() { return Permission.INVITE; }
+	public VillagePermission getVillagePermission() { return VillagePermission.INVITE; }
 
 	private final AdvancedVillages plugin;
 

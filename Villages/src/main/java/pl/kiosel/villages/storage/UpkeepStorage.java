@@ -3,7 +3,7 @@ package pl.kiosel.villages.storage;
 import pl.kiosel.rosacore.database.DatabaseTable;
 import pl.kiosel.rosacore.database.DatabaseValues;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.addons.rent.VillageUpkeepState;
+import pl.kiosel.villages.data.village.features.rent.VillageUpkeepState;
 
 import java.time.Instant;
 import java.util.UUID;

@@ -1,15 +1,17 @@
 package pl.kiosel.villages.commands.subcommands;
 
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.addons.diplomacy.DiplomacyResult;
-import pl.kiosel.villages.addons.diplomacy.VillageWar;
-import pl.kiosel.villages.addons.diplomacy.WarState;
+import pl.kiosel.villages.data.village.features.diplomacy.DiplomacyManager;
+import pl.kiosel.villages.data.village.features.diplomacy.DiplomacyResult;
+import pl.kiosel.villages.data.village.features.diplomacy.VillageWar;
+import pl.kiosel.villages.data.village.features.diplomacy.WarState;
 import pl.kiosel.villages.commands.AVSubCommand;
 import pl.kiosel.villages.config.CommandLang;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.data.user.User;
-import pl.kiosel.villages.data.village.Permission;
+import pl.kiosel.villages.data.user.VillagePermission;
 import pl.kiosel.villages.data.village.Village;
 
 import java.time.Duration;
@@ -20,8 +22,11 @@ import java.util.Objects;
 
 public final class WarCommand extends AVSubCommand {
 
+	private final DiplomacyManager diplomacyManager;
+
 	public WarCommand(AdvancedVillages plugin) {
 		super(plugin, CommandLang.WAR);
+		this.diplomacyManager = plugin.getDiplomacyManager();
 	}
 
 	@Override
@@ -40,16 +45,21 @@ public final class WarCommand extends AVSubCommand {
 	public boolean requireVillage() { return true; }
 
 	@Override
-	public Permission getVillagePermission() { return Permission.UNSET; }
+	public boolean isAvailable(CommandSender sender) {
+		if (!diplomacyManager.isEnabled()
+				|| !diplomacyManager.getSettings().isWarsEnabled()) {
+			sendLocalized(sender, Lang.ADDON_DISABLED, "addon", "diplomacy/war");
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public VillagePermission getVillagePermission() { return VillagePermission.UNSET; }
 
 	@Override
 	public void run(Player player, User user, String[] args) {
 		Village village = user.getPresentVillage();
-		if (!plugin.getDiplomacyManager().isEnabled()
-				|| !plugin.getDiplomacyManager().getSettings().isWarsEnabled()) {
-			sendLocalized(player, Lang.ADDON_DISABLED, "addon", "diplomacy/war");
-			return;
-		}
 		if (!village.isTag()) {
 			sendLocalized(player, Lang.TAG_NO);
 			return;
@@ -70,7 +80,7 @@ public final class WarCommand extends AVSubCommand {
 			sendLocalized(player, Lang.DIPLOMACY_WAR_USAGE, "usage", getUsage());
 			return;
 		}
-		if (!plugin.getRoleManager().hasPermission(user, Permission.WAR_MANAGE)) {
+		if (!plugin.getRoleManager().hasPermission(user, VillagePermission.WAR_MANAGE)) {
 			sendLocalized(player, Lang.VILLAGE_NO_PERMISSION);
 			return;
 		}
@@ -82,9 +92,9 @@ public final class WarCommand extends AVSubCommand {
 
 		DiplomacyResult result;
 		if (args[1].equalsIgnoreCase(getCommand(CommandLang.WAR_DECLARE))) {
-			result = plugin.getDiplomacyManager().declareWar(village, target);
+			result = diplomacyManager.declareWar(village, target);
 		} else if (args[1].equalsIgnoreCase(getCommand(CommandLang.WAR_SURRENDER))) {
-			result = plugin.getDiplomacyManager().surrender(village, target);
+			result = diplomacyManager.surrender(village, target);
 		} else {
 			sendLocalized(player, Lang.DIPLOMACY_WAR_USAGE, "usage", getUsage());
 			return;
@@ -107,9 +117,9 @@ public final class WarCommand extends AVSubCommand {
 		Village village = user.getPresentVillage();
 		if (args[1].equalsIgnoreCase(getCommand(CommandLang.WAR_SURRENDER))
 				|| args[1].equalsIgnoreCase(getCommand(CommandLang.WAR_INFO))) {
-			return plugin.getDiplomacyManager().getWars(village).stream()
+			return diplomacyManager.getWars(village).stream()
 					.filter(war -> war.getState(Instant.now()) != WarState.FINISHED)
-					.map(war -> plugin.getDiplomacyManager().getOtherVillage(war, village))
+					.map(war -> diplomacyManager.getOtherVillage(war, village))
 					.filter(Objects::nonNull)
 					.filter(Village::isTag)
 					.map(Village::getTag).distinct().toList();
@@ -118,14 +128,14 @@ public final class WarCommand extends AVSubCommand {
 			return plugin.getVillageManager().getVillagesView().stream()
 					.filter(other -> !other.equals(village))
 					.filter(Village::isTag)
-					.filter(other -> !plugin.getDiplomacyManager().areAllied(village, other))
+					.filter(other -> !diplomacyManager.areAllied(village, other))
 					.map(Village::getTag).sorted(String.CASE_INSENSITIVE_ORDER).toList();
 		}
 		return List.of();
 	}
 
 	private void showWars(Player player, Village village, Village filter) {
-		List<VillageWar> wars = plugin.getDiplomacyManager().getWars(village).stream()
+		List<VillageWar> wars = diplomacyManager.getWars(village).stream()
 				.filter(war -> filter == null || war.contains(filter.getUUID()))
 				.toList();
 		plugin.getVillageMessages().send(player, Lang.SEPARATOR);
@@ -135,7 +145,7 @@ public final class WarCommand extends AVSubCommand {
 		} else {
 			Instant now = Instant.now();
 			for (VillageWar war : wars) {
-				Village enemy = plugin.getDiplomacyManager().getOtherVillage(war, village);
+				Village enemy = diplomacyManager.getOtherVillage(war, village);
 				if (enemy == null) continue;
 				VillageWar.Snapshot snapshot = war.snapshot();
 				boolean attacker = snapshot.getAttackerVillageId().equals(village.getUUID());
@@ -184,7 +194,7 @@ public final class WarCommand extends AVSubCommand {
 			default: message = Lang.DIPLOMACY_UNAVAILABLE;
 		}
 		sendLocalized(player, message,
-				"cost", plugin.getDiplomacyManager().getSettings().getDeclarationCost());
+				"cost", diplomacyManager.getSettings().getDeclarationCost());
 	}
 
 	private List<String> actions() {
