@@ -22,7 +22,7 @@ public class InviteCommand extends AVSubCommand {
     public String getUsage() { return "/village invite <player>"; }
 
 	@Override
-	public String getPermission() { return "villages.command.invite"; }
+	public String getPermission() { return "advancedvillages.command.invite"; }
 
 	@Override
 	public boolean requireVillage() { return true; }
@@ -40,6 +40,7 @@ public class InviteCommand extends AVSubCommand {
 	@Override
 	public void run(Player player, User user, String[] args) {
 		Village village = user.getPresentVillage();
+		if (village == null) return;
 		if (village.getMembers().size() >= plugin.getDevelopmentManager().getMaxMembers(village)) {
 			sendLocalized(player, Lang.MAX_MEMBERS);
 			return;

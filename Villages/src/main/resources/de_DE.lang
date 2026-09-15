@@ -121,7 +121,11 @@ village:
   remove-member: '&7Du hast &6%player% &7aus dem Dorf entfernt'
   role-changed: '&7Die Rolle von &6%player% &7wurde zu %role% &7geändert.'
 
-  upkeep-paid: '&7Für den Dorfunterhalt wurden &6%cost%$ &7aus der Bank bezahlt.'
+  upkeep-paid: '&7Der Dorfunterhalt von &6%cost%$ &7wurde über %source% &7bezahlt.'
+  upkeep-source:
+    bank: '&6die Dorfbank'
+    balance: '&ddas Spielerguthaben'
+  upkeep-not-due: '&cDer Unterhalt kann noch nicht bezahlt werden. Die manuelle Zahlung ist in %time% verfügbar.'
   upkeep-missed: '&cDas Dorf konnte den Unterhalt von %cost%$ nicht bezahlen. Es fehlen %missing%$. Offene Zahlungen: %missed%.'
   upkeep-penalty: '&cDas Dorf hat wegen unbezahlten Unterhalts %lives% Leben verloren.'
   have-tag: '&cEin Dorf benötigt ein Kürzel, um &4&laufgewertet &czu werden'

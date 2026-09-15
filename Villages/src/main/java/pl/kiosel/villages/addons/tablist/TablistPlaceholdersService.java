@@ -10,7 +10,6 @@ import pl.kiosel.rosacore.utils.format.RangeFormatting;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.config.Settings;
-import pl.kiosel.villages.config.TempMessages;
 import pl.kiosel.villages.data.rank.DefaultTops;
 import pl.kiosel.villages.data.rank.RankPlaceholdersService;
 import pl.kiosel.villages.data.user.User;
@@ -106,7 +105,7 @@ public final class TablistPlaceholdersService {
 			case "ping":
 				return Integer.toString(player.getPing());
 			case "ping-format":
-				return formatRange(player.getPing(), TempMessages.pingFormat, "PING");
+				return formatRange(player.getPing(), TablistFormat.pingFormat, "PING");
 			case "health":
 				return formatNumber(player.getHealth());
 			case "address":
@@ -118,10 +117,10 @@ public final class TablistPlaceholdersService {
 			case "world":
 				return player.getWorld().getName();
 			case "worldguard-region":
-				return worldGuardRegions(player).stream().findFirst().orElse(TempMessages.noValue);
+				return worldGuardRegions(player).stream().findFirst().orElse(TablistFormat.noValue);
 			case "worldguard-regions":
 				List<String> regions = worldGuardRegions(player);
-				return regions.isEmpty() ? TempMessages.noValue : String.join(", ", regions);
+				return regions.isEmpty() ? TablistFormat.noValue : String.join(", ", regions);
 			case "balance":
 				return this.plugin.getHookManager().getEconomy().getActiveHook().isPresent()
 						? String.format(Locale.US, "%.2f", this.plugin.getEconomy().getBalance(player))
@@ -132,17 +131,17 @@ public final class TablistPlaceholdersService {
 			case "specialization":
 				return user.getSpecialization()
 						.map(this.plugin.getSpecializationManager()::getDisplayName)
-						.orElse(TempMessages.noValue);
+						.orElse(TablistFormat.noValue);
 			case "role":
 				return user.hasVillage()
 						? this.plugin.getRoleManager().getRole(user).getName()
-						: TempMessages.noValue;
+						: TablistFormat.noValue;
 			case "position":
 				return Integer.toString(rank.getPosition(DefaultTops.USER_POINTS_TOP));
 			case "points":
 				return Integer.toString(rank.getPoints());
 			case "points-format":
-				return formatRange(rank.getPoints(), TempMessages.pointsFormat, "POINTS");
+				return formatRange(rank.getPoints(), TablistFormat.pointsFormat, "POINTS");
 			case "kills":
 				return Integer.toString(rank.getKills());
 			case "deaths":
@@ -212,14 +211,14 @@ public final class TablistPlaceholdersService {
 			case "wars":
 				return Integer.toString(this.plugin.getDiplomacyManager().countCurrentWars(village));
 			case "region-size":
-				return village.getRegion().map(VillageRegion::getSize).map(String::valueOf).orElse(TempMessages.noValue);
+				return village.getRegion().map(VillageRegion::getSize).map(String::valueOf).orElse(TablistFormat.noValue);
 			case "upkeep-cost":
 				return this.plugin.getUpkeepManager().isEnabled()
 						? Integer.toString(this.plugin.getUpkeepManager().calculateCost(village)) : "0";
 			case "upkeep-time":
 				return this.plugin.getUpkeepManager().isEnabled()
 						? this.plugin.getVillageMessages().formatDuration(this.plugin.getUpkeepManager().getRemaining(village))
-						: TempMessages.noValue;
+						: TablistFormat.noValue;
 			case "upkeep-missed":
 				return this.plugin.getUpkeepManager().isEnabled()
 						? Integer.toString(this.plugin.getUpkeepManager().getMissedPayments(village)) : "0";
@@ -240,13 +239,13 @@ public final class TablistPlaceholdersService {
 			case "position":
 				return this.plugin.getVillageRankManager().isRankedVillage(village)
 						? Integer.toString(rank.getPosition(DefaultTops.VILLAGE_AVG_POINTS_TOP))
-						: TempMessages.noValue;
+						: TablistFormat.noValue;
 			case "points":
 				return Integer.toString(rank.getPoints());
 			case "avg-points":
 				return Integer.toString(rank.getAveragePoints());
 			case "points-format":
-				return formatRange(rank.getAveragePoints(), TempMessages.pointsFormat, "POINTS");
+				return formatRange(rank.getAveragePoints(), TablistFormat.pointsFormat, "POINTS");
 			case "kills":
 				return Integer.toString(rank.getKills());
 			case "avg-kills":
@@ -296,7 +295,7 @@ public final class TablistPlaceholdersService {
 			case "upkeep-missed":
 				return "0";
 			default:
-				return TempMessages.noValue;
+				return TablistFormat.noValue;
 		}
 	}
 
@@ -315,7 +314,7 @@ public final class TablistPlaceholdersService {
 
 	private String formatProtection(Instant protection, boolean remainingTime) {
 		if (protection == null || !protection.isAfter(Instant.now())) {
-			return TempMessages.noValue;
+			return TablistFormat.noValue;
 		}
 		return remainingTime
 				? this.plugin.getVillageMessages().formatDuration(Duration.between(Instant.now(), protection))

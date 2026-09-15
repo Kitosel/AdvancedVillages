@@ -36,7 +36,7 @@ public final class ScoreboardSnapshot {
 	ScoreboardSnapshot(AdvancedVillages plugin, List<String> lines, Map<String, List<String>> handlers,
 					   Map<String, ConditionalPlaceholder> placeholders, List<String> titleFrames,
 					   long animationIntervalTicks, long updateIntervalTicks, boolean hideNumbers) {
-		this.plugin = Objects.requireNonNull(plugin, "plugin");
+		this.plugin = plugin;
 		this.lines = List.copyOf(Objects.requireNonNull(lines, "lines"));
 		this.handlers = copyHandlers(handlers);
 		this.placeholders = Collections.unmodifiableMap(new LinkedHashMap<>(

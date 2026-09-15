@@ -29,7 +29,7 @@ public final class HelpCommand extends AVSubCommand {
 
 	@Override
 	public String getPermission() {
-		return "villages.command.help";
+		return "advancedvillages.command.help";
 	}
 
 	@Override

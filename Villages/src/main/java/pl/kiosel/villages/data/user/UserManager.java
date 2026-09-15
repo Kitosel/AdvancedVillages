@@ -6,14 +6,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import pl.kiosel.villages.AdvancedVillages;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -24,7 +17,7 @@ public class UserManager {
 	private final ConcurrentMap<String, User> usersByName = new ConcurrentHashMap<>();
 
 	public UserManager(AdvancedVillages plugin) {
-		this.plugin = Objects.requireNonNull(plugin, "plugin");
+		this.plugin = plugin;
 	}
 
 	public int countUsers() {

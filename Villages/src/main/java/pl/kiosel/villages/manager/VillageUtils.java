@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import pl.kiosel.rosacore.compatibility.ZSound;
 import pl.kiosel.rosacore.dependencies.adventure.adventure.title.Title;
 import pl.kiosel.rosacore.utils.TimeUtils;
 import pl.kiosel.rosacore.utils.format.RawString;
@@ -24,6 +25,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class VillageUtils {
 
@@ -73,8 +75,10 @@ public class VillageUtils {
 	}
 
 	public void attackOnVillage(Village village, int hearth, Player attacker) {
+		Objects.requireNonNull(village);
 		plugin.getLogManager().record(village, VillageLogType.VILLAGE_ATTACK, attacker,
 				"lives", Math.max(0, village.getLives() - hearth));
+		ZSound.ENTITY_ENDER_DRAGON_HURT.play(attacker, 1f, 1f);
 		VillageMessage title;
 		VillageMessage subtitle;
 		VillageMessage message;
@@ -102,8 +106,12 @@ public class VillageUtils {
 						.with("time", formattedDuration);
 
 				user.sendMessage(message.toText());
-				plugin.getVillageMessages().sendTitle(Bukkit.getPlayer(user.getUUID()),
+				Player player = Bukkit.getPlayer(user.getUUID());
+				if (player == null) return;
+				plugin.getVillageMessages().sendTitle(player,
 						title.toText(), subtitle.toText(), times);
+
+				ZSound.ENTITY_WITHER_DEATH.play(player, 1f, 2f);
 			}
 			plugin.getVillageRemoveManager().destroyVillage(village, true);
 		} else {
@@ -116,8 +124,12 @@ public class VillageUtils {
 						.with("attacker", attacker.getName());
 
 				user.sendMessage(message.toText());
-				plugin.getVillageMessages().sendTitle(Bukkit.getPlayer(user.getUUID()),
+				Player player = Bukkit.getPlayer(user.getUUID());
+				if (player == null) return;
+				plugin.getVillageMessages().sendTitle(player,
 						title.toText(), subtitle.toText(), times);
+
+				ZSound.ENTITY_WITHER_DEATH.play(player, 1f, 1f);
 			}
 			plugin.getVillageRemoveManager().removeVillage(village, true);
 		}

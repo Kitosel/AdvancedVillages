@@ -8,6 +8,7 @@ import pl.kiosel.villages.AdvancedVillages;
 import java.time.Duration;
 
 public final class RentConfiguration {
+
 	private final RosaConfig file;
 	private volatile RentSettings settings;
 
@@ -19,9 +20,15 @@ public final class RentConfiguration {
 	public synchronized void reload() {
 		Duration interval = TimeUtils.duration(
 				this.file.getString("rent.payment-interval", "24h"), Duration.ofHours(24), false);
+		Duration paymentWindow = TimeUtils.duration(
+				this.file.getString("rent.manual-payment-window", "1h"), Duration.ofHours(1), false);
+		Duration maximumWindow = interval.minusMillis(1L);
+		if (maximumWindow.isNegative()) maximumWindow = Duration.ZERO;
+		if (paymentWindow.compareTo(maximumWindow) > 0) paymentWindow = maximumWindow;
 		this.settings = new RentSettings(
 				this.file.getBoolean("rent.enabled", true),
 				interval,
+				paymentWindow,
 				positive("rent.cost.base", 100),
 				positive("rent.cost.per-level", 50),
 				positive("rent.cost.per-member", 25),

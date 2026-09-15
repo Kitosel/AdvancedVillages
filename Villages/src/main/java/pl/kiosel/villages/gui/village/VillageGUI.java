@@ -58,7 +58,7 @@ public final class VillageGUI extends VillageMenu {
 			setButton(members.getSlot(), members.createItem(), event -> openFromMain(GUIS.RESIDENT));
 		}
 
-		if (bank.isEnabled()) {
+		if (bank.isEnabled() && plugin.getEconomy() != null) {
 			if (village.getLevel().getLevel() > 1) {
 				setButton(bank.getSlot(), bank.createItem(), event -> openFromMain(GUIS.BANK));
 			} else {

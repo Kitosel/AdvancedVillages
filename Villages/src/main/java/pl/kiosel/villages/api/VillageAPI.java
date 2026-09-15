@@ -9,7 +9,7 @@ import pl.kiosel.rosacore.dependencies.nbtapi.NBT;
 import pl.kiosel.rosacore.dependencies.nbtapi.iface.ReadWriteItemNBT;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.addons.buildeditor.VillageBuildEditorManager;
-import pl.kiosel.villages.addons.trials.VillageAnimationManager;
+import pl.kiosel.villages.data.village.features.trials.VillageAnimationManager;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.user.UserManager;

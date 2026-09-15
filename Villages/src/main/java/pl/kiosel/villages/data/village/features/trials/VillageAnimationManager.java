@@ -1,11 +1,11 @@
-package pl.kiosel.villages.addons.trials;
+package pl.kiosel.villages.data.village.features.trials;
 
 import pl.kiosel.rosacore.config.RosaConfig;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.addons.trials.animation.CentralBlockAnimator;
-import pl.kiosel.villages.addons.trials.animation.CreationAnimator;
-import pl.kiosel.villages.addons.trials.animation.RemovalAnimator;
-import pl.kiosel.villages.addons.trials.animation.VillageAnimationSettings;
+import pl.kiosel.villages.data.village.features.trials.animation.CentralBlockAnimator;
+import pl.kiosel.villages.data.village.features.trials.animation.CreationAnimator;
+import pl.kiosel.villages.data.village.features.trials.animation.RemovalAnimator;
+import pl.kiosel.villages.data.village.features.trials.animation.VillageAnimationSettings;
 import pl.kiosel.villages.data.village.Village;
 
 public final class VillageAnimationManager {

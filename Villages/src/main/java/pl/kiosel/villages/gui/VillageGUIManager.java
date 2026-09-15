@@ -37,11 +37,11 @@ public class VillageGUIManager {
 			case EFFECTS:
 				gui = new EffectsGUI(plugin, this, village, player, main);
 				break;
+			case UPKEEP:
+				gui = new UpkeepGUI(plugin, this, village, player, main);
+				break;
 			case QUESTS:
 				gui = new QuestGUI(plugin, this, village, player, main);
-				break;
-			case LOGS:
-				gui = new VillageLogGUI(plugin, this, village, player, main);
 				break;
 			case DIPLOMACY:
 				gui = new DiplomacyGUI(plugin, this, village, player, main);

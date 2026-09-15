@@ -1,5 +1,8 @@
 package pl.kiosel.villages.data.user;
 
+import java.util.Arrays;
+import java.util.List;
+
 public enum VillagePermission {
 
 	OWNER,
@@ -16,6 +19,15 @@ public enum VillagePermission {
 	ALLIANCE_MANAGE,
 	WAR_MANAGE,
 	DEVELOPMENT_BUY,
-	UNSET
+	UPKEEP,
+	UNSET;
+
+	private static final List<VillagePermission> EDITABLE = Arrays.stream(values())
+			.filter(permission -> permission != OWNER && permission != UNSET)
+			.toList();
+
+	public static List<VillagePermission> editableValues() {
+		return EDITABLE;
+	}
 
 }

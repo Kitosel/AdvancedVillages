@@ -121,6 +121,18 @@ public final class TablistConfiguration {
 			return Collections.emptyMap();
 
 		Map<NumberRange, TabListSkin> textures = new LinkedHashMap<>();
+		String sharedValue = section.getString("value", "").trim();
+		String sharedSignature = section.getString("signature", "").trim();
+		if (!sharedValue.isEmpty() || !sharedSignature.isEmpty()) {
+			if (sharedValue.isEmpty() || sharedSignature.isEmpty()) {
+				this.plugin.getRosaLogger().warning("Ignoring incomplete tablist head texture");
+				return textures;
+			}
+			textures.put(new NumberRange(1, TabList.DEFAULT_CELL_COUNT),
+					TabListSkin.of(sharedValue, sharedSignature));
+			return textures;
+		}
+
 		for (String key : section.getKeys(false)) {
 			ConfigurationSection texture = section.getConfigurationSection(key);
 			if (texture == null) {

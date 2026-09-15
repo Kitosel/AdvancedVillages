@@ -13,7 +13,7 @@ public final class VillageMessage {
 	private RosaMessage message;
 
 	VillageMessage(AdvancedVillages plugin, RosaMessage message) {
-		this.plugin = Objects.requireNonNull(plugin, "plugin");
+		this.plugin = plugin;
 		this.message = Objects.requireNonNull(message, "message");
 	}
 

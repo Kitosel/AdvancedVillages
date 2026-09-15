@@ -1,4 +1,4 @@
-package pl.kiosel.villages.addons.trials.animation;
+package pl.kiosel.villages.data.village.features.trials.animation;
 
 import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -22,7 +22,7 @@ public final class CreationAnimator {
 
     public void play(Village village) {
         Location center = village.getAnimation();
-        settings.getSound().play(village.getLocation().get(), settings.getVolume(), settings.getPitch());
+        settings.getSound().play(village.getLocation().orElseThrow(), settings.getVolume(), settings.getPitch());
         new BukkitRunnable() {
             private int tick;
 

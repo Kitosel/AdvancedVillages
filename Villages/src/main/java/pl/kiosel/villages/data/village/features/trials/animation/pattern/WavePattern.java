@@ -1,8 +1,8 @@
-package pl.kiosel.villages.addons.trials.animation.pattern;
+package pl.kiosel.villages.data.village.features.trials.animation.pattern;
 
 import pl.kiosel.rosacore.compatibility.ZParticle;
-import pl.kiosel.villages.addons.trials.animation.CentralAnimationFrame;
-import pl.kiosel.villages.addons.trials.animation.LevelAnimationStyle;
+import pl.kiosel.villages.data.village.features.trials.animation.CentralAnimationFrame;
+import pl.kiosel.villages.data.village.features.trials.animation.LevelAnimationStyle;
 
 public final class WavePattern implements AnimationPattern {
 

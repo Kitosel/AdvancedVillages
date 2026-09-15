@@ -1,22 +1,21 @@
-package pl.kiosel.villages.config;
+package pl.kiosel.villages.addons.tablist;
 
 import com.google.common.collect.ImmutableMap;
 import org.jetbrains.annotations.Nullable;
 import pl.kiosel.rosacore.utils.format.Formater;
 import pl.kiosel.rosacore.utils.format.RangeFormatting;
-import pl.kiosel.rosacore.utils.format.RawString;
 import pl.kiosel.villages.data.village.Village;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class TempMessages {
+public class TablistFormat {
 
 	public static String noValue = "&c-";
 
-	public static RawString playerTop = new RawString(" &7[%VALUE-FORMAT%&7]");
-	public static RawString villageTop = new RawString(" &7[&b%VALUE-FORMAT%&7]");
+	public static String playerTop = " &7[%VALUE-FORMAT%&7]";
+	public static String villageTop = " &7[&b%VALUE-FORMAT%&7]";
 
 	public static List<RangeFormatting> pointsFormat = Arrays.asList(
 			new RangeFormatting(0, 749, "&4%POINTS%"),
@@ -53,7 +52,7 @@ public class TempMessages {
 			))
 			.build();
 
-	public static Map<String, List<RangeFormatting>> gtopValueFormatting = ImmutableMap.<String, List<RangeFormatting>>builder()
+	public static Map<String, List<RangeFormatting>> vtopValueFormatting = ImmutableMap.<String, List<RangeFormatting>>builder()
 			.put("kills", Arrays.asList(
 					new RangeFormatting(0, 30, "&c%VALUE%"),
 					new RangeFormatting(31, 75, "&a%VALUE%"),
@@ -78,33 +77,32 @@ public class TempMessages {
 
 	public static class RelationalTag {
 
-		public RawString our = new RawString("&a%TAG%&f");
+		public String our = "&a%TAG%&f";
+		public String other = "&7%TAG%&f";
 
-		public RawString other = new RawString("&7%TAG%&f");
-
-		public String chooseTag(@Nullable Village guild, @Nullable Village targetGuild) {
-			if (targetGuild == null) {
+		public String chooseTag(@Nullable Village village, @Nullable Village otherVillage) {
+			if (otherVillage == null) {
 				return "";
 			}
 
-			if (guild == null) {
-				return this.other.getValue();
+			if (village == null) {
+				return this.other;
 			}
 
-			if (guild.equals(targetGuild)) {
-				return this.our.getValue();
+			if (village.equals(otherVillage)) {
+				return this.our;
 			}
 
-			return this.other.getValue();
+			return this.other;
 		}
 
-		public String chooseAndPrepareTag(@Nullable Village guild, @Nullable Village targetGuild) {
-			if (targetGuild == null) {
+		public String chooseAndPrepareTag(@Nullable Village village, @Nullable Village otherVillage) {
+			if (otherVillage == null) {
 				return "";
 			}
 
-			return Formater.of("%TAG%", targetGuild.getTag())
-					.replace(this.chooseTag(guild, targetGuild));
+			return Formater.of("%TAG%", otherVillage.getTag())
+					.replace(this.chooseTag(village, otherVillage));
 		}
 
 	}

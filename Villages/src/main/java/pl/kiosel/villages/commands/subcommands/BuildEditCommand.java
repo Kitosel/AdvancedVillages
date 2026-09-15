@@ -28,7 +28,7 @@ public final class BuildEditCommand extends AVSubCommand {
     getUsage() { return "/village edit [save|cancel]"; }
 
     @Override
-    public String getPermission() { return "villages.command.edit"; }
+    public String getPermission() { return "advancedvillages.command.edit"; }
 
 	@Override
 	public boolean requireVillage() { return false; }

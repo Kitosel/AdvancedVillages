@@ -73,18 +73,18 @@ public abstract class VillageMenu extends PagedGui {
 		if (destination != null) {
 			setButton(slot, Item.blank(Item.Blank.BACK),
 					event -> {
-						playSound(ZSound.UI_TOAST_IN, 1.0f, 2.0f);
+						playSound(ZSound.UI_TOAST_IN, 2.0f, 1.8f);
 						event.getManager().openGUI(event.getPlayer(), destination);
 					});
 		}
 	}
 
-	protected VillageMessages getVillageMessages() {
-		return this.messages;
-	}
-
 	protected void addBackButton() {
 		this.addBackButton(this.menuConfig.getBackSlot());
+	}
+
+	protected VillageMessages getVillageMessages() {
+		return this.messages;
 	}
 
 	protected GuiItemConfig item(GUIS menu, String path, int defaultSlot, Material material, String name, List<String> lore) {

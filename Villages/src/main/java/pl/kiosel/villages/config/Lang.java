@@ -230,6 +230,9 @@ public enum Lang implements MessageKey {
 	DEVELOPMENT_PREREQUISITE_REQUIRED("development.prerequisite-required"),
 	DEVELOPMENT_NOT_ENOUGH_BANK("development.not-enough-bank"),
 	UPKEEP_PAID("village.upkeep-paid"),
+	UPKEEP_SOURCE_BANK("village.upkeep-source.bank"),
+	UPKEEP_SOURCE_BALANCE("village.upkeep-source.balance"),
+	UPKEEP_NOT_DUE("village.upkeep-not-due"),
 	UPKEEP_MISSED("village.upkeep-missed"),
 	UPKEEP_PENALTY("village.upkeep-penalty"),
 

@@ -51,6 +51,7 @@ settings:
   lives: 'village lives'
 
 permissions:
+  all: 'all permissions'
   owner: 'owner'
   settings: 'settings'
   invite: 'inviting'
@@ -67,6 +68,7 @@ permissions:
   development-buy: 'development purchases'
 
 values:
+  default: '&erestored to defaults'
   on: '&aON'
   off: '&cOFF'
   updated: '&aupdated'

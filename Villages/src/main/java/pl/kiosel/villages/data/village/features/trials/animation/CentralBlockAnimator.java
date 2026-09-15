@@ -1,4 +1,4 @@
-package pl.kiosel.villages.addons.trials.animation;
+package pl.kiosel.villages.data.village.features.trials.animation;
 
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -60,7 +60,7 @@ public final class CentralBlockAnimator {
         if (world == null || !style.isEnabled()) {
             return;
         }
-        upgraded.getSound().play(village.getLocation().get(), upgraded.getVolume(), upgraded.getPitch());
+        upgraded.getSound().play(village.getLocation().orElseThrow(), upgraded.getVolume(), upgraded.getPitch());
 
         new BukkitRunnable() {
             private int tick;

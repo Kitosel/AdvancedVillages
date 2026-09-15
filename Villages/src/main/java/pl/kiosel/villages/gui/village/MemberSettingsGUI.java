@@ -7,22 +7,19 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import pl.kiosel.rosacore.gui.Gui;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.data.village.features.logs.VillageLogType;
 import pl.kiosel.villages.config.GuiItemConfig;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.user.VillagePermission;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.data.village.VillageRole;
+import pl.kiosel.villages.data.village.features.logs.VillageLogType;
 import pl.kiosel.villages.gui.GUIS;
 import pl.kiosel.villages.gui.Item;
 import pl.kiosel.villages.gui.VillageGUIManager;
 import pl.kiosel.villages.gui.VillageMenu;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
 
 public final class MemberSettingsGUI extends VillageMenu {
 
@@ -81,6 +78,7 @@ public final class MemberSettingsGUI extends VillageMenu {
 
 	private List<String> renderRoleLore(List<String> template, VillageRole role) {
 		List<String> rendered = new ArrayList<>();
+		Set<VillagePermission> permissions = plugin.getRoleManager().getPermissions(village, role);
 		String permissionLine = plugin.getGuiSettings().text(
 				"guis.member-settings.role.permission-line", "&8 • &f%permission%");
 		String noPermissions = plugin.getGuiSettings().text(
@@ -90,11 +88,11 @@ public final class MemberSettingsGUI extends VillageMenu {
 				rendered.add(line.replace("%role%", role.getName()));
 				continue;
 			}
-			if (role.getPermissions().isEmpty()) {
+			if (permissions.isEmpty()) {
 				rendered.add(line.replace("%permissions%", noPermissions));
 				continue;
 			}
-			role.getPermissions().stream().sorted().forEach(permission -> {
+			permissions.stream().sorted().forEach(permission -> {
 				String id = permission.name().toLowerCase(Locale.ROOT).replace('_', '-');
 				String fallback = permission.name().toLowerCase(Locale.ROOT).replace('_', ' ');
 				String display = plugin.getGuiSettings().text(

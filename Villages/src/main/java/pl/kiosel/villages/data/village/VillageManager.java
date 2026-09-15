@@ -1,17 +1,10 @@
 package pl.kiosel.villages.data.village;
 
+import lombok.Getter;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.data.user.User;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
@@ -20,7 +13,7 @@ import java.util.stream.Collectors;
 public class VillageManager {
 
 	private final ConcurrentMap<UUID, Village> villagesByUuid = new ConcurrentHashMap<>();
-	private final Collection<Village> villagesView = Collections.unmodifiableCollection(this.villagesByUuid.values());
+	@Getter private final Collection<Village> villagesView = Collections.unmodifiableCollection(this.villagesByUuid.values());
 
 	public int countVillage() {
 		return this.villagesByUuid.size();
@@ -28,10 +21,6 @@ public class VillageManager {
 
 	public Set<Village> getVillages() {
 		return new HashSet<>(this.villagesByUuid.values());
-	}
-
-	public Collection<Village> getVillagesView() {
-		return this.villagesView;
 	}
 
 	public void clearVillage() {
@@ -97,6 +86,7 @@ public class VillageManager {
 		if (plugin.getLogManager() != null) plugin.getLogManager().delete(village);
 		if (plugin.getDevelopmentManager() != null) plugin.getDevelopmentManager().delete(village);
 		if (plugin.getUpkeepManager() != null) plugin.getUpkeepManager().delete(village);
+		if (plugin.getRoleManager() != null) plugin.getRoleManager().delete(village);
 		this.deleteVillage(village);
 	}
 

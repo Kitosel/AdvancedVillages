@@ -3,13 +3,13 @@ package pl.kiosel.villages.commands.subcommands;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.data.village.features.logs.VillageLogType;
 import pl.kiosel.villages.commands.AVSubCommand;
 import pl.kiosel.villages.config.CommandLang;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.user.VillagePermission;
 import pl.kiosel.villages.data.village.Village;
+import pl.kiosel.villages.data.village.features.logs.VillageLogType;
 
 public class LeaveCommand extends AVSubCommand {
 
@@ -20,7 +20,7 @@ public class LeaveCommand extends AVSubCommand {
     public String getUsage() { return "/village leave"; }
 
 	@Override
-	public String getPermission() { return "villages.command.leave"; }
+	public String getPermission() { return "advancedvillages.command.leave"; }
 
 	@Override
 	public boolean requireVillage() { return true; }
@@ -38,6 +38,7 @@ public class LeaveCommand extends AVSubCommand {
 	@Override
 	public void run(Player player, User user, String[] args) {
 		Village village = user.getPresentVillage();
+		if (village == null) return;
         if(village.isOwner(user)) {
 			sendLocalized(player, Lang.LEAVE_OWNER);
             return;

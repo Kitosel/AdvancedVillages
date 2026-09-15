@@ -12,6 +12,8 @@ gui-diplomacy: "Village - &bDiplomacy"
 gui-development: "Village - &dDevelopment"
 gui-quests: "Village - &eQuests"
 gui-specializations: "Village - &aSpecializations"
+gui-permission: "Village - &dRole permissions"
+gui-upkeep: "Village - &eUpkeep"
 gui-tutorial: "&6AdvancedVillages setup"
 gui-member-settings: "Village - &7Member Settings"
 gui-remove-member: "&cRemove member"
@@ -33,6 +35,8 @@ layout:
   diplomacy: { rows: 4, back-slot: 4 }
   development: { rows: 4, back-slot: 4 }
   specializations: { rows: 3, back-slot: 4 }
+  permission: { rows: 4, back-slot: 4 }
+  upkeep: { rows: 4, back-slot: 4 }
   tutorial: { rows: 3, back-slot: 4 }
   delete-member: { rows: 3, back-slot: 4 }
   member-settings: { rows: 3, back-slot: 8 }
@@ -233,6 +237,14 @@ guis:
       name: "&lSettings"
       lore:
         - "&7Manage Village"
+      upkeep:
+        slot: 18
+        material: IRON_NUGGET
+        name: "&6Village upkeep"
+        lore:
+          - "&7Next cost: &6%cost%$"
+          - "&7Payment in: &f%time%"
+          - "&7Missed payments: &c%missed%"
       teleport:
         slot: 19
         material: FEATHER
@@ -370,6 +382,12 @@ guis:
           - " "
           - "&7Last online: %PLAYER_LAST_ONLINE%"
           - " "
+      role-permissions:
+        enabled: true
+        material: NAME_TAG
+        name: "&6%role%"
+        lore:
+          - "&7Click to edit this role's permissions."
     #
     # EFFECTS
     #
@@ -469,14 +487,6 @@ guis:
         slot: 13
         material: PAPER
         name: "&6Bank&7: %village_balance%"
-      upkeep:
-        slot: 18
-        material: CLOCK
-        name: "&6Village upkeep"
-        lore:
-          - "&7Next cost: &6%cost%$"
-          - "&7Payment in: &f%time%"
-          - "&7Missed payments: &c%missed%"
       add:
         name: "&aAdd to bank"
       remove:
@@ -815,22 +825,17 @@ guis:
         - "&7Receive &a%bonus%% &7more healing."
         - ""
         - "%status%"
-
+#
+# REMOVE VILLAGE
+#
   remove:
     confirm: { slot: 12, material: LIME_CONCRETE, name: "&aYes" }
     info: { slot: 13, material: PAPER }
     cancel: { slot: 14, material: RED_CONCRETE, name: "&cNo" }
-
-  delete-member:
-    confirm: { slot: 12, material: LIME_CONCRETE, name: "&aYes" }
-    member:
-      slot: 13
-      material: PLAYER_HEAD
-      name: "%player%"
-      lore:
-        - "&7Remove: &6%player%"
-    cancel: { slot: 14, material: RED_CONCRETE, name: "&cNo" }
-
+#
+# MEMBER SETTINGS
+# ROLE/PERMISSION/KICK
+#
   member-settings:
     header:
       slot: 4
@@ -873,3 +878,96 @@ guis:
         - " "
         - "&cRemove member from village"
         - " "
+#
+# KICK/REMOVE/DELETE MEMBER
+#
+  delete-member:
+    confirm: { slot: 12, material: LIME_CONCRETE, name: "&aYes" }
+    member:
+      slot: 13
+      material: PLAYER_HEAD
+      name: "%player%"
+      lore:
+        - "&7Remove: &6%player%"
+    cancel: { slot: 14, material: RED_CONCRETE, name: "&cNo" }
+#
+# UPKEEP/RENT
+#
+  upkeep:
+    info:
+      slot: 13
+      material: IRON_NUGGET
+      name: "&6Village upkeep"
+      lore:
+        - "&7Next cost: &6%cost%$"
+        - "&7Payment in: &f%time%"
+        - "&7Missed payments: &c%missed%"
+    pay:
+      slot: 21
+      material: SUNFLOWER
+      name: "&6Pay upkeep"
+      lore:
+        - "&7Cost: &6%cost%$"
+        - "&7Village bank: &f%bank%$"
+        - "&7Your balance: &f%balance%$"
+        - ""
+        - "&7Right click: &ePay with bank"
+        - "&7Left click: &dPay with balance"
+    automatic-payment:
+      slot: 23
+      material: ALLIUM
+      name: "&dAutomatic payment"
+      lore:
+        - "&7Current: %status%"
+        - "&7Source: &6village bank"
+        - ""
+        - "&eClick to change"
+    status:
+      enabled: "&aEnabled"
+      disabled: "&cDisabled"
+#
+# EDIT ROLE PERMISSION
+#
+  permission:
+    start-slot: 9
+    header:
+      slot: 31
+      material: ITEM_FRAME
+      name: "&7Editing role: &r%role%"
+      lore:
+        - "&7Click a permission to change it."
+    reset:
+      slot: 32
+      material: BARRIER
+      name: "&7Reset role permissions"
+      lore:
+        - "&7Restore permissions from &cvillage.yml&7."
+    active:
+      material: LIME_DYE
+      name: "&a%permission%"
+      lore:
+        - "&7Status: &aEnabled"
+        - ""
+        - "&eClick to disable"
+    inactive:
+      material: GRAY_DYE
+      name: "&7%permission%"
+      lore:
+        - "&7Status: &cDisabled"
+        - ""
+        - "&eClick to enable"
+    permission-names:
+      settings: "Editing Settings"
+      invite: "Can inviting members"
+      store: "Can buy in village store"
+      effects-buy: "Can buying effects"
+      effects-toggle: "Can toggling effects"
+      upgrade: "Can upgrade village"
+      storage: "storage"
+      bank-add: "Bank deposits"
+      bank-remove: "Bank withdrawals"
+      quest-toggle: "Quest activation"
+      alliance-manage: "Alliances"
+      war-manage: "Wars"
+      development-buy: "Development purchases"
+      upkeep: "Village upkeep"

@@ -40,7 +40,7 @@ public final class CraftingManager {
 	private final Map<RecipeType, Recipe> registeredRecipes = new EnumMap<>(RecipeType.class);
 
 	public CraftingManager(AdvancedVillages plugin) {
-		this.plugin = Objects.requireNonNull(plugin, "plugin");
+		this.plugin = plugin;
 		this.recipeStore = new CraftingRecipeStore(new RosaConfig(plugin, "recipes.yml"));
 	}
 

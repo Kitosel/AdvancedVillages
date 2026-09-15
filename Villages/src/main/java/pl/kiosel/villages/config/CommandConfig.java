@@ -25,10 +25,7 @@ public class CommandConfig {
 
 	public String getCommand(CommandLang lang) {
 		String message = command.get(lang.getPath());
-		if (message == null || message.trim().isEmpty()) {
-			message = lang.getDef();
-		}
-		if (message.contains(" ")) {
+		if (message == null || message.trim().isEmpty() || message.contains(" ")) {
 			message = lang.getDef();
 		}
 		return message.toLowerCase(Locale.ROOT);

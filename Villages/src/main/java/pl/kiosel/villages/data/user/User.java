@@ -3,6 +3,7 @@ package pl.kiosel.villages.data.user;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 import pl.kiosel.rosacore.utils.ColorUtils;
+import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.data.AbstractMutableEntity;
 import pl.kiosel.villages.data.village.Village;
 
@@ -99,6 +100,10 @@ public class User extends AbstractMutableEntity {
 	}
 
 	public boolean hasVillagePermission(VillagePermission permission) {
+		AdvancedVillages plugin = AdvancedVillages.getInstance();
+		if (plugin != null && plugin.getRoleManager() != null) {
+			return plugin.getRoleManager().hasPermission(this, permission);
+		}
 		return this.villageState.hasPermission(permission, this.isOwner());
 	}
 
@@ -115,9 +120,9 @@ public class User extends AbstractMutableEntity {
 	}
 
 	public void setPermissions(VillagePermission... permissions) {
-		Set<VillagePermission> updated = permissions == null
+		Set<VillagePermission> updated = new HashSet<>(permissions == null
 				? Set.of()
-				: new HashSet<>(Arrays.asList(permissions));
+				: new HashSet<>(Arrays.asList(permissions)));
 		updated.remove(null);
 		this.setPermissions(updated);
 	}

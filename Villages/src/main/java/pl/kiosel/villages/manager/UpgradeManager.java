@@ -67,7 +67,7 @@ public class UpgradeManager {
 		if (!hasMoney || !hasXp || !hasItems) {
 			messages.sendPrefixed(player, Lang.VILLAGE_NO_REQ_UPGRADE);
 
-			if (!hasMoney) {
+			if (!hasMoney && plugin.getEconomy() != null) {
 				double more_money = costEco - plugin.getEconomy().getBalance(player);
 				messages.sendPrefixed(player, Lang.NO_MONEY, "money", more_money);
 			}
@@ -89,7 +89,7 @@ public class UpgradeManager {
 			return false;
 		}
 
-		if (ecoEnabled) {
+		if (ecoEnabled && plugin.getEconomy() != null) {
 			if (!plugin.getEconomy().withdrawBalance(player, costEco)) {
 				messages.sendPrefixed(player, Lang.NO_MONEY, "money", costEco);
 				return false;

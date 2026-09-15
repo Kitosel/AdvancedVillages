@@ -23,7 +23,7 @@ public class RequestCommand extends AVSubCommand {
     public String getUsage() { return "/village confirm/cancel"; }
 
 	@Override
-	public String getPermission() { return "villages.command.request"; }
+	public String getPermission() { return "advancedvillages.command.request"; }
 
 	@Override
 	public boolean requireVillage() { return false; }

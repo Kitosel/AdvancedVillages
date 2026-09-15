@@ -11,6 +11,7 @@ import pl.kiosel.rosacore.database.DatabaseManager;
 import pl.kiosel.rosacore.dependencies.nbtapi.NBT;
 import pl.kiosel.rosacore.gui.GuiManager;
 import pl.kiosel.rosacore.hook.economy.EconomyHook;
+import pl.kiosel.rosacore.utils.Metrics;
 import pl.kiosel.rosacore.utils.ReflectionUtils;
 import pl.kiosel.rosacore.version.Version;
 import pl.kiosel.villages.addons.antylogout.CombatConfig;
@@ -24,7 +25,7 @@ import pl.kiosel.villages.addons.scoreboard.ScoreboardManager;
 import pl.kiosel.villages.addons.tablist.TablistConfiguration;
 import pl.kiosel.villages.addons.tablist.TablistManager;
 import pl.kiosel.villages.addons.tablist.TablistPlaceholdersService;
-import pl.kiosel.villages.addons.trials.VillageAnimationManager;
+import pl.kiosel.villages.data.village.features.trials.VillageAnimationManager;
 import pl.kiosel.villages.api.VillageAPI;
 import pl.kiosel.villages.commands.CommandTest;
 import pl.kiosel.villages.commands.ConfiguredCommandRegistry;
@@ -189,6 +190,7 @@ public final class AdvancedVillages extends RosaPlugin {
 
 	@Override
 	public void onPluginEnable() {
+		new Metrics(this, 33988);
 		getDebug().debug("Setup main config");
 		Settings.setupConfig(this);
 		this.saveLang();
@@ -228,16 +230,11 @@ public final class AdvancedVillages extends RosaPlugin {
 
 		if (!this.databaseConfig.load().isSuccess())
 			throw new IllegalStateException("Could not load database.yml");
-		DatabaseManager database = isDev()
-				? createDatabase(
+		DatabaseManager database = createDatabase(
 						VillageDatabaseSettings.read(this, this.databaseConfig),
 						getName().toLowerCase() + '_',
 						new _1_InitialMigration(),
-						new _2_FeaturesMigration())
-				: createDatabase(
-						VillageDatabaseSettings.read(this, this.databaseConfig),
-						getName().toLowerCase() + '_',
-						new _1_InitialMigration());
+						new _2_FeaturesMigration());
 
 		this.dataManager = new VillageDataManager(database);
 
@@ -358,9 +355,9 @@ public final class AdvancedVillages extends RosaPlugin {
 			if (isPlaceholder())
 				this.placeholder.unregister();
 		});
-		runShutdownStep("unregistering integrations", () -> {
-			this.integrationManager.disable();
-		});
+		runShutdownStep("unregistering integrations", () ->
+				this.integrationManager.disable()
+		);
 		runShutdownStep("unregistering WorldEdit protection", () -> {
 			if (this.worldEditTurretListener != null)
 				this.worldEditTurretListener.unregister();

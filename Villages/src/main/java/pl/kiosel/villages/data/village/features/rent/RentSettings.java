@@ -8,6 +8,7 @@ import java.time.Duration;
 public final class RentSettings {
 	private final boolean enabled;
 	private final Duration interval;
+	private final Duration manualPaymentWindow;
 	private final int baseCost;
 	private final int costPerLevel;
 	private final int costPerMember;
@@ -16,11 +17,13 @@ public final class RentSettings {
 	private final int missedBeforePenalty;
 	private final int lifePenalty;
 
-	public RentSettings(boolean enabled, Duration interval, int baseCost, int costPerLevel,
+	public RentSettings(boolean enabled, Duration interval, Duration manualPaymentWindow,
+						int baseCost, int costPerLevel,
 						int costPerMember, int regionBlockUnit, int costPerRegionUnit,
 						int missedBeforePenalty, int lifePenalty) {
 		this.enabled = enabled;
 		this.interval = interval;
+		this.manualPaymentWindow = manualPaymentWindow;
 		this.baseCost = baseCost;
 		this.costPerLevel = costPerLevel;
 		this.costPerMember = costPerMember;

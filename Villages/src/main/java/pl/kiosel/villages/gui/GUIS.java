@@ -15,6 +15,7 @@ public enum GUIS {
 	EFFECTS("effects", "gui-effects", "Village - &dEffects", 4, 4),
 	QUESTS("quests", "gui-quests", "Village - &eQuests", 4, 4),
 	LOGS("logs", "gui-logs", "Village - &6Activity logs", 4, 4),
+	UPKEEP("upkeep", "gui-upkeep", "Village - &eUpkeep", 4, 4),
 	DIPLOMACY("diplomacy", "gui-diplomacy", "Village - &bDiplomacy", 4, 4),
 	DEVELOPMENT("development", "gui-development", "Village - &dDevelopment", 4, 4),
 	PERMISSION("permission", "gui-permission", "Village - &dMember Permission", 4, 4),

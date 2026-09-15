@@ -9,7 +9,7 @@ import pl.kiosel.rosacore.utils.format.RangeFormatting;
 import pl.kiosel.rosacore.utils.format.Replaceable;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.addons.tablist.TablistConfiguration;
-import pl.kiosel.villages.config.TempMessages;
+import pl.kiosel.villages.addons.tablist.TablistFormat;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.user.UserRankManager;
 import pl.kiosel.villages.data.user.top.UserTop;
@@ -71,38 +71,38 @@ public final class RankPlaceholdersService {
 		try {
 			index = Integer.parseInt(matcher.group(3));
 		} catch (NumberFormatException ignored) {
-			return TempMessages.noValue;
+			return TablistFormat.noValue;
 		}
 		if (index < 1) {
-			return TempMessages.noValue;
+			return TablistFormat.noValue;
 		}
 
 		if (type.equals("PLAYERTOP")) {
 			Optional<UserTop> top = this.userRankManager.getTop(comparator);
 			if (top.isEmpty()) {
-				return TempMessages.noValue;
+				return TablistFormat.noValue;
 			}
 			Optional<User> user = top.get().getUser(index);
 			if (user.isEmpty()) {
-				return TempMessages.noValue;
+				return TablistFormat.noValue;
 			}
 
 			Number value = top.get().getComparator().getValue(user.get().getRank());
-			String suffix = formatTopValue(value, TempMessages.playerTop.getValue(), TempMessages.topValueFormatting.get(comparator));
+			String suffix = formatTopValue(value, TablistFormat.playerTop, TablistFormat.topValueFormatting.get(comparator));
 			return formatUser(user.get(), suffix);
 		}
 
 		Optional<VillageTop> top = this.villageRankManager.getTop(comparator);
 		if (top.isEmpty()) {
-			return TempMessages.noValue;
+			return TablistFormat.noValue;
 		}
 		Optional<Village> village = top.get().getVillage(index);
 		if (village.isEmpty()) {
-			return TempMessages.noValue;
+			return TablistFormat.noValue;
 		}
 
 		Number value = top.get().getComparator().getValue(village.get().getRank());
-		String suffix = formatTopValue(value, TempMessages.villageTop.getValue(), TempMessages.gtopValueFormatting.get(comparator));
+		String suffix = formatTopValue(value, TablistFormat.villageTop, TablistFormat.vtopValueFormatting.get(comparator));
 		return this.formatVillage(targetUser, village.get(), suffix);
 	}
 
@@ -114,12 +114,12 @@ public final class RankPlaceholdersService {
 		}
 
 		if (targetUser == null || targetUser.getVillage().isEmpty()) {
-			return TempMessages.noValue;
+			return TablistFormat.noValue;
 		}
 		Village village = targetUser.getVillage().get();
 		return this.villageRankManager.isRankedVillage(village)
 				? Integer.toString(village.getRank().getPosition(comparator))
-				: TempMessages.noValue;
+				: TablistFormat.noValue;
 	}
 
 	private static String formatTopValue(Number value, String format, @Nullable List<RangeFormatting> ranges) {
@@ -138,7 +138,7 @@ public final class RankPlaceholdersService {
 		String tag = village.getTag();
 		if (this.tablistConfig.shouldUseRelationshipColors()) {
 			Village viewerVillage = targetUser == null ? null : targetUser.getVillage().orElse(null);
-			tag = TempMessages.relationalTag.chooseAndPrepareTag(viewerVillage, village);
+			tag = TablistFormat.relationalTag.chooseAndPrepareTag(viewerVillage, village);
 		}
 		return tag + suffix;
 	}
@@ -149,7 +149,7 @@ public final class RankPlaceholdersService {
 			return text;
 		}
 
-		StringBuffer result = new StringBuffer(text.length());
+		StringBuilder result = new StringBuilder(text.length());
 		do {
 			matcher.appendReplacement(result, Matcher.quoteReplacement(resolver.apply(matcher)));
 		} while (matcher.find());

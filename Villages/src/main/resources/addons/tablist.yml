@@ -173,8 +173,10 @@ animation:
         "75": " &610. &7%villageTop-deaths-10%"
         "77": " &7Village position: &6%village-position-deaths%"
 
-# Optional glow textures. The key can be a field number or a range, e.g., “1-80”.
-# Each texture requires a value and a signature from the Minecraft profile.
+# Optional head texture. A value and signature directly under textures apply to all fields.
+# You can also group them under a field number or range, e.g. "1-80".
 heads:
-  enabled: false
-  textures: {}
+  enabled: true
+  textures:
+    value: "ewogICJ0aW1lc3RhbXAiIDogMTc4ODk2MzI0Njg2NiwKICAicHJvZmlsZUlkIiA6ICJkNDMwMzU0MzEyM2Q0NjdmYmQ2Mjc0MzIwZTYzZDhiMCIsCiAgInByb2ZpbGVOYW1lIiA6ICJLcmVwIiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzgzYzI2MTMzM2Q2ZjRiMzUxNmM0OTU0ZWZiNWY2Njk1Yzg4Yzg0ZTYxYmFjZGYyZGZiOGFjN2FiZjVhN2I2YWQiCiAgICB9CiAgfQp9"
+    signature: "BbeLynH0G08Y/BAqKecrl5+Plf3tifHQ0mpM6kL9+1cdBC780miK42decavqA8WYP35itl1Ji4kYa2E09RL50lcT5/Xj6meVZk3whWzf1t9BGPqt8G0h76Xq6mgJoo/JNw6eyltHm0MNvR/PRtb0aAbB7Vpw6aZWcwuWaxJM+JDOF1OdH8sEB5cH+P2LpjgBc7I7ns7QqhNGZKe0kZI6IBoHc/PuSd06CjbmP2V+BwUxsWuHeV4OUT6gz1bUlENUvX0ZIpNqfRMN9SuOu6qOdyZ+nA+0XrmKW8IkgfE73RoeGUny/ShpJsSNKfrWMC32eicEzy3EVy+WhvQROpPzmiXx2cckRbuhO79kyh2XS4JQYZWeZR395yW8AGtHqS1r/pS4whFdz6XDjSJ4LcaEZ5xHNHHo6Y3KKwjFFRdcIScXye4Y3fNcTLmL4HWwXGeHS7wkh/WvtVPZ4l0VMjkq2pJKP5CG2ReXXrkQqYil5Fasvh9oFTSmdrYF3U/lvQk0QyVp9IDi/SXMoST4V3B16l3a2Cqd3ANW8vq3WujuClzzV+FYcxZEssqHc7+zRyAesmD91gMGjfC2oJRdGeaiv3uJfCsL0gh1SO85FdG5thiRv9J0l4Nw0kE+XvPVehYPL+6vd+FXYl3L8pRwBCrZ0DvRZSRWgw0MDQpZaaniHWE="

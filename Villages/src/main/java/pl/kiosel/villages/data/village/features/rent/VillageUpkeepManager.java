@@ -1,11 +1,12 @@
 package pl.kiosel.villages.data.village.features.rent;
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.data.village.features.logs.VillageLogType;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.data.village.Village;
+import pl.kiosel.villages.data.village.features.logs.VillageLogType;
 import pl.kiosel.villages.storage.UpkeepStorage;
 
 import java.time.Duration;
@@ -16,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
 public final class VillageUpkeepManager {
+
 	private final AdvancedVillages plugin;
 	private final RentConfiguration configuration;
 	private final UpkeepStorage storage;
@@ -31,7 +33,6 @@ public final class VillageUpkeepManager {
 	}
 
 	public void load() {
-		if (!this.plugin.isDev()) return;
 		this.states.clear();
 		this.storage.load(state -> {
 			if (this.plugin.getVillageManager().findByUuid(state.getVillageId()).isPresent()) {
@@ -66,12 +67,57 @@ public final class VillageUpkeepManager {
 	}
 
 	public boolean isEnabled() {
-		return this.plugin.isDev() && this.settings.isEnabled();
+		return this.settings.isEnabled();
+	}
+
+	public boolean isAutomaticPayment(Village village) {
+		return village != null && this.state(village).isAutomaticPayment();
+	}
+
+	public void setAutomaticPayment(Village village, boolean automaticPayment) {
+		if (village == null) return;
+		this.state(village).setAutomaticPayment(automaticPayment);
+	}
+
+	public boolean payNowBank(Village village, Player actor) {
+		if (!this.canPayNow(village)) return false;
+		int cost = this.calculateCost(village);
+		if (village.getBank() < cost) return false;
+
+		VillageUpkeepState state = this.state(village);
+		village.removeBank(cost);
+		this.completePayment(village, state, Instant.now().plus(this.settings.getInterval()), cost, actor,
+				Lang.UPKEEP_SOURCE_BANK);
+		return true;
+	}
+
+	public boolean payNowBalance(Village village, Player actor) {
+		if (!this.canPayNow(village) || actor == null) return false;
+		int cost = this.calculateCost(village);
+		if (!this.plugin.getEconomy().hasBalance(actor, cost)
+				|| !this.plugin.getEconomy().withdraw(actor, cost)) return false;
+
+		VillageUpkeepState state = this.state(village);
+		this.completePayment(village, state, Instant.now().plus(this.settings.getInterval()), cost, actor,
+				Lang.UPKEEP_SOURCE_BALANCE);
+		return true;
+	}
+
+	public boolean canPayNow(Village village) {
+		if (!this.isEnabled() || village == null) return false;
+		Instant paymentOpens = this.state(village).getNextPayment().minus(this.settings.getManualPaymentWindow());
+		return !Instant.now().isBefore(paymentOpens);
+	}
+
+	public Duration getManualPaymentAvailableIn(Village village) {
+		if (village == null) return Duration.ZERO;
+		Instant paymentOpens = this.state(village).getNextPayment().minus(this.settings.getManualPaymentWindow());
+		Duration remaining = Duration.between(Instant.now(), paymentOpens);
+		return remaining.isNegative() ? Duration.ZERO : remaining;
 	}
 
 	public int calculateCost(Village village) {
 		if (village == null) return 0;
-		RentSettings current = this.settings;
 		long level = village.getLevel() == null ? 1L : Math.max(1, village.getLevel().getLevel());
 		long members = village.getMembers().size();
 		long radius = village.getRegion().map(region -> (long) region.getSize())
@@ -79,11 +125,11 @@ public final class VillageUpkeepManager {
 		radius = Math.min(1_000_000L, Math.max(0L, radius));
 		long side = Math.max(1L, radius * 2L + 1L);
 		long area = side * side;
-		long regionUnits = (area + current.getRegionBlockUnit() - 1L) / current.getRegionBlockUnit();
-		long result = current.getBaseCost()
-				+ level * current.getCostPerLevel()
-				+ members * current.getCostPerMember()
-				+ regionUnits * current.getCostPerRegionUnit();
+		long regionUnits = (area + this.settings.getRegionBlockUnit() - 1L) / this.settings.getRegionBlockUnit();
+		long result = this.settings.getBaseCost()
+				+ level * this.settings.getCostPerLevel()
+				+ members * this.settings.getCostPerMember()
+				+ regionUnits * this.settings.getCostPerRegionUnit();
 		return (int) Math.min(Integer.MAX_VALUE, Math.max(0L, result));
 	}
 
@@ -101,7 +147,6 @@ public final class VillageUpkeepManager {
 	}
 
 	public void save(boolean ignoreUnchanged) {
-		if (!this.plugin.isDev()) return;
 		for (VillageUpkeepState state : this.states.values()) {
 			if (ignoreUnchanged && !state.wasChanged()) continue;
 			try {
@@ -114,7 +159,7 @@ public final class VillageUpkeepManager {
 	}
 
 	public void delete(Village village) {
-		if (!this.plugin.isDev() || village == null) return;
+		if (village == null) return;
 		this.states.remove(village.getUUID());
 		this.storage.delete(village.getUUID());
 	}
@@ -132,19 +177,18 @@ public final class VillageUpkeepManager {
 		if (!this.isEnabled()) return;
 		int cost = this.calculateCost(village);
 		int missed = state.getMissedPayments();
-		if (village.getBank() >= cost) {
+		if (state.isAutomaticPayment() && village.getBank() >= cost) {
 			village.removeBank(cost);
-			missed = 0;
-			this.plugin.getLogManager().recordSystem(village, VillageLogType.UPKEEP_PAID,
-					"amount", cost);
-			village.broadcast(this.plugin.getVillageMessages().prefixedText(Lang.UPKEEP_PAID,
-					"cost", cost));
+			this.completePayment(village, state, now.plus(this.settings.getInterval()), cost, null,
+					Lang.UPKEEP_SOURCE_BANK);
+			return;
 		} else {
 			missed++;
+			int missing = state.isAutomaticPayment() ? Math.max(0, cost - village.getBank()) : cost;
 			this.plugin.getLogManager().recordSystem(village, VillageLogType.UPKEEP_MISSED,
-					"amount", cost, "missing", Math.max(0, cost - village.getBank()), "missed", missed);
+					"amount", cost, "missing", missing, "missed", missed);
 			village.broadcast(this.plugin.getVillageMessages().prefixedText(Lang.UPKEEP_MISSED,
-					"cost", cost, "missing", Math.max(0, cost - village.getBank()), "missed", missed));
+					"cost", cost, "missing", missing, "missed", missed));
 			if (this.settings.getLifePenalty() > 0 && missed >= this.settings.getMissedBeforePenalty()) {
 				int lost = Math.min(village.getLives(), this.settings.getLifePenalty());
 				village.updateLives(value -> value - lost);
@@ -156,6 +200,21 @@ public final class VillageUpkeepManager {
 			}
 		}
 		state.update(now.plus(this.settings.getInterval()), missed);
+	}
+
+	private void completePayment(Village village, VillageUpkeepState state, Instant nextPayment,
+	                             int cost, Player actor, Lang source) {
+		state.update(nextPayment, 0);
+		if (actor == null) {
+			this.plugin.getLogManager().recordSystem(village, VillageLogType.UPKEEP_PAID,
+					"amount", cost);
+		} else {
+			this.plugin.getLogManager().record(village, VillageLogType.UPKEEP_PAID, actor,
+					"amount", cost);
+		}
+		String sourceName = this.plugin.getVillageMessages().text(source);
+		village.broadcast(this.plugin.getVillageMessages().prefixedText(Lang.UPKEEP_PAID,
+				"cost", cost, "source", sourceName));
 	}
 
 	private VillageUpkeepState state(Village village) {

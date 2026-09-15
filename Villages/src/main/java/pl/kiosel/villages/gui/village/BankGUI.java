@@ -31,23 +31,6 @@ public final class BankGUI extends VillageMenu {
 					balance.getLore()));
 		}
 
-		if (plugin.getUpkeepManager().isEnabled()) {
-			GuiItemConfig upkeep = item("upkeep", 18, Material.CLOCK, 1,
-					"&6Village upkeep", List.of(
-							"&7Next cost: &6%cost%$",
-							"&7Payment in: &f%time%",
-							"&7Missed payments: &c%missed%"));
-			if (upkeep.isEnabled()) {
-				String cost = Integer.toString(plugin.getUpkeepManager().calculateCost(village));
-				String time = plugin.getVillageMessages().formatDuration(plugin.getUpkeepManager().getRemaining(village));
-				String missed = Integer.toString(plugin.getUpkeepManager().getMissedPayments(village));
-				setItem(upkeep.getSlot(), upkeep.createItem(
-						upkeep.getName().replace("%cost%", cost).replace("%time%", time).replace("%missed%", missed),
-						upkeep.getLore().stream().map(line -> line
-								.replace("%cost%", cost).replace("%time%", time).replace("%missed%", missed)).toList()));
-			}
-		}
-
 		depositButton("deposit-all", 11, Material.GREEN_DYE, 1, "&a&l+ALL", -1);
 		withdrawButton("withdraw-all", 15, Material.RED_DYE, 1, "&c&l-ALL", -1);
 

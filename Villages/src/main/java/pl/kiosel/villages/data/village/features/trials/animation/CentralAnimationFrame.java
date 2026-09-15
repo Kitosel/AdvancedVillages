@@ -1,4 +1,4 @@
-package pl.kiosel.villages.addons.trials.animation;
+package pl.kiosel.villages.data.village.features.trials.animation;
 
 import lombok.Getter;
 import org.bukkit.Location;

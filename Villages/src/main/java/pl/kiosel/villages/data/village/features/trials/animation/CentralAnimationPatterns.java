@@ -1,6 +1,6 @@
-package pl.kiosel.villages.addons.trials.animation;
+package pl.kiosel.villages.data.village.features.trials.animation;
 
-import pl.kiosel.villages.addons.trials.animation.pattern.*;
+import pl.kiosel.villages.data.village.features.trials.animation.pattern.*;
 
 import java.util.LinkedHashMap;
 import java.util.Locale;

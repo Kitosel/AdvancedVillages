@@ -17,7 +17,7 @@ public class ChatCommand extends AVSubCommand {
 	public String getUsage() { return "/village chat *message*"; }
 
 	@Override
-	public String getPermission() { return "villages.command.chat"; }
+	public String getPermission() { return "advancedvillages.command.chat"; }
 
 	@Override
 	public boolean requireVillage() { return true; }
@@ -45,6 +45,7 @@ public class ChatCommand extends AVSubCommand {
 		String formatted = getMessage(Lang.VILLAGE_CHAT_FORMAT.getPath()).
 				with("player", player.getName()).
 				with("message", message).toString();
+		if (user.getPresentVillage() == null) return;
 		user.getPresentVillage().broadcast(formatted);
 	}
 }

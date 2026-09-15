@@ -27,6 +27,7 @@ public class Dataloader {
 	public void load() {
 		this.loadUsers();
 		this.loadVillage();
+		this.plugin.getRoleManager().load();
 		this.plugin.getQuestManager().load();
 		this.plugin.getLogManager().load();
 		this.plugin.getDiplomacyManager().load();

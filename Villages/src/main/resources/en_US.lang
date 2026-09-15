@@ -122,7 +122,11 @@ village:
   remove-member: '&7You removed &6%player% &7from the village'
   role-changed: '&7Changed the role of &6%player% &7to %role%&7.'
 
-  upkeep-paid: '&7Village upkeep of &6%cost%$ &7was paid from the bank.'
+  upkeep-paid: '&7Village upkeep of &6%cost%$ &7was paid from %source%&7.'
+  upkeep-source:
+    bank: '&6the village bank'
+    balance: '&dthe player balance'
+  upkeep-not-due: '&cUpkeep cannot be paid yet. Manual payment will be available in %time%.'
   upkeep-missed: '&cThe village could not pay %cost%$ upkeep. Missing: %missing%$. Missed payments: %missed%.'
   upkeep-penalty: '&cThe village lost %lives% life because of unpaid upkeep.'
   have-tag: '&cA village must have a tag to be &4&lupgraded'

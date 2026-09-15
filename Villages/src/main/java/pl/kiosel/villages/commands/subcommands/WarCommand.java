@@ -3,16 +3,16 @@ package pl.kiosel.villages.commands.subcommands;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.data.village.features.diplomacy.DiplomacyManager;
-import pl.kiosel.villages.data.village.features.diplomacy.DiplomacyResult;
-import pl.kiosel.villages.data.village.features.diplomacy.VillageWar;
-import pl.kiosel.villages.data.village.features.diplomacy.WarState;
 import pl.kiosel.villages.commands.AVSubCommand;
 import pl.kiosel.villages.config.CommandLang;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.user.VillagePermission;
 import pl.kiosel.villages.data.village.Village;
+import pl.kiosel.villages.data.village.features.diplomacy.DiplomacyManager;
+import pl.kiosel.villages.data.village.features.diplomacy.DiplomacyResult;
+import pl.kiosel.villages.data.village.features.diplomacy.VillageWar;
+import pl.kiosel.villages.data.village.features.diplomacy.WarState;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -39,7 +39,7 @@ public final class WarCommand extends AVSubCommand {
 	}
 
 	@Override
-	public String getPermission() { return "villages.command.war"; }
+	public String getPermission() { return "advancedvillages.command.war"; }
 
 	@Override
 	public boolean requireVillage() { return true; }
@@ -60,6 +60,7 @@ public final class WarCommand extends AVSubCommand {
 	@Override
 	public void run(Player player, User user, String[] args) {
 		Village village = user.getPresentVillage();
+		if (village == null) return;
 		if (!village.isTag()) {
 			sendLocalized(player, Lang.TAG_NO);
 			return;

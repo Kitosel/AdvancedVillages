@@ -121,7 +121,11 @@ village:
   remove-member: '&7Usunąłeś &6%player% &7z wioski'
   role-changed: '&7Zmieniono rolę gracza &6%player% &7na %role%&7.'
 
-  upkeep-paid: '&7Z banku pobrano &6%cost%$ &7na utrzymanie wioski.'
+  upkeep-paid: '&7Opłacono utrzymanie wioski w wysokości &6%cost%$ &7z %source%&7.'
+  upkeep-source:
+    bank: '&6banku wioski'
+    balance: '&dsalda gracza'
+  upkeep-not-due: '&cNie można jeszcze opłacić utrzymania. Ręczna płatność będzie dostępna za %time%.'
   upkeep-missed: '&cWioska nie opłaciła utrzymania w wysokości %cost%$. Brakuje: %missing%$. Zaległości: %missed%.'
   upkeep-penalty: '&cWioska straciła %lives% życie przez nieopłacone utrzymanie.'
   have-tag: '&cWioska musi posiadać tag, aby można ją było &4&lulepszyć'

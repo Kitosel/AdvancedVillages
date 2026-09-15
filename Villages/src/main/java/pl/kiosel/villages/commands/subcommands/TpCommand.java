@@ -18,7 +18,7 @@ public class TpCommand extends AVSubCommand {
     public String getUsage() { return "/village teleport"; }
 
 	@Override
-	public String getPermission() { return "villages.command.tp"; }
+	public String getPermission() { return "advancedvillages.command.tp"; }
 
 	@Override
 	public boolean requireVillage() { return true; }

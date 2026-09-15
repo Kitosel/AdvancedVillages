@@ -26,7 +26,8 @@ public final class UpkeepStorage {
 					try {
 						consumer.accept(new VillageUpkeepState(UUID.fromString(villageId),
 								Instant.ofEpochMilli(row.getLong("next_payment")),
-								row.getInt("missed_payments")));
+								row.getInt("missed_payments"),
+								row.getBoolean("automatic_payment")));
 					} catch (RuntimeException exception) {
 						this.plugin.getRosaLogger().log(Level.WARNING,
 								"Ignoring invalid upkeep state for village " + villageId, exception);
@@ -40,7 +41,8 @@ public final class UpkeepStorage {
 		this.plugin.getDataManager().getDatabase().upsert(TABLE, DatabaseValues.create()
 				.set("village_uuid", snapshot.getVillageId())
 				.set("next_payment", snapshot.getNextPayment())
-				.set("missed_payments", snapshot.getMissedPayments()), "village_uuid");
+				.set("missed_payments", snapshot.getMissedPayments())
+				.set("automatic_payment", snapshot.isAutomaticPayment()), "village_uuid");
 		state.markUnchanged(snapshot.getVersion());
 	}
 

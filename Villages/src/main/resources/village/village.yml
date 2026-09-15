@@ -1,10 +1,13 @@
 # Roles shared by all villages. The owner role is reserved and always has every permission.
-# Changing this file and using the plugin reload updates permissions immediately.
+# Permissions configured here are defaults for villages that have not edited a role yet.
+# When enabled, village owners can customize each role's permissions in the members GUI.
 default-role: member
+owner-can-change-permissions: true
 #
 # ROLES SETTINGS
 #
 roles:
+  # You can create max 7 roles
   member:
     name: '&7Member'
     priority: 10
@@ -53,6 +56,9 @@ rent:
   # Periodic village maintenance paid from the village bank.
   enabled: true
   payment-interval: 24h
+  # Manual payment becomes available this long before the next due date.
+  # It is always kept shorter than payment-interval to prevent stacking payments.
+  manual-payment-window: 1h
 
   # Final cost: base + (level * per-level) + (members * per-member)
   # + (rounded region area / region-block-unit * per-region-unit).
