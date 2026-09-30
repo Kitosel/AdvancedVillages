@@ -14,6 +14,7 @@ public final class SpiralPattern implements AnimationPattern {
     public void render(CentralAnimationFrame frame) {
         LevelAnimationStyle style = frame.getStyle();
         int count = Math.max(2, frame.getCount());
+
         for (int index = 0; index < count; index++) {
             double progress = index / (double) (count - 1);
             double angle = frame.getPhase() + progress * Math.PI * 4;

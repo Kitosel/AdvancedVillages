@@ -15,6 +15,12 @@ public class VillageManager {
 	private final ConcurrentMap<UUID, Village> villagesByUuid = new ConcurrentHashMap<>();
 	@Getter private final Collection<Village> villagesView = Collections.unmodifiableCollection(this.villagesByUuid.values());
 
+	private final AdvancedVillages plugin;
+
+	public VillageManager(AdvancedVillages plugin) {
+		this.plugin = plugin;
+	}
+
 	public int countVillage() {
 		return this.villagesByUuid.size();
 	}
@@ -74,12 +80,13 @@ public class VillageManager {
 		}
 	}
 
-	public void deleteVillage(Village village) {
+	public void removeVillage(Village village) {
 		if (village != null) this.villagesByUuid.remove(village.getUUID(), village);
 	}
 
-	public void deleteVillage(AdvancedVillages plugin, Village village) {
+	public void deleteVillage(Village village) {
 		if (plugin == null || village == null) return;
+
 		village.getMembers().forEach(User::removeVillage);
 		if (plugin.getQuestManager() != null) plugin.getQuestManager().delete(village);
 		if (plugin.getDiplomacyManager() != null) plugin.getDiplomacyManager().removeVillage(village);
@@ -87,7 +94,9 @@ public class VillageManager {
 		if (plugin.getDevelopmentManager() != null) plugin.getDevelopmentManager().delete(village);
 		if (plugin.getUpkeepManager() != null) plugin.getUpkeepManager().delete(village);
 		if (plugin.getRoleManager() != null) plugin.getRoleManager().delete(village);
-		this.deleteVillage(village);
+		if (plugin.getOutpostManager() != null) plugin.getOutpostManager().deleteByVillage(village);
+
+		this.removeVillage(village);
 	}
 
 	public boolean nameExists(String name) {

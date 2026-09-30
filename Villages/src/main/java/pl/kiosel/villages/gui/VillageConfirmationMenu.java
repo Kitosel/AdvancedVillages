@@ -1,14 +1,16 @@
 package pl.kiosel.villages.gui;
 
+import lombok.Getter;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import pl.kiosel.rosacore.gui.ConfirmationGui;
 import pl.kiosel.rosacore.gui.Gui;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.config.GuiItemConfig;
-import pl.kiosel.villages.config.GuiMenuConfig;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.config.VillageMessages;
+import pl.kiosel.villages.config.gui.GUIS;
+import pl.kiosel.villages.config.gui.GuiItemConfig;
+import pl.kiosel.villages.config.gui.GuiMenuConfig;
 import pl.kiosel.villages.data.user.VillagePermission;
 import pl.kiosel.villages.data.village.Village;
 
@@ -19,7 +21,7 @@ public abstract class VillageConfirmationMenu extends ConfirmationGui {
 	protected final AdvancedVillages plugin;
 	protected final Village village;
 	protected final Player viewer;
-	private final GUIS type;
+	@Getter private final GUIS type;
 
 	protected VillageConfirmationMenu(AdvancedVillages plugin, Village village, Player viewer, GUIS type, Gui parent) {
 		this.plugin = plugin;
@@ -29,15 +31,18 @@ public abstract class VillageConfirmationMenu extends ConfirmationGui {
 
 		GuiMenuConfig menu = plugin.getGuiSettings().menu(type);
 		setParent(parent);
+
 		title(menu.getTitle());
 		rows(menu.getRows());
+
 		emptyItem(Item.blank(Item.Blank.WHITE));
+
 		fillSlots(true);
 		closeOnClick(false);
 	}
 
 	protected GuiItemConfig item(String id, int slot, Material material, String name, List<String> lore) {
-		return plugin.getGuiSettings().item(this.type, "guis." + this.type.getId() + "." + id,
+		return plugin.getGuiSettings().item(this.type, this.type.getId() + "." + id,
 				slot, material, name, lore);
 	}
 

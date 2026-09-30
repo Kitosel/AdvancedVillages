@@ -7,7 +7,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.projectiles.ProjectileSource;
-import org.bukkit.scheduler.BukkitTask;
+import pl.kiosel.rosacore.scheduler.RosaTask;
 import pl.kiosel.villages.AdvancedVillages;
 
 import java.util.HashMap;
@@ -28,7 +28,7 @@ public final class CombatManager {
 
 	@Getter
 	private CombatSettings settings;
-	private BukkitTask updateTask;
+	private RosaTask updateTask;
 
 	public CombatManager(AdvancedVillages plugin, CombatConfig configuration) {
 		this.plugin = plugin;
@@ -43,18 +43,17 @@ public final class CombatManager {
 		this.settings = this.configuration.snapshot();
 		if (!this.settings.isEnabled()) {
 			this.clear();
-			this.plugin.getRosaLogger().info("Anti-logout reloaded: disabled");
+			this.plugin.getDebug().debug("Anti-logout reloaded: disabled");
 			return;
 		}
 
 		this.refreshActiveSessions();
-		this.updateTask = Bukkit.getScheduler().runTaskTimer(
-				this.plugin,
+		this.updateTask = plugin.getRosaScheduler().runGlobalTimer(
 				this::tick,
 				UPDATE_INTERVAL_TICKS,
 				UPDATE_INTERVAL_TICKS
 		);
-		this.plugin.getRosaLogger().info("Anti-logout reloaded: enabled, duration "
+		this.plugin.getDebug().debug("Anti-logout reloaded: enabled, duration "
 				+ this.settings.getDurationSeconds() + "s, active sessions " + this.sessions.size());
 	}
 

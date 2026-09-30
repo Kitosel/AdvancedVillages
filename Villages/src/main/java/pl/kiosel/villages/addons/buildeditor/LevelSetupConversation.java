@@ -14,20 +14,31 @@ final class LevelSetupConversation {
 	private final boolean creation;
 	private int step;
 	private final LevelEditorField editedField;
+	private final BuildEditorType type;
 
-	private LevelSetupConversation(int level, LevelDraft draft, boolean creation, LevelEditorField editedField) {
+	private LevelSetupConversation(int level, LevelDraft draft, boolean creation,
+	                               LevelEditorField editedField, BuildEditorType type) {
 		this.level = level;
 		this.draft = draft;
 		this.creation = creation;
 		this.editedField = editedField;
+		this.type = type;
 	}
 
 	static LevelSetupConversation creation(int level) {
-		return new LevelSetupConversation(level, new LevelDraft(), true, null);
+		return creation(level, BuildEditorType.VILLAGE);
+	}
+
+	static LevelSetupConversation creation(int level, BuildEditorType type) {
+		return new LevelSetupConversation(level, new LevelDraft(), true, null, type);
 	}
 
 	static LevelSetupConversation edit(int level, LevelDraft draft, LevelEditorField field) {
-		return new LevelSetupConversation(level, draft, false, field);
+		return edit(level, draft, field, BuildEditorType.VILLAGE);
+	}
+
+	static LevelSetupConversation edit(int level, LevelDraft draft, LevelEditorField field, BuildEditorType type) {
+		return new LevelSetupConversation(level, draft, false, field, type);
 	}
 
 	int getLevel() {
@@ -40,6 +51,10 @@ final class LevelSetupConversation {
 
 	boolean isCreation() {
 		return creation;
+	}
+
+	BuildEditorType getType() {
+		return type;
 	}
 
 	LevelEditorField getCurrentField() {

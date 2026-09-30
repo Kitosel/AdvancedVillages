@@ -5,12 +5,12 @@ import org.bukkit.entity.Player;
 import pl.kiosel.rosacore.compatibility.ZSound;
 import pl.kiosel.rosacore.gui.Gui;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.config.GuiItemConfig;
+import pl.kiosel.villages.config.gui.GUIS;
+import pl.kiosel.villages.config.gui.GuiItemConfig;
 import pl.kiosel.villages.data.user.VillagePermission;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.data.village.VillageRole;
 import pl.kiosel.villages.data.village.features.logs.VillageLogType;
-import pl.kiosel.villages.gui.GUIS;
 import pl.kiosel.villages.gui.VillageGUIManager;
 import pl.kiosel.villages.gui.VillageMenu;
 
@@ -24,15 +24,20 @@ public class PermissionGUI extends VillageMenu {
 							Village village, Player viewer, Gui parent, VillageRole role) {
 		super(plugin, menus, village, viewer, GUIS.PERMISSION, parent);
 		addBackButton();
+
 		int maximumStart = Math.max(9, menuConfig.getSize() - VillagePermission.editableValues().size());
-		int slot = plugin.getGuiSettings().integer("guis.permission.start-slot", 9, 9, maximumStart);
+		int slot = plugin.getGuiSettings().integer(guiType,"permission.start-slot", 9, 9, maximumStart);
+
 		for (VillagePermission permission : VillagePermission.editableValues()) {
 			boolean enabled = plugin.getRoleManager().getPermissions(village, role).contains(permission);
-			GuiItemConfig permissionItem = enabled
-					? item("guis.permission.active", slot, Material.LIME_DYE, "&a%permission%",
+
+			GuiItemConfig permissionItem = enabled ?
+					item("permission.active", slot, Material.LIME_DYE, "&a%permission%",
 					List.of("&7Status: &aEnabled", "", "&eClick to disable"))
-					: item("guis.permission.inactive", slot, Material.GRAY_DYE, "&7%permission%",
+					:
+					item("permission.inactive", slot, Material.GRAY_DYE, "&7%permission%",
 					List.of("&7Status: &cDisabled", "", "&eClick to enable"));
+
 			String permissionName = permissionName(permission);
 			setButton(slot++, permissionItem.createItem(
 					permissionItem.getName().replace("%permission%", permissionName),
@@ -41,10 +46,11 @@ public class PermissionGUI extends VillageMenu {
 							.toList()), event -> toggle(role, permission));
 		}
 
-		GuiItemConfig header = item("guis.permission.header", 31, Material.ITEM_FRAME,
+		GuiItemConfig header = item("permission.header", 31, Material.ITEM_FRAME,
 				"&7Editing role: &r%role%", List.of("&7Click a permission to change it."));
-		GuiItemConfig reset = item("guis.permission.reset", 32, Material.BARRIER,
+		GuiItemConfig reset = item("permission.reset", 32, Material.BARRIER,
 				"&7Reset permission", List.of("&7Click to reset permission to &cdefault&7."));
+
 		if (header.isEnabled()) {
 			setItem(header.getSlot(), header.createItem(
 					header.getName().replace("%role%", role.getName()),
@@ -62,7 +68,7 @@ public class PermissionGUI extends VillageMenu {
 		if (!hasPermission(VillagePermission.OWNER)) return;
 		if (!plugin.getRoleManager().resetPermissions(village, viewer, role)) return;
 
-		plugin.getLogManager().record(village, VillageLogType.MEMBER_PERMISSION, viewer,
+		plugin.getLogManager().record(village, VillageLogType.ROLE_PERMISSION_CHANGED, viewer,
 				"member", role.getId(),
 				"permission", "all",
 				"value", "default");
@@ -75,7 +81,7 @@ public class PermissionGUI extends VillageMenu {
 		if (!hasPermission(VillagePermission.OWNER)) return;
 		Optional<Boolean> enabled = plugin.getRoleManager().togglePermission(village, viewer, role, permission);
 		if (enabled.isEmpty()) return;
-		plugin.getLogManager().record(village, VillageLogType.MEMBER_PERMISSION, viewer,
+		plugin.getLogManager().record(village, VillageLogType.ROLE_PERMISSION_CHANGED, viewer,
 				"member", role.getId(),
 				"permission", permission.name(),
 				"value", enabled.get() ? "&aON" : "&cOFF");
@@ -87,7 +93,7 @@ public class PermissionGUI extends VillageMenu {
 	private String permissionName(VillagePermission permission) {
 		String id = permission.name().toLowerCase(Locale.ROOT).replace('_', '-');
 		String fallback = permission.name().toLowerCase(Locale.ROOT).replace('_', ' ');
-		return plugin.getGuiSettings().text("guis.permission.permission-names." + id, fallback);
+		return plugin.getGuiSettings().text(guiType,"permission.permission-names." + id, fallback);
 	}
 
 	private GuiItemConfig item(String path, int slot, Material material, String name, List<String> lore) {

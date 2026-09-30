@@ -2,10 +2,11 @@ package pl.kiosel.villages.data.village.features.development;
 
 import org.bukkit.entity.Player;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.data.village.features.logs.VillageLogType;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.config.Settings;
+import pl.kiosel.villages.config.gui.GUIS;
 import pl.kiosel.villages.data.village.Village;
+import pl.kiosel.villages.data.village.features.logs.VillageLogType;
 import pl.kiosel.villages.storage.DevelopmentStorage;
 
 import java.time.Duration;
@@ -32,6 +33,7 @@ public final class VillageDevelopmentManager {
 
 	public void load() {
 		if (!this.plugin.isDev()) return;
+
 		this.states.clear();
 		this.storage.load(state -> {
 			if (this.plugin.getVillageManager().findByUuid(state.getVillageId()).isPresent()) {
@@ -47,6 +49,7 @@ public final class VillageDevelopmentManager {
 
 	public void save(boolean ignoreNotChanged) {
 		if (!this.plugin.isDev()) return;
+
 		for (VillageDevelopmentState state : this.states.values()) {
 			if (ignoreNotChanged && !state.wasChanged()) continue;
 			try {
@@ -60,6 +63,7 @@ public final class VillageDevelopmentManager {
 
 	public void delete(Village village) {
 		if (!this.plugin.isDev() || village == null) return;
+
 		this.states.remove(village.getUUID());
 		this.storage.delete(village.getUUID());
 	}
@@ -78,6 +82,7 @@ public final class VillageDevelopmentManager {
 
 	public boolean isUnlocked(Village village, String nodeId) {
 		if (!this.isEnabled() || village == null) return false;
+
 		VillageDevelopmentState state = this.states.get(village.getUUID());
 		return state != null && state.isUnlocked(nodeId);
 	}
@@ -85,10 +90,11 @@ public final class VillageDevelopmentManager {
 	public boolean requirementsMet(Village village, DevelopmentNode node) {
 		VillageDevelopmentState state = this.states.get(village.getUUID());
 		if (node.getRequirements().isEmpty()) return true;
+
 		if (state == null) return false;
-		for (String requirement : node.getRequirements()) {
+		for (String requirement : node.getRequirements())
 			if (!state.isUnlocked(requirement)) return false;
-		}
+
 		return true;
 	}
 
@@ -103,11 +109,13 @@ public final class VillageDevelopmentManager {
 	public synchronized DevelopmentPurchaseResult unlock(Player actor, Village village, String nodeId) {
 		DevelopmentSettings current = this.settings;
 		if (!this.isEnabled()) return DevelopmentPurchaseResult.DISABLED;
+
 		DevelopmentNode node = current.getNode(nodeId);
 		if (village == null || node == null) return DevelopmentPurchaseResult.NOT_FOUND;
 
 		VillageDevelopmentState state = this.states.computeIfAbsent(village.getUUID(), VillageDevelopmentState::new);
 		if (state.isUnlocked(nodeId)) return DevelopmentPurchaseResult.ALREADY_UNLOCKED;
+
 		if (village.getLevel().getLevel() < node.getRequiredVillageLevel()) {
 			return DevelopmentPurchaseResult.LEVEL_REQUIRED;
 		}
@@ -129,8 +137,8 @@ public final class VillageDevelopmentManager {
 	}
 
 	public String getNodeName(DevelopmentNode node) {
-		return this.plugin.getGuiSettings().text(
-				"guis.development.nodes." + node.getId() + ".name", node.getId());
+		return this.plugin.getGuiSettings().text(GUIS.DEVELOPMENT,
+				"development.nodes." + node.getId() + ".name", node.getId());
 	}
 
 	public int getBonus(Village village, DevelopmentBonus bonus) {

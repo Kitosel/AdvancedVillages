@@ -1,8 +1,7 @@
 package pl.kiosel.villages.data.village.features.rent;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitTask;
+import pl.kiosel.rosacore.scheduler.RosaTask;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.data.village.Village;
@@ -23,7 +22,7 @@ public final class VillageUpkeepManager {
 	private final UpkeepStorage storage;
 	private final Map<UUID, VillageUpkeepState> states = new ConcurrentHashMap<>();
 	private volatile RentSettings settings;
-	private volatile BukkitTask task;
+	private volatile RosaTask task;
 
 	public VillageUpkeepManager(AdvancedVillages plugin, RentConfiguration configuration) {
 		this.plugin = plugin;
@@ -49,7 +48,7 @@ public final class VillageUpkeepManager {
 	public synchronized void start() {
 		this.shutdown();
 		if (!this.isEnabled()) return;
-		this.task = Bukkit.getScheduler().runTaskTimer(this.plugin, this::processDuePayments,
+		this.task = plugin.getRosaScheduler().runGlobalTimer(this::processDuePayments,
 				20L * 30L, 20L * 60L);
 	}
 
@@ -67,7 +66,7 @@ public final class VillageUpkeepManager {
 	}
 
 	public boolean isEnabled() {
-		return this.settings.isEnabled();
+		return this.settings.isEnabled() && plugin.getEconomy() != null;
 	}
 
 	public boolean isAutomaticPayment(Village village) {
@@ -94,6 +93,8 @@ public final class VillageUpkeepManager {
 	public boolean payNowBalance(Village village, Player actor) {
 		if (!this.canPayNow(village) || actor == null) return false;
 		int cost = this.calculateCost(village);
+		if (this.plugin.getEconomy() == null) return false;
+
 		if (!this.plugin.getEconomy().hasBalance(actor, cost)
 				|| !this.plugin.getEconomy().withdraw(actor, cost)) return false;
 

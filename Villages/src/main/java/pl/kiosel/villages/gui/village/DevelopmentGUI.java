@@ -6,14 +6,14 @@ import org.bukkit.inventory.ItemStack;
 import pl.kiosel.rosacore.compatibility.ZSound;
 import pl.kiosel.rosacore.gui.Gui;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.config.Lang;
+import pl.kiosel.villages.config.gui.GUIS;
+import pl.kiosel.villages.config.gui.GuiItemConfig;
+import pl.kiosel.villages.data.user.VillagePermission;
+import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.data.village.features.development.DevelopmentBonus;
 import pl.kiosel.villages.data.village.features.development.DevelopmentNode;
 import pl.kiosel.villages.data.village.features.development.DevelopmentPurchaseResult;
-import pl.kiosel.villages.config.GuiItemConfig;
-import pl.kiosel.villages.config.Lang;
-import pl.kiosel.villages.data.user.VillagePermission;
-import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.gui.GUIS;
 import pl.kiosel.villages.gui.VillageGUIManager;
 import pl.kiosel.villages.gui.VillageMenu;
 
@@ -122,7 +122,7 @@ public final class DevelopmentGUI extends VillageMenu {
 	private GuiItemConfig configured(String id, int slot, Material material,
 	                                 String name, List<String> lore) {
 		return plugin.getGuiSettings().item(GUIS.DEVELOPMENT,
-				"guis.development." + id, slot, material, name, lore);
+				"development." + id, slot, material, name, lore);
 	}
 
 	private int defaultSlot(int index) {
@@ -130,7 +130,7 @@ public final class DevelopmentGUI extends VillageMenu {
 	}
 
 	private String text(String path, String fallback, Object... placeholders) {
-		return replace(plugin.getGuiSettings().text("guis.development." + path, fallback), placeholders);
+		return replace(plugin.getGuiSettings().text(guiType, "development." + path, fallback), placeholders);
 	}
 
 	private String replace(String text, Object... placeholders) {
@@ -150,21 +150,21 @@ public final class DevelopmentGUI extends VillageMenu {
 				reopen(GUIS.DEVELOPMENT);
 				return;
 			case ALREADY_UNLOCKED:
-				messages.sendPrefixed(viewer, Lang.DEVELOPMENT_ALREADY_UNLOCKED);
+				villageMessages.sendPrefixed(viewer, Lang.DEVELOPMENT_ALREADY_UNLOCKED);
 				return;
 			case LEVEL_REQUIRED:
-				messages.sendPrefixed(viewer, Lang.DEVELOPMENT_LEVEL_REQUIRED,
+				villageMessages.sendPrefixed(viewer, Lang.DEVELOPMENT_LEVEL_REQUIRED,
 						"level", node.getRequiredVillageLevel());
 				return;
 			case PREREQUISITE_REQUIRED:
-				messages.sendPrefixed(viewer, Lang.DEVELOPMENT_PREREQUISITE_REQUIRED);
+				villageMessages.sendPrefixed(viewer, Lang.DEVELOPMENT_PREREQUISITE_REQUIRED);
 				return;
 			case NOT_ENOUGH_BANK:
-				messages.sendPrefixed(viewer, Lang.DEVELOPMENT_NOT_ENOUGH_BANK,
+				villageMessages.sendPrefixed(viewer, Lang.DEVELOPMENT_NOT_ENOUGH_BANK,
 						"cost", node.getCost(), "bank", village.getBank());
 				return;
 			default:
-				messages.sendPrefixed(viewer, Lang.ADDON_DISABLED, "addon", "development");
+				villageMessages.sendPrefixed(viewer, Lang.ADDON_DISABLED, "addon", "development");
 		}
 	}
 }

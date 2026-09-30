@@ -7,14 +7,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import pl.kiosel.rosacore.gui.Gui;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.config.GuiItemConfig;
 import pl.kiosel.villages.config.Lang;
+import pl.kiosel.villages.config.gui.GUIS;
+import pl.kiosel.villages.config.gui.GuiItemConfig;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.user.VillagePermission;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.data.village.VillageRole;
 import pl.kiosel.villages.data.village.features.logs.VillageLogType;
-import pl.kiosel.villages.gui.GUIS;
 import pl.kiosel.villages.gui.Item;
 import pl.kiosel.villages.gui.VillageGUIManager;
 import pl.kiosel.villages.gui.VillageMenu;
@@ -69,7 +69,7 @@ public final class MemberSettingsGUI extends VillageMenu {
 
 	private GuiItemConfig item(String id, int slot, Material material, String name, List<String> lore) {
 		return plugin.getGuiSettings().item(GUIS.MEMBER_SETTINGS,
-				"guis.member-settings." + id, slot, material, name, lore);
+				"member-settings." + id, slot, material, name, lore);
 	}
 
 	private List<String> replaceMember(List<String> lore, String memberName) {
@@ -79,10 +79,12 @@ public final class MemberSettingsGUI extends VillageMenu {
 	private List<String> renderRoleLore(List<String> template, VillageRole role) {
 		List<String> rendered = new ArrayList<>();
 		Set<VillagePermission> permissions = plugin.getRoleManager().getPermissions(village, role);
-		String permissionLine = plugin.getGuiSettings().text(
-				"guis.member-settings.role.permission-line", "&8 • &f%permission%");
-		String noPermissions = plugin.getGuiSettings().text(
-				"guis.member-settings.role.no-permissions", "&8 • &7No permissions");
+
+		String permissionLine = plugin.getGuiSettings().text(guiType,
+				"member-settings.role.permission-line", "&8 • &f%permission%");
+		String noPermissions = plugin.getGuiSettings().text(guiType,
+				"member-settings.role.no-permissions", "&8 • &7No permissions");
+
 		for (String line : template) {
 			if (!line.contains("%permissions%")) {
 				rendered.add(line.replace("%role%", role.getName()));
@@ -95,8 +97,8 @@ public final class MemberSettingsGUI extends VillageMenu {
 			permissions.stream().sorted().forEach(permission -> {
 				String id = permission.name().toLowerCase(Locale.ROOT).replace('_', '-');
 				String fallback = permission.name().toLowerCase(Locale.ROOT).replace('_', ' ');
-				String display = plugin.getGuiSettings().text(
-						"guis.member-settings.permission-names." + id, fallback);
+				String display = plugin.getGuiSettings().text(guiType,
+						"member-settings.permission-names." + id, fallback);
 				rendered.add(line.replace("%permissions%", permissionLine.replace("%permission%", display)));
 			});
 		}

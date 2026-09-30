@@ -7,7 +7,6 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
-/** Mutable, persistable quest progress for one village. */
 public final class VillageQuestState {
 
 	@Getter
@@ -161,11 +160,6 @@ public final class VillageQuestState {
 		return value == null ? "" : value;
 	}
 
-	/**
-	 * Only a later calendar key starts a new period. Missing, malformed or future
-	 * keys are normalized without deleting progress, so a reload or a clock
-	 * correction cannot reset quests in the middle of a period.
-	 */
 	private static PeriodTransition periodTransition(String storedKey, String currentKey) {
 		if (Objects.equals(storedKey, currentKey)) {
 			return PeriodTransition.NONE;

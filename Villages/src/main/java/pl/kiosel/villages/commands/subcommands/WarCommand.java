@@ -34,8 +34,7 @@ public final class WarCommand extends AVSubCommand {
 
 	@Override
 	public String getUsage() {
-		return "/" + plugin.getCommandLang().getCommandName() + " "
-				+ getCommand(CommandLang.WAR) + " <" + String.join("|", actions()) + "> [village]";
+		return "/" + plugin.getCommandLang().getCommandName() + " " + getName() + " <" + String.join("|", actions()) + "> [village]";
 	}
 
 	@Override

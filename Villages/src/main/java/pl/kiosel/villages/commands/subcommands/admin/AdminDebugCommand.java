@@ -29,7 +29,7 @@ public final class AdminDebugCommand extends AdminSubCommand {
 
 	@Override
 	public String getUsage() {
-		return "/village admin debug [owner]";
+		return "/" + plugin.getCommandLang().getCommandName() + getCommand(CommandLang.ADMIN)  + getName() + " [owner]";
 	}
 
 	@Override

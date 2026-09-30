@@ -5,13 +5,13 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import pl.kiosel.rosacore.gui.Gui;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.data.village.features.logs.VillageLogType;
-import pl.kiosel.villages.config.GuiItemConfig;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.config.Settings;
+import pl.kiosel.villages.config.gui.GUIS;
+import pl.kiosel.villages.config.gui.GuiItemConfig;
 import pl.kiosel.villages.data.user.VillagePermission;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.gui.GUIS;
+import pl.kiosel.villages.data.village.features.logs.VillageLogType;
 import pl.kiosel.villages.gui.VillageGUIManager;
 import pl.kiosel.villages.gui.VillageMenu;
 
@@ -53,26 +53,30 @@ public final class EffectsGUI extends VillageMenu {
 				"&7Gives %effect% &7effect",
 				"&7Amplifier: &6%amplifier%"
 		);
-		GuiItemConfig effect = plugin.getGuiSettings().item(GUIS.EFFECTS,
-				"guis.village.effects." + id, toggleSlot, material, fallbackName, fallbackEffectLore);
+		GuiItemConfig effect = plugin.getGuiSettings().item(guiType,
+				"effects." + id, toggleSlot, material, fallbackName, fallbackEffectLore);
 		List<String> effectLore = replaceEffects(effect.getLore(), Double.toString(adjustedPrice),
 				Integer.toString(amplifier), effect.getName());
+
 		if (effect.isEnabled()) {
 			setButton(effect.getSlot(), effect.createItem(effect.getName(), effectLore,
 					effect.isGlow() || active.getAsBoolean()), event -> toggle(
 					purchased, active, toggleAction, effect.getName(), setting));
 		}
 
-		String paperName = plugin.getGuiSettings().text(
-				"guis.village.effects.price_paper.name", "&eClick to buy");
-		List<String> paperLore = plugin.getGuiSettings().list(
-				"guis.village.effects.price_paper.lore",
+		String paperName = plugin.getGuiSettings().text(guiType,
+				"effects.price-paper.name", "&eClick to buy");
+
+		List<String> paperLore = plugin.getGuiSettings().list(guiType,
+				"effects.price-paper.lore",
 				List.of("&7Gives %effect% &7effect", "&7Price: &6%price%"));
-		GuiItemConfig purchase = plugin.getGuiSettings().item(GUIS.EFFECTS,
-				"guis.village.effects.purchase-" + id, purchaseSlot, Material.PAPER,
+
+		GuiItemConfig purchase = plugin.getGuiSettings().item(guiType,
+				"effects.purchase-" + id, purchaseSlot, Material.PAPER,
 				paperName, paperLore);
 		List<String> purchaseLore = replaceEffects(purchase.getLore(), Double.toString(adjustedPrice),
 				Integer.toString(amplifier), effect.getName());
+
 		if (purchase.isEnabled()) {
 			setButton(purchase.getSlot(), purchase.createItem(purchase.getName(), purchaseLore,
 					purchase.isGlow() || purchased.getAsBoolean()), event -> buy(
@@ -91,7 +95,7 @@ public final class EffectsGUI extends VillageMenu {
 		plugin.getLogManager().record(village, VillageLogType.SETTING_CHANGED, viewer,
 				"setting", setting, "value", active.getAsBoolean());
 		playToggleSound();
-		reopen(GUIS.EFFECTS);
+		reopen(guiType);
 	}
 
 	private void buy(BooleanSupplier purchased, Runnable action, double price, String setting) {
@@ -111,6 +115,6 @@ public final class EffectsGUI extends VillageMenu {
 		plugin.getLogManager().record(village, VillageLogType.SETTING_CHANGED, viewer,
 				"setting", setting, "value", "purchased");
 		playSound(Sound.BLOCK_NOTE_BLOCK_PLING, 10, 2);
-		reopen(GUIS.EFFECTS);
+		reopen(guiType);
 	}
 }

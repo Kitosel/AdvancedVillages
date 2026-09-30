@@ -99,7 +99,7 @@ public class VillageBuilder {
 	}
 
 	public VillageBuilder noTag() {
-		return this.setTag("none");
+		return this.setTag("-");
 	}
 
 	public Village build() {

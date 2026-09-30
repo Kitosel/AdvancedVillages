@@ -15,7 +15,7 @@ public class TpCommand extends AVSubCommand {
     public String getDescription() { return "Teleport to village"; }
 
     @Override
-    public String getUsage() { return "/village teleport"; }
+    public String getUsage() { return "/" + plugin.getCommandLang().getCommandName() + " " + getName(); }
 
 	@Override
 	public String getPermission() { return "advancedvillages.command.tp"; }

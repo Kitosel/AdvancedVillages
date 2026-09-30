@@ -7,6 +7,7 @@ import pl.kiosel.rosacore.compatibility.ZSound;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.api.events.VillageQuestCompleteEvent;
 import pl.kiosel.villages.config.Lang;
+import pl.kiosel.villages.config.gui.GUIS;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.data.village.features.logs.VillageLogType;
@@ -37,7 +38,6 @@ public final class VillageQuestManager {
 	}
 
 	public void load() {
-		if (!this.plugin.isDev()) return;
 		this.states.clear();
 		this.storage.load(state -> {
 			if (this.plugin.getVillageManager().findByUuid(state.getVillageId()).isPresent()) {
@@ -50,7 +50,6 @@ public final class VillageQuestManager {
 	}
 
 	public void reload() {
-		if (!this.plugin.isDev()) return;
 		this.configuration.reload();
 		this.settings = this.configuration.snapshot();
 		for (VillageQuestState state : this.states.values()) {
@@ -59,7 +58,6 @@ public final class VillageQuestManager {
 	}
 
 	public void save(boolean ignoreUnchanged) {
-		if (!this.plugin.isDev()) return;
 		for (VillageQuestState state : this.states.values()) {
 			if (ignoreUnchanged && !state.wasChanged()) {
 				continue;
@@ -74,15 +72,13 @@ public final class VillageQuestManager {
 	}
 
 	public void delete(Village village) {
-		if (!this.plugin.isDev() || village == null) {
-			return;
-		}
+		if (village == null) { return; }
 		this.states.remove(village.getUUID());
 		this.storage.delete(village.getUUID());
 	}
 
 	public boolean isEnabled() {
-		return this.plugin.isDev() && this.settings.isEnabled();
+		return this.settings.isEnabled();
 	}
 
 	public boolean isGrantingQuestExperience(Player player) {
@@ -90,7 +86,7 @@ public final class VillageQuestManager {
 	}
 
 	boolean shouldTrackPlacedBlock(Material material) {
-		if (material == null || !material.isBlock()) {
+		if (!this.isEnabled() || material == null || !material.isBlock()) {
 			return false;
 		}
 		String target = material.name();
@@ -107,7 +103,6 @@ public final class VillageQuestManager {
 		return false;
 	}
 
-	/** Activates one configured quest for the village until its next period reset. */
 	public boolean activate(Village village, QuestDefinition definition) {
 		if (village == null || definition == null || !this.isEnabled()
 				|| !Bukkit.isPrimaryThread()) {
@@ -117,7 +112,6 @@ public final class VillageQuestManager {
 		return configured != null && this.getState(village).activate(configured);
 	}
 
-	/** Activates a quest only when the player still belongs to the displayed village. */
 	public boolean activate(Player player, Village village, QuestDefinition definition) {
 		if (player == null || village == null) {
 			return false;
@@ -147,7 +141,6 @@ public final class VillageQuestManager {
 		});
 	}
 
-	/** Allows integrations to advance configured CUSTOM quests. */
 	public void record(Village village, QuestType type, String target, int amount) {
 		QuestSettings currentSettings = this.settings;
 		if (village == null || type == null || amount <= 0 || !this.isEnabled()) {
@@ -177,6 +170,7 @@ public final class VillageQuestManager {
 		}
 		VillageQuestState state = this.getState(village);
 		QuestSettings currentSettings = this.settings;
+
 		Map<QuestPeriod, Duration> resetTimes = new EnumMap<>(QuestPeriod.class);
 		resetTimes.put(QuestPeriod.DAILY, this.untilReset(QuestPeriod.DAILY));
 		resetTimes.put(QuestPeriod.WEEKLY, this.untilReset(QuestPeriod.WEEKLY));
@@ -246,8 +240,7 @@ public final class VillageQuestManager {
 
 	private void grantReward(Village village, QuestDefinition definition) {
 		QuestReward reward = definition.getReward();
-		int bankReward = this.plugin.getDevelopmentManager()
-				.applyQuestBankReward(village, reward.getBank());
+		int bankReward = this.plugin.getDevelopmentManager().applyQuestBankReward(village, reward.getBank());
 		if (bankReward > 0) {
 			long updatedBank = (long) village.getBank() + bankReward;
 			village.setBank((int) Math.min(Integer.MAX_VALUE, updatedBank));
@@ -286,7 +279,7 @@ public final class VillageQuestManager {
 	}
 
 	private String questName(QuestDefinition definition) {
-		return this.plugin.getGuiSettings().text(
-				"guis.quests.tasks." + definition.getId() + ".name", definition.getId());
+		return this.plugin.getGuiSettings().text(GUIS.QUESTS,
+				"quests.tasks." + definition.getId() + ".name", definition.getId());
 	}
 }

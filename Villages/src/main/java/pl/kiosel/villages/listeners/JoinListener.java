@@ -7,6 +7,7 @@ import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.addons.firststeps.TutorialGUI;
 import pl.kiosel.villages.api.events.VillageListener;
 import pl.kiosel.villages.config.Settings;
+import pl.kiosel.villages.config.gui.GUIS;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.user.UserManager;
 
@@ -32,9 +33,9 @@ public class JoinListener extends VillageListener {
 		if (!Settings.FIRST_STEPS.getBoolean() && (player.isOp() || player.hasPermission("advancedvillages.command.settings"))) {
 			plugin.getMessenger().animatedTitle(
 					player,
-					plugin.getGuiSettings().text("guis.tutorial.welcome.title",
+					plugin.getGuiSettings().text(GUIS.TUTORIAL,"welcome.title",
 							"&aThanks for using &f&lADVANCED&6&lVILLAGES"),
-					plugin.getGuiSettings().text("guis.tutorial.welcome.subtitle",
+					plugin.getGuiSettings().text(GUIS.TUTORIAL,"welcome.subtitle",
 							"&7Personalize your experience"),
 					1
 			);

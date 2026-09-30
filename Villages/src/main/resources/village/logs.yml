@@ -12,6 +12,9 @@ retention-days: 30
 # inside this window are merged into one entry. Set to 0 to disable merging.
 anti-spam-window-seconds: 10
 
+# The date format to be displayed next to the given log entry.
+date-format: "dd.MM.yyyy HH:mm"
+
 # Text stored by the log system. GUI names, materials and layout are in guis.yml.
 entries:
   village-created: '&7The village was created.'

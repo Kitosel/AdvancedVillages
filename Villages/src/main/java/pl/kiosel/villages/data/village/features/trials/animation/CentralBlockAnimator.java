@@ -4,7 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
+import pl.kiosel.rosacore.scheduler.RosaTask;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.data.village.Village;
 
@@ -21,7 +21,7 @@ public final class CentralBlockAnimator {
     private final CentralAnimationPatterns patterns = new CentralAnimationPatterns();
     private final double viewDistanceSquared;
 
-    private BukkitTask task;
+    private RosaTask task;
     private long animationTick;
 
     public CentralBlockAnimator(AdvancedVillages plugin, VillageAnimationSettings.Central settings,
@@ -37,12 +37,7 @@ public final class CentralBlockAnimator {
         if (task != null) {
             return;
         }
-        task = new BukkitRunnable() {
-            @Override
-            public void run() {
-                renderLoadedVillages();
-            }
-        }.runTaskTimer(plugin, settings.getIntervalTicks(), settings.getIntervalTicks());
+        task = plugin.getRosaScheduler().runGlobalTimer(this::renderLoadedVillages, settings.getIntervalTicks(), settings.getIntervalTicks());
     }
 
     public void stop() {

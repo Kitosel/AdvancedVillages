@@ -15,10 +15,8 @@ final class CentralAnimationPatterns {
         register(new DoubleRingPattern());
         register(new HelixPattern());
         register(new CrownPattern());
-        register(new OrbitsPattern());
         register(new SpiralPattern());
         register(new VortexPattern());
-        register(new PillarsPattern());
         register(new WavePattern());
         register(new StarPattern());
     }

@@ -22,7 +22,7 @@ public class AdminSettingsCommand extends AdminSubCommand {
 
 	@Override
 	public String getUsage() {
-		return "/village admin settings";
+		return "/" + plugin.getCommandLang().getCommandName() + getCommand(CommandLang.ADMIN)  + getName();
 	}
 
 	@Override

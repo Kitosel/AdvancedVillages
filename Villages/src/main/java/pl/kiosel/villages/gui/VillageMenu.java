@@ -6,15 +6,17 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import pl.kiosel.rosacore.compatibility.RosaSound;
 import pl.kiosel.rosacore.compatibility.ZSound;
 import pl.kiosel.rosacore.gui.Gui;
 import pl.kiosel.rosacore.gui.PagedGui;
 import pl.kiosel.rosacore.utils.TimeUtils;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.config.GuiItemConfig;
-import pl.kiosel.villages.config.GuiMenuConfig;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.config.VillageMessages;
+import pl.kiosel.villages.config.gui.GUIS;
+import pl.kiosel.villages.config.gui.GuiItemConfig;
+import pl.kiosel.villages.config.gui.GuiMenuConfig;
 import pl.kiosel.villages.data.user.VillagePermission;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.manager.UpgradeManager;
@@ -31,7 +33,8 @@ public abstract class VillageMenu extends PagedGui {
 	protected final Village village;
 	protected final Player viewer;
 	protected final GuiMenuConfig menuConfig;
-	@Getter protected final VillageMessages messages;
+	@Getter protected final VillageMessages villageMessages;
+	protected final GUIS guiType;
 
 	protected VillageMenu(AdvancedVillages plugin, VillageGUIManager menus, Village village, Player viewer, GUIS type, Gui parent) {
 		this(plugin, menus, village, viewer, type, parent, false);
@@ -44,7 +47,8 @@ public abstract class VillageMenu extends PagedGui {
 		this.menus = menus;
 		this.village = village;
 		this.viewer = viewer;
-		this.messages = plugin.getVillageMessages();
+		this.villageMessages = plugin.getVillageMessages();
+		this.guiType = type;
 		this.menuConfig = plugin.getGuiSettings().menu(type);
 
 		setTitle(this.menuConfig.getTitle());
@@ -65,7 +69,7 @@ public abstract class VillageMenu extends PagedGui {
 			setItem(Math.max(0, this.menuConfig.getSize() - 1), null);
 		}
 		setNextPageItem(Item.blank(Item.Blank.NEXT_PAGE));
-		setPreviousPageItem(Item.blank(Item.Blank.PREVIUS_PAGE));
+		setPreviousPageItem(Item.blank(Item.Blank.PREVIOUS_PAGE));
 	}
 
 	protected void addBackButton(int slot) {
@@ -83,12 +87,12 @@ public abstract class VillageMenu extends PagedGui {
 		this.addBackButton(this.menuConfig.getBackSlot());
 	}
 
-	protected VillageMessages getVillageMessages() {
-		return this.messages;
-	}
-
 	protected GuiItemConfig item(GUIS menu, String path, int defaultSlot, Material material, String name, List<String> lore) {
 		return this.plugin.getGuiSettings().item(menu, path, defaultSlot, material, name, lore);
+	}
+
+	protected GuiItemConfig item(GUIS menu, String path, int defaultSlot, Material material, int amount, String name, List<String> lore) {
+		return this.plugin.getGuiSettings().item(menu, path, defaultSlot, material, amount, name, lore, false);
 	}
 
 	protected void openFromMain(GUIS type) {
@@ -100,11 +104,25 @@ public abstract class VillageMenu extends PagedGui {
 		playSound(ZSound.UI_BUTTON_CLICK, 1.0f, 2.0f);
 	}
 
+	protected void playSound(RosaSound.SoundHolder sound) {
+		if (sound.getSound().resolve().isEmpty())
+			return;
+		markCustomSoundPlayed();
+		sound.play(viewer);
+	}
+
+	protected void playSound(ZSound sound) {
+		if (sound.getSound().isEmpty())
+			return;
+		markCustomSoundPlayed();
+		sound.play(viewer.getLocation(),1f, 1f);
+	}
+
 	protected void playSound(ZSound sound, float volume, float pitch) {
 		if (sound.getSound().isEmpty())
 			return;
 		markCustomSoundPlayed();
-		viewer.playSound(viewer.getLocation(), sound.getSound().orElseThrow(), volume, pitch);
+		sound.play(viewer.getLocation(), volume, pitch);
 	}
 
 	protected void playSound(Sound sound, float volume, float pitch) {
@@ -114,7 +132,7 @@ public abstract class VillageMenu extends PagedGui {
 	}
 
 	protected void reopen(GUIS type) {
-		menus.openGui(village, viewer, type);
+		menus.openVillageGui(village, viewer, type);
 	}
 
 	protected boolean hasPermission(VillagePermission permission) {
@@ -156,7 +174,7 @@ public abstract class VillageMenu extends PagedGui {
 	protected List<String> replacePlayer(List<String> strings, OfflinePlayer player) {
 		String playerName = player.getName() == null ? player.getUniqueId().toString() : player.getName();
 		String lastOnline = TimeUtils.getStringDate(player.getLastPlayed());
-		String nowOnline = plugin.getGuiSettings().text("guis.common.player-online", "&aThe player is online");
+		String nowOnline = plugin.getGuiSettings().blank("common.player-online", "&aThe player is online");
 
 		List<String> list = new ArrayList<>();
 		for (String line : strings) {

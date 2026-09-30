@@ -3,7 +3,12 @@ package pl.kiosel.villages.gui;
 import org.bukkit.entity.Player;
 import pl.kiosel.rosacore.gui.Gui;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.config.gui.GUIS;
+import pl.kiosel.villages.data.outpost.Outpost;
 import pl.kiosel.villages.data.village.Village;
+import pl.kiosel.villages.gui.outpost.OutpostGUI;
+import pl.kiosel.villages.gui.outpost.OutpostSettingsGUI;
+import pl.kiosel.villages.gui.outpost.OutpostUpgradeGUI;
 import pl.kiosel.villages.gui.village.*;
 
 public class VillageGUIManager {
@@ -14,7 +19,26 @@ public class VillageGUIManager {
 		this.plugin = plugin;
 	}
 
-	public void openGui(Village village, Player player, GUIS type) {
+	public void openOutpostGui(Outpost outpost, Player player, GUIS type) {
+		if (outpost == null || player == null) {
+			return;
+		}
+		OutpostGUI main = new OutpostGUI(plugin, this, outpost, player);
+		Gui gui;
+		switch (type) {
+			case OUTPOST_SETTINGS:
+				gui = new OutpostSettingsGUI(plugin, this, outpost, player, main);
+				break;
+			case OUTPOST_UPGRADE:
+				gui = new OutpostUpgradeGUI(plugin, this, outpost, player, main);
+				break;
+			default:
+				gui = main;
+		}
+		plugin.getGuiManager().openGUI(player, gui);
+	}
+
+	public void openVillageGui(Village village, Player player, GUIS type) {
 		if (village == null || player == null) {
 			return;
 		}

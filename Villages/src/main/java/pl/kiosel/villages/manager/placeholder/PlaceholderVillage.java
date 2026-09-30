@@ -17,7 +17,7 @@ public class PlaceholderVillage extends PlaceholderExpansion {
     }
 
     @Override
-    public @NotNull String getIdentifier() { return "villages"; }
+    public @NotNull String getIdentifier() { return "AdvancedVillages"; }
 
     @Override
     public @NotNull String getAuthor() { return "Kiosel"; }

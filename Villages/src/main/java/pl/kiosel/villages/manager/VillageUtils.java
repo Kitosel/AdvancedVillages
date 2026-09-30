@@ -7,11 +7,11 @@ import org.bukkit.entity.Player;
 import pl.kiosel.rosacore.compatibility.ZSound;
 import pl.kiosel.rosacore.dependencies.adventure.adventure.title.Title;
 import pl.kiosel.rosacore.utils.TimeUtils;
-import pl.kiosel.rosacore.utils.format.RawString;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.config.Settings;
 import pl.kiosel.villages.config.VillageMessage;
+import pl.kiosel.villages.config.gui.GUIS;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.data.village.VillageManager;
@@ -44,7 +44,15 @@ public class VillageUtils {
 	private final AdvancedVillages plugin;
 	private final VillageManager manager;
 	private static final AdvancedVillages instance = AdvancedVillages.getInstance();
-	private final int maxX, maxY, maxZ, minX, minY, minZ;
+	public final int maxX, maxY, maxZ, minX, minY, minZ;
+
+	public static final int BUILD_RADIUS = 2;
+	public static final int BUILD_MIN_Y = -3;
+	public static final int BUILD_MAX_Y = 6;
+
+	private static final String liveSymbol = "❤";
+	private static final String full = "&c"+liveSymbol;
+	private static final String empty = "&8"+liveSymbol;
 
 	public VillageUtils(AdvancedVillages plugin) {
 		this.plugin = plugin;
@@ -76,15 +84,18 @@ public class VillageUtils {
 
 	public void attackOnVillage(Village village, int hearth, Player attacker) {
 		Objects.requireNonNull(village);
-		plugin.getLogManager().record(village, VillageLogType.VILLAGE_ATTACK, attacker,
-				"lives", Math.max(0, village.getLives() - hearth));
-		ZSound.ENTITY_ENDER_DRAGON_HURT.play(attacker, 1f, 1f);
+		plugin.getLogManager().record(village, VillageLogType.VILLAGE_ATTACK, attacker, "lives", Math.max(0, village.getLives() - hearth));
+		Title.Times times = Title.Times.times(Duration.ofMillis(20), Duration.ofSeconds(4), Duration.ofMillis(20));
+
 		VillageMessage title;
 		VillageMessage subtitle;
 		VillageMessage message;
-		Title.Times times = Title.Times.times(Duration.ofMillis(20), Duration.ofSeconds(4), Duration.ofMillis(20));
+
+		ZSound.ENTITY_ENDER_DRAGON_HURT.play(attacker, 1f, 1f);
+
 		if (village.getLives() > 1) {
 			Duration duration = TimeUtils.duration(Settings.VILLAGE_DESTROY_PROTECTION.getString(), Duration.ofHours(12), true);
+
 			duration = plugin.getDevelopmentManager().applyAttackProtection(village, duration);
 			if (duration == null) {
 				duration = Duration.ofHours(12);
@@ -106,10 +117,10 @@ public class VillageUtils {
 						.with("time", formattedDuration);
 
 				user.sendMessage(message.toText());
+
 				Player player = Bukkit.getPlayer(user.getUUID());
 				if (player == null) return;
-				plugin.getVillageMessages().sendTitle(player,
-						title.toText(), subtitle.toText(), times);
+				plugin.getVillageMessages().sendTitle(player, title.toText(), subtitle.toText(), times);
 
 				ZSound.ENTITY_WITHER_DEATH.play(player, 1f, 2f);
 			}
@@ -124,10 +135,10 @@ public class VillageUtils {
 						.with("attacker", attacker.getName());
 
 				user.sendMessage(message.toText());
+
 				Player player = Bukkit.getPlayer(user.getUUID());
 				if (player == null) return;
-				plugin.getVillageMessages().sendTitle(player,
-						title.toText(), subtitle.toText(), times);
+				plugin.getVillageMessages().sendTitle(player, title.toText(), subtitle.toText(), times);
 
 				ZSound.ENTITY_WITHER_DEATH.play(player, 1f, 1f);
 			}
@@ -177,18 +188,14 @@ public class VillageUtils {
 		return vLoc.distanceSquared(location) + 40 <= (double) radius * radius;
 	}
 
-	private static final String liveSymbol = "❤";
-	public static RawString full = new RawString("&c"+liveSymbol);
-	public static RawString empty = new RawString("&8"+liveSymbol);
-
 	public static String getLivesSymbol(int lives, boolean limited) {
 		int maxLives = Settings.VILLAGE_MAX_LIVES.getInt();
 		int shown = limited ? Math.min(lives, maxLives) : lives;
-		String result = full.getValue().repeat(Math.max(0, shown));
+		String result = full.repeat(Math.max(0, shown));
 		if (!limited) {
 			return result;
 		}
-		result += empty.getValue().repeat(Math.max(0, maxLives - lives));
+		result += empty.repeat(Math.max(0, maxLives - lives));
 		return lives > maxLives ? result + "&a+" : result;
 	}
 
@@ -233,7 +240,7 @@ public class VillageUtils {
 			return;
 		}
 
-		String noTag = instance.getVillageMessages().textOrDefault(Lang.TAG_NO, "&cNONE");
+		String noTag = instance.getVillageMessages().textOrDefault(Lang.TAG_NO, "&c-");
 		String on = instance.getVillageMessages().textOrDefault(Lang.ON, "&aON");
 		String off = instance.getVillageMessages().textOrDefault(Lang.OFF, "&cOFF");
 		int lives = village.getLives();
@@ -256,18 +263,24 @@ public class VillageUtils {
 				.with("village_allies", instance.getDiplomacyManager().getAllies(village).size())
 				.with("village_wars", instance.getDiplomacyManager().countCurrentWars(village))
 				.with("istagset", village.isTag()
-						? instance.getGuiSettings().text("guis.village.settings.tag.tag_set", "&7Set")
-						: instance.getGuiSettings().text("guis.village.settings.tag.tag_not_set", "&7Click to set"));
+						? instance.getGuiSettings().text(GUIS.VILLAGE,"settings.tag.tag_set", "&7Set")
+						: instance.getGuiSettings().text(GUIS.VILLAGE,"settings.tag.tag_not_set", "&7Click to set"));
 	}
+
 
 	private static VillageMessage applyPlayerPlaceholders(VillageMessage message, Player player) {
 		String lastOnline = TimeUtils.getStringDate(player.getLastPlayed());
 		String nowOnline = instance.getVillageMessages().get(Lang.PLAYER_ONLINE).toString();
+		String balance = "";
+		if (instance.getEconomy() != null) {
+			balance = String.valueOf(instance.getEconomy().getBalance(player));
+		}
 		return message.with("player", player.getName())
 				.with("player_name", player.getName())
 				.with("player_uuid", player.getUniqueId().toString())
 				.with("player_last_online", player.isOnline() ? nowOnline : lastOnline)
-				.with("player_money", instance.getEconomy().getBalance(player))
+				.with("player_money", balance)
+				.with("player_balance", balance)
 				.with("player_ping", player.getPing())
 				.with("player_world", player.getWorld().getName());
 	}

@@ -1,11 +1,10 @@
 # Allgemeine Nachrichten
+prefix: '&8[&6&lDörfer&r&8]'
 general:
   separator: '&8——————————————————————————'
   addon-disabled: '&cDas Add-on %addon% ist derzeit deaktiviert.'
-  nametag:
-    prefix: '&8[&6&lDörfer&r&8]'
-    'on': '&aAN'
-    'off': '&cAUS'
+  'on': '&aAN'
+  'off': '&cAUS'
   time:
     second: { one: 'Sekunde', few: 'Sekunden', many: 'Sekunden' }
     minute: { one: 'Minute', few: 'Minuten', many: 'Minuten' }
@@ -153,6 +152,8 @@ village:
   max-level: '&cDas Dorf hat die höchste Stufe erreicht'
   upgrade-no-requirements: '&cDu erfüllst nicht alle Voraussetzungen für die Verbesserung deines Dorfes'
 
+  area-blocked: '&cDer Baubereich von 5×5×9 ist nicht leer.'
+
   bank-add: '&7In die Dorfbank eingezahlt: &a%money%'
   bank-remove: '&7Aus der Dorfbank ausgezahlt: &c%money%'
   bank-no-money: '&cDie Dorfbank hat nicht genug Geld'
@@ -224,10 +225,33 @@ invite:
   confirmed: '&7Du bist dem Dorf von &6%village_owner% &7beigetreten'
   canceled: '&7Du hast die Einladung abgelehnt'
 
+outpost:
+  disabled: '&cAußenposten sind derzeit deaktiviert'
+  command-description: 'Außenposten anzeigen, teleportieren oder verbessern'
+  level-required: '&cDein Dorf muss Level &f%level% &cerreichen, um einen Außenposten zu erstellen'
+  limit: '&cDein Dorf hat das Außenpostenlimit erreicht (&f%limit%&c)'
+  near-village: '&cDer Außenposten muss mindestens &f%distance% &cBlöcke von jedem Dorf entfernt sein'
+  near-outpost: '&cDer Außenposten muss mindestens &f%distance% &cBlöcke von einem anderen Außenposten entfernt sein'
+  area-blocked: '&cDer Baubereich 7x7x6 ist nicht frei'
+  created: '&aAußenposten &f%outpost% &aerstellt'
+  create-failed: '&cDer Außenposten konnte nicht erstellt werden. Prüfe die Serverkonsole'
+  region-protected: '&cDieses Gebiet gehört zum Außenposten eines anderen Dorfes'
+  core-protected: '&cDer Außenpostenkern kann nicht manuell zerstört werden'
+  list: '&7Deine Außenposten: %outposts%'
+  list-empty: '&cDein Dorf hat keine Außenposten'
+  not-found: '&cAußenposten nicht gefunden'
+  teleporting: '&7Teleport zum Außenposten &b%outpost% &7in &f%time% &7Sekunden'
+  teleported: '&aZum Außenposten teleportiert'
+  upgraded: '&f%outpost% &aauf Level &f%level% &aaufgewertet'
+  max-level: '&cDieser Außenposten hat seine höchste konfigurierte Stufe erreicht'
+  schematic-missing: '&cFür die nächste Stufe fehlt ein interner Bau oder ein gespeichertes Schema'
+
 # Gegenstände
 items:
   village-block: '&d&lDörfer'
   village-block-lore: '&7Platziere diesen Block auf dem Boden, um ein Dorf zu gründen'
+  outpost-block: '&b&lAußenposten'
+  outpost-block-lore: '&7Platziere diesen Block auf dem Boden, um einen Außenposten zu errichten'
   destroyer: '&6&lZerstörer'
   destroyer-lore: '&7Verwende dieses Werkzeug, um einen Dorfkern zu zerstören'
   hearth: '&c&lHerz des Dorfes'
@@ -236,6 +260,8 @@ items:
   part-of-hearth-lore: '&7Verwende diesen Gegenstand, um ein Dorfherz herzustellen'
   destroyer-hearth: '&c&lHerz des Zerstörers'
   destroyer-hearth-lore: '&7Verwende diesen Gegenstand, um einen Zerstörer herzustellen'
+  outpost-core: '&c&lAußenpostenkern'
+  outpost-core-lore: '&7Verwende diesen Gegenstand, um einen Außenpostenblock herzustellen'
 
 # Baueditor-Addon
 build-editor:

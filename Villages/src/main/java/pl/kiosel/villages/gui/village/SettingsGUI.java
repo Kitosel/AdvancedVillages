@@ -6,13 +6,13 @@ import pl.kiosel.rosacore.compatibility.ZSound;
 import pl.kiosel.rosacore.gui.Gui;
 import pl.kiosel.rosacore.gui.GuiClickEvent;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.config.GuiItemConfig;
 import pl.kiosel.villages.config.Lang;
+import pl.kiosel.villages.config.gui.GUIS;
+import pl.kiosel.villages.config.gui.GuiItemConfig;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.user.VillagePermission;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.data.village.features.logs.VillageLogType;
-import pl.kiosel.villages.gui.GUIS;
 import pl.kiosel.villages.gui.VillageGUIManager;
 import pl.kiosel.villages.gui.VillageMenu;
 import pl.kiosel.villages.manager.teleport.TeleportManager;
@@ -27,7 +27,7 @@ public final class SettingsGUI extends VillageMenu {
 		super(plugin, menus, village, player, GUIS.SETTINGS, parent);
 		addBackButton();
 
-		GuiItemConfig animations = item("animations", 13, Material.AMETHYST_SHARD,
+		GuiItemConfig animations = item("animations", 33, Material.AMETHYST_SHARD,
 				"&d&lAnimations", List.of("&7Animations: %village_animations%"));
 		GuiItemConfig teleport = item("teleport", 19, Material.FEATHER,
 				"&b&lTeleport", List.of("%village_teleport%", "&7Click to set"));
@@ -37,27 +37,27 @@ public final class SettingsGUI extends VillageMenu {
 				"&c&lTNT", List.of("&7TNT: %village_tnt%"));
 		GuiItemConfig pvp = item("pvp", 25, Material.NETHERITE_SWORD,
 				"&f&lPVP", List.of("&7Pvp: %village_pvp%"));
-		GuiItemConfig delete = item("delete", 31, Material.ORANGE_BED,
+		GuiItemConfig delete = item("delete", 40, Material.ORANGE_BED,
 				"&c&l&nDelete village", List.of("&7Click to delete"));
 
-		GuiItemConfig logs = item("logs", 27, Material.BOOK,
+		GuiItemConfig logs = item("logs", 44, Material.BOOK,
 				"&6Activity logs", List.of("&7View important village actions"));
-		GuiItemConfig upkeep = item("upkeep", 18, Material.IRON_NUGGET,
+		GuiItemConfig upkeep = item("upkeep", 29, Material.IRON_NUGGET,
 				"&6Village upkeep", List.of(
 						"&7Next cost: &6%cost%$",
 						"&7Payment in: &f%time%",
 						"&7Missed payments: &c%missed%"));
 
-		button(animations, replaceWith(animations.getLore()), village.isAnimationsEnabled(), event -> toggleAnimations());
-		button(teleport, replaceWith(teleport.getLore()), false, event -> setTeleport());
-		button(tag, replaceWith(tag.getLore()), false, event -> openTag(event.getGui()));
-		button(tnt, replaceWith(tnt.getLore()), village.isTnt(), event -> toggleTnt());
-		button(pvp, replaceWith(pvp.getLore()), village.isPvp(), event -> togglePvp());
+		button(animations, animations.getLore(), village.isAnimationsEnabled(), event -> toggleAnimations());
+		button(teleport, teleport.getLore(), false, event -> setTeleport());
+		button(tag, tag.getLore(), false, event -> openTag(event.getGui()));
+		button(tnt, tnt.getLore(), village.isTnt(), event -> toggleTnt());
+		button(pvp, pvp.getLore(), village.isPvp(), event -> togglePvp());
 		button(delete, delete.getLore(), false, event -> openRemove());
 
-		if (logs.isEnabled() && plugin.getLogManager().canView(player, village) && plugin.isDev()) {
+		if (logs.isEnabled() && plugin.getLogManager().canView(player, village)) {
 			setButton(logs.getSlot(), logs.createItem(), event ->
-					new VillageLogGUI(plugin, menus, village, player, this));
+					plugin.getGuiManager().showGUI(event.getPlayer(), new VillageLogGUI(plugin, menus, village, player, this)));
 		}
 
 		if (upkeep.isEnabled() && plugin.getUpkeepManager().isEnabled()) {
@@ -67,19 +67,19 @@ public final class SettingsGUI extends VillageMenu {
 			String name = upkeep.getName().replace("%cost%", cost).replace("%time%", time).replace("%missed%", missed);
 			List<String> lore = upkeep.getLore().stream().map(line -> line
 					.replace("%cost%", cost).replace("%time%", time).replace("%missed%", missed)).toList();
-			setButton(upkeep.getSlot(), upkeep.createItem(name, lore),
-					event -> plugin.getGuiManager().showGUI(event.getPlayer(), new UpkeepGUI(plugin, menus, village, player, this)));
+
+			setButton(upkeep.getSlot(), upkeep.createItem(name, lore), event ->
+					plugin.getGuiManager().showGUI(event.getPlayer(), new UpkeepGUI(plugin, menus, village, player, this)));
 		}
 	}
 
 	private GuiItemConfig item(String id, int slot, Material material, String name, List<String> lore) {
-		return plugin.getGuiSettings().item(GUIS.SETTINGS, "guis.village.settings." + id,
-				slot, material, name, lore);
+		return plugin.getGuiSettings().item(GUIS.SETTINGS, "settings." + id, slot, material, name, lore);
 	}
 
 	private void button(GuiItemConfig item, List<String> lore, boolean stateGlow, Consumer<GuiClickEvent> action) {
 		if (item.isEnabled()) {
-			setButton(item.getSlot(), item.createItem(item.getName(), lore, item.isGlow() || stateGlow), action);
+			setButton(item.getSlot(), item.createItem(item.getName(), replaceWith(lore), item.isGlow() || stateGlow), action);
 		}
 	}
 
@@ -113,8 +113,7 @@ public final class SettingsGUI extends VillageMenu {
 		if (!canChangeSettings()) return;
 		if (village.isTag()) {
 			exit();
-			getVillageMessages().get(Lang.TAG_VILLAGE)
-					.with("tag", village.getTag()).sendPrefixed(viewer);
+			getVillageMessages().get(Lang.TAG_VILLAGE).with("tag", village.getTag()).sendPrefixed(viewer);
 			return;
 		}
 		plugin.getGuiManager().showGUI(viewer, new TagGUI(plugin, village, viewer, current));

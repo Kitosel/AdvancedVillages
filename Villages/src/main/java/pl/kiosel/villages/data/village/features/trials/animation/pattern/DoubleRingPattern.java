@@ -15,10 +15,12 @@ public final class DoubleRingPattern implements AnimationPattern {
     public void render(CentralAnimationFrame frame) {
         LevelAnimationStyle style = frame.getStyle();
         int perRing = Math.max(3, frame.getCount() / 2);
+
         for (int ring = 0; ring < 2; ring++) {
             double direction = ring == 0 ? 1.0 : -1.0;
             double radius = style.getRadius() * (ring == 0 ? 1.0 : 0.68) * frame.getScale();
             double baseY = style.getVerticalOffset() + style.getHeight() * (ring == 0 ? 0.2 : 0.8);
+
             ZParticle particle = ring == 0 ? style.getParticle() : style.getSecondaryParticle();
             for (int index = 0; index < perRing; index++) {
                 double angle = Math.PI * 2 * index / perRing + frame.getPhase() * direction;

@@ -43,7 +43,7 @@ public enum TutorialSetting {
 	LOGS(Category.FEATURES, "logs", 11, Material.BOOK,
 			VillageConfigFile.LOGS, "enabled", true),
 	QUESTS(Category.FEATURES, "quests", 12, Material.WRITABLE_BOOK,
-			VillageConfigFile.CONFIG, "addons.quests", true),
+			VillageConfigFile.QUESTS, "enabled", true),
 	SPECIALIZATIONS(Category.FEATURES, "specializations", 13, Material.KNOWLEDGE_BOOK,
 			VillageConfigFile.SPECIALIZATION, "enabled", true),
 	RENT(Category.FEATURES, "rent", 14, Material.GOLD_INGOT,

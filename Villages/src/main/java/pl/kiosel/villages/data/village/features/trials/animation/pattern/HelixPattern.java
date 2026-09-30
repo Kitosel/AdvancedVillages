@@ -16,6 +16,7 @@ public final class HelixPattern implements AnimationPattern {
         LevelAnimationStyle style = frame.getStyle();
         int perStrand = Math.max(4, frame.getCount() / 2);
         double movement = frame.getPhase() / (Math.PI * 2);
+
         for (int strand = 0; strand < 2; strand++) {
             ZParticle particle = strand == 0 ? style.getParticle() : style.getSecondaryParticle();
             for (int index = 0; index < perStrand; index++) {

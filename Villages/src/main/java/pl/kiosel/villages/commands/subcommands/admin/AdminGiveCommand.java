@@ -9,6 +9,7 @@ import pl.kiosel.villages.config.CommandLang;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.data.user.User;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public final class AdminGiveCommand extends AdminSubCommand {
@@ -24,7 +25,7 @@ public final class AdminGiveCommand extends AdminSubCommand {
 
 	@Override
 	public String getUsage() {
-		return "/village admin give <item>";
+		return "/" + plugin.getCommandLang().getCommandName() + getCommand(CommandLang.ADMIN)  + getName() + " <item>";
 	}
 
 	@Override
@@ -50,14 +51,19 @@ public final class AdminGiveCommand extends AdminSubCommand {
 
 	@Override
 	public List<String> tabComplete(Player player, User user, String[] args) {
-		if (args.length != 2) return List.of();
-		return List.of(
+		if (args.length != 2) return EMPTY;
+		List<String> list = new ArrayList<>(List.of(
 				getCommand(CommandLang.ADMIN_GIVE_DESTROYER),
 				getCommand(CommandLang.ADMIN_GIVE_VILLAGE),
 				getCommand(CommandLang.ADMIN_GIVE_DESTROYER_HEARTH),
 				getCommand(CommandLang.ADMIN_GIVE_VILLAGE_HEARTH),
 				getCommand(CommandLang.ADMIN_GIVE_VILLAGE_HEARTH_PART)
-		);
+		));
+		if (plugin.isDev()) {
+			list.add(getCommand(CommandLang.ADMIN_GIVE_OUTPOST));
+			list.add(getCommand(CommandLang.ADMIN_GIVE_OUTPOST_CORE));
+		}
+		return list;
 	}
 
 	private ItemStack createItem(String input) {
@@ -75,6 +81,14 @@ public final class AdminGiveCommand extends AdminSubCommand {
 		}
 		if (isCommand(input, CommandLang.ADMIN_GIVE_VILLAGE_HEARTH_PART)) {
 			return this.plugin.getApi().createHearthPart();
+		}
+		if (plugin.isDev()) {
+			if (isCommand(input, CommandLang.ADMIN_GIVE_OUTPOST)) {
+				return this.plugin.getApi().createOutpostBlock();
+			}
+			if (isCommand(input, CommandLang.ADMIN_GIVE_OUTPOST_CORE)) {
+				return this.plugin.getApi().createOutpostCore();
+			}
 		}
 		return null;
 	}

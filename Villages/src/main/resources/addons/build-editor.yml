@@ -9,7 +9,7 @@
 enabled: true
 
 menu:
-  title: "&8Village building editor"
+  title: "&dVillage building editor"
   level-name: "&aLevel &f%level%"
   level-lore:
     - "&eLeft click &7- level settings"

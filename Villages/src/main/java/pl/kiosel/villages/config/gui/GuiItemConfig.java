@@ -1,12 +1,10 @@
-package pl.kiosel.villages.config;
+package pl.kiosel.villages.config.gui;
 
 import lombok.Getter;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import pl.kiosel.villages.gui.Item;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Getter
@@ -28,7 +26,7 @@ public final class GuiItemConfig {
 		this.material = material;
 		this.amount = amount;
 		this.name = name;
-		this.lore = Collections.unmodifiableList(new ArrayList<>(lore));
+		this.lore = List.copyOf(lore);
 		this.glow = glow;
 		this.enabled = enabled;
 	}

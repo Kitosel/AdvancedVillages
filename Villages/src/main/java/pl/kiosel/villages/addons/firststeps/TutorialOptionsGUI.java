@@ -3,9 +3,11 @@ package pl.kiosel.villages.addons.firststeps;
 import org.bukkit.entity.Player;
 import pl.kiosel.rosacore.gui.PagedGui;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.config.gui.GUIS;
 import pl.kiosel.villages.gui.Item;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 final class TutorialOptionsGUI extends PagedGui {
@@ -23,11 +25,11 @@ final class TutorialOptionsGUI extends PagedGui {
 		this.setting = setting;
 		this.parent = parent;
 
-		setTitle(replace(plugin.getGuiSettings().text(
-				"guis.tutorial.options.title", "&8Choose %setting%"), ""));
+		setTitle(replace(plugin.getGuiSettings().text(GUIS.TUTORIAL,
+				"options.title", "&8Choose %setting%"), ""));
 		setFooterButton(1, Item.blank(Item.Blank.BACK),
 				event -> event.getManager().showGUI(event.getPlayer(), parent));
-		setPreviousPageItem(Item.blank(Item.Blank.PREVIUS_PAGE));
+		setPreviousPageItem(Item.blank(Item.Blank.PREVIOUS_PAGE));
 		setNextPageItem(Item.blank(Item.Blank.NEXT_PAGE));
 		playSoundOnClick(true);
 
@@ -38,8 +40,8 @@ final class TutorialOptionsGUI extends PagedGui {
 			boolean selected = setting.display(session.get(setting)).equalsIgnoreCase(option.getValue());
 			if (selected) selectedIndex = index;
 			List<String> lore = this.lore(option, selected);
-			String name = replace(plugin.getGuiSettings().text(
-					"guis.tutorial.options.name", "&f%value%"), option.getValue());
+			String name = replace(plugin.getGuiSettings().text(GUIS.TUTORIAL,
+					"options.name", "&f%value%"), option.getValue());
 			if (option.isAvailable()) {
 				setButton(index, Item.create(setting.getMaterial(), name, lore, selected),
 						event -> this.select(event.getPlayer(), option));
@@ -63,9 +65,9 @@ final class TutorialOptionsGUI extends PagedGui {
 		String state;
 		if (!option.isAvailable()) state = "unavailable";
 		else state = selected ? "selected" : "available";
-		List<String> configured = this.plugin.getGuiSettings().list(
-				"guis.tutorial.options." + state,
-				java.util.Collections.singletonList(selected ? "&aSelected"
+		List<String> configured = this.plugin.getGuiSettings().list(GUIS.TUTORIAL,
+				"options." + state,
+				Collections.singletonList(selected ? "&aSelected"
 						: option.isAvailable() ? "&eClick to select" : "&cPlugin unavailable"));
 		List<String> lore = new ArrayList<>(configured.size());
 		for (String line : configured) lore.add(replace(line, option.getValue()));

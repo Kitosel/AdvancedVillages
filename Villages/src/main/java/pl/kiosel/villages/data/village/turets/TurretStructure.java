@@ -54,6 +54,30 @@ public final class TurretStructure {
 		return this.placements.size();
 	}
 
+	public List<BlockPlacement> getBlocks() {
+		List<BlockPlacement> blocks = new ArrayList<>(this.placements.size());
+		for (Placement placement : this.placements) {
+			BlockData data = placement.blockData == null
+					? placement.material.createBlockData()
+					: placement.blockData;
+			blocks.add(new BlockPlacement(
+					placement.offset.x, placement.offset.y, placement.offset.z, data));
+		}
+		return List.copyOf(blocks);
+	}
+
+	public record BlockPlacement(int x, int y, int z, BlockData data) {
+
+		public BlockPlacement {
+			data = Objects.requireNonNull(data, "data").clone();
+		}
+
+		@Override
+		public BlockData data() {
+			return this.data.clone();
+		}
+	}
+
 	public static final class Builder {
 
 		private final Map<Offset, Placement> placements = new LinkedHashMap<>();
@@ -75,6 +99,10 @@ public final class TurretStructure {
 
 		public Builder cardinals(Material material, int y, int radius) {
 			return mirrorXZ(material, radius, y, 0).mirrorXZ(material, 0, y, radius);
+		}
+
+		public Builder cardinals(Material material, int y, int radius, int radius2) {
+			return mirrorXZ(material, radius, y, radius2).mirrorXZ(material, radius2, y, radius);
 		}
 
 		public Builder fill(Material material, int x1, int y1, int z1, int x2, int y2, int z2) {

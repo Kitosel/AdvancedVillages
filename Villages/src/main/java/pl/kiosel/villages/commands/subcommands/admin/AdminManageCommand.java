@@ -4,15 +4,15 @@ import org.bukkit.entity.Player;
 import pl.kiosel.rosacore.utils.NumberUtils;
 import pl.kiosel.rosacore.utils.TimeUtils;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.data.village.features.logs.VillageLogType;
 import pl.kiosel.villages.api.events.VillageUpgradeEvent;
 import pl.kiosel.villages.config.CommandLang;
 import pl.kiosel.villages.config.Lang;
+import pl.kiosel.villages.config.gui.GUIS;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.Upgrade;
 import pl.kiosel.villages.data.village.Village;
+import pl.kiosel.villages.data.village.features.logs.VillageLogType;
 import pl.kiosel.villages.data.village.level.Level;
-import pl.kiosel.villages.gui.GUIS;
 import pl.kiosel.villages.manager.VillageUtils;
 
 import java.time.Duration;
@@ -33,7 +33,7 @@ public final class AdminManageCommand extends AdminSubCommand {
 
 	@Override
 	public String getUsage() {
-		return "/village admin manage <owner> <action>";
+		return "/" + plugin.getCommandLang().getCommandName() + getCommand(CommandLang.ADMIN)  + getName() + " <owner> <action>";
 	}
 
 	@Override
@@ -109,7 +109,7 @@ public final class AdminManageCommand extends AdminSubCommand {
 
 	private void handleAction(Player player, Village village, String ownerName, String action) {
 		if (isCommand(action, CommandLang.ADMIN_DELETE)) {
-			this.plugin.getVillageGui().openGui(village, player, GUIS.REMOVE);
+			this.plugin.getVillageGui().openVillageGui(village, player, GUIS.REMOVE);
 			sendLocalized(player, Lang.COMMAND_ADMIN_DELETE, "village_owner", ownerName);
 			return;
 		}

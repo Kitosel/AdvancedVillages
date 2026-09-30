@@ -1,12 +1,11 @@
 package pl.kiosel.villages.data.village.features.diplomacy;
 
 import lombok.Getter;
-import org.bukkit.Bukkit;
-import org.bukkit.scheduler.BukkitTask;
+import pl.kiosel.rosacore.scheduler.RosaTask;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.data.village.features.logs.VillageLogType;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.data.village.Village;
+import pl.kiosel.villages.data.village.features.logs.VillageLogType;
 import pl.kiosel.villages.storage.DiplomacyStorage;
 
 import javax.annotation.Nullable;
@@ -33,7 +32,7 @@ public final class DiplomacyManager {
 	private volatile long persistedVersion;
 	@Getter
 	private volatile DiplomacySettings settings;
-	private volatile BukkitTask transitionTask;
+	private volatile RosaTask transitionTask;
 
 	public DiplomacyManager(AdvancedVillages plugin, DiplomacyConfiguration configuration) {
 		this.plugin = plugin;
@@ -44,6 +43,7 @@ public final class DiplomacyManager {
 
 	public void load() {
 		if (!this.plugin.isDev()) return;
+
 		this.alliances.clear();
 		this.requests.clear();
 		this.wars.clear();
@@ -87,8 +87,7 @@ public final class DiplomacyManager {
 	public synchronized void start() {
 		this.shutdown();
 		if (!this.isEnabled()) return;
-		this.transitionTask = Bukkit.getScheduler().runTaskTimer(
-				this.plugin, () -> this.refreshTransitions(true), 20L, 20L * 10L);
+		this.transitionTask = plugin.getRosaScheduler().runGlobalTimer(() -> this.refreshTransitions(true), 20L, 20L * 10L);
 	}
 
 	public synchronized void shutdown() {
@@ -114,6 +113,7 @@ public final class DiplomacyManager {
 
 	public void save(boolean ignoreUnchanged) {
 		if (!this.plugin.isDev()) return;
+
 		long version = this.changeVersion.get();
 		if (ignoreUnchanged && version == this.persistedVersion) {
 			return;
@@ -143,6 +143,7 @@ public final class DiplomacyManager {
 
 	public List<Village> getAllies(Village village) {
 		if (!this.isEnabled() || village == null) return Collections.emptyList();
+
 		return this.alliances.values().stream()
 				.filter(alliance -> alliance.contains(village.getUUID()))
 				.map(alliance -> alliance.getOther(village.getUUID()))
@@ -162,6 +163,7 @@ public final class DiplomacyManager {
 
 	public List<Village> getPendingAllianceSenders(Village target) {
 		if (!this.isEnabled() || target == null) return Collections.emptyList();
+
 		Instant now = Instant.now();
 		return this.requests.values().stream()
 				.filter(request -> request.getTargetVillageId().equals(target.getUUID()))
@@ -175,6 +177,7 @@ public final class DiplomacyManager {
 
 	public List<AllianceRequest> getRequests(Village village) {
 		if (!this.isEnabled() || village == null) return Collections.emptyList();
+
 		Instant now = Instant.now();
 		return this.requests.values().stream()
 				.filter(request -> request.getSenderVillageId().equals(village.getUUID())
@@ -186,6 +189,7 @@ public final class DiplomacyManager {
 
 	public DiplomacyResult requestAlliance(Village sender, Village target) {
 		DiplomacySettings current = this.settings;
+
 		if (!this.isEnabled() || !current.isAlliancesEnabled()) return DiplomacyResult.DISABLED;
 		if (same(sender, target)) return DiplomacyResult.SAME_VILLAGE;
 		if (this.areAllied(sender, target)) return DiplomacyResult.ALREADY_ALLIED;
@@ -213,9 +217,11 @@ public final class DiplomacyManager {
 
 	public DiplomacyResult acceptAlliance(Village target, Village sender) {
 		DiplomacySettings current = this.settings;
+
 		if (!this.isEnabled() || !current.isAlliancesEnabled()) return DiplomacyResult.DISABLED;
 		if (same(target, sender)) return DiplomacyResult.SAME_VILLAGE;
 		if (this.areAllied(target, sender)) return DiplomacyResult.ALREADY_ALLIED;
+
 		String requestKey = requestKey(sender.getUUID(), target.getUUID());
 		AllianceRequest request = this.requests.get(requestKey);
 		if (request == null || request.isExpired(Instant.now())) {
@@ -231,8 +237,10 @@ public final class DiplomacyManager {
 		}
 
 		this.removeRequestsBetween(sender.getUUID(), target.getUUID());
+
 		VillageAlliance alliance = new VillageAlliance(null, sender.getUUID(), target.getUUID(), Instant.now());
 		this.alliances.put(pairKey(sender.getUUID(), target.getUUID()), alliance);
+
 		this.markChanged();
 		this.broadcastBoth(sender, target, Lang.DIPLOMACY_ALLIANCE_CREATED);
 		this.logBoth(sender, target, VillageLogType.ALLIANCE_CREATED);
@@ -241,9 +249,11 @@ public final class DiplomacyManager {
 
 	public DiplomacyResult denyAlliance(Village target, Village sender) {
 		if (!this.isEnabled() || !this.settings.isAlliancesEnabled()) return DiplomacyResult.DISABLED;
+
 		String key = requestKey(sender.getUUID(), target.getUUID());
 		AllianceRequest removed = this.requests.remove(key);
 		if (removed == null || removed.isExpired(Instant.now())) return DiplomacyResult.NO_REQUEST;
+
 		this.broadcast(sender, Lang.DIPLOMACY_ALLIANCE_REQUEST_DENIED, "village", target.getName());
 		this.broadcast(target, Lang.DIPLOMACY_ALLIANCE_REQUEST_DENIED_SELF, "village", sender.getName());
 		return DiplomacyResult.SUCCESS;
@@ -251,8 +261,10 @@ public final class DiplomacyManager {
 
 	public DiplomacyResult breakAlliance(Village village, Village ally) {
 		if (!this.isEnabled() || !this.settings.isAlliancesEnabled()) return DiplomacyResult.DISABLED;
+
 		VillageAlliance removed = this.alliances.remove(pairKey(village.getUUID(), ally.getUUID()));
 		if (removed == null) return DiplomacyResult.NOT_ALLIED;
+
 		this.removedAllianceIds.add(removed.getId());
 		this.markChanged();
 		this.broadcastBoth(village, ally, Lang.DIPLOMACY_ALLIANCE_ENDED);
@@ -264,8 +276,10 @@ public final class DiplomacyManager {
 		this.refreshTransitions(true);
 		DiplomacySettings current = this.settings;
 		if (!this.isEnabled() || !current.isWarsEnabled()) return DiplomacyResult.DISABLED;
+
 		if (same(attacker, defender)) return DiplomacyResult.SAME_VILLAGE;
 		if (this.areAllied(attacker, defender)) return DiplomacyResult.ALREADY_ALLIED;
+
 		VillageWar previous = this.findWarBetween(attacker, defender, true);
 		if (previous != null) {
 			return previous.getState(Instant.now()) == WarState.FINISHED
@@ -290,6 +304,7 @@ public final class DiplomacyManager {
 		attacker.removeBank(current.getDeclarationCost());
 		VillageWar war = VillageWar.create(attacker.getUUID(), defender.getUUID(), Instant.now(),
 				current.getPreparationTime(), current.getWarDuration());
+
 		this.wars.put(war.getId(), war);
 		this.observedWarStates.put(war.getId(), war.getState(Instant.now()));
 		this.markChanged();
@@ -308,14 +323,17 @@ public final class DiplomacyManager {
 
 	public DiplomacyResult surrender(Village village, Village enemy) {
 		if (!this.isEnabled() || !this.settings.isWarsEnabled()) return DiplomacyResult.DISABLED;
+
 		VillageWar war = this.findCurrentWarBetween(village, enemy);
 		if (war == null) return DiplomacyResult.NO_WAR;
+
 		this.finishWar(war, enemy.getUUID(), WarEndReason.SURRENDER, true);
 		return DiplomacyResult.SUCCESS;
 	}
 
 	public DiplomacyAttackResult canAttack(@Nullable Village attacker, Village defender) {
 		DiplomacySettings current = this.settings;
+
 		if (!this.isEnabled()) return DiplomacyAttackResult.ALLOWED;
 		if (attacker != null && current.isPreventAlliedVillageAttacks() && this.areAllied(attacker, defender)) {
 			return DiplomacyAttackResult.ALLIED;
@@ -324,8 +342,10 @@ public final class DiplomacyManager {
 			return DiplomacyAttackResult.ALLOWED;
 		}
 		if (attacker == null) return DiplomacyAttackResult.ATTACKER_HAS_NO_VILLAGE;
+
 		VillageWar war = this.findCurrentWarBetween(attacker, defender);
 		if (war == null) return DiplomacyAttackResult.WAR_REQUIRED;
+
 		return war.getState(Instant.now()) == WarState.PREPARING
 				? DiplomacyAttackResult.WAR_PREPARING : DiplomacyAttackResult.ALLOWED;
 	}
@@ -333,18 +353,21 @@ public final class DiplomacyManager {
 	public Duration getPreparationRemaining(Village first, Village second) {
 		VillageWar war = this.findCurrentWarBetween(first, second);
 		if (war == null) return Duration.ZERO;
+
 		Duration remaining = Duration.between(Instant.now(), war.getStartsAt());
 		return remaining.isNegative() ? Duration.ZERO : remaining;
 	}
 
 	public boolean isAtActiveWar(@Nullable Village first, @Nullable Village second) {
 		if (first == null || second == null) return false;
+
 		VillageWar war = this.findCurrentWarBetween(first, second);
 		return war != null && war.getState(Instant.now()) == WarState.ACTIVE;
 	}
 
 	public List<VillageWar> getWars(Village village) {
 		if (!this.isEnabled() || village == null) return Collections.emptyList();
+
 		return this.wars.values().stream()
 				.filter(war -> war.contains(village.getUUID()))
 				.sorted(Comparator.comparing(VillageWar::getDeclaredAt).reversed())
@@ -353,6 +376,7 @@ public final class DiplomacyManager {
 
 	public int countCurrentWars(Village village) {
 		if (!this.isEnabled() || village == null) return 0;
+
 		Instant now = Instant.now();
 		return (int) this.wars.values().stream()
 				.filter(war -> war.contains(village.getUUID()))
@@ -362,20 +386,24 @@ public final class DiplomacyManager {
 
 	public void recordKill(Village killerVillage, Village victimVillage) {
 		if (!this.isEnabled()) return;
+
 		VillageWar war = this.findCurrentWarBetween(killerVillage, victimVillage);
 		if (war == null || war.getState(Instant.now()) != WarState.ACTIVE) return;
 		int score = this.plugin.getDevelopmentManager()
 				.applyWarScore(killerVillage, this.settings.getKillScore());
+
 		war.addScore(killerVillage.getUUID(), score);
 		this.markChanged();
 	}
 
 	public void recordVillageLifeLost(Village attackerVillage, Village defenderVillage) {
 		if (!this.isEnabled()) return;
+
 		VillageWar war = this.findCurrentWarBetween(attackerVillage, defenderVillage);
 		if (war == null || war.getState(Instant.now()) != WarState.ACTIVE) return;
 		int score = this.plugin.getDevelopmentManager()
 				.applyWarScore(attackerVillage, this.settings.getVillageLifeScore());
+
 		war.addScore(attackerVillage.getUUID(), score);
 		this.markChanged();
 		if (defenderVillage.getLives() <= 1) {
@@ -385,6 +413,7 @@ public final class DiplomacyManager {
 
 	public void removeVillage(Village village) {
 		if (!this.plugin.isDev() || village == null) return;
+
 		UUID villageId = village.getUUID();
 		for (VillageWar war : new ArrayList<>(this.wars.values())) {
 			if (!war.contains(villageId)) continue;
@@ -414,6 +443,7 @@ public final class DiplomacyManager {
 		Instant now = Instant.now();
 		this.requests.values().removeIf(request -> request.isExpired(now));
 		boolean changed = false;
+
 		for (VillageWar war : new ArrayList<>(this.wars.values())) {
 			VillageWar.Snapshot snapshot = war.snapshot();
 			WarState previous = this.observedWarStates.get(war.getId());
@@ -441,12 +471,14 @@ public final class DiplomacyManager {
 		Village attacker = this.findVillage(war.getAttackerVillageId());
 		Village defender = this.findVillage(war.getDefenderVillageId());
 		if (attacker == null || defender == null) return;
+
 		this.broadcastBoth(attacker, defender, Lang.DIPLOMACY_WAR_STARTED);
 		this.logBoth(attacker, defender, VillageLogType.WAR_STARTED);
 	}
 
 	private void finishWar(VillageWar war, @Nullable UUID winnerId, WarEndReason reason, boolean broadcast) {
 		if (!war.finish(Instant.now(), this.settings.getWarCooldown(), winnerId, reason)) return;
+
 		this.markChanged();
 		Village attacker = this.findVillage(war.getAttackerVillageId());
 		Village defender = this.findVillage(war.getDefenderVillageId());
@@ -482,6 +514,7 @@ public final class DiplomacyManager {
 	@Nullable
 	private VillageWar findCurrentWarBetween(Village first, Village second) {
 		if (first == null || second == null) return null;
+
 		Instant now = Instant.now();
 		return this.wars.values().stream()
 				.filter(war -> war.contains(first.getUUID()) && war.contains(second.getUUID()))
@@ -492,6 +525,7 @@ public final class DiplomacyManager {
 	@Nullable
 	private VillageWar findWarBetween(Village first, Village second, boolean includeCooldown) {
 		if (first == null || second == null) return null;
+
 		Instant now = Instant.now();
 		return this.wars.values().stream()
 				.filter(war -> war.contains(first.getUUID()) && war.contains(second.getUUID()))
@@ -539,6 +573,7 @@ public final class DiplomacyManager {
 
 	private void logBoth(Village first, Village second, VillageLogType type) {
 		if (this.plugin.getLogManager() == null) return;
+
 		this.plugin.getLogManager().recordSystem(first, type, "village", second.getName());
 		this.plugin.getLogManager().recordSystem(second, type, "village", first.getName());
 	}

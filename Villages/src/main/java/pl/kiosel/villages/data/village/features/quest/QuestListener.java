@@ -103,6 +103,7 @@ public final class QuestListener extends RosaListener {
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onItemDrop(PlayerDropItemEvent event) {
+		if (!this.questManager.isEnabled()) return;
 		event.getItemDrop().getPersistentDataContainer().set(
 				this.playerDropKey, PersistentDataType.BYTE, (byte) 1);
 	}

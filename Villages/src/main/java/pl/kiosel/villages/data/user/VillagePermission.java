@@ -20,6 +20,7 @@ public enum VillagePermission {
 	WAR_MANAGE,
 	DEVELOPMENT_BUY,
 	UPKEEP,
+	OUTPOST_MANAGE,
 	UNSET;
 
 	private static final List<VillagePermission> EDITABLE = Arrays.stream(values())

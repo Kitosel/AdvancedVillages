@@ -24,11 +24,11 @@ public class CommandConfig {
 	}
 
 	public String getCommand(CommandLang lang) {
-		String message = command.get(lang.getPath());
-		if (message == null || message.trim().isEmpty() || message.contains(" ")) {
-			message = lang.getDef();
+		String cmd = command.get(lang.getPath());
+		if (cmd == null || cmd.trim().isEmpty() || cmd.contains(" ")) {
+			cmd = lang.getDef();
 		}
-		return message.toLowerCase(Locale.ROOT);
+		return cmd.toLowerCase(Locale.ROOT);
 	}
 
 	public void setConfig() {

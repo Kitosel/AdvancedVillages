@@ -1,10 +1,13 @@
-package pl.kiosel.villages.addons.buildeditor;
+package pl.kiosel.villages.addons.buildeditor.gui;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import pl.kiosel.rosacore.gui.Gui;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.addons.buildeditor.LevelEditorField;
+import pl.kiosel.villages.addons.buildeditor.BuildEditorType;
+import pl.kiosel.villages.addons.buildeditor.VillageBuildEditorManager;
 import pl.kiosel.villages.data.village.level.Level;
 import pl.kiosel.villages.gui.Item;
 
@@ -13,36 +16,43 @@ import java.util.stream.Collectors;
 
 import static pl.kiosel.rosacore.utils.ColorUtils.tl;
 
-final class LevelSettingsMenu extends Gui {
+public final class LevelSettingsMenu extends Gui {
 
-	LevelSettingsMenu(AdvancedVillages plugin, Player player, VillageBuildEditorManager manager, int levelNumber) {
-		Level level = plugin.getLevelManager().getLevel(levelNumber);
+	public LevelSettingsMenu(AdvancedVillages plugin, Player player, VillageBuildEditorManager manager, int levelNumber) {
+		this(plugin, player, manager, levelNumber, BuildEditorType.VILLAGE);
+	}
+
+	public LevelSettingsMenu(AdvancedVillages plugin, Player player, VillageBuildEditorManager manager,
+	                         int levelNumber, BuildEditorType type) {
+		Level level = type == BuildEditorType.OUTPOST
+				? plugin.getOutpostLevelManager().getLevel(levelNumber)
+				: plugin.getLevelManager().getLevel(levelNumber);
 		setRows(3);
 		setTitle(manager.getConfig().getString("settings-menu.title", "&8Level &6%level% &8settings")
 				.replace("%level%", String.valueOf(levelNumber)));
-		setDefaultItem(Item.create(Material.BLACK_STAINED_GLASS_PANE, " "));
+		setDefaultItem(Item.blank(Item.Blank.BLACK));
 
 		setButton(1, 1, button(Material.CHEST,
 				manager, "settings-menu.items", "&eRequired Items",
-				formatMaterials(level)), event -> begin(player, manager, levelNumber, LevelEditorField.ITEMS));
+				formatMaterials(level)), event -> begin(player, manager, levelNumber, LevelEditorField.ITEMS, type));
 		setButton(1, 3, button(Material.EXPERIENCE_BOTTLE,
 				manager, "settings-menu.experience", "&aExperience cost",
-				Integer.toString(level.getCostExperience())), event -> begin(player, manager, levelNumber, LevelEditorField.EXPERIENCE));
+				Integer.toString(level.getCostExperience())), event -> begin(player, manager, levelNumber, LevelEditorField.EXPERIENCE, type));
 		setButton(1, 5, button(Material.GOLD_INGOT,
 				manager, "settings-menu.economy", "&6Economy cost",
-				Integer.toString(level.getCostEconomy())), event -> begin(player, manager, levelNumber, LevelEditorField.ECONOMY));
+				Integer.toString(level.getCostEconomy())), event -> begin(player, manager, levelNumber, LevelEditorField.ECONOMY, type));
 		setButton(1, 7, button(Material.FILLED_MAP,
 				manager, "settings-menu.size", "&bRegion size",
-				Integer.toString(level.getSize())), event -> begin(player, manager, levelNumber, LevelEditorField.SIZE));
+				Integer.toString(level.getSize())), event -> begin(player, manager, levelNumber, LevelEditorField.SIZE, type));
 
-		setButton(2, 8, Item.create(Material.SPECTRAL_ARROW,
-				plugin.getGuiSettings().text("guis.common.back.name", "&9Back")),
-				event -> manager.openLevelMenu(player));
+		setButton(2, 8, Item.blank(Item.Blank.BACK),event -> manager.openLevelMenu(player));
 	}
 
-	private void begin(Player player, VillageBuildEditorManager manager, int level, LevelEditorField field) {
+	private void begin(Player player, VillageBuildEditorManager manager, int level,
+	                   LevelEditorField field, BuildEditorType type) {
 		player.closeInventory();
-		manager.beginFieldEdit(player, level, field);
+		if (type == BuildEditorType.OUTPOST) manager.beginOutpostFieldEdit(player, level, field);
+		else manager.beginFieldEdit(player, level, field);
 	}
 
 	private ItemStack button(Material material, VillageBuildEditorManager manager, String path, String fallback, String value) {

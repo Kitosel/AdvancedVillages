@@ -3,9 +3,11 @@ package pl.kiosel.villages.addons.firststeps;
 import org.bukkit.entity.Player;
 import pl.kiosel.rosacore.gui.AnvilGui;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.config.gui.GUIS;
 import pl.kiosel.villages.gui.Item;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,8 +27,8 @@ final class TutorialValueGUI extends AnvilGui {
 		this.parent = parent;
 
 		String value = setting.display(session.get(setting));
-		setTitle(replace(plugin.getGuiSettings().text(
-				"guis.tutorial.editor.title", "&8Edit %setting%"), value));
+		setTitle(replace(plugin.getGuiSettings().text(GUIS.TUTORIAL,
+				"editor.title", "&8Edit %setting%"), value));
 		setInput(Item.create(setting.getMaterial(), value));
 		setInputText(value);
 		setTextChangeHandler(this::refreshPrompt);
@@ -37,7 +39,7 @@ final class TutorialValueGUI extends AnvilGui {
 
 	private void submit(Player player) {
 		Optional<Object> parsed = this.setting.parse(getInputText());
-		if (!parsed.isPresent()) {
+		if (parsed.isEmpty()) {
 			this.refreshPrompt(getInputText());
 			return;
 		}
@@ -49,13 +51,17 @@ final class TutorialValueGUI extends AnvilGui {
 
 	private void refreshPrompt(String input) {
 		boolean valid = this.setting.parse(input).isPresent();
-		String path = "guis.tutorial.editor." + (valid ? "valid" : "invalid");
+
+		String path = "editor." + (valid ? "valid" : "invalid");
 		List<String> fallback = valid
-				? java.util.Arrays.asList("&aClick to save", "&7Type: &f%type%")
-				: java.util.Arrays.asList("&cInvalid value", "&7Expected: &f%type%");
-		List<String> configured = this.plugin.getGuiSettings().list(path, fallback);
+				? Arrays.asList("&aClick to save", "&7Type: &f%type%")
+				: Arrays.asList("&cInvalid value", "&7Expected: &f%type%");
+
+		List<String> configured = this.plugin.getGuiSettings().list(GUIS.TUTORIAL, path, fallback);
 		List<String> prompt = new ArrayList<>(configured.size());
-		for (String line : configured) prompt.add(replace(line, input));
+
+		for (String line : configured)
+			prompt.add(replace(line, input));
 		setOutputPrompt(prompt);
 	}
 

@@ -14,6 +14,7 @@ public final class CrownPattern implements AnimationPattern {
     public void render(CentralAnimationFrame frame) {
         LevelAnimationStyle style = frame.getStyle();
         int count = frame.getCount();
+
         for (int index = 0; index < count; index++) {
             double angle = Math.PI * 2 * index / count + frame.getPhase();
             double peak = 0.5 + 0.5 * Math.sin(angle * 5 - frame.getPhase() * 2);

@@ -6,12 +6,12 @@ import org.bukkit.inventory.ItemStack;
 import pl.kiosel.rosacore.gui.Gui;
 import pl.kiosel.rosacore.utils.NumberUtils;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.data.village.features.logs.VillageLogEntry;
-import pl.kiosel.villages.data.village.features.logs.VillageLogType;
-import pl.kiosel.villages.config.GuiItemConfig;
+import pl.kiosel.villages.config.gui.GUIS;
+import pl.kiosel.villages.config.gui.GuiItemConfig;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.data.village.VillageRole;
-import pl.kiosel.villages.gui.GUIS;
+import pl.kiosel.villages.data.village.features.logs.VillageLogEntry;
+import pl.kiosel.villages.data.village.features.logs.VillageLogType;
 import pl.kiosel.villages.gui.VillageGUIManager;
 import pl.kiosel.villages.gui.VillageMenu;
 
@@ -43,7 +43,7 @@ public final class VillageLogGUI extends VillageMenu {
 			return;
 		}
 
-		int slot = plugin.getGuiSettings().integer("guis.logs.start-slot", 9, 9,
+		int slot = plugin.getGuiSettings().integer(guiType,"logs.start-slot", 9, 9,
 				Math.max(9, menuConfig.getSize() - 1));
 		for (VillageLogEntry entry : entries) {
 			ItemStack item = this.createEntryItem(entry);
@@ -92,14 +92,14 @@ public final class VillageLogGUI extends VillageMenu {
 	private void localizeDetails(VillageLogType type, Map<String, String> details) {
 		if (type == VillageLogType.QUEST_COMPLETED) {
 			String questId = details.getOrDefault("quest", "");
-			details.put("quest", plugin.getGuiSettings().text(
-					"guis.quests.tasks." + questId + ".name", questId));
+			details.put("quest", plugin.getGuiSettings().text(guiType,
+					"quests.tasks." + questId + ".name", questId));
 		}
 		if (type == VillageLogType.SETTING_CHANGED) {
 			String setting = details.getOrDefault("setting", "");
 			details.put("setting", plugin.getLogConfig().text("settings." + setting, setting));
 		}
-		if (type == VillageLogType.MEMBER_PERMISSION) {
+		if (type == VillageLogType.ROLE_PERMISSION_CHANGED) {
 			String permission = details.getOrDefault("permission", "");
 			details.put("permission", plugin.getLogConfig().text(
 					"permissions." + permission.toLowerCase().replace('_', '-'), permission));
@@ -112,8 +112,8 @@ public final class VillageLogGUI extends VillageMenu {
 		}
 		if (type == VillageLogType.DEVELOPMENT_UNLOCKED) {
 			String node = details.getOrDefault("node", "");
-			details.put("node", plugin.getGuiSettings().text(
-					"guis.development.nodes." + node + ".name", node));
+			details.put("node", plugin.getGuiSettings().text(guiType,
+					"development.nodes." + node + ".name", node));
 		}
 
 		String rawValue = details.get("value");
@@ -130,11 +130,11 @@ public final class VillageLogGUI extends VillageMenu {
 	}
 
 	private GuiItemConfig item(String id, int slot, Material material, String name, List<String> lore) {
-		return item(GUIS.LOGS, "guis.logs." + id, slot, material, name, lore);
+		return item(GUIS.LOGS, "logs." + id, slot, material, name, lore);
 	}
 
 	private String guiText(String path, String fallback, Object... placeholders) {
-		String result = plugin.getGuiSettings().text("guis.logs." + path, fallback);
+		String result = plugin.getGuiSettings().text(guiType,"logs." + path, fallback);
 		for (int index = 0; index + 1 < placeholders.length; index += 2) {
 			result = result.replace("%" + placeholders[index] + "%", String.valueOf(placeholders[index + 1]));
 		}
@@ -142,7 +142,7 @@ public final class VillageLogGUI extends VillageMenu {
 	}
 
 	private DateTimeFormatter readDateFormat() {
-		String pattern = plugin.getGuiConfig().getString("guis.logs.date-format", "dd.MM.yyyy HH:mm");
+		String pattern = plugin.getLogConfig().text("logs.date-format", "dd.MM.yyyy HH:mm");
 		try {
 			return DateTimeFormatter.ofPattern(pattern);
 		} catch (IllegalArgumentException ignored) {

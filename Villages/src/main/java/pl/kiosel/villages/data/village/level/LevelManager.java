@@ -9,7 +9,7 @@ import pl.kiosel.villages.config.VillageConfigFile;
 import java.util.*;
 
 public class LevelManager {
-	public static final int MAX_LEVEL = 10;
+	public static final int MAX_LEVEL = 8;
 
 	private final NavigableMap<Integer, Level> registeredLevels = new TreeMap<>();
 	private final AdvancedVillages plugin;

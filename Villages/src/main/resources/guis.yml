@@ -1,66 +1,4 @@
-gui-village: "Village"
-gui-bank: "Village - &6&lBank"
-gui-store: "Village - &aStore"
-gui-resident: "Village - &eMembers"
-gui-remove: "Village - &c&lRemove"
-gui-upgrade: "Village - &bUpgrade"
-gui-settings: "Village - &cSettings"
-gui-effects: "Village - &dEffects"
-gui-storage: "Village - &2Storage"
-gui-logs: "Village - &6Activity logs"
-gui-diplomacy: "Village - &bDiplomacy"
-gui-development: "Village - &dDevelopment"
-gui-quests: "Village - &eQuests"
-gui-specializations: "Village - &aSpecializations"
-gui-permission: "Village - &dRole permissions"
-gui-upkeep: "Village - &eUpkeep"
-gui-tutorial: "&6AdvancedVillages setup"
-gui-member-settings: "Village - &7Member Settings"
-gui-remove-member: "&cRemove member"
-gui-delete-village: "&7Do you want to delete village?"
-
-# Shared menu layout. Rows must be between 1 and 6.
-# Every item can use: slot, material, amount, name, lore, glow and enabled.
-layout:
-  village: { rows: 4, back-slot: 4 }
-  bank: { rows: 4, back-slot: 4 }
-  store: { rows: 4, back-slot: 4 }
-  resident: { rows: 4, back-slot: 4 }
-  remove: { rows: 3, back-slot: 4 }
-  upgrade: { rows: 4, back-slot: 4 }
-  settings: { rows: 4, back-slot: 4 }
-  effects: { rows: 4, back-slot: 4 }
-  quests: { rows: 4, back-slot: 4 }
-  logs: { rows: 4, back-slot: 4 }
-  diplomacy: { rows: 4, back-slot: 4 }
-  development: { rows: 4, back-slot: 4 }
-  specializations: { rows: 3, back-slot: 4 }
-  permission: { rows: 4, back-slot: 4 }
-  upkeep: { rows: 4, back-slot: 4 }
-  tutorial: { rows: 3, back-slot: 4 }
-  delete-member: { rows: 3, back-slot: 4 }
-  member-settings: { rows: 3, back-slot: 8 }
-
 guis:
-  #
-  # SHARED GUI ELEMENTS
-  #
-  common:
-    blank-white: { material: WHITE_STAINED_GLASS_PANE, name: "&7&kBlank" }
-    blank-gray: { material: GRAY_STAINED_GLASS_PANE, name: "&7&kBlank" }
-    blank-black: { material: BLACK_STAINED_GLASS_PANE, name: "&7&kBlank" }
-    back: { material: ARROW, name: "&9Back" }
-    next-page: { material: SPECTRAL_ARROW, name: "&9Next" }
-    previous-page: { material: SPECTRAL_ARROW, name: "&cPrevious" }
-    exit: { material: ARROW, name: "&cExit" }
-    player-online: "&aThe player is online"
-
-  crafting:
-    title: "Crafting"
-    recipe-title: "Crafting recipe"
-    editor-title: "&8Edit recipe: %recipe%"
-    result-arrow: "&e→"
-
   tutorial:
     welcome:
       title: "&aThanks for using &f&lADVANCED&6&lVILLAGES"
@@ -179,7 +117,7 @@ guis:
       chat:
         slot: 15
         material: PAPER
-        name: "&ePaper"
+        name: "&eChat format"
         lore: ["%status%", "&eClick to change."]
       animations:
         slot: 9
@@ -227,7 +165,43 @@ guis:
     input-name: "*NAME*"
     output-prompt: "Name your village"
 
+  outpost:
+    title: "Name a outpost"
+    input-name: "*NAME*"
+    output-prompt: "Name a outpost"
+
   village:
+    #
+    # MAIN GUI ITEMS
+    #
+    diplomacy:
+      slot: 20
+      material: IRON_SWORD
+      name: "&bDiplomacy"
+      lore:
+        - "&7Alliances and wars"
+    development:
+      slot: 30
+      material: BLAZE_POWDER
+      name: "&dDevelopment tree"
+      lore:
+        - "&7Choose permanent village bonuses"
+    specializations:
+      slot: 36
+      material: KNOWLEDGE_BOOK
+      name: "&aSpecializations"
+      lore:
+        - "&7Choose your personal village bonus"
+    quests:
+      slot: 22
+      material: WRITABLE_BOOK
+      name: "&eVillage quests"
+      lore:
+        - "&7Complete shared daily and weekly quests."
+    exit:
+      slot: 44
+      material: ARROW
+      name: "&cExit"
     #
     # SETTINGS
     #
@@ -237,14 +211,6 @@ guis:
       name: "&lSettings"
       lore:
         - "&7Manage Village"
-      upkeep:
-        slot: 18
-        material: IRON_NUGGET
-        name: "&6Village upkeep"
-        lore:
-          - "&7Next cost: &6%cost%$"
-          - "&7Payment in: &f%time%"
-          - "&7Missed payments: &c%missed%"
       teleport:
         slot: 19
         material: FEATHER
@@ -299,8 +265,16 @@ guis:
           - "&7Animations: %village_animations%"
           - " "
           - "&8—————————————"
-      logs:
+      upkeep:
         slot: 27
+        material: IRON_NUGGET
+        name: "&6Village upkeep"
+        lore:
+          - "&7Next cost: &6%cost%$"
+          - "&7Payment in: &f%time%"
+          - "&7Missed payments: &c%missed%"
+      logs:
+        slot: 35
         material: BOOK
         name: "&6Activity logs"
         lore:
@@ -316,29 +290,11 @@ guis:
           - "&7Click to delete"
           - " "
           - "&8—————————————"
-    diplomacy:
-      slot: 29
-      material: IRON_SWORD
-      name: "&bDiplomacy"
-      lore:
-        - "&7Alliances and wars"
-    development:
-      slot: 33
-      material: BLAZE_POWDER
-      name: "&dDevelopment tree"
-      lore:
-        - "&7Choose permanent village bonuses"
-    specializations:
-      slot: 29
-      material: KNOWLEDGE_BOOK
-      name: "&aSpecializations"
-      lore:
-        - "&7Choose your personal village bonus"
     #
     # STORE
     #
     store:
-      slot: 21
+      slot: 24
       material: NETHER_STAR
       name: "&3Store"
       lore:
@@ -353,11 +309,16 @@ guis:
         price: 120
         lore:
           - "&7Buy for &6%price%$"
+      outpost:
+        slot: 23
+        price: 320
+        lore:
+          - "&7Buy for &6%price%$"
     #
     # MEMBERS
     #
     members:
-      slot: 11
+      slot: 10
       material: PLAYER_HEAD
       start-slot: 9
       compact-start-slot: 19
@@ -392,7 +353,7 @@ guis:
     # EFFECTS
     #
     effects:
-      slot: 23
+      slot: 32
       material: SPLASH_POTION
       name: "&dEffects"
       lore:
@@ -447,7 +408,7 @@ guis:
     # UPGRADE
     #
     upgrade:
-      slot: 31
+      slot: 40
       material: DIAMOND
       name: "&bUpgrade"
       lore:
@@ -478,7 +439,7 @@ guis:
     # BANK
     #
     bank:
-      slot: 15
+      slot: 16
       material: SUNFLOWER
       name: "&6Bank"
       lore:
@@ -503,16 +464,6 @@ guis:
       withdraw-10: { slot: 31, material: REDSTONE, amount: 10 }
       withdraw-100: { slot: 32, material: REDSTONE_BLOCK, amount: 1 }
       withdraw-1000: { slot: 33, material: REDSTONE_BLOCK, amount: 10 }
-    quests:
-      slot: 13
-      material: WRITABLE_BOOK
-      name: "&eVillage quests"
-      lore:
-        - "&7Complete shared daily and weekly quests."
-    exit:
-      slot: 35
-      material: ARROW
-      name: "&cExit"
 
   #
   # ACTIVITY LOGS
@@ -520,7 +471,6 @@ guis:
   #
   logs:
     start-slot: 9
-    date-format: "dd.MM.yyyy HH:mm"
     no-permission:
       slot: 13
       material: BARRIER
@@ -560,7 +510,7 @@ guis:
 
   #
   # VILLAGE QUESTS
-  # Quest mechanics, targets and rewards are configured in addons/quests.yml.
+  # Quest mechanics, targets and rewards are configured in village/quests.yml.
   #
   quests:
     start-slot: 9
@@ -730,7 +680,9 @@ guis:
         name: "&cFortifications III"
         lore:
           - "&7Greatly extend protection after an attack."
-
+  #
+  # DIPLOMACY
+  #
   diplomacy:
     start-slot: 9
     states:
@@ -760,14 +712,16 @@ guis:
         - "&7Remaining: &f%time%"
         - "&7Score: &e%our_score%&7:&e%enemy_score%"
     empty: { slot: 13, material: BARRIER, name: "&7No diplomatic relations" }
-
+  #
+  # SPECIALIZATION
+  #
   specializations:
     status:
       selected: "&aSelected"
       available: "&eClick to select"
       cooldown: "&cAvailable in %time%"
     warrior:
-      slot: 10
+      slot: 19
       material: IRON_SWORD
       name: "&cWarrior"
       lore:
@@ -775,7 +729,7 @@ guis:
         - ""
         - "%status%"
     defender:
-      slot: 11
+      slot: 20
       material: SHIELD
       name: "&9Defender"
       lore:
@@ -784,7 +738,7 @@ guis:
         - ""
         - "%status%"
     farmer:
-      slot: 12
+      slot: 21
       material: WHEAT
       name: "&eFarmer"
       lore:
@@ -792,7 +746,7 @@ guis:
         - ""
         - "%status%"
     forester:
-      slot: 13
+      slot: 22
       material: OAK_SAPLING
       name: "&2Forester"
       lore:
@@ -801,7 +755,7 @@ guis:
         - ""
         - "%status%"
     miner:
-      slot: 14
+      slot: 23
       material: IRON_PICKAXE
       name: "&7Miner"
       lore:
@@ -810,7 +764,7 @@ guis:
         - ""
         - "%status%"
     merchant:
-      slot: 15
+      slot: 24
       material: EMERALD
       name: "&aMerchant"
       lore:
@@ -818,24 +772,24 @@ guis:
         - ""
         - "%status%"
     healer:
-      slot: 16
+      slot: 25
       material: GOLDEN_APPLE
       name: "&dHealer"
       lore:
         - "&7Receive &a%bonus%% &7more healing."
         - ""
         - "%status%"
-#
-# REMOVE VILLAGE
-#
+  #
+  # REMOVE VILLAGE
+  #
   remove:
     confirm: { slot: 12, material: LIME_CONCRETE, name: "&aYes" }
     info: { slot: 13, material: PAPER }
     cancel: { slot: 14, material: RED_CONCRETE, name: "&cNo" }
-#
-# MEMBER SETTINGS
-# ROLE/PERMISSION/KICK
-#
+  #
+  # MEMBER SETTINGS
+  # ROLE/PERMISSION/KICK
+  #
   member-settings:
     header:
       slot: 4
@@ -878,9 +832,9 @@ guis:
         - " "
         - "&cRemove member from village"
         - " "
-#
-# KICK/REMOVE/DELETE MEMBER
-#
+  #
+  # KICK/REMOVE/DELETE MEMBER
+  #
   delete-member:
     confirm: { slot: 12, material: LIME_CONCRETE, name: "&aYes" }
     member:
@@ -890,12 +844,12 @@ guis:
       lore:
         - "&7Remove: &6%player%"
     cancel: { slot: 14, material: RED_CONCRETE, name: "&cNo" }
-#
-# UPKEEP/RENT
-#
+  #
+  # UPKEEP/RENT
+  #
   upkeep:
     info:
-      slot: 13
+      slot: 22
       material: IRON_NUGGET
       name: "&6Village upkeep"
       lore:
@@ -903,7 +857,7 @@ guis:
         - "&7Payment in: &f%time%"
         - "&7Missed payments: &c%missed%"
     pay:
-      slot: 21
+      slot: 30
       material: SUNFLOWER
       name: "&6Pay upkeep"
       lore:
@@ -914,7 +868,7 @@ guis:
         - "&7Right click: &ePay with bank"
         - "&7Left click: &dPay with balance"
     automatic-payment:
-      slot: 23
+      slot: 32
       material: ALLIUM
       name: "&dAutomatic payment"
       lore:
@@ -925,9 +879,9 @@ guis:
     status:
       enabled: "&aEnabled"
       disabled: "&cDisabled"
-#
-# EDIT ROLE PERMISSION
-#
+  #
+  # EDIT ROLE PERMISSION
+  #
   permission:
     start-slot: 9
     header:
@@ -971,3 +925,4 @@ guis:
       war-manage: "Wars"
       development-buy: "Development purchases"
       upkeep: "Village upkeep"
+      outpost-manage: "outpost management"

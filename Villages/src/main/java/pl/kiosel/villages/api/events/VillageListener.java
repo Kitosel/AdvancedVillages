@@ -39,4 +39,8 @@ public abstract class VillageListener extends RosaListener {
 	public void sendLocalized(CommandSender sender, Lang node) {
 		plugin.getVillageMessages().sendPrefixed(sender, node);
 	}
+
+	public void sendLocalized(CommandSender sender, Lang node, Object... placeholder) {
+		plugin.getVillageMessages().sendPrefixed(sender, node, placeholder);
+	}
 }

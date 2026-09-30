@@ -25,17 +25,21 @@ public class Village extends AbstractMutableEntity {
 	private final VillageMembers membership;
 	private final VillageEffects effects;
 	private volatile String name;
+
 	@Getter	private volatile String tag;
 	@Getter	private volatile int lives;
 	@Getter	private volatile int bank;
 	@Getter	private volatile Level level;
+
 	@Nullable private volatile VillageRegion region;
 	@Nullable private volatile VillageRegion turretRegion;
 	@Nullable private volatile Location home;
 	@Nullable private volatile Location location;
+
 	@Nullable private volatile Instant build;
 	@Getter	private volatile Instant born;
 	@Getter	private volatile Instant protection = Instant.EPOCH;
+
 	@Getter	private volatile boolean pvp;
 	@Getter	private volatile boolean tnt;
 	@Getter	private volatile boolean animationsEnabled = true;
@@ -89,7 +93,10 @@ public class Village extends AbstractMutableEntity {
 	}
 
 	public boolean isTag() {
-		return this.tag != null && !this.tag.isBlank() && !this.tag.equalsIgnoreCase("none");
+		return this.tag != null
+				&& !this.tag.isBlank()
+				&& !this.tag.equals("-")
+				&& !this.tag.equalsIgnoreCase("none");
 	}
 
 	public void setLives(int lives) {

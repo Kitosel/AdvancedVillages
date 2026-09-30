@@ -14,6 +14,7 @@ public final class VortexPattern implements AnimationPattern {
     public void render(CentralAnimationFrame frame) {
         LevelAnimationStyle style = frame.getStyle();
         double movement = frame.getPhase() / (Math.PI * 2);
+
         for (int index = 0; index < frame.getCount(); index++) {
             double progress = (index / (double) frame.getCount() + movement) % 1.0;
             double angle = frame.getPhase() * 1.5 + progress * Math.PI * 6;

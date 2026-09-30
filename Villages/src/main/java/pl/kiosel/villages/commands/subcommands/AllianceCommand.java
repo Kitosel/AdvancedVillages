@@ -26,20 +26,25 @@ public final class AllianceCommand extends AVSubCommand {
 	}
 
 	@Override
-	public String getDescription() { return plugin.getVillageMessages().text(Lang.DIPLOMACY_ALLIANCE_COMMAND_DESCRIPTION); }
+	public String getDescription() {
+		return plugin.getVillageMessages().text(Lang.DIPLOMACY_ALLIANCE_COMMAND_DESCRIPTION);
+	}
 
 	@Override
 	public String getUsage() {
 		return "/" + plugin.getCommandLang().getCommandName() + " "
-				+ plugin.getCommandLang().getCommand(CommandLang.ALLIANCE)
-				+ " <" + String.join("|", actions()) + "> [village]";
+				+ getName() + " <" + String.join("|", actions()) + "> [village]";
 	}
 
 	@Override
-	public String getPermission() { return "advancedvillages.command.alliance"; }
+	public String getPermission() {
+		return "advancedvillages.command.alliance";
+	}
 
 	@Override
-	public boolean requireVillage() { return true; }
+	public boolean requireVillage() {
+		return true;
+	}
 
 	@Override
 	public boolean isAvailable(CommandSender sender) {

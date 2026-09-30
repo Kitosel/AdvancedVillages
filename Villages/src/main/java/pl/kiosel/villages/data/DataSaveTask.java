@@ -7,11 +7,13 @@ import java.util.logging.Level;
 
 public class DataSaveTask implements Runnable {
 
+	private final AdvancedVillages plugin;
 	private final Dataloader dataModel;
 	private final boolean fullSave;
 
-	public DataSaveTask(Dataloader dataModel, boolean fullSave) {
-		this.dataModel = dataModel;
+	public DataSaveTask(AdvancedVillages plugin, boolean fullSave) {
+		this.plugin = plugin;
+		this.dataModel = plugin.getDataloader();
 		this.fullSave = fullSave;
 	}
 
@@ -19,11 +21,9 @@ public class DataSaveTask implements Runnable {
 	public void run() {
 		try {
 			this.dataModel.save(!this.fullSave);
+			plugin.getDebug().debug("Saved data");
 		} catch (RuntimeException exception) {
-			AdvancedVillages plugin = AdvancedVillages.getInstance();
-			if (plugin != null) {
-				plugin.getRosaLogger().log(Level.SEVERE, "Automatic data save failed", exception);
-			}
+			plugin.getRosaLogger().log(Level.SEVERE, "Automatic data save failed", exception);
 		}
 	}
 }

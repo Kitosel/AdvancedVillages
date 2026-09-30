@@ -7,14 +7,12 @@ import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.world.block.BlockStateHolder;
 import org.bukkit.Location;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.data.outpost.Outpost;
+import pl.kiosel.villages.data.outpost.OutpostManager;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.Village;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 final class VillageProtectionExtent extends AbstractDelegateExtent {
 
@@ -23,6 +21,7 @@ final class VillageProtectionExtent extends AbstractDelegateExtent {
 	VillageProtectionExtent(Extent delegate, AdvancedVillages plugin, String worldName, UUID actorUuid) {
 		super(delegate);
 		List<ProtectedArea> areas = new ArrayList<>();
+
 		for (Village village : plugin.getVillageManager().getVillagesView()) {
 			Location center = village.getLocation().orElse(null);
 			if (center == null || center.getWorld() == null || village.getLevel() == null) continue;
@@ -45,6 +44,25 @@ final class VillageProtectionExtent extends AbstractDelegateExtent {
 					turretMax.getBlockZ(),
 					member
 			));
+		}
+		if (plugin.getOutpostManager() != null) {
+			for (Outpost outpost : plugin.getOutpostManager().getOutposts()) {
+				Location center = outpost.getLocation().orElse(null);
+				if (center == null || center.getWorld() == null || !center.getWorld().getName().equals(worldName)) continue;
+				boolean member = outpost.getVillage().getMembers().stream()
+						.map(User::getUUID)
+						.anyMatch(actorUuid::equals);
+				areas.add(new ProtectedArea(
+						center.getBlockX(), center.getBlockZ(), Math.max(0, outpost.getLevel().getSize()),
+						center.getBlockX() - OutpostManager.BUILD_RADIUS,
+						center.getBlockY() + OutpostManager.BUILD_MIN_Y,
+						center.getBlockZ() - OutpostManager.BUILD_RADIUS,
+						center.getBlockX() + OutpostManager.BUILD_RADIUS,
+						center.getBlockY() + OutpostManager.BUILD_MAX_Y,
+						center.getBlockZ() + OutpostManager.BUILD_RADIUS,
+						member
+				));
+			}
 		}
 		for (ProtectedArea area : areas) this.index(area);
 	}
@@ -77,16 +95,9 @@ final class VillageProtectionExtent extends AbstractDelegateExtent {
 		return ((long) chunkX << 32) | (chunkZ & 0xffffffffL);
 	}
 
-	private record ProtectedArea(
-			int centerX,
-			int centerZ,
-			int radius,
-			int turretMinX,
-			int turretMinY,
-			int turretMinZ,
-			int turretMaxX,
-			int turretMaxY,
-			int turretMaxZ,
+	private record ProtectedArea(int centerX, int centerZ, int radius,
+			int turretMinX, int turretMinY, int turretMinZ,
+			int turretMaxX, int turretMaxY, int turretMaxZ,
 			boolean member
 	) {
 

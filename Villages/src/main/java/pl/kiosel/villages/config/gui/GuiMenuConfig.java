@@ -1,4 +1,4 @@
-package pl.kiosel.villages.config;
+package pl.kiosel.villages.config.gui;
 
 import lombok.Getter;
 
@@ -9,12 +9,14 @@ public final class GuiMenuConfig {
 	private final String title;
 	private final int rows;
 	private final int backSlot;
+	private final int requiredLevel;
 
-	GuiMenuConfig(String id, String title, int rows, int backSlot) {
+	GuiMenuConfig(String id, String title, int rows, int backSlot, int requiredLevel) {
 		this.id = id;
 		this.title = title;
 		this.rows = rows;
 		this.backSlot = backSlot;
+		this.requiredLevel = requiredLevel;
 	}
 
 	public int getSize() {

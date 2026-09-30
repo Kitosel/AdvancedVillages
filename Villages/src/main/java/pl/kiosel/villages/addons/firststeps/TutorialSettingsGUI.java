@@ -4,9 +4,9 @@ import org.bukkit.inventory.ItemStack;
 import pl.kiosel.rosacore.gui.Gui;
 import pl.kiosel.rosacore.gui.GuiClickEvent;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.config.GuiItemConfig;
-import pl.kiosel.villages.config.GuiMenuConfig;
-import pl.kiosel.villages.gui.GUIS;
+import pl.kiosel.villages.config.gui.GUIS;
+import pl.kiosel.villages.config.gui.GuiItemConfig;
+import pl.kiosel.villages.config.gui.GuiMenuConfig;
 import pl.kiosel.villages.gui.Item;
 
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ final class TutorialSettingsGUI extends Gui {
 
 		GuiMenuConfig menu = plugin.getGuiSettings().menu(GUIS.TUTORIAL);
 		setRows(menu.getRows());
-		setTitle(plugin.getGuiSettings().text("guis.tutorial.titles." + category.getId(),
+		setTitle(plugin.getGuiSettings().text(GUIS.TUTORIAL,"titles." + category.getId(),
 				category.getFallbackTitle()));
 		setDefaultItem(Item.blank(Item.Blank.WHITE));
 		playSoundOnClick(true);
@@ -55,7 +55,7 @@ final class TutorialSettingsGUI extends Gui {
 	private GuiItemConfig item(TutorialSetting setting) {
 		return this.plugin.getGuiSettings().item(
 				GUIS.TUTORIAL,
-				"guis.tutorial.settings." + setting.getId(),
+				"settings." + setting.getId(),
 				setting.getSlot(),
 				setting.getMaterial(),
 				setting.getId(),
@@ -82,15 +82,17 @@ final class TutorialSettingsGUI extends Gui {
 		Object selected = this.session.get(setting);
 		boolean enabled = setting.getValueType() == TutorialSetting.ValueType.BOOLEAN
 				&& Boolean.TRUE.equals(selected);
+
 		String value;
 		if (setting.getValueType() == TutorialSetting.ValueType.BOOLEAN) {
-			value = this.plugin.getGuiSettings().text(
-					"guis.tutorial.status." + (enabled ? "enabled" : "disabled"),
+			value = this.plugin.getGuiSettings().text(GUIS.TUTORIAL,
+					"status." + (enabled ? "enabled" : "disabled"),
 					enabled ? "&aEnabled" : "&cDisabled");
 		} else {
-			value = this.plugin.getGuiSettings().text("guis.tutorial.status.value", "&f%value%")
+			value = this.plugin.getGuiSettings().text(GUIS.TUTORIAL,"status.value", "&f%value%")
 					.replace("%value%", setting.display(selected));
 		}
+
 		String name = replace(item.getName(), setting, value);
 		List<String> lore = new ArrayList<>(item.getLore().size());
 		for (String line : item.getLore())

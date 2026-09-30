@@ -17,6 +17,8 @@ public enum CommandLang {
 	ADMIN_GIVE_DESTROYER_HEARTH("admin_give_destroyer_hearth", "destroyer-hearth"),
 	ADMIN_GIVE_VILLAGE_HEARTH("admin_give_village_hearth", "village-hearth"),
 	ADMIN_GIVE_VILLAGE_HEARTH_PART("admin_give_hearth_part", "village-hearth-part"),
+	ADMIN_GIVE_OUTPOST("admin_give_outpost", "outpost"),
+	ADMIN_GIVE_OUTPOST_CORE("admin_give_outpost_core", "outpost-core"),
 
 	ADMIN_ADD("admin_add", "add"),
 	ADMIN_REMOVE("admin_remove", "remove"),
@@ -40,6 +42,7 @@ public enum CommandLang {
 	INVITE("invite", "invite"),
 	LEAVE("leave", "leave"),
 	TELEPORT("teleport", "teleport"),
+	OUTPOST("outpost", "outpost"),
 	EDIT("edit", "edit"),
 	EDIT_SAVE("edit_save", "save"),
 	EDIT_CANCEL("edit_cancel", "cancel"),

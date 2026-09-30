@@ -19,6 +19,10 @@ public final class ConfigSet {
 		this.fallback = fallback;
 	}
 
+	public Object get() {
+		return this.config.get(this.path, this.fallback);
+	}
+
 	public boolean getBoolean() {
 		return this.config.getBoolean(this.path, this.fallback instanceof Boolean && (Boolean) this.fallback);
 	}

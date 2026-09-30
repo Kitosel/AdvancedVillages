@@ -26,7 +26,7 @@ public class AdminIntegrationCommand extends AdminSubCommand {
 
 	@Override
 	public String getUsage() {
-		return "/village admin integration <plugin> <action>";
+		return "/" + plugin.getCommandLang().getCommandName() + getCommand(CommandLang.ADMIN)  + getName() + " <plugin> <action>";
 	}
 
 	@Override

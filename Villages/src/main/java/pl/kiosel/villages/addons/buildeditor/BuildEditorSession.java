@@ -14,10 +14,11 @@ final class BuildEditorSession {
     private final BuildEditorBounds cleanupBounds;
     private final BuildEditorPlayerState playerState;
 	private final boolean newLevel;
+	private final BuildEditorType type;
 
     BuildEditorSession(UUID playerId, int level, Location origin, Location returnLocation,
                        BuildEditorBounds bounds, BuildEditorBounds cleanupBounds,
-                       BuildEditorPlayerState playerState, boolean newLevel) {
+                       BuildEditorPlayerState playerState, boolean newLevel, BuildEditorType type) {
         this.playerId = playerId;
         this.level = level;
         this.origin = origin.clone();
@@ -26,6 +27,7 @@ final class BuildEditorSession {
         this.cleanupBounds = cleanupBounds;
         this.playerState = playerState;
 		this.newLevel = newLevel;
+		this.type = type;
     }
 
     UUID getPlayerId() {
@@ -58,5 +60,9 @@ final class BuildEditorSession {
 
 	boolean isNewLevel() {
 		return newLevel;
+	}
+
+	BuildEditorType getType() {
+		return type;
 	}
 }

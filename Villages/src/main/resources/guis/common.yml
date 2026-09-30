@@ -1,0 +1,86 @@
+# Village titles
+gui-village: "Village"
+gui-bank: "Village - &6&lBank"
+gui-store: "Village - &aStore"
+gui-resident: "Village - &eMembers"
+gui-remove: "Village - &c&lRemove"
+gui-upgrade: "Village - &bUpgrade"
+gui-settings: "Village - &cSettings"
+gui-effects: "Village - &dEffects"
+gui-storage: "Village - &2Storage"
+gui-logs: "Village - &6Activity logs"
+gui-diplomacy: "Village - &bDiplomacy"
+gui-development: "Village - &dDevelopment"
+gui-quests: "Village - &eQuests"
+gui-specializations: "Village - &aSpecializations"
+gui-permission: "Village - &dRole permissions"
+gui-upkeep: "Village - &eUpkeep"
+gui-tag: "Name your village"
+gui-member-settings: "Village - &7Member Settings"
+gui-remove-member: "&cRemove member"
+gui-delete-village: "&7Do you want to delete village?"
+# Outpost titles
+gui-outpost: ""
+gui-outpost-name: ""
+gui-outpost-upgrade: ""
+gui-outpost-settings: ""
+
+# Tutorial/Settings title
+gui-tutorial: "&6AdvancedVillages setup"
+
+# Crafting title
+gui-crafting: "&8Crafting"
+gui-crafting-recipe: "&8Crafting recipe"
+gui-crafting-editor: "&8Edit recipe: %recipe%"
+
+# Shared menu layout. Rows must be between 1 and 6.
+# Every item can use: slot, material, amount, name, lore, glow and enabled.
+layout:
+  #
+  # VILLAGE GUI LAYOUT
+  #
+  # To lock a feature in the village until a certain level is reached, add “required-level”
+  village: { rows: 5, back-slot: 4 }
+  bank: { rows: 5, back-slot: 4, required-level: 2 }
+  store: { rows: 4, back-slot: 4, required-level: 2 }
+  resident: { rows: 5, back-slot: 4 }
+  upgrade: { rows: 5, back-slot: 4 }
+  settings: { rows: 5, back-slot: 4 }
+  effects: { rows: 5, back-slot: 4, required-level: 3 }
+  quests: { rows: 5, back-slot: 4, required-level: 2 }
+  logs: { rows: 5, back-slot: 4 }
+  diplomacy: { rows: 5, back-slot: 4 }
+  development: { rows: 5, back-slot: 4, required-level: 2 }
+  permission: { rows: 4, back-slot: 4 }
+  upkeep: { rows: 5, back-slot: 4 }
+  specializations: { rows: 4, back-slot: 4 }
+  remove: { rows: 3, back-slot: 4 }
+  delete-member: { rows: 3, back-slot: 4 }
+  member-settings: { rows: 3, back-slot: 8 }
+
+  # CRAFTING GUI
+  crafting: { rows: 1, back-slot: 1 }
+  crafting-recipe: { rows: 1, back-slot: 1 }
+  crafting-editor: { rows: 1, back-slot: 1 }
+
+  # TUTORIAL GUI
+  tutorial: { rows: 3, back-slot: 4 }
+
+#
+# SHARED GUI ELEMENTS
+#
+common:
+  blank-white: { material: WHITE_STAINED_GLASS_PANE, name: "&7&kBlank" }
+  blank-gray: { material: GRAY_STAINED_GLASS_PANE, name: "&7&kBlank" }
+  blank-black: { material: BLACK_STAINED_GLASS_PANE, name: "&7&kBlank" }
+  back: { material: ARROW, name: "&9Back" }
+  next-page: { material: SPECTRAL_ARROW, name: "&9Next" }
+  previous-page: { material: SPECTRAL_ARROW, name: "&cPrevious" }
+  exit: { material: ARROW, name: "&cExit" }
+  result-arrow: { material: SPECTRAL_ARROW, name: "&e→"}
+  #
+  # SHARED NAMES/VARIABLES
+  #
+  player-online: "&aThe player is online"
+  enabled: "&aEnabled"
+  disabled: "&cDisabled"

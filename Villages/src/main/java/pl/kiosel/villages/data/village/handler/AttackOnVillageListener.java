@@ -13,12 +13,12 @@ import pl.kiosel.rosacore.compatibility.ZSound;
 import pl.kiosel.rosacore.location.Cuboid;
 import pl.kiosel.rosacore.material.ItemTag;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.data.village.features.diplomacy.DiplomacyAttackResult;
 import pl.kiosel.villages.api.events.VillageListener;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.config.Settings;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.Village;
+import pl.kiosel.villages.data.village.features.diplomacy.DiplomacyAttackResult;
 import pl.kiosel.villages.manager.VillageUtils;
 
 import java.util.Objects;
@@ -67,43 +67,41 @@ public class AttackOnVillageListener extends VillageListener {
 		}
 
 		if (!village.isMember(user)) {
+			if (isSameType(hand, new ItemStack(Material.AIR))) {
+				event.setCancelled(true);
+				return;
+			}
+
 			event.setCancelled(true);
 			if (ItemTag.has(hand, "villageDestroyer")) {
 				event.setCancelled(true);
-				if (user.getVillage().isEmpty()) {
-					return;
-				}
+
 				Village attackerVillage = user.getPresentVillage();
-				DiplomacyAttackResult diplomacyResult = plugin.getDiplomacyManager().canAttack(attackerVillage, village);
-				if (diplomacyResult != DiplomacyAttackResult.ALLOWED) {
-					if (diplomacyResult == DiplomacyAttackResult.ALLIED) {
-						plugin.getVillageMessages().sendPrefixed(player, Lang.DIPLOMACY_ALLIANCE_CANNOT_ATTACK);
-					} else if (diplomacyResult == DiplomacyAttackResult.ATTACKER_HAS_NO_VILLAGE) {
-						plugin.getVillageMessages().sendPrefixed(player, Lang.DIPLOMACY_WAR_ATTACKER_NO_VILLAGE);
-					} else if (diplomacyResult == DiplomacyAttackResult.WAR_PREPARING) {
-						plugin.getVillageMessages().sendPrefixed(player, Lang.DIPLOMACY_WAR_PREPARING,
-								"time", plugin.getVillageMessages().formatDuration(
-										plugin.getDiplomacyManager().getPreparationRemaining(attackerVillage, village)));
-					} else {
-						plugin.getVillageMessages().sendPrefixed(player, Lang.DIPLOMACY_WAR_REQUIRED);
-					}
-					player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT, 1.0f, 0.0f);
+				if (!checkDiplomacy(player, attackerVillage, village)) return;
+
+				if (user.getVillage().isEmpty()) {
+					sendLocalized(player, Lang.VILLAGE_NO);
+					player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 0.0f);
 					return;
 				}
+
 				if (!Settings.VILLAGE_ATTACK_WHEN_OFFLINE.getBoolean()
 						&& village.getOnlineMembers().isEmpty()) {
 					plugin.getVillageMessages().get(Lang.VILLAGE_PROTECTED_OFFLINE).sendPrefixed(player);
 					player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT, 1.0f, 0.0f);
 					return;
 				}
+
 				if (!village.canBeAttacked()) {
 					plugin.getVillageMessages().get(Lang.VILLAGE_PROTECTED).sendPrefixed(player);
 					player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT, 1.0f, 0.0f);
 					return;
 				}
+
 				if (attackerVillage != null) {
 					plugin.getDiplomacyManager().recordVillageLifeLost(attackerVillage, village);
 				}
+
 				Objects.requireNonNull(location.getWorld()).dropItem(location.add(0.5, 1, 0.5), plugin.getApi().createHearthPart(), item -> {
 					item.setGlowing(true);
 					item.setUnlimitedLifetime(true);
@@ -118,5 +116,25 @@ public class AttackOnVillageListener extends VillageListener {
 
 		event.setCancelled(true);
 		ZSound.ENTITY_VILLAGER_NO.play(player, 1f, 1f);
+	}
+
+	public boolean checkDiplomacy(Player player, Village attackerVillage, Village village) {
+		DiplomacyAttackResult diplomacyResult = plugin.getDiplomacyManager().canAttack(attackerVillage, village);
+		if (diplomacyResult != DiplomacyAttackResult.ALLOWED) {
+			if (diplomacyResult == DiplomacyAttackResult.ALLIED) {
+				sendLocalized(player, Lang.DIPLOMACY_ALLIANCE_CANNOT_ATTACK);
+			} else if (diplomacyResult == DiplomacyAttackResult.ATTACKER_HAS_NO_VILLAGE) {
+				sendLocalized(player, Lang.DIPLOMACY_WAR_ATTACKER_NO_VILLAGE);
+			} else if (diplomacyResult == DiplomacyAttackResult.WAR_PREPARING) {
+				sendLocalized(player, Lang.DIPLOMACY_WAR_PREPARING,
+						"time", plugin.getVillageMessages().formatDuration(
+								plugin.getDiplomacyManager().getPreparationRemaining(attackerVillage, village)));
+			} else {
+				sendLocalized(player, Lang.DIPLOMACY_WAR_REQUIRED);
+			}
+			player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT, 1.0f, 0.0f);
+			return false;
+		}
+		return true;
 	}
 }

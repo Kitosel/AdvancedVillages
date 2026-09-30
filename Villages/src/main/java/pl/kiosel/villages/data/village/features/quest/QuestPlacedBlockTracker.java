@@ -8,7 +8,6 @@ import pl.kiosel.villages.AdvancedVillages;
 
 import java.util.Arrays;
 
-/** Persists player-placed quest resources in the chunk that contains them. */
 final class QuestPlacedBlockTracker {
 
 	private final NamespacedKey placedBlocksKey;

@@ -1,6 +1,6 @@
 package pl.kiosel.villages.addons.buildeditor;
 
-enum LevelEditorField {
+public enum LevelEditorField {
 	ITEMS,
 	EXPERIENCE,
 	ECONOMY,

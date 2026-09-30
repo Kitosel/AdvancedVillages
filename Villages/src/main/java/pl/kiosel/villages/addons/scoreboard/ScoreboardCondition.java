@@ -3,7 +3,6 @@ package pl.kiosel.villages.addons.scoreboard;
 import org.bukkit.entity.Player;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.data.user.User;
-import pl.kiosel.villages.data.user.VillagePermission;
 import pl.kiosel.villages.data.village.Village;
 
 import java.util.ArrayList;
@@ -135,17 +134,17 @@ public final class ScoreboardCondition {
 					String permission = arguments.get(0);
 					return context -> context.player != null && context.player.hasPermission(permission);
 				}
-				case "user.hasvillagepermission": {
-					requireArguments(identifier, arguments, 1);
-					VillagePermission permission;
-					try {
-						permission = VillagePermission.valueOf(arguments.get(0).trim().toUpperCase(Locale.ROOT).replace('-', '_'));
-					} catch (IllegalArgumentException exception) {
-						throw error("unknown village permission '" + arguments.get(0) + "'");
-					}
-					VillagePermission required = permission;
-					return context -> context.user != null && context.user.hasVillagePermission(required);
-				}
+				//case "user.hasvillagepermission": {
+				//	requireArguments(identifier, arguments, 1);
+				//	VillagePermission permission;
+				//	try {
+				//		permission = VillagePermission.valueOf(arguments.get(0).trim().toUpperCase(Locale.ROOT).replace('-', '_'));
+				//	} catch (IllegalArgumentException exception) {
+				//		throw error("unknown village permission '" + arguments.get(0) + "'");
+				//	}
+				//	VillagePermission required = permission;
+				//	return context -> context.user != null && context.user.hasVillagePermission(required);
+				//}
 				case "player.isop":
 					requireArguments(identifier, arguments, 0);
 					return context -> context.player != null && context.player.isOp();
@@ -163,37 +162,37 @@ public final class ScoreboardCondition {
 				case "village.istnt":
 					requireArguments(identifier, arguments, 0);
 					return context -> context.village != null && context.village.hasTntEnabled();
-				case "village.animationsenabled":
-				case "village.isanimationsenabled":
-					requireArguments(identifier, arguments, 0);
-					return context -> context.village != null && context.village.isAnimationsEnabled();
-				case "village.hashome":
-					requireArguments(identifier, arguments, 0);
-					return context -> context.village != null && context.village.hasHome();
-				case "village.hasregion":
-					requireArguments(identifier, arguments, 0);
-					return context -> context.village != null && context.village.hasRegion();
-				case "village.hasallies":
-					requireArguments(identifier, arguments, 0);
-					return context -> context.plugin != null && context.village != null
-							&& !context.plugin.getDiplomacyManager().getAllies(context.village).isEmpty();
-				case "village.haswars":
-					requireArguments(identifier, arguments, 0);
-					return context -> context.plugin != null && context.village != null
-							&& context.plugin.getDiplomacyManager().countCurrentWars(context.village) > 0;
-				case "village.levelatleast": {
-					int level = integerArgument(identifier, arguments);
-					return context -> context.village != null && context.village.getLevel() != null
-							&& context.village.getLevel().getLevel() >= level;
-				}
-				case "village.bankatleast": {
-					int bank = integerArgument(identifier, arguments);
-					return context -> context.village != null && context.village.getBank() >= bank;
-				}
-				case "village.livesatleast": {
-					int lives = integerArgument(identifier, arguments);
-					return context -> context.village != null && context.village.getLives() >= lives;
-				}
+				//case "village.animationsenabled":
+				//case "village.isanimationsenabled":
+				//	requireArguments(identifier, arguments, 0);
+				//	return context -> context.village != null && context.village.isAnimationsEnabled();
+				//case "village.hashome":
+				//	requireArguments(identifier, arguments, 0);
+				//	return context -> context.village != null && context.village.hasHome();
+				//case "village.hasregion":
+				//	requireArguments(identifier, arguments, 0);
+				//	return context -> context.village != null && context.village.hasRegion();
+				//case "village.hasallies":
+				//	requireArguments(identifier, arguments, 0);
+				//	return context -> context.plugin != null && context.village != null
+				//			&& !context.plugin.getDiplomacyManager().getAllies(context.village).isEmpty();
+				//case "village.haswars":
+				//	requireArguments(identifier, arguments, 0);
+				//	return context -> context.plugin != null && context.village != null
+				//			&& context.plugin.getDiplomacyManager().countCurrentWars(context.village) > 0;
+				//case "village.levelatleast": {
+				//	int level = integerArgument(identifier, arguments);
+				//	return context -> context.village != null && context.village.getLevel() != null
+				//			&& context.village.getLevel().getLevel() >= level;
+				//}
+				//case "village.bankatleast": {
+				//	int bank = integerArgument(identifier, arguments);
+				//	return context -> context.village != null && context.village.getBank() >= bank;
+				//}
+				//case "village.livesatleast": {
+				//	int lives = integerArgument(identifier, arguments);
+				//	return context -> context.village != null && context.village.getLives() >= lives;
+				//}
 				default:
 					throw error("unknown function '" + identifier + "'");
 			}

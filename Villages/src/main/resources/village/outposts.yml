@@ -1,0 +1,29 @@
+enabled: true
+maximum-per-village: 3
+required-village-level: 3
+minimum-distance-from-village: 125
+minimum-distance-from-other-outpost: 100
+upkeep-cost: 250
+
+levels:
+  1:
+    Cost-item:
+      - "WHITE_WOOL:16"
+    Cost-eco: 20
+
+    region-size: 16
+    schematic: outpost1
+  2:
+    Cost-item:
+      - "IRON_INGOT:8"
+    Cost-eco: 50
+
+    region-size: 24
+    schematic: outpost2
+  3:
+    Cost-item:
+      - "DIAMOND:16"
+    Cost-eco: 100
+
+    region-size: 32
+    schematic: outpost3

@@ -30,14 +30,4 @@ public final class VillageRole {
 	public boolean hasPermission(VillagePermission permission) {
 		return permission == VillagePermission.UNSET || this.permissions.contains(permission);
 	}
-
-	@Override
-	public boolean equals(Object object) {
-		return object instanceof VillageRole role && this.id.equals(role.id);
-	}
-
-	@Override
-	public int hashCode() {
-		return this.id.hashCode();
-	}
 }

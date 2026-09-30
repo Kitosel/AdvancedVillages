@@ -5,12 +5,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import pl.kiosel.rosacore.gui.Gui;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.config.gui.GUIS;
+import pl.kiosel.villages.config.gui.GuiItemConfig;
+import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.data.village.features.diplomacy.AllianceRequest;
 import pl.kiosel.villages.data.village.features.diplomacy.VillageWar;
 import pl.kiosel.villages.data.village.features.diplomacy.WarState;
-import pl.kiosel.villages.config.GuiItemConfig;
-import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.gui.GUIS;
 import pl.kiosel.villages.gui.VillageGUIManager;
 import pl.kiosel.villages.gui.VillageMenu;
 
@@ -38,7 +38,7 @@ public final class DiplomacyGUI extends VillageMenu {
 			return;
 		}
 
-		int slot = plugin.getGuiSettings().integer("guis.diplomacy.start-slot", 9, 9,
+		int slot = plugin.getGuiSettings().integer(guiType,"diplomacy.start-slot", 9, 9,
 				Math.max(9, menuConfig.getSize() - 1));
 		for (ItemStack entry : entries) {
 			setItem(slot++, entry);
@@ -73,9 +73,9 @@ public final class DiplomacyGUI extends VillageMenu {
 			if (remaining.isNegative()) remaining = Duration.ZERO;
 			entries.add(item.createItem(
 					replace(replace(item.getName(), "village", other.getName()),
-							"time", messages.formatDuration(remaining)),
+							"time", villageMessages.formatDuration(remaining)),
 					replace(replace(item.getLore(), "village", other.getName()),
-							"time", messages.formatDuration(remaining))));
+							"time", villageMessages.formatDuration(remaining))));
 		}
 	}
 
@@ -96,14 +96,18 @@ public final class DiplomacyGUI extends VillageMenu {
 							"&7Remaining: &f%time%",
 							"&7Score: &e%our_score%&7:&e%enemy_score%"));
 			if (!item.isEnabled()) continue;
+			int ourScore = attacker ? snapshot.getAttackerScore() : snapshot.getDefenderScore();
+			int enemyScore = attacker ? snapshot.getDefenderScore() : snapshot.getAttackerScore();
+
 			String name = warText(item.getName(), enemy, state, remaining,
-					attacker ? snapshot.getAttackerScore() : snapshot.getDefenderScore(),
-					attacker ? snapshot.getDefenderScore() : snapshot.getAttackerScore());
+					ourScore,
+					enemyScore);
+
 			List<String> lore = new ArrayList<>(item.getLore().size());
 			for (String line : item.getLore()) {
 				lore.add(warText(line, enemy, state, remaining,
-						attacker ? snapshot.getAttackerScore() : snapshot.getDefenderScore(),
-						attacker ? snapshot.getDefenderScore() : snapshot.getAttackerScore()));
+						ourScore,
+						enemyScore));
 			}
 			entries.add(item.createItem(name, lore));
 		}
@@ -113,25 +117,25 @@ public final class DiplomacyGUI extends VillageMenu {
 	                       int ourScore, int enemyScore) {
 		return text.replace("%village%", enemy.getName())
 				.replace("%state%", stateName(state))
-				.replace("%time%", messages.formatDuration(remaining))
+				.replace("%time%", villageMessages.formatDuration(remaining))
 				.replace("%our_score%", Integer.toString(ourScore))
 				.replace("%enemy_score%", Integer.toString(enemyScore));
 	}
 
 	private String stateName(WarState state) {
 		switch (state) {
-			case PREPARING: return plugin.getGuiSettings().text(
-					"guis.diplomacy.states.preparing", "&ePreparation");
-			case ACTIVE: return plugin.getGuiSettings().text(
-					"guis.diplomacy.states.active", "&cActive");
-			default: return plugin.getGuiSettings().text(
-					"guis.diplomacy.states.finished", "&7Cooldown");
+			case PREPARING: return plugin.getGuiSettings().text(guiType,
+					"diplomacy.states.preparing", "&ePreparation");
+			case ACTIVE: return plugin.getGuiSettings().text(guiType,
+					"diplomacy.states.active", "&cActive");
+			default: return plugin.getGuiSettings().text(guiType,
+					"diplomacy.states.finished", "&7Cooldown");
 		}
 	}
 
 	private GuiItemConfig configured(String id, Material material, String name, List<String> lore) {
 		return plugin.getGuiSettings().item(GUIS.DIPLOMACY,
-				"guis.diplomacy." + id, 13, material, name, lore);
+				"diplomacy." + id, 13, material, name, lore);
 	}
 
 	private Duration remaining(VillageWar.Snapshot war, WarState state, Instant now) {

@@ -33,7 +33,7 @@ public final class AdminCommand extends AdminSubCommand {
 
 	@Override
 	public String getUsage() {
-		return "/village admin <reload|give|manage|debug|integration>";
+		return "/" + plugin.getCommandLang().getCommandName() + " " + getName() + " <reload|give|manage|debug|integration>";
 	}
 
 	@Override

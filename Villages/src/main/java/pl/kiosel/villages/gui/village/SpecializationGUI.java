@@ -5,12 +5,12 @@ import org.bukkit.entity.Player;
 import pl.kiosel.rosacore.gui.Gui;
 import pl.kiosel.rosacore.utils.NumberUtils;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.config.GuiItemConfig;
 import pl.kiosel.villages.config.Lang;
+import pl.kiosel.villages.config.gui.GUIS;
+import pl.kiosel.villages.config.gui.GuiItemConfig;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.user.VillageSpecialization;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.gui.GUIS;
 import pl.kiosel.villages.gui.VillageGUIManager;
 import pl.kiosel.villages.gui.VillageMenu;
 import pl.kiosel.villages.manager.SpecializationManager;
@@ -37,19 +37,19 @@ public final class SpecializationGUI extends VillageMenu {
 	}
 
 	private void addSpecialization(VillageSpecialization specialization) {
-		String path = "guis.specializations." + specialization.getId();
 		GuiItemConfig item = plugin.getGuiSettings().item(
-				GUIS.SPECIALIZATIONS, path, defaultSlot(specialization), defaultMaterial(specialization),
+				GUIS.SPECIALIZATIONS, "specializations." + specialization.getId(),
+				defaultSlot(specialization), defaultMaterial(specialization),
 				defaultName(specialization), defaultLore(specialization));
 		if (!item.isEnabled()) return;
 
 		boolean selected = this.user.getSpecialization().filter(specialization::equals).isPresent();
 		Duration remaining = this.manager.getRemainingCooldown(this.user);
 		String status = selected
-				? plugin.getGuiSettings().text("guis.specializations.status.selected", "&aSelected")
+				? plugin.getGuiSettings().text(guiType,"specializations.status.selected", "&aSelected")
 				: remaining.isZero()
-					? plugin.getGuiSettings().text("guis.specializations.status.available", "&eClick to select")
-					: plugin.getGuiSettings().text("guis.specializations.status.cooldown", "&cAvailable in %time%")
+					? plugin.getGuiSettings().text(guiType,"specializations.status.available", "&eClick to select")
+					: plugin.getGuiSettings().text(guiType,"specializations.status.cooldown", "&cAvailable in %time%")
 						.replace("%time%", plugin.getVillageMessages().formatDuration(remaining));
 		String bonus = NumberUtils.formatNumber(this.manager.getBonus(specialization), 1);
 		List<String> lore = item.getLore().stream()
@@ -77,7 +77,7 @@ public final class SpecializationGUI extends VillageMenu {
 	}
 
 	private static int defaultSlot(VillageSpecialization specialization) {
-		return 10 + specialization.ordinal();
+		return 19 + specialization.ordinal();
 	}
 
 	private static Material defaultMaterial(VillageSpecialization specialization) {

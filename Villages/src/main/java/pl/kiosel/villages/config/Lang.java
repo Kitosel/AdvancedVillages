@@ -71,8 +71,8 @@ public enum Lang implements MessageKey {
 	TAKE_XP("general.player.take-xp"),
 	TAKE_ITEMS("general.player.take-items"),
 	SEPARATOR("general.separator"),
-	ON("general.nametag.on"),
-	OFF("general.nametag.off"),
+	ON("general.on"),
+	OFF("general.off"),
 
 	TELEPORT("teleport.teleporting"),
 	TELEPORTED("teleport.teleported"),
@@ -110,6 +110,7 @@ public enum Lang implements MessageKey {
 	VILLAGE_DESTROYED_TITLE("village.destroyed.title"),
 	VILLAGE_DESTROYED_SUBTITLE("village.destroyed.subtitle"),
 	VILLAGE_DESTROYED_MESSAGE("village.destroyed.message"),
+	VILLAGE_AREA_BLOCKED("village.area-blocked"),
 
 	VILLAGE_HEARTH_ADD("village.hearth-add"),
 	VILLAGE_MAX_LIVES("village.hearth-max-lives"),
@@ -271,6 +272,26 @@ public enum Lang implements MessageKey {
 	BUILD_EDITOR_PROMPT_SIZE("build-editor.prompt-size"),
 	BUILD_EDITOR_PROMPT_CANCEL("build-editor.prompt-cancel"),
 
+	OUTPOST_DISABLED("outpost.disabled"),
+	OUTPOST_COMMAND_DESCRIPTION("outpost.command-description"),
+	OUTPOST_LEVEL_REQUIRED("outpost.level-required"),
+	OUTPOST_LIMIT("outpost.limit"),
+	OUTPOST_NEAR_OUTPOST("outpost.near-outpost"),
+	OUTPOST_NEAR_VILLAGE("outpost.near-village"),
+	OUTPOST_AREA_BLOCKED("outpost.area-blocked"),
+	OUTPOST_CREATED("outpost.created"),
+	OUTPOST_CREATE_FAILED("outpost.create-failed"),
+	OUTPOST_REGION_PROTECTED("outpost.region-protected"),
+	OUTPOST_CORE_PROTECTED("outpost.core-protected"),
+	OUTPOST_LIST("outpost.list"),
+	OUTPOST_LIST_EMPTY("outpost.list-empty"),
+	OUTPOST_NOT_FOUND("outpost.not-found"),
+	OUTPOST_TELEPORTING("outpost.teleporting"),
+	OUTPOST_TELEPORTED("outpost.teleported"),
+	OUTPOST_UPGRADED("outpost.upgraded"),
+	OUTPOST_MAX_LEVEL("outpost.max-level"),
+	OUTPOST_SCHEMATIC_MISSING("outpost.schematic-missing"),
+
 	VILLAGE_BLOCK_NAME("items.village-block"),
 	VILLAGE_BLOCK_LORE("items.village-block-lore"),
 	VILLAGE_DESTROYER_NAME("items.destroyer"),
@@ -280,7 +301,12 @@ public enum Lang implements MessageKey {
 	VILLAGE_PART_HEARTH_BLOCK_NAME("items.part-of-hearth"),
 	VILLAGE_PART_HEARTH_BLOCK_LORE("items.part-of-hearth-lore"),
 	VILLAGE_DESTROYER_HEARTH_NAME("items.destroyer-hearth"),
-	VILLAGE_DESTROYER_HEARTH_LORE("items.destroyer-hearth-lore");
+	VILLAGE_DESTROYER_HEARTH_LORE("items.destroyer-hearth-lore"),
+
+	OUTPOST_BLOCK_NAME("items.outpost-block"),
+	OUTPOST_BLOCK_LORE("items.outpost-block-lore"),
+	OUTPOST_CORE_BLOCK_NAME("items.outpost-core"),
+	OUTPOST_CORE_BLOCK_LORE("items.outpost-core-lore");
 
     @Getter private final String path;
 

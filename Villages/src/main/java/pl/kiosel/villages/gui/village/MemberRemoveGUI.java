@@ -8,14 +8,14 @@ import pl.kiosel.rosacore.compatibility.RosaSound;
 import pl.kiosel.rosacore.compatibility.ZSound;
 import pl.kiosel.rosacore.gui.Gui;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.data.village.features.logs.VillageLogType;
 import pl.kiosel.villages.api.events.VillageMemberRemoveEvent;
-import pl.kiosel.villages.config.GuiItemConfig;
 import pl.kiosel.villages.config.Lang;
+import pl.kiosel.villages.config.gui.GUIS;
+import pl.kiosel.villages.config.gui.GuiItemConfig;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.user.VillagePermission;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.gui.GUIS;
+import pl.kiosel.villages.data.village.features.logs.VillageLogType;
 import pl.kiosel.villages.gui.Item;
 import pl.kiosel.villages.gui.VillageConfirmationMenu;
 
@@ -44,13 +44,19 @@ public final class MemberRemoveGUI extends VillageConfirmationMenu {
 		setInformationSlot(member.getSlot()).informationItem(Item.createHead(memberPlayer,
 				member.getName().replace("%player%", memberName),
 				replaceMember(member.getLore(), memberName))).showInformation(member.isEnabled());
+
 		setCancelSlot(cancel.getSlot()).cancelItem(cancel.createItem()).showCancel(cancel.isEnabled());
+
 		playSoundOnClick(true);
+
 		setConfirmSound(new RosaSound.SoundHolder(ZSound.BLOCK_NOTE_BLOCK_FLUTE, 2.0f, 0.0f));
 		setCancelSound(new RosaSound.SoundHolder(ZSound.BLOCK_ANVIL_HIT, 2.0f, 0.0f));
+
 		setCloseSound(null);
+
 		onConfirm(event -> confirm(event.getGui()));
 		onCancel(event -> event.getManager().showGUI(event.getPlayer(), parent));
+
 		setItems();
 	}
 

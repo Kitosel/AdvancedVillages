@@ -6,15 +6,16 @@ import org.bukkit.inventory.ItemStack;
 import pl.kiosel.rosacore.compatibility.ZSound;
 import pl.kiosel.rosacore.gui.Gui;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.config.GuiItemConfig;
 import pl.kiosel.villages.config.Lang;
+import pl.kiosel.villages.config.gui.GUIS;
+import pl.kiosel.villages.config.gui.GuiItemConfig;
 import pl.kiosel.villages.data.user.VillagePermission;
 import pl.kiosel.villages.data.village.Village;
+import pl.kiosel.villages.data.village.features.logs.VillageLogType;
 import pl.kiosel.villages.data.village.features.quest.QuestDefinition;
 import pl.kiosel.villages.data.village.features.quest.QuestPeriod;
 import pl.kiosel.villages.data.village.features.quest.QuestReward;
 import pl.kiosel.villages.data.village.features.quest.VillageQuestView;
-import pl.kiosel.villages.gui.GUIS;
 import pl.kiosel.villages.gui.VillageGUIManager;
 import pl.kiosel.villages.gui.VillageMenu;
 
@@ -36,8 +37,9 @@ public final class QuestGUI extends VillageMenu {
 			return;
 		}
 
-		int slot = plugin.getGuiSettings().integer("guis.quests.start-slot", 9, 9,
+		int slot = plugin.getGuiSettings().integer(guiType,"quests.start-slot", 9, 9,
 				Math.max(9, menuConfig.getSize() - 1));
+
 		for (VillageQuestView view : views) {
 			QuestDefinition definition = view.getDefinition();
 			GuiItemConfig visual = item("tasks." + definition.getId(), slot,
@@ -49,8 +51,8 @@ public final class QuestGUI extends VillageMenu {
 				setButton(questSlot, item, event -> {
 					if (!hasPermission(VillagePermission.QUEST_TOGGLE)) return;
 					if (plugin.getQuestManager().activate(event.getPlayer(), village, view.getDefinition())) {
-						messages.sendPrefixed(event.getPlayer(), Lang.QUESTS_ACTIVATED,
-								"quest", this.questName(view.getDefinition()));
+						plugin.getLogManager().record(village, VillageLogType.QUEST_ACTIVATE, event.getPlayer());
+						villageMessages.sendPrefixed(event.getPlayer(), Lang.QUESTS_ACTIVATED, "quest", this.questName(view.getDefinition()));
 						playSound(ZSound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
 						reopen(GUIS.QUESTS);
 					}
@@ -88,15 +90,15 @@ public final class QuestGUI extends VillageMenu {
 			lore.add(guiText("status.activate", "&eClick to activate this quest for the village."));
 		}
 		lore.add(guiText("reset", "&7Resets in: &f%time%",
-				"time", messages.formatDuration(view.getUntilReset())));
+				"time", villageMessages.formatDuration(view.getUntilReset())));
 		this.addRewards(lore, definition.getReward());
 
 		return visual.createItem(visual.getName(), lore, view.isCompleted() || visual.isGlow());
 	}
 
 	private String questName(QuestDefinition definition) {
-		return plugin.getGuiSettings().text(
-				"guis.quests.tasks." + definition.getId() + ".name", definition.getId());
+		return plugin.getGuiSettings().text(guiType,
+				"quests.tasks." + definition.getId() + ".name", definition.getId());
 	}
 
 	private void addRewards(List<String> lore, QuestReward reward) {
@@ -118,7 +120,7 @@ public final class QuestGUI extends VillageMenu {
 	}
 
 	private String progressBar(int progress, int required) {
-		int length = plugin.getGuiSettings().integer("guis.quests.progress-bar.length", 20, 1, 100);
+		int length = plugin.getGuiSettings().integer(guiType,"quests.progress-bar.length", 20, 1, 100);
 		int completedBars = Math.min(length,
 				(int) Math.floor(length * (progress / (double) required)));
 		StringBuilder bar = new StringBuilder(guiText("progress-bar.prefix", "&8["));
@@ -132,11 +134,11 @@ public final class QuestGUI extends VillageMenu {
 
 	private GuiItemConfig item(String id, int slot, Material material, String name, List<String> lore) {
 		return plugin.getGuiSettings().item(GUIS.QUESTS,
-				"guis.quests." + id, slot, material, name, lore);
+				"quests." + id, slot, material, name, lore);
 	}
 
 	private String guiText(String path, String fallback, Object... placeholders) {
-		String result = plugin.getGuiSettings().text("guis.quests." + path, fallback);
+		String result = plugin.getGuiSettings().text(guiType,"quests." + path, fallback);
 		for (int index = 0; index + 1 < placeholders.length; index += 2) {
 			result = result.replace("%" + placeholders[index] + "%",
 					String.valueOf(placeholders[index + 1]));

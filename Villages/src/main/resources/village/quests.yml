@@ -1,6 +1,6 @@
 # Village quests are shared by every member of a village.
-# Names, descriptions, materials and interface messages are stored in guis.yml.
-# The addon can be enabled or disabled with addons.quests in config.yml.
+# Names, descriptions, materials and interface villageMessages are stored in guis.yml.
+# The quest system can be enabled or disabled with the enabled option below.
 enabled: true
 
 reset:
@@ -16,6 +16,20 @@ reset:
 # CUSTOM quests can be advanced through VillageAPI#getQuestManager().
 # Experience rewards are granted to online members; points are granted to all members.
 # A village must activate each quest in the quest GUI before progress is collected.
+#
+# To display the quest in the GUI, or to remove or add one,
+# locate the “quest” section and the “tasks” section in guis.yml,
+# and add the same name as the quest there—for example, in quests.yml:
+# quests:
+#   daily:
+#      monster-hunt:
+#             .................
+#
+# guis.yml
+# quests:
+#   tasks:
+#     monster-hunt:
+#         ................
 quests:
   daily:
     monster-hunt:
@@ -87,7 +101,10 @@ quests:
         bank: 280
         experience: 45
         points: 5
-
+#
+# Tasks are available all week.
+# Tasks are reset on the day specified in “weekly-day”.
+#
   weekly:
     village-treasury:
       enabled: true

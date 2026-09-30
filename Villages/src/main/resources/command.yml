@@ -1,8 +1,9 @@
-# Root command names, aliases and permissions are applied on a full server restart.
+# Root command names, aliases are applied on a full server restart.
 command:
-  name: village
+  name: advancedvillages
   aliases:
-    - wioski
+    - villages
+    - village
     - vil
 
 spawn:
@@ -28,6 +29,8 @@ command-language:
   admin_give_destroyer_hearth: destroyer-hearth
   admin_give_village_hearth: village-hearth
   admin_give_hearth_part: village-hearth-part
+  admin_give_outpost: outpost
+  admin_give_outpost_core: outpost-core
 
   admin_integration_tablist: tablist
   admin_integration_install: install
@@ -50,6 +53,7 @@ command-language:
   request_accept: confirm
   request_deny: deny
   teleport: tp
+  outpost: outpost
 
   edit: edit
   edit_save: save

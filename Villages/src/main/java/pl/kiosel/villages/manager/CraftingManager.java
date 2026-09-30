@@ -20,6 +20,7 @@ public final class CraftingManager {
 
 	public enum RecipeType {
 		VILLAGE("village", false),
+		OUTPOST("outpost", true),
 		DESTROYER("destroyer", true),
 		HEARTH("hearth", true);
 
@@ -47,6 +48,7 @@ public final class CraftingManager {
 	public void createRecipe() {
 		this.plugin.getDebug().debug("Creating recipes");
 		for (RecipeType type : RecipeType.values()) {
+			if (type == RecipeType.OUTPOST && !this.plugin.isDev()) continue;
 			CraftingRecipeData data = this.loadRecipe(type);
 			this.recipeData.put(type, data);
 			this.recipeBuilders.put(type, data.toRecipeBuilder(this.plugin));
@@ -130,6 +132,10 @@ public final class CraftingManager {
 		return this.recipeBuilders.get(RecipeType.HEARTH);
 	}
 
+	public RecipeBuilder getOutpost() {
+		return this.recipeBuilders.get(RecipeType.OUTPOST);
+	}
+
 	public boolean isCustomRecipe(Recipe recipe) {
 		if (recipe == null || recipe.getResult() == null)
 			return false;
@@ -183,6 +189,12 @@ public final class CraftingManager {
 						item(ZMaterial.NETHERITE_INGOT), item(ZMaterial.TOTEM_OF_UNDYING), item(ZMaterial.NETHERITE_INGOT),
 						this.plugin.getApi().createHearthPart(), item(ZMaterial.DIAMOND_BLOCK), this.plugin.getApi().createHearthPart()
 				});
+			case OUTPOST:
+				return this.recipe(type, new ItemStack[]{
+						item(ZMaterial.DIAMOND_BLOCK), item(ZMaterial.IRON_BLOCK), item(ZMaterial.DIAMOND_BLOCK),
+						item(ZMaterial.WHITE_WOOL), this.plugin.getApi().createOutpostCore(), item(ZMaterial.WHITE_WOOL),
+						item(ZMaterial.DIAMOND_BLOCK), item(ZMaterial.IRON_BLOCK), item(ZMaterial.DIAMOND_BLOCK)
+				});
 			default:
 				throw new IllegalArgumentException("Unsupported crafting recipe type: " + type);
 		}
@@ -202,6 +214,8 @@ public final class CraftingManager {
 		switch (type) {
 			case VILLAGE:
 				return this.plugin.getApi().createVillageBlock();
+			case OUTPOST:
+				return this.plugin.getApi().createOutpostBlock();
 			case DESTROYER:
 				return this.plugin.getApi().createDestroyer();
 			case HEARTH:

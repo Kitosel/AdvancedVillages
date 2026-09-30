@@ -4,10 +4,7 @@ import pl.kiosel.rosacore.config.ConfigLoadResult;
 import pl.kiosel.rosacore.config.ConfigValidator;
 import pl.kiosel.rosacore.config.RosaConfig;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.config.validation.DevelopmentConfigValidator;
-import pl.kiosel.villages.config.validation.GuiConfigValidator;
-import pl.kiosel.villages.config.validation.LevelsConfigValidator;
-import pl.kiosel.villages.config.validation.SpecializationConfigValidator;
+import pl.kiosel.villages.config.validation.*;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -49,8 +46,7 @@ public final class VillageConfigManager {
 	}
 
 	public synchronized boolean reloadMainConfig() {
-		RosaConfig config = this.plugin.getCoreConfig();
-		return this.reload(config, "config.yml");
+		return this.reload(this.plugin.getCoreConfig(), "config.yml");
 	}
 
 	public synchronized boolean reload(VillageConfigFile file) {
@@ -78,9 +74,11 @@ public final class VillageConfigManager {
 
 	private void register(VillageConfigFile file) {
 		if (this.configurations.containsKey(file)) return;
+
 		RosaConfig.Builder builder = RosaConfig.builder(this.plugin, file.getPath());
 		ConfigValidator validator = this.validator(file);
 		if (validator != null) builder.validator(validator);
+
 		this.configurations.put(file, builder.build());
 	}
 
@@ -88,7 +86,9 @@ public final class VillageConfigManager {
 		switch (file) {
 			case LEVELS:
 				return new LevelsConfigValidator(this.plugin);
-			case GUIS:
+			case GUI_COMMON:
+				return new LayoutConfigValidator();
+			case GUI_VILLAGE:
 				return new GuiConfigValidator();
 			case SPECIALIZATION:
 				return new SpecializationConfigValidator();

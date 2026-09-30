@@ -25,4 +25,15 @@ public class WorldEditTurret {
 			}
 		});
 	}
+
+	public void pasteOutpost(Location loc, int level) {
+		File file = plugin.getOutpostLevelManager().getSchematicFile(level);
+		Bukkit.getScheduler().runTask(plugin, () -> {
+			try {
+				plugin.getHookManager().getWorldEdit().pasteSchematic(file, loc);
+			} catch (IOException exception) {
+				plugin.getRosaLogger().warning("Could not paste outpost schematic: " + exception.getMessage());
+			}
+		});
+	}
 }

@@ -1,23 +1,28 @@
 package pl.kiosel.villages.addons.buildeditor;
 
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitTask;
 import pl.kiosel.rosacore.compatibility.ZMaterial;
 import pl.kiosel.rosacore.compatibility.ZParticle;
 import pl.kiosel.rosacore.config.RosaConfig;
 import pl.kiosel.rosacore.hook.worldedit.WorldEditHook;
+import pl.kiosel.rosacore.scheduler.RosaTask;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.addons.buildeditor.gui.EditorMenu;
+import pl.kiosel.villages.addons.buildeditor.gui.LevelSettingsMenu;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.config.Settings;
+import pl.kiosel.villages.data.outpost.OutpostManager;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.data.village.VillageRegion;
 import pl.kiosel.villages.data.village.level.Level;
 import pl.kiosel.villages.data.village.level.LevelManager;
+import pl.kiosel.villages.data.village.level.OutpostLevelManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,15 +42,19 @@ public final class VillageBuildEditorManager {
     private static final DateTimeFormatter BACKUP_DATE = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss-SSS");
 
     private final AdvancedVillages plugin;
-    private final RosaConfig config;
+    @Getter private final RosaConfig config;
     private final Map<UUID, BuildEditorSession> sessions = new HashMap<>();
     private final Map<UUID, LevelSetupConversation> conversations = new ConcurrentHashMap<>();
-    private BukkitTask boundaryTask;
+    private RosaTask boundaryTask;
 
     public VillageBuildEditorManager(AdvancedVillages plugin) {
         this.plugin = plugin;
         this.config = plugin.getBuildEditorFile();
         restartBoundaryTask();
+    }
+
+    public String guiTitle() {
+        return getConfig().getString("menu.title", "&8Village building editor");
     }
 
     public void openLevelMenu(Player player) {
@@ -65,7 +74,7 @@ public final class VillageBuildEditorManager {
         plugin.getGuiManager().showGUI(player, new EditorMenu(plugin, player, this));
     }
 
-    void openLevelSettings(Player player, int level) {
+    public void openLevelSettings(Player player, int level) {
         if (checkRequirements(player)) {
             return;
         }
@@ -76,7 +85,17 @@ public final class VillageBuildEditorManager {
         plugin.getGuiManager().showGUI(player, new LevelSettingsMenu(plugin, player, this, level));
     }
 
-    int getNextAvailableLevel() {
+	public void openOutpostLevelSettings(Player player, int level) {
+		if (checkRequirements(player)) return;
+		if (plugin.getOutpostLevelManager() == null || !plugin.getOutpostLevelManager().isLevel(level)) {
+			sendLocalized(player, Lang.BUILD_EDITOR_LEVEL_MISSING, "level", level);
+			return;
+		}
+		plugin.getGuiManager().showGUI(player,
+				new LevelSettingsMenu(plugin, player, this, level, BuildEditorType.OUTPOST));
+	}
+
+    public int getNextAvailableLevel() {
         for (int level = 1; level <= MAX_LEVEL; level++) {
             if (!plugin.getLevelManager().isLevel(level)) {
                 return level;
@@ -84,6 +103,14 @@ public final class VillageBuildEditorManager {
         }
         return MAX_LEVEL + 1;
     }
+
+	public int getNextAvailableOutpostLevel() {
+		if (plugin.getOutpostLevelManager() == null) return 1;
+		for (int level = 1; level <= pl.kiosel.villages.data.village.level.OutpostLevelManager.MAX_LEVEL; level++) {
+			if (!plugin.getOutpostLevelManager().isLevel(level)) return level;
+		}
+		return pl.kiosel.villages.data.village.level.OutpostLevelManager.MAX_LEVEL + 1;
+	}
 
     public void startSession(Player player, int level) {
         if (checkRequirements(player)) {
@@ -174,21 +201,107 @@ public final class VillageBuildEditorManager {
         int margin = Math.max(0, config.getInt("search.empty-margin", 8));
         BuildEditorBounds cleanupBounds = bounds.expand(margin);
         ZMaterial baseMaterial = ZMaterial.match(config.getString("base-material", "STONE")).orElse(ZMaterial.STONE);
+
         if (!Objects.requireNonNull(baseMaterial.getMaterial().orElse(Material.STONE)).isBlock()) {
             baseMaterial = ZMaterial.STONE;
         }
-        createStoneBase(bounds, origin.add(0, 3, 0), baseMaterial);
+		createBase(bounds, origin, baseMaterial, Material.NOTE_BLOCK);
         beginSession(player, level, origin, bounds, cleanupBounds, true);
         sendLocalized(player, Lang.BUILD_EDITOR_NEW_LEVEL_STARTED, "level", level);
     }
 
+	public void startOutpostSession(Player player, int level) {
+		if (checkRequirements(player)) return;
+		if (plugin.getOutpostLevelManager() == null || !plugin.getOutpostLevelManager().isLevel(level)) {
+			sendLocalized(player, Lang.BUILD_EDITOR_LEVEL_MISSING, "level", level);
+			return;
+		}
+		if (hasSession(player) || hasConversation(player)) {
+			sendLocalized(player, Lang.BUILD_EDITOR_SESSION_ACTIVE);
+			return;
+		}
+		RelativeBounds relative = RelativeBounds.forOutpost();
+		Location origin = findSafeOrigin(player, relative);
+		if (origin == null) {
+			sendLocalized(player, Lang.BUILD_EDITOR_SAFE_LOCATION_NOT_FOUND);
+			return;
+		}
+		BuildEditorBounds bounds = relative.at(origin);
+		int margin = Math.max(0, config.getInt("search.empty-margin", 8));
+		BuildEditorBounds cleanupBounds = bounds.expand(margin);
+		File schematicFile = getOutpostSchematicFile(level);
+		try {
+			if (schematicFile.isFile()) {
+				WorldEditHook.Schematic schematic = plugin.getHookManager().getWorldEdit().loadSchematic(schematicFile);
+				plugin.getHookManager().getWorldEdit().pasteSchematic(schematic, origin, false, false);
+			} else if (level <= 3 && plugin.getOutpostManager() != null) {
+				plugin.getOutpostManager().pasteInternal(level, origin);
+			} else {
+				createBase(bounds, origin, ZMaterial.STONE, Material.LODESTONE);
+			}
+			origin.getBlock().setType(Material.LODESTONE, false);
+			beginSession(player, level, origin, bounds, cleanupBounds, false, BuildEditorType.OUTPOST);
+		} catch (IOException | RuntimeException exception) {
+			clearArea(cleanupBounds);
+			plugin.getRosaLogger().warning("Failed to start editing outpost level " + level + ": " + exception.getMessage());
+			sendLocalized(player, Lang.BUILD_EDITOR_LOAD_FAILED);
+		}
+	}
+
+	public void startNewOutpostLevel(Player player, int level) {
+		if (checkRequirements(player)) return;
+		int maximum = OutpostLevelManager.MAX_LEVEL;
+		if (level < 1 || level > maximum || level != getNextAvailableOutpostLevel()) {
+			sendLocalized(player, Lang.BUILD_EDITOR_MAX_LEVEL);
+			return;
+		}
+		if (hasSession(player) || hasConversation(player)) {
+			sendLocalized(player, Lang.BUILD_EDITOR_SESSION_ACTIVE);
+			return;
+		}
+		File schematic = getOutpostSchematicFile(level);
+		if (schematic.isFile()) {
+			beginCreationWizard(player, level, BuildEditorType.OUTPOST);
+			sendLocalized(player, Lang.BUILD_EDITOR_SETUP_RESUMED, "level", level);
+			return;
+		}
+		RelativeBounds relative = RelativeBounds.forOutpost();
+		Location origin = findSafeOrigin(player, relative);
+		if (origin == null) {
+			sendLocalized(player, Lang.BUILD_EDITOR_SAFE_LOCATION_NOT_FOUND);
+			return;
+		}
+		BuildEditorBounds bounds = relative.at(origin);
+		int margin = Math.max(0, config.getInt("search.empty-margin", 8));
+		BuildEditorBounds cleanupBounds = bounds.expand(margin);
+		ZMaterial baseMaterial = ZMaterial.match(config.getString("base-material", "STONE")).orElse(ZMaterial.STONE);
+		if (baseMaterial.getMaterial().filter(Material::isBlock).isEmpty()) baseMaterial = ZMaterial.STONE;
+		createBase(bounds, origin, baseMaterial, Material.LODESTONE);
+		beginSession(player, level, origin, bounds, cleanupBounds, true, BuildEditorType.OUTPOST);
+		sendLocalized(player, Lang.BUILD_EDITOR_NEW_LEVEL_STARTED, "level", level);
+	}
+
     private void beginSession(Player player, int level, Location origin, BuildEditorBounds bounds,
                               BuildEditorBounds cleanupBounds, boolean newLevel) {
+		beginSession(player, level, origin, bounds, cleanupBounds, newLevel, BuildEditorType.VILLAGE);
+	}
+
+	private void beginSession(Player player, int level, Location origin, BuildEditorBounds bounds,
+	                          BuildEditorBounds cleanupBounds, boolean newLevel, BuildEditorType type) {
         player.closeInventory();
+
+		plugin.getMessages().message(Lang.SEPARATOR);
+		plugin.getMessages().newMessage("""
+				&7The building editor is still &6under development\s
+				&7unexpected &cerrors &7may occur. In extreme cases,\s
+				&7a &cbuilding may not save properly&7 or the player's\s
+				&cinventory may not restore &7correctly.""");
+		plugin.getMessages().message(Lang.SEPARATOR);
+
         BuildEditorPlayerState playerState = BuildEditorPlayerState.capture(player);
         BuildEditorSession session = new BuildEditorSession(
                 player.getUniqueId(), level, origin, player.getLocation(),
-                bounds, cleanupBounds, playerState, newLevel
+                bounds, cleanupBounds, playerState, newLevel, type
         );
         playerState.prepareForEditing(player);
         sessions.put(player.getUniqueId(), session);
@@ -210,8 +323,10 @@ public final class VillageBuildEditorManager {
             return;
         }
 
-        session.getOrigin().getBlock().setType(Material.NOTE_BLOCK, false);
-        File target = getSchematicFile(session.getLevel());
+		session.getOrigin().getBlock().setType(
+				session.getType() == BuildEditorType.OUTPOST ? Material.LODESTONE : Material.NOTE_BLOCK, false);
+		File target = session.getType() == BuildEditorType.OUTPOST
+				? getOutpostSchematicFile(session.getLevel()) : getSchematicFile(session.getLevel());
         File temp = new File(target.getParentFile(), target.getName() + ".tmp");
 
         try {
@@ -220,8 +335,9 @@ public final class VillageBuildEditorManager {
             boolean newLevel = session.isNewLevel();
             finishSession(session, player, true);
             sendLocalized(player, Lang.BUILD_EDITOR_SAVED, "level", session.getLevel());
+
             if (newLevel) {
-                beginCreationWizard(player, session.getLevel());
+				beginCreationWizard(player, session.getLevel(), session.getType());
             } else {
                 sendLocalized(player, Lang.BUILD_EDITOR_SAVED_HELP);
             }
@@ -261,7 +377,7 @@ public final class VillageBuildEditorManager {
         return conversations.containsKey(player.getUniqueId());
     }
 
-    void beginFieldEdit(Player player, int level, LevelEditorField field) {
+    public void beginFieldEdit(Player player, int level, LevelEditorField field) {
         Level current = plugin.getLevelManager().getLevel(level);
         if (current == null) {
             sendLocalized(player, Lang.BUILD_EDITOR_LEVEL_MISSING, "level", level);
@@ -270,6 +386,18 @@ public final class VillageBuildEditorManager {
         conversations.put(player.getUniqueId(), LevelSetupConversation.edit(level, LevelDraft.from(current), field));
         prompt(player, field);
     }
+
+	public void beginOutpostFieldEdit(Player player, int level, LevelEditorField field) {
+		Level current = plugin.getOutpostLevelManager() == null
+				? null : plugin.getOutpostLevelManager().getLevel(level);
+		if (current == null) {
+			sendLocalized(player, Lang.BUILD_EDITOR_LEVEL_MISSING, "level", level);
+			return;
+		}
+		conversations.put(player.getUniqueId(), LevelSetupConversation.edit(
+				level, LevelDraft.from(current), field, BuildEditorType.OUTPOST));
+		prompt(player, field);
+	}
 
     void handleChatInput(Player player, String rawInput) {
         if (!Bukkit.isPrimaryThread()) {
@@ -301,7 +429,7 @@ public final class VillageBuildEditorManager {
             return;
         }
 
-        if (!saveLevel(conversation.getLevel(), conversation.getDraft())) {
+		if (!saveLevel(conversation.getLevel(), conversation.getDraft(), conversation.getType())) {
             sendLocalized(player, Lang.BUILD_EDITOR_LEVEL_CONFIG_SAVE_FAILED);
             return;
         }
@@ -312,13 +440,19 @@ public final class VillageBuildEditorManager {
         sendLocalized(player, completedMessage, "level", conversation.getLevel());
         if (conversation.isCreation()) {
             openLevelMenu(player);
+		} else if (conversation.getType() == BuildEditorType.OUTPOST) {
+			openOutpostLevelSettings(player, conversation.getLevel());
         } else {
             openLevelSettings(player, conversation.getLevel());
         }
     }
 
     private void beginCreationWizard(Player player, int level) {
-        conversations.put(player.getUniqueId(), LevelSetupConversation.creation(level));
+		beginCreationWizard(player, level, BuildEditorType.VILLAGE);
+	}
+
+	private void beginCreationWizard(Player player, int level, BuildEditorType type) {
+		conversations.put(player.getUniqueId(), LevelSetupConversation.creation(level, type));
         sendLocalized(player, Lang.BUILD_EDITOR_SETUP_STARTED, "level", level);
         prompt(player, LevelEditorField.ITEMS);
     }
@@ -399,35 +533,47 @@ public final class VillageBuildEditorManager {
         return true;
     }
 
-    private boolean saveLevel(int level, LevelDraft draft) {
-        RosaConfig levels = plugin.getLevelsFile();
-        String path = "Level-" + level;
+	private boolean saveLevel(int level, LevelDraft draft, BuildEditorType type) {
+		RosaConfig levels = type == BuildEditorType.OUTPOST ? plugin.getOutpostFile() : plugin.getLevelsFile();
+		String path = type == BuildEditorType.OUTPOST ? "levels." + level : "Level-" + level;
         List<String> materials = draft.getMaterials().entrySet().stream()
                 .map(entry -> entry.getKey().name() + ":" + entry.getValue())
                 .collect(Collectors.toList());
         levels.set(path + ".Cost-item", materials);
         levels.set(path + ".Cost-xp", draft.getExperience());
         levels.set(path + ".Cost-eco", draft.getEconomy());
-        levels.set(path + ".Size", draft.getSize());
-        backupLevelsFile(levels.getFile().toPath());
+		levels.set(path + (type == BuildEditorType.OUTPOST ? ".region-size" : ".Size"), draft.getSize());
+		if (type == BuildEditorType.OUTPOST) {
+			String schematic = levels.getString(path + ".schematic");
+			if (schematic == null || schematic.isBlank())
+				levels.set(path + ".schematic", "outpost_" + level);
+		}
+		backupConfigFile(levels.getFile().toPath());
 		if (!levels.save().isSuccess()) {
-            plugin.getRosaLogger().severe("Could not save level " + level + " to levels.yml");
+			plugin.getRosaLogger().severe("Could not save " + type.name().toLowerCase(Locale.ROOT)
+					+ " level " + level + " configuration");
             return false;
         }
-        return plugin.getLevelManager().reloadLevels() && plugin.getLevelManager().isLevel(level);
+		return type == BuildEditorType.OUTPOST
+				? plugin.getOutpostLevelManager().reloadLevels() && plugin.getOutpostLevelManager().isLevel(level)
+				: plugin.getLevelManager().reloadLevels() && plugin.getLevelManager().isLevel(level);
     }
 
-    private void backupLevelsFile(Path source) {
+    private void backupConfigFile(Path source) {
         if (!Files.isRegularFile(source)) {
             return;
         }
         try {
-            Path backupDirectory = source.getParent().resolve("backups").resolve("levels");
+			String fileName = source.getFileName().toString();
+			String baseName = fileName.endsWith(".yml") ? fileName.substring(0, fileName.length() - 4) : fileName;
+
+			Path backupDirectory = source.getParent().resolve("backups").resolve(baseName);
             Files.createDirectories(backupDirectory);
-            Path backup = backupDirectory.resolve("levels-" + BACKUP_DATE.format(LocalDateTime.now()) + ".yml");
+
+			Path backup = backupDirectory.resolve(baseName + "-" + BACKUP_DATE.format(LocalDateTime.now()) + ".yml");
             Files.copy(source, backup, StandardCopyOption.COPY_ATTRIBUTES);
         } catch (IOException exception) {
-            plugin.getRosaLogger().warning("Could not create levels.yml backup: " + exception.getMessage());
+			plugin.getRosaLogger().warning("Could not create configuration backup: " + exception.getMessage());
         }
     }
 
@@ -461,13 +607,15 @@ public final class VillageBuildEditorManager {
         conversations.clear();
     }
 
-    RosaConfig getConfig() {
-        return config;
-    }
-
-    File getSchematicFile(int level) {
+	public File getSchematicFile(int level) {
         return new File(plugin.getDataFolder(), "schematics/Turret" + level + ".schem");
     }
+
+	public File getOutpostSchematicFile(int level) {
+		String name = plugin.getOutpostLevelManager() == null
+				? "outpost_" + level : plugin.getOutpostLevelManager().getSchematicName(level);
+		return new File(plugin.getDataFolder(), "schematics/outposts/" + name + ".schem");
+	}
 
     private boolean checkRequirements(Player player) {
         if (!config.getBoolean("enabled", true)) {
@@ -653,14 +801,14 @@ public final class VillageBuildEditorManager {
                 .sendPrefixed(player);
     }
 
-    private void createStoneBase(BuildEditorBounds bounds, Location origin, ZMaterial material) {
+    private void createBase(BuildEditorBounds bounds, Location origin, ZMaterial material, Material coreMaterial) {
         int y = bounds.getMinY();
         for (int x = bounds.getMinX(); x <= bounds.getMaxX(); x++) {
             for (int z = bounds.getMinZ(); z <= bounds.getMaxZ(); z++) {
                 bounds.getWorld().getBlockAt(x, y, z).setType(material.getMaterial().orElse(Material.STONE), false);
             }
         }
-        origin.getBlock().setType(ZMaterial.NOTE_BLOCK.getMaterial().orElse(Material.NOTE_BLOCK), false);
+		origin.add(0, 2, 0).getBlock().setType(coreMaterial, false);
     }
 
     private void clearArea(BuildEditorBounds bounds) {
@@ -678,21 +826,21 @@ public final class VillageBuildEditorManager {
             boundaryTask.cancel();
             boundaryTask = null;
         }
-        if (!config.getBoolean("enabled", true)) {
-            return;
-        }
+        if (!config.getBoolean("enabled", true)) return;
+
         long interval = Math.max(1L, config.getLong("boundary.interval-ticks", 5L));
-        boundaryTask = Bukkit.getScheduler().runTaskTimer(plugin, this::showBoundaries, interval, interval);
+        boundaryTask = plugin.getRosaScheduler().runGlobalTimer(this::showBoundaries, interval, interval);
     }
 
     private void showBoundaries() {
         ZParticle particle = parseParticle(config.getString("boundary.particle", "END_ROD"));
         double step = Math.max(0.5, config.getDouble("boundary.step", 1.0));
+
         for (BuildEditorSession session : sessions.values()) {
             Player player = Bukkit.getPlayer(session.getPlayerId());
-            if (player == null || !player.isOnline() || !session.getBounds().getWorld().equals(player.getWorld())) {
+            if (player == null || !player.isOnline() || !session.getBounds().getWorld().equals(player.getWorld()))
                 continue;
-            }
+            
             drawBounds(player, session.getBounds(), particle, step);
         }
     }
@@ -762,6 +910,13 @@ public final class VillageBuildEditorManager {
         static RelativeBounds forNewLevel() {
             return new RelativeBounds(-2, -1, -2, 2, 8, 2);
         }
+
+		static RelativeBounds forOutpost() {
+			return new RelativeBounds(
+					-OutpostManager.BUILD_RADIUS, OutpostManager.BUILD_MIN_Y, -OutpostManager.BUILD_RADIUS,
+					OutpostManager.BUILD_RADIUS, OutpostManager.BUILD_MAX_Y, OutpostManager.BUILD_RADIUS
+			);
+		}
 
         long volume() {
             return (long) (maxX - minX + 1) * (maxY - minY + 1) * (maxZ - minZ + 1);

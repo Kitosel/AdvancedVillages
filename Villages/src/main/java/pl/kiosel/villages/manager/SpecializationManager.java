@@ -21,12 +21,13 @@ public final class SpecializationManager {
 
 	public SpecializationManager(AdvancedVillages plugin) {
 		this.plugin = plugin;
-		this.file = plugin.getSpecFile();
+		this.file = plugin.getSpecializationFile();
 		this.reload();
 	}
 
 	public synchronized void reload() {
 		if (!this.plugin.isDev()) return;
+
 		this.enabled = this.file.getBoolean("enabled", true);
 		this.changeCooldown = TimeUtils.duration(
 				this.file.getString("change-cooldown", "1h"), Duration.ofHours(1), true);
@@ -90,12 +91,14 @@ public final class SpecializationManager {
 
 	public int applyStoreDiscount(User user, int price) {
 		if (price <= 0 || !this.has(user, VillageSpecialization.MERCHANT)) return Math.max(0, price);
+
 		double multiplier = 1.0D - this.getBonus(VillageSpecialization.MERCHANT) / 100.0D;
 		return Math.max(0, (int) Math.ceil(price * multiplier));
 	}
 
 	public String getDisplayName(VillageSpecialization specialization) {
 		if (!this.isEnabled() || specialization == null) return "-";
+
 		String fallback = specialization.getId().substring(0, 1).toUpperCase()
 				+ specialization.getId().substring(1);
 		return this.plugin.getVillageMessages().textOrDefault(

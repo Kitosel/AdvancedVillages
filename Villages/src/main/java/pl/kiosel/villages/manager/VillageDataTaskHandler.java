@@ -1,14 +1,13 @@
 package pl.kiosel.villages.manager;
 
-import org.bukkit.Bukkit;
-import org.bukkit.scheduler.BukkitTask;
+import pl.kiosel.rosacore.scheduler.RosaTask;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.data.DataSaveTask;
 
 public class VillageDataTaskHandler {
 
 	private final AdvancedVillages plugin;
-	private volatile BukkitTask dataTask;
+	private volatile RosaTask dataTask;
 
 	public VillageDataTaskHandler(AdvancedVillages plugin) {
 		this.plugin = plugin;
@@ -22,10 +21,8 @@ public class VillageDataTaskHandler {
 			shutdown();
 		}
 
-		DataSaveTask dataSaveTask = new DataSaveTask(this.plugin.getDataloader(), false);
-		this.dataTask = Bukkit.getScheduler().runTaskTimerAsynchronously(
-				this.plugin, dataSaveTask, dataInterval, dataInterval
-		);
+		DataSaveTask dataSaveTask = new DataSaveTask(plugin, false);
+		this.dataTask = plugin.getRosaScheduler().runAsyncTimer(dataSaveTask, dataInterval, dataInterval);
 	}
 
 	public synchronized void shutdown() {

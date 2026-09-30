@@ -15,10 +15,12 @@ public final class StarPattern implements AnimationPattern {
     @Override
     public void render(CentralAnimationFrame frame) {
         LevelAnimationStyle style = frame.getStyle();
+
         for (int index = 0; index < frame.getCount(); index++) {
             double path = index * VERTICES / (double) frame.getCount();
             int from = (int) Math.floor(path);
             int to = (from + 1) % VERTICES;
+
             double progress = path - from;
             double startX = vertexX(from, style.getRadius(), frame.getPhase());
             double startZ = vertexZ(from, style.getRadius(), frame.getPhase());

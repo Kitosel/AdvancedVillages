@@ -12,7 +12,7 @@ softdepend:
   - Vault
   - Essentials
   - PlayerPoints
-  - advancedvillages
+  - AdvancedPlayerList
 
 permissions:
   advancedvillages.*:
@@ -35,17 +35,12 @@ permissions:
       advancedvillages.command.crafting.edit: true
       advancedvillages.command.spawn: true
       advancedvillages.command.spawn.set: true
+      advancedvillages.admin.logs: true
 
   advancedvillages.command.main:
     default: true
-  advancedvillages.command.admin:
-    default: op
-  advancedvillages.command.settings:
-    default: op
   advancedvillages.command.alliance:
     default: true
-  advancedvillages.command.edit:
-    default: op
   advancedvillages.command.chat:
     default: true
   advancedvillages.command.help:
@@ -62,9 +57,17 @@ permissions:
     default: true
   advancedvillages.command.crafting:
     default: true
-  advancedvillages.command.crafting.edit:
-    default: op
   advancedvillages.command.spawn:
     default: true
+  advancedvillages.command.admin:
+    default: op
+  advancedvillages.command.settings:
+    default: op
+  advancedvillages.command.edit:
+    default: op
+  advancedvillages.command.crafting.edit:
+    default: op
   advancedvillages.command.spawn.set:
+    default: op
+  advancedvillages.admin.logs:
     default: op

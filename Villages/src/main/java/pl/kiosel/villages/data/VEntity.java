@@ -21,7 +21,8 @@ public interface VEntity {
     }
 
     enum UnitType {
-        VILLAGE,
+		VILLAGE,
+		OUTPOST,
         OFFLINE_USER,
         RANK,
         REGION,

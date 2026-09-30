@@ -15,6 +15,7 @@ public final class HaloPattern implements AnimationPattern {
         LevelAnimationStyle style = frame.getStyle();
         int count = frame.getCount();
         double phase = frame.getPhase();
+
         for (int index = 0; index < count; index++) {
             double angle = Math.PI * 2 * index / count + phase;
             double wave = 0.5 + 0.5 * Math.sin(angle * 2 - phase);

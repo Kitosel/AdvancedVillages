@@ -1,6 +1,7 @@
 package pl.kiosel.villages.commands;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -8,6 +9,10 @@ import pl.kiosel.rosacore.command.RosaCommand;
 import pl.kiosel.rosacore.utils.ColorUtils;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.addons.firststeps.TutorialGUI;
+import pl.kiosel.villages.config.gui.GUIS;
+import pl.kiosel.villages.data.outpost.turets.TurretSetGreen;
+import pl.kiosel.villages.data.outpost.turets.TurretSetRed;
+import pl.kiosel.villages.data.outpost.turets.TurretSetWhite;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.user.VillagePermission;
 import pl.kiosel.villages.data.village.Village;
@@ -98,12 +103,17 @@ public class CommandTest extends RosaCommand {
 					plugin.setDev(!plugin.isDev());
 					player.sendMessage("Settings dev to " + (plugin.isDev() ? "Enabled" : "Disabled"));
 					break;
+				case "setOutpost":
+					Location location = player.getLocation();
+					new TurretSetWhite().setTurret(location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
+					player.sendMessage("Pasting outpost");
+					break;
 				case "tutorial":
 					plugin.getMessenger().animatedTitle(
 							player,
-							plugin.getGuiSettings().text("guis.tutorial.welcome.title",
+							plugin.getGuiSettings().text(GUIS.TUTORIAL, "welcome.title",
 									"&aThanks for using &f&lADVANCED&6&lVILLAGES"),
-							plugin.getGuiSettings().text("guis.tutorial.welcome.subtitle",
+							plugin.getGuiSettings().text(GUIS.TUTORIAL, "welcome.subtitle",
 									"&7Personalize your experience"),
 							1
 					);
@@ -140,13 +150,28 @@ public class CommandTest extends RosaCommand {
 						player.sendMessage(member.getName());
 					break;
 			}
+			if (args[0].equalsIgnoreCase("setOutpost")) {
+				Location location = player.getLocation();
+				switch (args[1]) {
+					case "1":
+						new TurretSetWhite().setTurret(location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
+						break;
+					case "2":
+						new TurretSetRed().setTurret(location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
+						break;
+					case "3":
+						new TurretSetGreen().setTurret(location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
+						break;
+				}
+				player.sendMessage("Pasting outpost");
+			}
 			if (args[0].equalsIgnoreCase("getPermissions")) {
 				Player another = Bukkit.getPlayer(args[1]);
 				if (another == null) {
 					player.sendMessage("another is null");
 					return false;
 				}
-				User member2 = plugin.getUserManager().findByPlayer(another).get();
+				User member2 = plugin.getUserManager().findByPlayer(another).orElse(null);
 				if (member2 == null) {
 					player.sendMessage("member is null");
 					return false;
@@ -179,10 +204,12 @@ public class CommandTest extends RosaCommand {
 			return complete(args[0], List.of(
 					"villages", "adv_title", "adv_actionbar", "test1", "worldedit_test",
 					"addpermission", "villagemembers", "getPermissions", "memory_test",
-					"local", "tutorial", "dev"
+					"local", "tutorial", "dev", "setOutpost"
 			));
 		}
 		if (args.length == 2) {
+			if (args[0].equalsIgnoreCase("setOutpost"))
+				return complete(args[1], List.of("1", "2", "3"));
 			if (args[0].equalsIgnoreCase("villages"))
 				return complete(args[1], List.of("random_name", "villages_owner", "villages_names", "region"));
 			if (args[0].equalsIgnoreCase("getPermissions"))

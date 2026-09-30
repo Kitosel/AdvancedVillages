@@ -6,12 +6,12 @@ import org.bukkit.inventory.meta.ItemMeta;
 import pl.kiosel.rosacore.compatibility.ZSound;
 import pl.kiosel.rosacore.gui.Gui;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.config.GuiItemConfig;
 import pl.kiosel.villages.config.Lang;
+import pl.kiosel.villages.config.gui.GUIS;
+import pl.kiosel.villages.config.gui.GuiItemConfig;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.user.VillagePermission;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.gui.GUIS;
 import pl.kiosel.villages.gui.VillageGUIManager;
 import pl.kiosel.villages.gui.VillageMenu;
 
@@ -26,21 +26,28 @@ public final class StoreGUI extends VillageMenu {
 
 		addProduct("hearth", 19, 240, plugin.getApi().createHearthPart());
 		addProduct("destroyer", 21, 120, plugin.getApi().createDestroyerHearth());
+		if (plugin.isDev())
+			addProduct("outpost", 23, 320, plugin.getApi().createOutpostCore());
 	}
 
 	private void addProduct(String id, int slot, int fallbackPrice, ItemStack purchasedItem) {
-		int basePrice = plugin.getGuiSettings().integer(
-				"guis.village.store." + id + ".price", fallbackPrice, 0, Integer.MAX_VALUE);
+		int basePrice = plugin.getGuiSettings().integer(guiType,
+				"store." + id + ".price", fallbackPrice, 0, Integer.MAX_VALUE);
+
 		User user = plugin.getUserManager().findByPlayer(viewer).orElse(null);
 		int price = plugin.getSpecializationManager().applyStoreDiscount(user, basePrice);
 		ItemMeta meta = purchasedItem.getItemMeta();
+
 		String name = meta != null && meta.hasDisplayName() ? meta.getDisplayName() : purchasedItem.getType().name();
 		GuiItemConfig display = plugin.getGuiSettings().item(GUIS.STORE,
-				"guis.village.store." + id, slot, purchasedItem.getType(), name,
+				"store." + id, slot, purchasedItem.getType(), name,
 				List.of("&7Buy for &6%price%$"));
+
 		if (!display.isEnabled()) return;
+
 		List<String> lore = display.getLore().stream()
 				.map(line -> line.replace("%price%", Integer.toString(price))).toList();
+
 		setButton(display.getSlot(), display.createItem(display.getName(), lore),
 				event -> buyItem(price, purchasedItem.clone()));
 	}

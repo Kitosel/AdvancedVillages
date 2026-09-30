@@ -6,10 +6,11 @@ import pl.kiosel.rosacore.gui.AnvilGui;
 import pl.kiosel.rosacore.gui.Gui;
 import pl.kiosel.rosacore.gui.GuiManager;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.data.village.features.logs.VillageLogType;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.config.Settings;
+import pl.kiosel.villages.config.gui.GUIS;
 import pl.kiosel.villages.data.village.Village;
+import pl.kiosel.villages.data.village.features.logs.VillageLogType;
 import pl.kiosel.villages.gui.Item;
 import pl.kiosel.villages.manager.VillageUtils;
 
@@ -25,9 +26,11 @@ public final class TagGUI extends AnvilGui {
 		this.village = village;
 		this.viewer = player;
 
-		setTitle(plugin.getGuiSettings().text("guis.tag.title", "Name your village"));
-		setInput(Item.create(Material.NAME_TAG, plugin.getGuiSettings().text("guis.tag.input-name", "*NAME*")));
-		setOutputPrompt(plugin.getGuiSettings().text("guis.tag.output-prompt", "Name your village"));
+		setTitle(plugin.getGuiSettings().menu(GUIS.TAG).getTitle());
+
+		setInput(Item.create(Material.NAME_TAG, plugin.getGuiSettings().text(GUIS.TAG, "tag.input-name", "*NAME*")));
+		setOutputPrompt(plugin.getGuiSettings().text(GUIS.TAG, "tag.output-prompt", "Name your village"));
+
 		setAction(event -> submit());
 		playSoundOnClick(true);
 	}

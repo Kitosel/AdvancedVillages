@@ -29,7 +29,6 @@ public final class QuestConfiguration {
 	}
 
 	public synchronized void reload() {
-		if (!this.plugin.isDev()) return;
 		Map<QuestPeriod, List<QuestDefinition>> definitions = new EnumMap<>(QuestPeriod.class);
 		definitions.put(QuestPeriod.DAILY, this.readDefinitions("quests.daily", QuestPeriod.DAILY));
 		definitions.put(QuestPeriod.WEEKLY, this.readDefinitions("quests.weekly", QuestPeriod.WEEKLY));

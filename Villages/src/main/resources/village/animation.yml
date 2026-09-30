@@ -35,8 +35,8 @@ central-block:
   # A stronger version of the selected level pattern after an upgrade.
   upgrade-duration-ticks: 24
   # Available patterns:
-  # HALO, DOUBLE_RING, HELIX, CROWN, ORBITS,
-  # SPIRAL, VORTEX, PILLARS, WAVE, STAR.
+  # HALO, DOUBLE_RING, HELIX, CROWN,
+  # SPIRAL, VORTEX, WAVE, STAR.
   # You can use any pattern at any village level.
   # Each level can also be disabled independently with "enabled: false".
   levels:
@@ -119,17 +119,6 @@ central-block:
       speed: 0.16
     8:
       enabled: true
-      pattern: PILLARS
-      particle: SOUL_FIRE_FLAME
-      secondary-particle: WITCH
-      count: 14
-      radius: 2.7
-      height: 0.6
-      vertical-span: 1.7
-      vertical-offset: 0.03
-      speed: 0.17
-    9:
-      enabled: true
       pattern: STAR
       particle: TOTEM_OF_UNDYING
       secondary-particle: ELECTRIC_SPARK
@@ -139,17 +128,6 @@ central-block:
       vertical-span: 1.9
       vertical-offset: 0.03
       speed: 0.18
-    10:
-      enabled: true
-      pattern: WAVE
-      particle: DRAGON_BREATH
-      secondary-particle: END_ROD
-      count: 18
-      radius: 3.2
-      height: 0.7
-      vertical-span: 2.0
-      vertical-offset: 0.03
-      speed: 0.2
 
 removal:
   enabled: true

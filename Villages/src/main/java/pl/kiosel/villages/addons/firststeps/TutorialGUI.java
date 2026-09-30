@@ -6,10 +6,10 @@ import pl.kiosel.rosacore.compatibility.RosaSound;
 import pl.kiosel.rosacore.compatibility.ZSound;
 import pl.kiosel.rosacore.gui.Gui;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.config.GuiItemConfig;
-import pl.kiosel.villages.config.GuiMenuConfig;
 import pl.kiosel.villages.config.Lang;
-import pl.kiosel.villages.gui.GUIS;
+import pl.kiosel.villages.config.gui.GUIS;
+import pl.kiosel.villages.config.gui.GuiItemConfig;
+import pl.kiosel.villages.config.gui.GuiMenuConfig;
 import pl.kiosel.villages.gui.Item;
 
 import java.util.ArrayList;
@@ -48,8 +48,8 @@ public final class TutorialGUI extends Gui {
 	public void refreshSaveButton() {
 		GuiItemConfig save = this.item("save", 22, Material.LIME_DYE,
 				"&a&lSave and quit", List.of("%changes%", "&7The plugin will reload once."));
-		String changes = this.plugin.getGuiSettings().text(
-				"guis.tutorial.status." + (this.session.isDirty() ? "unsaved" : "unchanged"),
+		String changes = this.plugin.getGuiSettings().text(GUIS.TUTORIAL,
+				"status." + (this.session.isDirty() ? "unsaved" : "unchanged"),
 				this.session.isDirty() ? "&eYou have unsaved changes." : "&7No settings were changed."
 		);
 		List<String> lore = new ArrayList<>(save.getLore().size());
@@ -75,11 +75,11 @@ public final class TutorialGUI extends Gui {
 	private GuiItemConfig item(String path, int slot, Material material,
 						   String name, List<String> lore) {
 		return this.plugin.getGuiSettings().item(
-				GUIS.TUTORIAL, "guis.tutorial." + path, slot, material, name, lore);
+				GUIS.TUTORIAL, path, slot, material, name, lore);
 	}
 
 	private void sendInfo(Player player) {
-		for (String line : this.plugin.getGuiSettings().list("guis.tutorial.info.lines", List.of(
+		for (String line : this.plugin.getGuiSettings().list(GUIS.TUTORIAL, "info.lines", List.of(
 				"&8!&7------------------------------------&8!",
 				"&7This wizard configures the most important options.",
 				"&7You can edit every setting later in the config files.",

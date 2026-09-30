@@ -6,13 +6,13 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.projectiles.ProjectileSource;
-import org.bukkit.scheduler.BukkitTask;
+import pl.kiosel.rosacore.scheduler.RosaTask;
 import pl.kiosel.villages.AdvancedVillages;
+import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.data.rank.RankSystem;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.user.UserRank;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.config.Lang;
 
 import java.util.*;
 
@@ -25,7 +25,7 @@ public final class RankingManager {
 
 	@Getter
 	private volatile RankingSettings settings;
-	private BukkitTask refreshTask;
+	private RosaTask refreshTask;
 
 	public RankingManager(AdvancedVillages plugin, RankingConfiguration configuration) {
 		this.plugin = plugin;
@@ -48,8 +48,7 @@ public final class RankingManager {
 
 		this.recalculateNow();
 		long interval = this.settings.getTopRefreshSeconds() * 20L;
-		this.refreshTask = Bukkit.getScheduler().runTaskTimer(
-				this.plugin,
+		this.refreshTask = plugin.getRosaScheduler().runGlobalTimer(
 				this::refresh,
 				interval,
 				interval

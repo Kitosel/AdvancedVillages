@@ -9,7 +9,6 @@ import pl.kiosel.rosacore.dependencies.nbtapi.NBT;
 import pl.kiosel.rosacore.dependencies.nbtapi.iface.ReadWriteItemNBT;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.addons.buildeditor.VillageBuildEditorManager;
-import pl.kiosel.villages.data.village.features.trials.VillageAnimationManager;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.user.UserManager;
@@ -20,6 +19,7 @@ import pl.kiosel.villages.data.village.features.logs.VillageLogManager;
 import pl.kiosel.villages.data.village.features.quest.VillageQuestManager;
 import pl.kiosel.villages.data.village.features.ranking.RankingManager;
 import pl.kiosel.villages.data.village.features.rent.VillageUpkeepManager;
+import pl.kiosel.villages.data.village.features.trials.VillageAnimationManager;
 import pl.kiosel.villages.gui.Item;
 import pl.kiosel.villages.manager.RoleManager;
 import pl.kiosel.villages.manager.SpecializationManager;
@@ -149,13 +149,21 @@ public class VillageAPI {
 		return getVillageAt(location) != null;
 	}
 
-    public ItemStack createVillageBlock() {
+	public ItemStack createVillageBlock() {
 		ItemStack item = Item.create(Material.NOTE_BLOCK,
 				plugin.getVillageMessages().get(Lang.VILLAGE_BLOCK_NAME).toString(),
 				List.of(plugin.getVillageMessages().get(Lang.VILLAGE_BLOCK_LORE).toString()), true);
 		NBT.modify(item, (Consumer<ReadWriteItemNBT>) nbt -> nbt.setBoolean("villageBlock", true));
 		return item;
-    }
+	}
+
+	public ItemStack createOutpostBlock() {
+		ItemStack item = Item.create(Material.LODESTONE,
+				plugin.getVillageMessages().get(Lang.OUTPOST_BLOCK_NAME).toString(),
+				List.of(plugin.getVillageMessages().get(Lang.OUTPOST_BLOCK_LORE).toString()), true);
+		NBT.modify(item, (Consumer<ReadWriteItemNBT>) nbt -> nbt.setBoolean("outpostBlock", true));
+		return item;
+	}
 
 	public ItemStack createDestroyer() {
 		return Item.createDestroyer(Material.GOLDEN_PICKAXE,
@@ -181,5 +189,11 @@ public class VillageAPI {
 		return Item.createNoPlaceNoCraft(Material.GOLD_BLOCK,
 				plugin.getVillageMessages().get(Lang.VILLAGE_DESTROYER_HEARTH_NAME).toString(),
 				List.of(plugin.getVillageMessages().get(Lang.VILLAGE_DESTROYER_HEARTH_LORE).toString()));
+	}
+
+	public ItemStack createOutpostCore() {
+		return Item.createNoPlaceNoCraft(Material.MAGMA_BLOCK,
+				plugin.getVillageMessages().get(Lang.OUTPOST_CORE_BLOCK_NAME).toString(),
+				List.of(plugin.getVillageMessages().get(Lang.OUTPOST_CORE_BLOCK_LORE).toString()));
 	}
 }

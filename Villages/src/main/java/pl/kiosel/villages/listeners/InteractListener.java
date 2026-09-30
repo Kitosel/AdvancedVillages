@@ -10,9 +10,9 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.api.events.VillageBlockInteractEvent;
 import pl.kiosel.villages.api.events.VillageListener;
+import pl.kiosel.villages.config.gui.GUIS;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.Village;
-import pl.kiosel.villages.gui.GUIS;
 
 public class InteractListener extends VillageListener {
 
@@ -44,7 +44,7 @@ public class InteractListener extends VillageListener {
 			event.setCancelled(true);
 			if (villageBlockInteractEvent.isCancelled()) return;
 
-			plugin.getVillageGui().openGui(village, player, GUIS.VILLAGE);
+			plugin.getVillageGui().openVillageGui(village, player, GUIS.VILLAGE);
 		}
 	}
 }

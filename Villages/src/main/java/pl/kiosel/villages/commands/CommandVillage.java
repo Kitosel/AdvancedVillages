@@ -8,6 +8,7 @@ import pl.kiosel.villages.commands.subcommands.*;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.data.user.User;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -25,7 +26,7 @@ public class CommandVillage extends RosaCommand {
 	}
 
 	public synchronized void reloadArguments() {
-		List<AVSubCommand> refreshed = Arrays.asList(
+		List<AVSubCommand> refreshed = new ArrayList<>(Arrays.asList(
 				new AdminCommand(plugin),
 				new ChatCommand(plugin),
 				new InviteCommand(plugin),
@@ -35,8 +36,9 @@ public class CommandVillage extends RosaCommand {
 				new BuildEditCommand(plugin),
 				new HelpCommand(plugin, this),
 				new TeleportSetCommand(plugin)
-		);
+		));
 		if (plugin.isDev()) {
+			refreshed.add(new OutpostCommand(plugin));
 			refreshed.add(new AllianceCommand(plugin));
 			refreshed.add(new WarCommand(plugin));
 		}

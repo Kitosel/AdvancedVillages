@@ -27,6 +27,8 @@ public class Dataloader {
 	public void load() {
 		this.loadUsers();
 		this.loadVillage();
+		if (this.plugin.getOutpostManager() != null)
+			this.plugin.getOutpostManager().load();
 		this.plugin.getRoleManager().load();
 		this.plugin.getQuestManager().load();
 		this.plugin.getLogManager().load();
@@ -68,7 +70,7 @@ public class Dataloader {
 
 		villageManager.getVillages().stream()
 				.filter(village -> village.getOwner() == null)
-				.forEach(village -> villageManager.deleteVillage(plugin, village));
+				.forEach(villageManager::deleteVillage);
 
 		plugin.getDebug().debug("Loaded villages: " + villageManager.countVillage());
 	}
@@ -95,6 +97,8 @@ public class Dataloader {
 				}
 			}
 		}
+		if (this.plugin.getOutpostManager() != null)
+			this.plugin.getOutpostManager().save(ignoreNotChanged);
 
 		this.plugin.getQuestManager().save(ignoreNotChanged);
 		this.plugin.getLogManager().save();

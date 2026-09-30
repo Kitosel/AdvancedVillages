@@ -24,8 +24,7 @@ public final class BuildEditCommand extends AVSubCommand {
     public String getDescription() { return "Schematic edit"; }
 
     @Override
-    public String
-    getUsage() { return "/village edit [save|cancel]"; }
+    public String getUsage() { return "/" + plugin.getCommandLang().getCommandName() + " " + getName() + " [save|cancel]"; }
 
     @Override
     public String getPermission() { return "advancedvillages.command.edit"; }

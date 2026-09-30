@@ -2,9 +2,9 @@ package pl.kiosel.villages.addons.tablist;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitTask;
 import pl.kiosel.rosacore.nms.api.tablist.TabList;
 import pl.kiosel.rosacore.nms.api.tablist.TabListService;
+import pl.kiosel.rosacore.scheduler.RosaTask;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.data.user.User;
 
@@ -23,7 +23,7 @@ public final class TablistManager {
 	private final Map<UUID, TablistSession> sessions = new HashMap<>();
 
 	private TablistSnapshot snapshot;
-	private BukkitTask updateTask;
+	private RosaTask updateTask;
 
 	public TablistManager(AdvancedVillages plugin, TablistConfiguration configuration,
 	                     TablistPlaceholdersService placeholders,
@@ -47,9 +47,7 @@ public final class TablistManager {
 			this.plugin.getUserManager().findByPlayer(player).ifPresent(user -> this.open(player, user));
 		}
 		long interval = this.snapshot.getUpdateInterval();
-		this.updateTask = Bukkit.getScheduler().runTaskTimer(
-				this.plugin, this::tick, interval, interval
-		);
+		this.updateTask = plugin.getRosaScheduler().runGlobalTimer(this::tick, interval, interval);
 	}
 
 	public void handleJoin(Player player, User user) {

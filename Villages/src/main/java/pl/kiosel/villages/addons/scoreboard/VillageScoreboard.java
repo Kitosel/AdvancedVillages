@@ -63,11 +63,17 @@ public class VillageScoreboard extends RosaScoreboard {
 		this.animationIndex = 0;
 		this.contentRendered = false;
 		this.animationStarted = false;
+
 		setPlaceholderApiEnabled(this.plugin.isPlaceholder());
-		if (snapshot.isHideNumbers()) hideNumbers();
-		else showNumbers();
+
+		if (snapshot.isHideNumbers()){
+			hideNumbers();
+		} else {
+			showNumbers();
+		}
 		setUpdateInterval(snapshot.getRefreshIntervalTicks());
 		setTitle(snapshot.getTitleFrames().get(0));
+
 		if (refresh) refresh();
 	}
 
@@ -89,6 +95,7 @@ public class VillageScoreboard extends RosaScoreboard {
 			setLine(lineIndex++, rendered);
 		}
 
-		while (lineIndex < MAX_LINES) clearLine(lineIndex++);
+		while (lineIndex < MAX_LINES)
+			clearLine(lineIndex++);
 	}
 }

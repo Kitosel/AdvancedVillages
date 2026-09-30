@@ -33,15 +33,17 @@ public final class VillageLogManager {
 	}
 
 	public void load() {
-		if (!this.plugin.isDev()) return;
 		this.entries.clear();
 		this.pending.clear();
+
 		VillageLogSettings current = this.settings;
-		long cutoff = Instant.now().minusSeconds(current.getRetentionDays() * 86_400L).toEpochMilli();
+		long cutoff = Instant.now().minusSeconds(current.retentionDays() * 86_400L).toEpochMilli();
 		int villageCount = Math.max(1, this.plugin.getVillageManager().countVillage());
-		int loadLimit = Math.min(50_000, current.getMaxEntriesPerVillage() * villageCount * 2);
+		int loadLimit = Math.min(50_000, current.maxEntriesPerVillage() * villageCount * 2);
+
 		List<VillageLogEntry> loaded = new ArrayList<>();
 		this.storage.load(cutoff, loadLimit, loaded::add);
+
 		loaded.sort(Comparator.comparing(VillageLogEntry::getCreatedAt));
 		loaded.forEach(entry -> {
 			if (this.plugin.getVillageManager().findByUuid(entry.getVillageId()).isPresent()) {
@@ -57,18 +59,18 @@ public final class VillageLogManager {
 	}
 
 	public boolean isEnabled() {
-		return this.plugin.isDev() && this.settings.isEnabled();
+		return this.settings.enabled();
 	}
 
 	public ZoneId getZoneId() {
-		return this.settings.getZoneId();
+		return this.settings.zoneId();
 	}
 
 	public boolean canView(Player player, Village village) {
 		if (player == null || village == null || !this.isEnabled()) {
 			return false;
 		}
-		if (player.hasPermission("villages.admin.logs")) {
+		if (player.hasPermission("advancedvillages.admin.logs")) {
 			return true;
 		}
 		User user = this.plugin.getUserManager().findByPlayer(player).orElse(null);
@@ -113,7 +115,6 @@ public final class VillageLogManager {
 	}
 
 	public void save() {
-		if (!this.plugin.isDev()) return;
 		List<VillageLogEntry> batch = new ArrayList<>();
 		VillageLogEntry entry;
 		while ((entry = this.pending.poll()) != null) {
@@ -124,7 +125,7 @@ public final class VillageLogManager {
 		}
 		try {
 			VillageLogSettings current = this.settings;
-			this.storage.save(batch, current.getMaxEntriesPerVillage(), current.getRetentionDays());
+			this.storage.save(batch, current.maxEntriesPerVillage(), current.retentionDays());
 		} catch (RuntimeException exception) {
 			this.pending.addAll(batch);
 			this.plugin.getRosaLogger().log(Level.SEVERE, "Could not save village activity logs", exception);
@@ -132,9 +133,8 @@ public final class VillageLogManager {
 	}
 
 	public void delete(Village village) {
-		if (!this.plugin.isDev() || village == null) {
-			return;
-		}
+		if (village == null) return;
+
 		UUID villageId = village.getUUID();
 		this.entries.remove(villageId);
 		this.pending.removeIf(entry -> villageId.equals(entry.getVillageId()));
@@ -154,7 +154,7 @@ public final class VillageLogManager {
 				entry.getVillageId(), ignored -> new ConcurrentLinkedDeque<>()
 		);
 		synchronized (villageEntries) {
-			int windowSeconds = this.settings.getAntiSpamWindowSeconds();
+			int windowSeconds = this.settings.antiSpamWindowSeconds();
 			if (windowSeconds > 0) {
 				for (VillageLogEntry previous : villageEntries) {
 					if (entry.getCreatedAt().isAfter(previous.getCreatedAt().plusSeconds(windowSeconds))) {
@@ -196,7 +196,7 @@ public final class VillageLogManager {
 					return null;
 				}
 				break;
-			case MEMBER_PERMISSION:
+			case ROLE_PERMISSION_CHANGED:
 				if (!sameDetail(previous, current, "member")
 						|| !sameDetail(previous, current, "permission")) {
 					return null;
@@ -218,13 +218,13 @@ public final class VillageLogManager {
 	}
 
 	private void trim(ConcurrentLinkedDeque<VillageLogEntry> villageEntries) {
-		int maximum = this.settings.getMaxEntriesPerVillage();
+		int maximum = this.settings.maxEntriesPerVillage();
 		while (villageEntries.size() > maximum) {
 			villageEntries.pollLast();
 		}
 	}
 
-	private static Map<String, String> detailMap(Object... details) {
+	private Map<String, String> detailMap(Object... details) {
 		if (details == null || details.length == 0) {
 			return Collections.emptyMap();
 		}
@@ -240,7 +240,7 @@ public final class VillageLogManager {
 		return result;
 	}
 
-	private static boolean sameDetail(VillageLogEntry first, VillageLogEntry second, String key) {
+	private boolean sameDetail(VillageLogEntry first, VillageLogEntry second, String key) {
 		return Objects.equals(first.getDetails().get(key), second.getDetails().get(key));
 	}
 }

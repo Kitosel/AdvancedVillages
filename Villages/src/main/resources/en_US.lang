@@ -1,12 +1,11 @@
 # General messages
 # Use \n inside a message to start a new chat line.
+prefix: '&8[&f&lAdvanced&6&lVillages&r&8]'
 general:
   separator: '&8——————————————————————————'
   addon-disabled: '&cAddon %addon% is currently disabled.'
-  nametag:
-    prefix: '&8[&f&lAdvanced&6&lVillages&r&8]'
-    'on': '&aON'
-    'off': '&cOFF'
+  'on': '&aON'
+  'off': '&cOFF'
   time:
     second: { one: 'second', few: 'seconds', many: 'seconds' }
     minute: { one: 'minute', few: 'minutes', many: 'minutes' }
@@ -153,6 +152,8 @@ village:
   max-level: '&cThe village has reached the maximum level'
   upgrade-no-requirements: "&cYou don't meet all requirements needed to upgrade your village"
 
+  area-blocked: '&cThe 5×5×9 building area is not empty'
+
   bank-add: '&7Deposited into the village bank: &a%money%'
   bank-remove: '&7Withdrawn from the village bank: &c%money%'
   bank-no-money: "&cThe village bank doesn't have enough money"
@@ -191,7 +192,7 @@ tag:
   your-village-tag: '&7Your village tag is &a%tag%'
   closed-name-village-tag: '&cYou closed the menu, so no tag was set'
   already-name-village-tag: '&cThis tag is already in use'
-  no-tag: '&cNONE'
+  no-tag: '&c-'
 
 # Teleport
 teleport:
@@ -224,10 +225,33 @@ invite:
   confirmed: "&7You joined &6%village_owner%'s &7village"
   canceled: '&7You declined the invitation'
 
+outpost:
+  disabled: '&cOutposts are currently disabled'
+  command-description: 'List outposts, teleport or upgrade one'
+  level-required: '&cYour village must reach level &f%level% &cto create an outpost'
+  limit: '&cYour village has reached the outpost limit (&f%limit%&c)'
+  near-village: '&cThe outpost must be at least &f%distance% &cblocks from every village'
+  near-outpost: '&cThe outpost must be at least &f%distance% &cblocks from another outpost'
+  area-blocked: '&cThe 7x7x6 building area is not empty'
+  created: '&aCreated outpost &f%outpost%'
+  create-failed: '&cThe outpost could not be created. Check the server console'
+  region-protected: '&cThis area belongs to another village outpost'
+  core-protected: '&cThe outpost core cannot be destroyed manually'
+  list: '&7Your outposts: %outposts%'
+  list-empty: '&cYour village does not have any outposts'
+  not-found: '&cOutpost not found'
+  teleporting: '&7Teleporting to &b%outpost% &7in &f%time% &7seconds'
+  teleported: '&aTeleported to the outpost'
+  upgraded: '&aUpgraded &f%outpost% &ato level &f%level%'
+  max-level: '&cThis outpost has reached its maximum configured level'
+  schematic-missing: '&cThe next outpost level has no internal build or saved schematic'
+
 # Items
 items:
   village-block: '&d&lVillages'
   village-block-lore: '&7Place this block on the ground to create a village'
+  outpost-block: '&b&lOutpost'
+  outpost-block-lore: '&7Place this block on the ground to create an outpost'
   destroyer: '&6&lDestroyer'
   destroyer-lore: '&7Use this tool to destroy a village core'
   hearth: '&c&lHearth of the Village'
@@ -236,6 +260,9 @@ items:
   part-of-hearth-lore: '&7Use this item to create a Village Hearth'
   destroyer-hearth: '&c&lHearth of the Destroyer'
   destroyer-hearth-lore: '&7Use this item to create a Destroyer'
+
+  outpost-core: '&c&lOutpost Core'
+  outpost-core-lore: '&7Use this item to create a Village Outpost'
 
 # Build editor addon
 build-editor:

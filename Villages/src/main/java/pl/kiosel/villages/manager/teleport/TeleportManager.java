@@ -18,6 +18,7 @@ import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.config.Lang;
 import pl.kiosel.villages.config.Settings;
 import pl.kiosel.villages.config.VillageMessage;
+import pl.kiosel.villages.data.outpost.Outpost;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.manager.VillageUtils;
@@ -64,9 +65,9 @@ public final class TeleportManager {
 		this.spawnDelay = NumberUtils.clampSeconds(delay.getSeconds(), 0L, MAX_TELEPORT_DELAY_SECONDS);
 		this.spawnCost = Math.max(0, this.spawnFile.getInt("cost", 5));
 		this.spawnCancelOnMove = this.spawnFile.getBoolean("cancel-on-move", true);
-		this.spawnMessage = this.spawnFile.getBoolean("messages.message", true);
-		this.spawnTitle = this.spawnFile.getBoolean("messages.title", true);
-		this.spawnAnimatedTitle = this.spawnFile.getBoolean("messages.animated-title", true);
+		this.spawnMessage = this.spawnFile.getBoolean("villageMessages.message", true);
+		this.spawnTitle = this.spawnFile.getBoolean("villageMessages.title", true);
+		this.spawnAnimatedTitle = this.spawnFile.getBoolean("villageMessages.animated-title", true);
 	}
 
 	public boolean isTeleportTask(Player player) {
@@ -160,6 +161,39 @@ public final class TeleportManager {
 				Lang.TELEPORT_SUBTITLE
 		);
 		return this.startSession(player, session);
+	}
+
+	public boolean teleportPlayerToOutpost(Player player, Outpost outpost) {
+		if (player == null || outpost == null || this.plugin.getOutpostManager() == null) return false;
+		Village village = this.plugin.getUserManager().findByPlayer(player)
+				.map(User::getPresentVillage).orElse(null);
+
+		if (village == null || !village.equals(outpost.getVillage())
+				|| this.plugin.getOutpostManager().findByUuid(outpost.getUuid()).isEmpty()) {
+			this.plugin.getVillageMessages().get(Lang.VILLAGE_NO).sendPrefixed(player);
+			return false;
+		}
+
+		UUID playerId = player.getUniqueId();
+		if (this.sessions.containsKey(playerId) || !this.checkCooldown(player, TeleportType.OUTPOST)) return false;
+
+		Duration delayValue = TimeUtils.duration(Settings.TELEPORT_COOLDOWN.getString(), Duration.ofSeconds(5), true);
+		Duration cooldownValue = TimeUtils.duration(Settings.TELEPORT_BETWEEN_COOLDOWN.getString(), Duration.ofMinutes(1), true);
+
+		long delay = this.plugin.getDevelopmentManager().applyTeleportDelay(village,
+				NumberUtils.clampSeconds(delayValue.getSeconds(), 0L, MAX_TELEPORT_DELAY_SECONDS));
+		long cooldown = NumberUtils.clampSeconds(cooldownValue.getSeconds(), 0L, MAX_COOLDOWN_SECONDS);
+
+		TeleportSession session = new TeleportSession(
+				TeleportType.OUTPOST, outpost.getTeleportLocation(), village, delay, cooldown,
+				Settings.TELEPORT_CANCEL_ON_MOVE.getBoolean(), 0, true, true,
+				Lang.TELEPORT_TITLE, Lang.TELEPORT_SUBTITLE
+		);
+
+		if (!this.startSession(player, session)) return false;
+		this.plugin.getVillageMessages().get(Lang.OUTPOST_TELEPORTING)
+				.with("outpost", outpost.getName()).with("time", delay).sendPrefixed(player);
+		return true;
 	}
 
 	public boolean teleportPlayerToSpawn(Player player) {
@@ -290,6 +324,7 @@ public final class TeleportManager {
 
 	public void cleanupPlayer(Player player) {
 		this.cancelTeleport(player, true);
+
 		UUID playerId = player.getUniqueId();
 		this.settingVillageHome.remove(playerId);
 		for (Map<UUID, Long> typeCooldowns : this.cooldowns.values()) {
@@ -380,11 +415,13 @@ public final class TeleportManager {
 			this.plugin.getVillageMessages().get(Lang.TELEPORTED)
 					.with("village", session.getVillage().getName())
 					.sendPrefixed(player);
+		} else if (session.getType() == TeleportType.OUTPOST) {
+			this.plugin.getVillageMessages().get(Lang.OUTPOST_TELEPORTED).sendPrefixed(player);
 		}
 	}
 
 	private Location resolveDestination(Player player, TeleportSession session) {
-		if (session.getType() != TeleportType.VILLAGE) {
+		if (session.getType() == TeleportType.SPAWN) {
 			return session.getDestination();
 		}
 
@@ -394,6 +431,7 @@ public final class TeleportManager {
 		if (currentVillage == null || !currentVillage.equals(session.getVillage())) {
 			return null;
 		}
+		if (session.getType() == TeleportType.OUTPOST) return session.getDestination();
 		Location currentHome = currentVillage.getHome().orElse(null);
 		return currentHome == null ? null : currentHome.clone();
 	}
@@ -457,6 +495,7 @@ public final class TeleportManager {
 
 	public enum TeleportType {
 		VILLAGE,
+		OUTPOST,
 		SPAWN
 	}
 }

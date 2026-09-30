@@ -4,15 +4,16 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import pl.kiosel.rosacore.gui.Gui;
 import pl.kiosel.villages.AdvancedVillages;
-import pl.kiosel.villages.config.GuiItemConfig;
 import pl.kiosel.villages.config.Lang;
+import pl.kiosel.villages.config.gui.GUIS;
+import pl.kiosel.villages.config.gui.GuiItemConfig;
 import pl.kiosel.villages.data.user.User;
 import pl.kiosel.villages.data.user.VillagePermission;
 import pl.kiosel.villages.data.village.Village;
 import pl.kiosel.villages.data.village.VillageRole;
-import pl.kiosel.villages.gui.GUIS;
 import pl.kiosel.villages.gui.Item;
 import pl.kiosel.villages.gui.VillageGUIManager;
 import pl.kiosel.villages.gui.VillageMenu;
@@ -29,53 +30,64 @@ public final class ResidentGUI extends VillageMenu {
 
 		int defaultStart = village.getMembers().size() > 8 ? 9 : 19;
 		String startPath = village.getMembers().size() > 8 ? "start-slot" : "compact-start-slot";
-		int cell = plugin.getGuiSettings().integer("guis.village.members." + startPath,
+		int cell = plugin.getGuiSettings().integer(guiType,"members." + startPath,
 				defaultStart, 0, menuConfig.getSize() - 1);
+
 		GuiItemConfig ownerItem = plugin.getGuiSettings().item(GUIS.RESIDENT,
-				"guis.village.members.owner", cell, Material.PLAYER_HEAD,
-				"&6%PLAYER% &cOWNER", java.util.List.of(
+				"members.owner", cell, Material.PLAYER_HEAD,
+				"&6%PLAYER% &cOWNER", List.of(
 						"&7Role: %role%", " ", "&7Last online: %PLAYER_LAST_ONLINE%", " "));
+
 		GuiItemConfig residentItem = plugin.getGuiSettings().item(GUIS.RESIDENT,
-				"guis.village.members.resident", cell, Material.PLAYER_HEAD,
-				"%PLAYER%", java.util.List.of(
+				"members.resident", cell, Material.PLAYER_HEAD,
+				"%PLAYER%", List.of(
 						"&7Role: %role%", " ", "&7Last online: %PLAYER_LAST_ONLINE%", " "));
+
 		for (User member : village.getMembers()) {
-			OfflinePlayer memberPlayer = Bukkit.getOfflinePlayer(member.getUUID());
-			String name = member.getName();
 			boolean owner = village.isOwner(member);
-			String roleName = plugin.getRoleManager().getRole(member).getName();
-			String specializationName = member.getSpecialization()
-					.map(plugin.getSpecializationManager()::getDisplayName)
-					.orElse("-");
 			GuiItemConfig configured = owner ? ownerItem : residentItem;
 			if (!configured.isEnabled()) continue;
-			setButton(cell++, Item.createHead(
-					memberPlayer,
-					configured.getName().replace("%PLAYER%", name).replace("%player%", name),
-					replacePlayer(configured.getLore(), memberPlayer).stream()
-							.map(line -> line.replace("%ROLE%", roleName).replace("%role%", roleName))
-							.map(line -> line.replace("%SPECIALIZATION%", specializationName)
-									.replace("%specialization%", specializationName))
-							.toList()
-			), event -> openMember(member));
+
+			setButton(cell++, createMember(member, configured), event -> openMember(member));
 		}
 
 		if (plugin.getRoleManager().canEditPermissions(village, viewer)) {
 			List<VillageRole> roles = plugin.getRoleManager().getRoles();
 			if (roles.isEmpty()) return;
+
 			int column = getCenteredRoleColumn(roles.size());
 			GuiItemConfig roleItem = plugin.getGuiSettings().item(GUIS.RESIDENT,
-					"guis.village.members.role-permissions", 0, Material.NAME_TAG,
+					"members.role-permissions", 0, Material.NAME_TAG,
 					"&6%role%", List.of("&7Click to edit this role's permissions."));
 			if (!roleItem.isEnabled()) return;
+
 			for (VillageRole role : roles) {
 				String roleName = roleItem.getName().replace("%role%", role.getName());
 				List<String> lore = roleItem.getLore().stream()
 						.map(line -> line.replace("%role%", role.getName())).toList();
-				setButton(4, column++, roleItem.createItem(roleName, lore), event ->
+
+				setButton(5, column++, roleItem.createItem(roleName, lore), event ->
 						plugin.getGuiManager().showGUI(event.getPlayer(), new PermissionGUI(plugin, menus, village, viewer, this, role)));
 			}
 		}
+	}
+
+	public ItemStack createMember(User member, GuiItemConfig item) {
+		OfflinePlayer memberPlayer = Bukkit.getOfflinePlayer(member.getUUID());
+		String name = member.getName();
+		String roleName = plugin.getRoleManager().getRole(member).getName();
+		String specializationName = member.getSpecialization()
+				.map(plugin.getSpecializationManager()::getDisplayName)
+				.orElse("-");
+
+		return Item.createHead(memberPlayer,
+				item.getName().replace("%PLAYER%", name).replace("%player%", name),
+				replacePlayer(item.getLore(), memberPlayer).stream()
+						.map(line -> line.replace("%ROLE%", roleName).replace("%role%", roleName))
+						.map(line -> line.replace("%SPECIALIZATION%", specializationName)
+								.replace("%specialization%", specializationName))
+						.toList()
+		);
 	}
 
 	private int getCenteredRoleColumn(int roles) {

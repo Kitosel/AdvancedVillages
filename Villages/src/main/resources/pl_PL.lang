@@ -1,11 +1,11 @@
 # Wiadomości ogólne
+# Użyj \n wewnątrz wiadomości, aby rozpocząć nową linię czatu.
+prefix: '&8[&f&lAdvanced&6&lVillages&r&8]'
 general:
   separator: '&8————————————————————————————'
   addon-disabled: '&cDodatek %addon% jest aktualnie wyłączony.'
-  nametag:
-    prefix: '&8[&f&lAdvanced&6&lVillages&r&8]'
-    'on': '&aON'
-    'off': '&cOFF'
+  'on': '&aWłączone'
+  'off': '&cWyłączone'
   time:
     second: { one: 'sekunda', few: 'sekundy', many: 'sekund' }
     minute: { one: 'minuta', few: 'minuty', many: 'minut' }
@@ -30,7 +30,7 @@ general:
     take-xp: '&7Pobrano &a%xp% &7doświadczenia'
     take-items: '&7Pobrano &a%amount%x %item%'
 
-# Komendy
+# Edytor Craftingu
 crafting:
   recipe-saved: '&aReceptura &f%recipe% &azostała zapisana.'
   recipe-save-failed: '&cNie udało się zapisać receptury &f%recipe%&c. Sprawdź konsolę.'
@@ -40,6 +40,7 @@ tutorial:
   saved: '&aUstawienia początkowe zostały zapisane. Uruchom serwer ponownie, aby zastosować wszystkie zmiany.'
   save-failed: '&cNie udało się zapisać ustawień początkowych. Sprawdź konsolę.'
 
+# Komendy
 command:
   no-console: '&cTej komendy może użyć tylko gracz'
   not-enabled: '&cTa komenda jest wyłączona'
@@ -153,6 +154,8 @@ village:
   max-level: '&cWioska osiągnęła maksymalny poziom'
   upgrade-no-requirements: '&cNie spełniasz wszystkich wymagań potrzebnych do ulepszenia wioski'
 
+  area-blocked: '&cTeren 5×5×9 nie jest pusty'
+
   bank-add: '&7Wpłacono do banku wioski: &a%money%'
   bank-remove: '&7Wypłacono z banku wioski: &c%money%'
   bank-no-money: '&cW banku wioski nie ma wystarczająco pieniędzy'
@@ -224,10 +227,34 @@ invite:
   confirmed: '&7Dołączyłeś do wioski gracza &6%village_owner%'
   canceled: '&7Odrzuciłeś zaproszenie'
 
+# Stanowiska zwiadowcze
+outpost:
+  disabled: '&cPosterunki są obecnie wyłączone'
+  command-description: 'Lista posterunków, teleportacja lub ulepszanie'
+  level-required: '&cTwoja wioska musi osiągnąć poziom &f%level%&c, aby utworzyć posterunek'
+  limit: '&cTwoja wioska osiągnęła limit posterunków (&f%limit%&c)'
+  near-village: '&cPosterunek musi być oddalony o co najmniej &f%distance% &cbloków od każdej wioski'
+  near-outpost: '&cPosterunek musi być oddalony o co najmniej &f%distance% &cbloków od innego posterunku'
+  area-blocked: '&cObszar budowli 7x7x6 nie jest pusty'
+  created: '&aUtworzono posterunek &f%outpost%'
+  create-failed: '&cNie udało się utworzyć posterunku. Sprawdź konsolę serwera'
+  region-protected: '&cTen obszar należy do posterunku innej wioski'
+  core-protected: '&cPosterunku nie można zniszczyć ręcznie'
+  list: '&7Twoje posterunki: %outposts%'
+  list-empty: '&cTwoja wioska nie ma żadnych posterunków'
+  not-found: '&cNie znaleziono posterunku'
+  teleporting: '&7Teleportacja do &b%outpost% &7za &f%time% &7sekund'
+  teleported: '&aPrzeteleportowano do posterunku'
+  upgraded: '&aUlepszono &f%outpost% &ado poziomu &f%level%'
+  max-level: '&cTen posterunek osiągnął maksymalny poziom'
+  schematic-missing: '&cNastępny poziom posterunku nie ma budowli ani zapisanego schematu'
+
 # Przedmioty
 items:
   village-block: '&d&lWioski'
   village-block-lore: '&7Postaw ten blok na ziemi, aby utworzyć wioskę'
+  outpost-block: '&b&lPosterunek'
+  outpost-block-lore: '&7Postaw ten blok na ziemi, aby utworzyć posterunek'
   destroyer: '&6&lNiszczyciel'
   destroyer-lore: '&7Użyj tego narzędzia, aby zniszczyć rdzeń wioski'
   hearth: '&c&lSerce Wioski'
@@ -236,8 +263,10 @@ items:
   part-of-hearth-lore: '&7Użyj tego przedmiotu, aby utworzyć Serce Wioski'
   destroyer-hearth: '&c&lSerce Niszczyciela'
   destroyer-hearth-lore: '&7Użyj tego przedmiotu, aby utworzyć Niszczyciel'
+  outpost-core: '&c&lRdzeń Posterunku'
+  outpost-core-lore: '&7Użyj tego przedmiotu, aby stworzyć blok posterunku'
 
-# Dodatek edytora budowli
+# Edytor budowli
 build-editor:
   worldedit-required: '&cEdytor budowli wymaga zainstalowanego i włączonego pluginu &fWorldEdit'
   setting-required: '&cNajpierw włącz &fsettings.use-worldedit: true &cw głównej konfiguracji'
@@ -281,7 +310,6 @@ spawn:
   teleporting: '&eZostaniesz przeteleportowany za &7%seconds% &esekund. Nie ruszaj się'
 
 # Dodatek antylogout
-# Użyj \n wewnątrz wiadomości, aby rozpocząć nową linię czatu.
 antilogout:
   blocked-region: '&7Nie możesz wejść do regionu &f&n%region%&r&7 podczas walki!'
   block-command: '&c&l✖ \n &7Nie możesz użyć komendy &f&n%command%&r&7 podczas walki!'

@@ -1,8 +1,9 @@
 settings:
   # Economy provider used by the plugin (for example Vault).
-  economy: Vault
+  economy: auto
   # Enables WorldEdit schematics and the building editor integration.
   use-worldedit: false
+  # Language file without .lang located in locales/*
   language: en_US
   # Used by quest resets, village logs and date/time placeholders.
   time-zone: "Europe/Warsaw"
@@ -22,6 +23,7 @@ teleport:
   cooldown: 5s
 
 chat:
+  # Chat format
   enabled: false
   format: '&7[&c%village_tag%&7] &r%player%&7: &r%message%'
   format-novillage: '%player%&7: &r%message%'
@@ -32,20 +34,30 @@ village:
   # Distance between spawn
   # (if spawn is not set default location is 0,0,0)
   spawn-minimal-distance: 1000
+  # How many members can village have
   # Real max is 27
   max-members: 7
+  # Village tag length
   tag-max-length: 5
   # Protection for village after attack
   destroy-protection: 12h
+  # How many lives should village have when build
   default-lives: 3
+  # How many lives can a village have?
   max-lives: 3
+  # If village have beacon level in internal build
+  # and its destroyed should beacons should be removed too?
   remove-beacons: true
-  invite-expire: 30
+  # Invite to village expire
+  invite-expire: 30s
+  # What should the village be upgraded with?
   upgrade:
     eco: true
     xp: false
     items: true
+  # Is it necessary to village have tag set to upgrade it
   upgrade-without-tag: false
+  # Blacklist world where village can't be build
   blacklist-as-whitelist: false
   blacklisted-worlds:
     - world_nether
@@ -54,6 +66,7 @@ village:
     - world2
   # Can village be attacked when no member is online
   attack-when-offline: false
+  # Effect store cost and amplifier
   effects:
     regeneration:
       cost: 125

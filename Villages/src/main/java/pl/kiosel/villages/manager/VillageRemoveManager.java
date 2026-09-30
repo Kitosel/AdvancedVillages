@@ -1,6 +1,9 @@
 package pl.kiosel.villages.manager;
 
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Color;
+import org.bukkit.FireworkEffect;
+import org.bukkit.Location;
 import org.bukkit.entity.Firework;
 import org.bukkit.inventory.meta.FireworkMeta;
 import pl.kiosel.rosacore.compatibility.ZParticle;
@@ -35,7 +38,7 @@ public class VillageRemoveManager {
 	public void removeVillage(Village village, boolean animation) {
 		Location location = village.getLocation().get().clone();
 		long animationDuration = plugin.getVillageAnimationManager().playRemoval(village, animation);
-		plugin.getVillageManager().deleteVillage(plugin, village);
+		plugin.getVillageManager().deleteVillage(village);
 
 		long delay = animationDuration > 0 ? animationDuration : 5L;
 

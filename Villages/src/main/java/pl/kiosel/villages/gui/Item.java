@@ -81,11 +81,12 @@ public class Item {
         if (plugin == null)
 			return create(fallbackMaterial, blank.getFallbackName());
 
-		String path = "guis.common." + blank.getConfigId();
-		String configuredMaterial = plugin.getGuiConfig().getString(path + ".material", fallbackMaterial.name());
+		String path = "common." + blank.getConfigId();
+		String configuredMaterial = plugin.getGuiCommonConfig().getString(path + ".material", fallbackMaterial.name());
+
 		Material material = Material.matchMaterial(configuredMaterial);
 		if (material == null || material.isAir()) material = fallbackMaterial;
-		return create(material, plugin.getGuiSettings().text(path + ".name", blank.getFallbackName()));
+		return create(material, plugin.getGuiSettings().blank(path + ".name", blank.getFallbackName()));
     }
 
     public enum Blank {
@@ -94,7 +95,8 @@ public class Item {
 		BLACK(ZMaterial.BLACK_STAINED_GLASS, "blank-black", "&7&kBlank"),
 		BACK(ZMaterial.ARROW, "back", "&9Back"),
 		NEXT_PAGE(ZMaterial.SPECTRAL_ARROW, "next-page", "&9Next"),
-		PREVIUS_PAGE(ZMaterial.SPECTRAL_ARROW, "previous-page", "&cPrevious"),
+		PREVIOUS_PAGE(ZMaterial.SPECTRAL_ARROW, "previous-page", "&cPrevious"),
+		RESULT(ZMaterial.SPECTRAL_ARROW, "result-arrow", "&e→"),
 		EXIT(ZMaterial.ARROW, "exit", "&cExit");
 
         @Getter private final ZMaterial material;
