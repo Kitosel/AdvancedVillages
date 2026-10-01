@@ -15,7 +15,7 @@ softdepend:
   - AdvancedPlayerList
 
 permissions:
-  advancedvillages.*:
+  advancedvillages.admin:
     description: Allows you to manage the plugin
     default: op
     children:

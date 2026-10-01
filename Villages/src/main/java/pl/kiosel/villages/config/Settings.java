@@ -19,6 +19,7 @@ public class Settings {
 	public static final ConfigSet WORLDEDIT = new ConfigSet(CONFIG, "settings.use-worldedit", false);
 	public static final ConfigSet LANGUAGE_MODE = new ConfigSet(CONFIG, "settings.language", "en_US");
 	public static final ConfigSet TIME_ZONE = new ConfigSet(CONFIG, "settings.time-zone", "Europe/Warsaw");
+	public static final ConfigSet UPDATE_CHECKER = new ConfigSet(CONFIG, "settings.update-checker", true);
 
 	public static final ConfigSet ADDONS_ANTYLOGOUT_ENABLE = new ConfigSet(CONFIG, "addons.antylogout", true);
 	public static final ConfigSet ADDONS_SCOREBOARD_ENABLE = new ConfigSet(CONFIG, "addons.scoreboard", true);

@@ -19,7 +19,7 @@ public final class AdminReloadCommand extends AdminSubCommand {
 
 	@Override
 	public String getUsage() {
-		return "/" + plugin.getCommandLang().getCommandName() + getCommand(CommandLang.ADMIN)  + getName();
+		return getFixedUsage();
 	}
 
 	@Override

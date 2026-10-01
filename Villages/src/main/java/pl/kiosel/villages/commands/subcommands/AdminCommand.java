@@ -33,7 +33,7 @@ public final class AdminCommand extends AdminSubCommand {
 
 	@Override
 	public String getUsage() {
-		return "/" + plugin.getCommandLang().getCommandName() + " " + getName() + " <reload|give|manage|debug|integration>";
+		return getFixedUsage() + "<reload|give|manage|debug|integration>";
 	}
 
 	@Override

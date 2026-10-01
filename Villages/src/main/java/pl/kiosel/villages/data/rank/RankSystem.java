@@ -6,15 +6,15 @@ import java.util.Locale;
 
 public final class RankSystem {
 
-	private final Type type;
+	private final RankType rankType;
 	private final int eloKFactor;
 	private final int staticWinnerGain;
 	private final int staticLoserLoss;
 	private final double percentTransfer;
 
-	public RankSystem(Type type, int eloKFactor, int staticWinnerGain,
-	                  int staticLoserLoss, double percentTransfer) {
-		this.type = type;
+	public RankSystem(RankType rankType, int eloKFactor, int staticWinnerGain,
+					  int staticLoserLoss, double percentTransfer) {
+		this.rankType = rankType;
 		this.eloKFactor = Math.max(1, eloKFactor);
 		this.staticWinnerGain = Math.max(0, staticWinnerGain);
 		this.staticLoserLoss = Math.max(0, staticLoserLoss);
@@ -22,7 +22,7 @@ public final class RankSystem {
 	}
 
 	public RankResult calculate(int winnerPoints, int loserPoints) {
-		switch (this.type) {
+		switch (this.rankType) {
 			case STATIC:
 				return new RankResult(this.staticWinnerGain, this.staticLoserLoss);
 			case PERCENT:
@@ -43,12 +43,12 @@ public final class RankSystem {
 		return (int) Math.min(Integer.MAX_VALUE, Math.max(0L, Math.round(value)));
 	}
 
-	public enum Type {
+	public enum RankType {
 		ELO,
 		PERCENT,
 		STATIC;
 
-		public static Type parse(String value) {
+		public static RankType parse(String value) {
 			if (value == null) {
 				return ELO;
 			}

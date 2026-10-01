@@ -30,7 +30,7 @@ public final class OutpostCommand extends AVSubCommand {
 
 	@Override
 	public String getUsage() {
-		return "/" + plugin.getCommandLang().getCommandName() + " " + getName() + " <number>";
+		return getFixedUsage() + "<number>";
 	}
 
 	@Override

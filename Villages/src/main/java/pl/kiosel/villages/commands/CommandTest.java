@@ -2,10 +2,12 @@ package pl.kiosel.villages.commands;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import pl.kiosel.rosacore.command.RosaCommand;
+import pl.kiosel.rosacore.nms.api.toasts.NmsToasts;
 import pl.kiosel.rosacore.utils.ColorUtils;
 import pl.kiosel.villages.AdvancedVillages;
 import pl.kiosel.villages.addons.firststeps.TutorialGUI;
@@ -121,6 +123,9 @@ public class CommandTest extends RosaCommand {
 							() -> plugin.getGuiManager().openGUI(player, new TutorialGUI(plugin, false)),
 							() -> {}, 4 * 20L);
 					break;
+				case "toast":
+					plugin.getMessenger().sendToast(player, "Test1234", Material.DIAMOND, NmsToasts.NmsAdvancementType.CHALLENGE);
+					break;
 			}
 		}
 		if (args.length == 2) {
@@ -204,7 +209,7 @@ public class CommandTest extends RosaCommand {
 			return complete(args[0], List.of(
 					"villages", "adv_title", "adv_actionbar", "test1", "worldedit_test",
 					"addpermission", "villagemembers", "getPermissions", "memory_test",
-					"local", "tutorial", "dev", "setOutpost"
+					"local", "tutorial", "dev", "setOutpost", "toast"
 			));
 		}
 		if (args.length == 2) {

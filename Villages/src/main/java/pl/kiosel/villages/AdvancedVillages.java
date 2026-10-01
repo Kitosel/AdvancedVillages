@@ -180,13 +180,13 @@ public final class AdvancedVillages extends RosaPlugin {
 	@Override
 	public void onPluginLoad() {
 		if (Version.isServerVersionBelow(Version.V1_17)) {
-			getRosaLogger().warning("--------------------------------------");
+			getRosaLogger().warning("--------------------------------");
 			getRosaLogger().warning(" ");
 			getRosaLogger().warning("AdvancedVillages supporting only");
 			getRosaLogger().warning("Minecraft version above 1.17");
 			getRosaLogger().warning("Plugin is disabling now...");
 			getRosaLogger().warning(" ");
-			getRosaLogger().warning("--------------------------------------");
+			getRosaLogger().warning("--------------------------------");
 			emergencyStop();
 		}
 		instance = this;
@@ -204,8 +204,7 @@ public final class AdvancedVillages extends RosaPlugin {
 	@Override
 	public void onPluginEnable() {
 		getHookManager().start();
-		if (!isDev())
-			metrics = new Metrics(this, 33988);
+
 		getDebug().debug("Setup main config");
 		Settings.setupConfig(this);
 		this.saveLang();
@@ -236,6 +235,12 @@ public final class AdvancedVillages extends RosaPlugin {
 				return;
 			}
 		}
+
+		if (Settings.UPDATE_CHECKER.getBoolean()) {
+			checkUpdates("advancedvillages");
+		}
+		metrics = new Metrics(this, 33988);
+
 		this.scoreboardHandler = new ScoreboardHandler(this);
 
 		this.userManager = new UserManager(this);
@@ -509,6 +514,7 @@ public final class AdvancedVillages extends RosaPlugin {
 
 		this.configuredCommandRegistry = new ConfiguredCommandRegistry(this);
 		this.configuredCommandRegistry.register();
+
 		registerCommands("test",
 				isDev() ? new CommandTest(this) : null
 		);
@@ -530,17 +536,17 @@ public final class AdvancedVillages extends RosaPlugin {
 				new TntPrimeListener(this),
 				new VillageEnterListener(this),
 				new BlockItemListener(this),
-				new CombatListener(this),
-				new QuestListener(this),
 				new RankingListener(this),
+				new QuestListener(this),
+				new SpecializationListener(this),
+				new DiplomacyListener(this),
 				//utils
+				new CombatListener(this),
 				this.villageBuildEditorManager == null ? null : new BuildEditorListener(this),
 				getHookManager().getWorldEdit().isEnabled() ? new CombatRegionListener(this) : null
 		);
 		if (isDev())
 			registerListeners(
-					new SpecializationListener(this),
-					new DiplomacyListener(this),
 					this.outpostManager == null ? null : new PlaceOutpostListener(this),
 					this.outpostManager == null ? null : new OutpostProtectionListener(this)
 			);

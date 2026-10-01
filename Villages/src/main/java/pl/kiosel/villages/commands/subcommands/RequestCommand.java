@@ -20,7 +20,7 @@ public class RequestCommand extends AVSubCommand {
     public String getDescription() { return "confirm/cancel"; }
 
     @Override
-    public String getUsage() { return "/" + plugin.getCommandLang().getCommandName() + " " + getName() + " confirm/cancel"; }
+    public String getUsage() { return getFixedUsage() + "<confirm|cancel>"; }
 
 	@Override
 	public String getPermission() { return "advancedvillages.command.request"; }

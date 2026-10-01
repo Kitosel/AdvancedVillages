@@ -18,8 +18,11 @@ public class CommandSpawn extends RosaCommand {
 	private final TeleportManager teleportManager;
 
 	public CommandSpawn(AdvancedVillages plugin) {
-		super(plugin, plugin.getCommandLang().getSpawnCommandName(), plugin.getCommandLang().getSpawnCommandAliases(),
-				"advancedvillages.command.spawn");
+		super(plugin, plugin.getCommandLang().getSpawnCommandName());
+
+		setAlias(plugin.getCommandLang().getSpawnCommandAliases());
+		setPermission("advancedvillages.command.spawn");
+
 		this.plugin = plugin;
 		this.teleportManager = plugin.getTeleportManager();
 	}

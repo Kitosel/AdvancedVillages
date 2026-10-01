@@ -116,6 +116,10 @@ public abstract class AVSubCommand extends RosaSubCommand {
 		return plugin.getVillageMessages().get(node);
 	}
 
+	public String getFixedUsage() {
+		return "/" + plugin.getCommandLang().getCommandName() + " " + getName() + " ";
+	}
+
 	public void sendLocalized(CommandSender sender, Lang node) {
 		plugin.getVillageMessages().sendPrefixed(sender, node);
 	}

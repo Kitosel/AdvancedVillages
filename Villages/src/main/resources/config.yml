@@ -7,6 +7,8 @@ settings:
   language: en_US
   # Used by quest resets, village logs and date/time placeholders.
   time-zone: "Europe/Warsaw"
+  # Checks to see if a new version is available
+  update-checker: true
 
 addons:
   # Should addons be enabled

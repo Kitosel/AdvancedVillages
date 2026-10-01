@@ -7,7 +7,7 @@
     <parent>
         <groupId>pl.kiosel</groupId>
         <artifactId>villages-parent</artifactId>
-        <version>1.0-beta3</version>
+        <version>1.0-beta3.1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>villages</artifactId>
@@ -19,6 +19,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.outputEncoding>UTF-8</project.build.outputEncoding>
+
         <java.version>16</java.version>
         <java.release>16</java.release>
     </properties>
@@ -165,7 +166,7 @@
         <dependency>
             <groupId>pl.kiosel.rosacore</groupId>
             <artifactId>rosacore-platform-bukkit</artifactId>
-            <version>0.2.5</version>
+            <version>${rosacore.version}</version>
             <scope>compile</scope>
         </dependency>
 

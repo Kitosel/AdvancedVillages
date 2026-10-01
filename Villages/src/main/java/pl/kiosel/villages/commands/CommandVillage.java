@@ -19,8 +19,11 @@ public class CommandVillage extends RosaCommand {
 	private volatile List<AVSubCommand> villageSubCommands = Collections.emptyList();
 
 	public CommandVillage(AdvancedVillages plugin) {
-		super(plugin, plugin.getCommandLang().getCommandName(), plugin.getCommandLang().getCommandAliases(),
-				"advancedvillages.command.main");
+		super(plugin, plugin.getCommandLang().getCommandName());
+
+		setAlias(plugin.getCommandLang().getCommandAliases());
+		setPermission("advancedvillages.command.main");
+
 		this.plugin = plugin;
 		reloadArguments();
 	}

@@ -4,6 +4,7 @@ prefix: '&8[&f&lAdvanced&6&lVillages&r&8]'
 general:
   separator: '&8——————————————————————————'
   addon-disabled: '&cAddon %addon% is currently disabled.'
+  new-version: "&7New plugin version available &e%version%"
   'on': '&aON'
   'off': '&cOFF'
   time:

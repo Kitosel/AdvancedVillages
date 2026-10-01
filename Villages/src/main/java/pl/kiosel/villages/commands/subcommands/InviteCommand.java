@@ -19,7 +19,7 @@ public class InviteCommand extends AVSubCommand {
     public String getDescription() { return "Invite a player to your village"; }
 
     @Override
-    public String getUsage() { return "/" + plugin.getCommandLang().getCommandName() + " " + getName() + " <player>"; }
+    public String getUsage() { return getFixedUsage() + "<player>"; }
 
 	@Override
 	public String getPermission() { return "advancedvillages.command.invite"; }

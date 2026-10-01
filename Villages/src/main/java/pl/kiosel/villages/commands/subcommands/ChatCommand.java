@@ -14,7 +14,7 @@ public class ChatCommand extends AVSubCommand {
 	public String getDescription() { return "Chat command"; }
 
 	@Override
-	public String getUsage() { return "/" + plugin.getCommandLang().getCommandName() + " " + getName() + " *message*"; }
+	public String getUsage() { return getFixedUsage() + "*message*"; }
 
 	@Override
 	public String getPermission() { return "advancedvillages.command.chat"; }

@@ -73,6 +73,7 @@ public enum Lang implements MessageKey {
 	SEPARATOR("general.separator"),
 	ON("general.on"),
 	OFF("general.off"),
+	UPDATE("general.new-version"),
 
 	TELEPORT("teleport.teleporting"),
 	TELEPORTED("teleport.teleported"),

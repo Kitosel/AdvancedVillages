@@ -3,6 +3,7 @@ prefix: '&8[&6&lDörfer&r&8]'
 general:
   separator: '&8——————————————————————————'
   addon-disabled: '&cDas Add-on %addon% ist derzeit deaktiviert.'
+  new-version: "&7Neue Plugin-Version verfügbar &e%version%"
   'on': '&aAN'
   'off': '&cAUS'
   time:

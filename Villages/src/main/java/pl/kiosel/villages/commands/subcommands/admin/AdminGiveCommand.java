@@ -25,7 +25,7 @@ public final class AdminGiveCommand extends AdminSubCommand {
 
 	@Override
 	public String getUsage() {
-		return "/" + plugin.getCommandLang().getCommandName() + getCommand(CommandLang.ADMIN)  + getName() + " <item>";
+		return getFixedUsage() + "<item>";
 	}
 
 	@Override

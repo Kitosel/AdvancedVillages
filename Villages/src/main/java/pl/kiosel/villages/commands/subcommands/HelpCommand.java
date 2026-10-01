@@ -24,7 +24,7 @@ public final class HelpCommand extends AVSubCommand {
 
 	@Override
 	public String getUsage() {
-		return "/" + plugin.getCommandLang().getCommandName() + " " + getName();
+		return getFixedUsage();
 	}
 
 	@Override

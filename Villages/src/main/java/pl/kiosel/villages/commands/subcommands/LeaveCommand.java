@@ -17,7 +17,7 @@ public class LeaveCommand extends AVSubCommand {
     public String getDescription() { return "Leave village"; }
 
     @Override
-    public String getUsage() { return "/" + plugin.getCommandLang().getCommandName() + " " + getName(); }
+    public String getUsage() { return getFixedUsage(); }
 
 	@Override
 	public String getPermission() { return "advancedvillages.command.leave"; }

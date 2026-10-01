@@ -26,7 +26,7 @@ public class AdminIntegrationCommand extends AdminSubCommand {
 
 	@Override
 	public String getUsage() {
-		return "/" + plugin.getCommandLang().getCommandName() + getCommand(CommandLang.ADMIN)  + getName() + " <plugin> <action>";
+		return getFixedUsage() + "<plugin> <action>";
 	}
 
 	@Override

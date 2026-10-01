@@ -19,7 +19,7 @@ public final class RankingConfiguration {
 
 	public synchronized void reload() {
 		String rawAlgorithm = this.file.getString("ranking.points.algorithm", "ELO");
-		RankSystem.Type algorithm = RankSystem.Type.parse(rawAlgorithm);
+		RankSystem.RankType algorithm = RankSystem.RankType.parse(rawAlgorithm);
 		if (!algorithm.name().equalsIgnoreCase(rawAlgorithm)) {
 			this.plugin.getRosaLogger().warning("Unknown ranking algorithm '" + rawAlgorithm + "'; using ELO");
 		}

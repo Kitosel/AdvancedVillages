@@ -28,6 +28,11 @@ public abstract class AdminSubCommand extends AVSubCommand {
 	}
 
 	@Override
+	public String getFixedUsage() {
+		return "/" + plugin.getCommandLang().getCommandName() + getCommand(CommandLang.ADMIN) + " " + getName() + " ";
+	}
+
+	@Override
 	public VillagePermission getVillagePermission() {
 		return VillagePermission.UNSET;
 	}

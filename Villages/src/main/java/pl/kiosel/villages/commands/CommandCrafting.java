@@ -16,8 +16,11 @@ public class CommandCrafting extends RosaCommand {
 	private final AdvancedVillages plugin;
 
 	public CommandCrafting(AdvancedVillages plugin) {
-		super(plugin, plugin.getCommandLang().getCraftingCommandName(),
-				plugin.getCommandLang().getCraftingCommandAliases(), "advancedvillages.command.crafting");
+		super(plugin, plugin.getCommandLang().getCraftingCommandName());
+
+		setAlias(plugin.getCommandLang().getCraftingCommandAliases());
+		setPermission("advancedvillages.command.crafting");
+
 		this.plugin = plugin;
 		setDescription("Open Crafting gui");
 	}
